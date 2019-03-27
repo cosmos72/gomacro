@@ -32,12 +32,11 @@ that Go generics are expected to achieve, are:
 
 * reusable, flexible algorithms and types. Examples:
 
-  a single `sort` function that can sort any slice of any ordered type.
-
-  a single `cache` type that can cache key/value pairs of any type,
+  a single `sort#[T]` function that can sort any slice of any ordered type.\
+  a single `cache#[Key,Value]` type that can cache key/value pairs of any type,
   provided that keys can be compared.
 
-* type-safety:
+* type-safety:doc/generics-wishlist.md
 
   generic functions and types should be instantiable on arbitrary,
   concrete types - for example `sort#[int]` would only accept `[]int` slices
@@ -73,12 +72,12 @@ that Go generics are expected to achieve, are:
   by a different source file.
 
   2. each instantiation of a generic function - say `sort#[int]` - will be compiled
-  only once, provided that Go implements a cache of instantiated functions, similarly
-  to how it implements a cache of compiled packages.\
+  only once, provided that Go implements a cache of instantiated functions and types,
+  similarly to how it implements a cache of compiled packages.\
   Instead C++ `#include` mechanism typically needs to compile again
   the same generic function - say `sort<int>` even if it's instantiated with the same types
-  from a different source file - for example `a.cpp` and `b.cpp` both use `sort<int>`.
-  C++ typically delegates to the linker the job of coalescing multiple,
+  from two different source files - for example `a.cpp` and `b.cpp` both use `sort<int>`.
+  C++ compilers typically delegates to the linker the job of coalescing multiple,
   identical versions of the same generic function.
 
 * reasonable build time:
@@ -96,7 +95,7 @@ that Go generics are expected to achieve, are:
   ```
   n, err := fmt.Println("foo")
   ```
-  is more verbose without type inference, because each `var`
+  becomes more verbose without type inference, because each `var`
   declaration can only reference one type:
   ```
   var n int
