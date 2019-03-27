@@ -397,13 +397,13 @@ This is readable, and the programmer's intention is clear too:
 invoke `fib(30)` and treat the result as a constant - which implies
 `fib(30)` must be invoked at compile time.
 
-Question: which functions can be invoked at compile time?  
+Question: which functions can be invoked at compile time?\
 Answer: a minimal set could be: all functions in current package,
 provided they do not use imported packages, print() or println(),
 or invoke other functions that (transitively) use them.
 
 Question: global variables should be accessible by functions
-invoked at compile time?  
+invoked at compile time?\
 Answer: tentatively no, because if such variables are modified at
 compile-time, their value at program startup becomes difficult to
 define unambiguously, and difficult to store in the compiled code.

@@ -31,22 +31,27 @@ The author's personal list of reasons, which can also be interpreted as goals
 that Go generics are expected to achieve, are:
 
 * reusable, flexible algorithms and types. Examples:
+
   a single `sort` function that can sort any slice of any ordered type.
+
   a single `cache` type that can cache key/value pairs of any type,
   provided that keys can be compared.
 
-* type-safety: generic functions and types should be instantiable on arbitrary,
+* type-safety:
+
+  generic functions and types should be instantiable on arbitrary,
   concrete types - for example `sort#[int]` would only accept `[]int` slices
   and `cache#[uint64, []byte]` would only accept `uint64` keys and `[]byte` values.
   In particular, generic functions and types should not need to use `interface{}`,
   either internally or in they exported API, and should not need type assertions at runtime.
 
 * high runtime speed, low runtime overhead:
+
   generic functions and types should be reified in order to maximize code execution speed
   and have low or zero data representation overhead in memory.
 
   Reified means that `sort#[int]` and `sort#[uint]` will be two different and unrelated functions,
-  one only dealing with `int` slines and the other only dealing with `uint` slices,
+  one only dealing with `int` slices and the other only dealing with `uint` slices,
   and that `cache#[uint64, []byte]` and `cache#[uint32, []byte]` will be two different
   and unrelated types, with (possibly) different layout in memory.
 
@@ -61,7 +66,7 @@ that Go generics are expected to achieve, are:
   and `sort#[uint]`, increasing build time.
 
   Luckily, Go `import`s compiled packages instead of `#include`-ing their source code,
-  which is expected to limit build time increase for two reasons:
+  which is expected to contain build time for two reasons:
 
   1. each generic function will be parsed only once. Instead C++ `#include` mechanism
   typically needs to parse again the same generic function each time it is included
@@ -69,7 +74,7 @@ that Go generics are expected to achieve, are:
 
   2. each instantiation of a generic function - say `sort#[int]` - will be compiled
   only once, provided that Go implements a cache of instantiated functions, similarly
-  to how it implements a cache of compiled packages.
+  to how it implements a cache of compiled packages.\
   Instead C++ `#include` mechanism typically needs to compile again
   the same generic function - say `sort<int>` even if it's instantiated with the same types
   from a different source file - for example `a.cpp` and `b.cpp` both use `sort<int>`.
