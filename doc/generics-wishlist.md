@@ -82,11 +82,16 @@ that Go generics are expected to achieve, are:
   identical versions of the same generic function.
 
 * reasonable build time:
+
   it is expected to be achieved / achievable even with reified generics, see the previous item
 
-* type inference: Go extensively uses (and encourages to use) type inference instead
-  of explicitly declaring the type of a variable. Example: `a := foo()`
-  rather than `var a int = foo()`. When an expression returns multiple values,
+* type inference:
+
+  Go extensively uses (and encourages to use) type inference instead
+  of explicitly declaring the type of a variable.\
+  Example: `a := foo()` rather than `var a int = foo()`.
+
+  When an expression returns multiple values,
   Go actively pushes the programmer to use type inference. Example:
   ```
   n, err := fmt.Println("foo")
