@@ -116,6 +116,7 @@ that Go generics are expected to achieve, are:
   sort#[int](slice)
   ```
 
+**TO BE CONTINUED**
 
 # Design space
 
@@ -123,3 +124,4 @@ There are many possible ways to implement generics - one could say **too** many 
 and they can be extremely different in usability, expressiveness, implementation complexity,
 compile-time performance and run-time performance.
 
+**TO BE CONTINUED**
