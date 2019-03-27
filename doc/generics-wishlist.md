@@ -117,6 +117,22 @@ that Go generics are expected to achieve, are:
 
 **TO BE CONTINUED**
 
+# Anti-goals
+
+Things the author does not want from Go generics
+
+* a compile-time sub-language:
+
+  Go generics should be an extension of idiomatic Go, not a whole sub-language
+  to be used for compile time operations.
+
+  For example, we should avoid compile-time Turing completeness and "expression templates",
+  two accidental features of C++ templates that together created a sub-language of C++
+  made of template specializations, providing arbitrary computation at compile-time
+  (possibly a good thing) with a terrible syntax and no equivalent with a cleaner syntax
+  (the much more recent C++ `constexpr` provides an alternative with clean syntax,
+  but is somewhat more limited).
+
 # Design space
 
 There are many possible ways to implement generics - one could say **too** many -
