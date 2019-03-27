@@ -55,11 +55,11 @@ that Go generics are expected to achieve, are:
   and that `cache#[uint64, []byte]` and `cache#[uint32, []byte]` will be two different
   and unrelated types, with (possibly) different layout in memory.
 
-  While reified generics also have disadvantages - see for example
-  (https://gbracha.blogspot.com/2018/10/reified-generics-search-for-cure.html) -
-  the author has extensive experience with Java, which does **not** reify generics,
-  and he is convinced that reified generics are a better fit for Go
-  (the reasons can be explained if needed).
+  While reified generics also have disadvantages (see for example
+  https://gbracha.blogspot.com/2018/10/reified-generics-search-for-cure.html)
+  the author has extensive experience with both reified generics (C++, Haskell)
+  and non reified generics (Java), and he is convinced that reified generics
+  are a better fit for Go - the reasons can be explained if needed.
 
   One obvious disadvantage of reified generics is that each instantiation
   of a generic function must be compiled separately, for example `sort#[int]`
