@@ -274,9 +274,11 @@ func (c *Comp) assignMulti(assign []Assign, exprfuns []func(*Env) r.Value, exprx
 		// execute assignments
 		for i := range assign {
 			a := &assign[i]
+			// both a.setvar and a.setplace may be nil
+			// if assigning _
 			if a.setvar != nil {
 				a.setvar(env, vals[i])
-			} else {
+			} else if a.setplace != nil {
 				a.setplace(objs[i], keys[i], vals[i])
 			}
 		}
