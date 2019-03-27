@@ -1,10 +1,10 @@
 Generics
 ========
 
-implementing generics Go
-------------------------
+implementing generics in Go
+---------------------------
 
-The branch generics-v1 is an experiment to add generics to gomacro.
+gomacro contains an experimental implementation of generics.
 
 This file contains observations, choices, difficulties and solutions found
 during such work.
@@ -98,7 +98,7 @@ The authors' current decision - but it's trivial to change it - is to write
      this usage.
    * the tilde sign `~` is already used by gomacro for quasiquote and friends.
 
-Implementation choice: `Pair#[int, string]` is represented as
+Implementation choice: `Pair#[int, string]` is represented by
 ```
 &ast.IndexExpr{X: Pair, Index: &ast.CompositeLit{Elts: [T1, T2...]} }
 ```
@@ -227,7 +227,7 @@ Compiling it in Go is conceptually three-step process:
    For completeness: also slices, maps, channels and functions signatures
    of incomplete types are accepted in Go.
 3. complete the forward-declared `IntList` by setting its underlying type to
-   the result of step 2. 
+   the result of step 2.
 
 Recursive template types and functions can be implemented very similarly:
 instantiating
