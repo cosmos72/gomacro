@@ -96,8 +96,8 @@ that Go generics are expected to achieve, are:
   ```
   n, err := fmt.Println("foo")
   ```
-  Writing the same with explicit types is more verbose, because each variable
-  declaration can refer to only one type:
+  is more verbose without type inference, because each `var`
+  declaration can only reference one type:
   ```
   var n int
   var err error
