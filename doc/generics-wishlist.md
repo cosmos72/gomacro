@@ -33,10 +33,12 @@ that Go generics are expected to achieve, are:
 * reusable, flexible algorithms and types. Examples:
 
   a single `sort#[T]` function that can sort any slice of any ordered type.\
-  a single `cache#[Key,Value]` type that can cache key/value pairs of any type,
-  provided that keys can be compared.
+  a single `cache#[K,V]` type that can cache key/value pairs of any type,
+  provided that keys can be compared.\
+  a single `sortedmap#[K,V]` type, similar to the existing `map[K]V`
+  but keeps its entries sorted, like C++ `map<K,V>` or Java `TreeMap<K,V>`
 
-* type-safety:doc/generics-wishlist.md
+* type-safety:
 
   generic functions and types should be instantiable on arbitrary,
   concrete types - for example `sort#[int]` would only accept `[]int` slices
@@ -113,6 +115,56 @@ that Go generics are expected to achieve, are:
   ```
   slice := make([]int, n)
   sort#[int](slice)
+  ```
+
+* constraints:
+
+  when writing a generic function or type, it should be possible to specify constraints
+  on their type arguments. This is an extensively discussed topic, for many reasons:
+
+  1. constraints are expected to simplify compiler error messages, and make them
+     more understandable. For example, a `sort#[T]` function would specify that values
+	 of `T` must be ordered - the following syntax is just for illustration purposes:
+	 ```Go
+	 func sort#[T: Ordered](slice []T) {
+		// ...
+	 }
+	 ```
+	 Then, attempting to sort a non-ordered type as for example `func ()` could produce
+	 an error message like `sort: type func() is not Ordered` instead
+	 of some deeply nested error due to `a < b` used on `func()` values.
+
+  2. constraints allow programmers writing generic code to specify explicitly
+     the requirements of their code, i.e. on which types it can be used and why.\
+	 Without them, it is not always simple to understand if a complicated generic function
+	 or type written by someone else can be used with a certain concrete type `T`,
+	 and what are the requirements on such `T`:\
+	 the author of generic code could document the requirements, for example in a comment,
+	 but he/she may forget it, or the comment could become stale/erroneous if the generic
+	 code gets updated.
+
+	 A machine-readable, compiled information is less likely to become stale/erroneous,
+	 especially if the compiler actually validates it.
+
+  3. if the compiler assumes that constraints specify the **only** operations
+     supported by the constrained types, it could detect immediately if a constrained
+	 type is used improperly in generic code, without having to wait until it gets
+	 instantiated (possibly by someone else) on concrete types - for example if methods
+	 or arithmetic operations are used on a type that is only constrained as `T: Ordered`
+
+	 For reference, Haskell does something exactly this: a constraint specifies
+	 the only operations allowed on a type.\
+	 Actually, Haskell does even more: if a constraint for a type `T` is not specified,
+	 the compiler infers it from the operations actually performed on `T` values
+	 (it's not obvious whether such constraint inference is appropriate for Go).
+
+  It should also be possible to specify multiple constraints on a type.
+  For example, if a type `T` must be both `Ordered` and `Printable`,
+  one could imagine a syntax like:
+  ```Go
+  func foo#[T: Ordered, Printable](arg T) {
+	// ...
+  }
   ```
 
 **TO BE CONTINUED**
