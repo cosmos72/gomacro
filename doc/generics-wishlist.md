@@ -122,7 +122,7 @@ that Go generics are expected to achieve, are:
   when writing a generic function or type, it should be possible to specify constraints
   on their type arguments. This is an extensively discussed topic, for many reasons:
 
-  1. constraints are expected to simplify compiler error messages, and make them
+  1) constraints are expected to simplify compiler error messages, and make them
      more understandable. For example, a `sort#[T]` function would specify that values
 	 of `T` must be ordered - the following syntax is just for illustration purposes:
 	 ```Go
@@ -134,7 +134,7 @@ that Go generics are expected to achieve, are:
 	 an error message like `sort: type func() is not Ordered` instead
 	 of some deeply nested error due to `a < b` used on `func()` values.
 
-  2. constraints allow programmers writing generic code to specify explicitly
+  2) constraints allow programmers writing generic code to specify explicitly
      the requirements of their code, i.e. on which types it can be used and why.\
 	 Without them, it is not always simple to understand if a complicated generic function
 	 or type written by someone else can be used with a certain concrete type `T`,
@@ -146,7 +146,7 @@ that Go generics are expected to achieve, are:
 	 A machine-readable, compiled information is less likely to become stale/erroneous,
 	 especially if the compiler actually validates it.
 
-  3. if the compiler assumes that constraints specify the **only** operations
+  3) if the compiler assumes that constraints specify the **only** operations
      supported by the constrained types, it could detect immediately if a constrained
 	 type is used improperly in generic code, without having to wait until it gets
 	 instantiated (possibly by someone else) on concrete types - for example if methods
@@ -171,13 +171,13 @@ that Go generics are expected to achieve, are:
 
   An important question is: what should a constraint tell about a type?
 
-  1. The signature of one or more methods?
+  1) The signature of one or more methods?
 
-  2. The signature of one or more functions and/or operators?
+  2) The signature of one or more functions and/or operators?
 
-  3. The name and type of one or more fields?
+  3) The name and type of one or more fields?
 
-  4. A combination of the above?
+  4) A combination of the above?
 
   It is surely tempting to answer 1. and reuse interfaces as constraints:
   this would spare us from inventing yet another language construct, but is it enough?
