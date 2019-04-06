@@ -152,8 +152,8 @@ that Go generics are expected to achieve, are:
 	 instantiated (possibly by someone else) on concrete types - for example if methods
 	 or arithmetic operations are used on a type that is only constrained as `T: Ordered`
 
-	 For reference, Haskell does something exactly this: a constraint specifies
-	 the only operations allowed on a type.\
+	 For reference, Haskell does exactly that: a constraint specifies the only operations
+	 allowed on a type.\
 	 Actually, Haskell does even more: if a constraint for a type `T` is not specified,
 	 the compiler infers it from the operations actually performed on `T` values
 	 (it's not obvious whether such constraint inference is appropriate for Go).
@@ -166,6 +166,21 @@ that Go generics are expected to achieve, are:
 	// ...
   }
   ```
+
+* constraints implementation:
+
+  An important question is: what should a constraint tell about a type?
+
+  1. The signature of one or more methods?
+
+  2. The signature of one or more functions and/or operators?
+
+  3. The name and type of one or more fields?
+
+  4. A combination of the above?
+
+  It is surely tempting to answer 1. and reuse interfaces as constraints:
+  this would spare us from inventing yet another language construct, but is it enough?
 
 **TO BE CONTINUED**
 
@@ -180,10 +195,12 @@ Things the author does not want from Go generics
 
   For example, we should avoid compile-time Turing completeness and "expression templates",
   two accidental features of C++ templates that together created a sub-language of C++
-  made of template specializations, providing arbitrary computation at compile-time
-  (possibly a good thing) with a terrible syntax and no equivalent with a cleaner syntax
-  (the much more recent C++ `constexpr` provides an alternative with clean syntax,
-  but is somewhat more limited).
+  made of template specializations and recursive templates.\
+  Such sub-language also provides arbitrary computation at compile-time (possibly a good thing)
+  with a terrible syntax and no alternative with cleaner syntax.\
+  The much more recent C++ `constexpr` actually provides the desired alternative, clean syntax
+  for compile-time Turing completeness, but it is more limited: it can only manipulate values,
+  not types.
 
 # Design space
 
