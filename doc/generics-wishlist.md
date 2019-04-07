@@ -282,6 +282,51 @@ that Go generics are expected to achieve, are:
   And also more mundane questions, as whether we write `operator<(a, b Foo) bool { }`
   or `func operator<(a, b Foo) bool { }`.
 
+  Although the author really likes Haskell generics, and they happen to go down this exact road,
+  it still feels like a big language change and a hard sell to Go core team and Go community.
+
+### Option 3. constraints declare type's fields
+
+  This would be likely frowned upon in many object-oriented languages as C++ or Java,
+  where direct access to object's fields is strongly discouraged in favor of setter/getter methods.
+
+  Yet Go composite literals are an extremely useful feature, and they rely on initializing
+  exported struct fields to work. Thus maybe it could make sense. Let's see if it's also useful.
+
+  One could say that a type `T` satisfies the constraint `Ordered` if `T` has a certain field?\
+  It does not seem very useful since fields contain values, they usually do not
+  "do something" - that's for methods.
+
+  Furthermore Go has the peculiar feature that methods can be declared on any named type,
+  not just on structs. But requiring that a type has certain fields makes sense only
+  for structs - quite limiting.
+
+  In conclusion it seems to be usable only in some cases, and not useful enough even in those.
+
+### Option 4. combination of the above
+
+  The total complexity added to the language would be quite high: the sum of each complexity,
+  plus all the interactions (intentional and accidental) among the above three proposals.
+
+  If option 2. feels like a hard sell, this simply seems too much.
+
+### Option summary
+
+The best option appears to be the first: constraints declare type's methods.\
+It allows to use generics in many scenarios, yet requires quite limited changes to the language:
+
+* slightly extending `interface` syntax to optionally specify the receiver type
+* adding methods to basic types - one method per supported operator (actually fewer,
+  since `Less` can also cover `<=`, `>` and `>=`, while `Equal` can also cover `!=`, etc.)
+
+In exchange it allows:
+
+* declaring constraints with a familiar syntax - the same as method declaration
+  and very similar to interface methods
+* creating generic algorithms as `sort#[T]` that work out-of-the-box
+  both on Go basic types and on user-defined types
+
+
 
 **TO BE CONTINUED**
 
