@@ -183,7 +183,7 @@ that Go generics are expected to achieve, are:
   It is surely tempting to answer 1. and reuse interfaces as constraints:
   this would spare us from inventing yet another language construct, but is it enough?
 
-  ### Option 1. constraints declare type's methods
+### Option 1. constraints declare type's methods
 
   Let's check with a relatively simple case: the `Ordered` constraint.\
   It describes types that can be ordered, and there's immediately a difficulty:
@@ -240,7 +240,47 @@ that Go generics are expected to achieve, are:
   something that should be a last resort, not the normal case).
   This cannot be solved reasonably - at most it can become an intentional limitation.
 
+### Option 2. constraints declare functions on a type
 
+  Let's continue our thought experiment on the `Ordered` constraint.\
+  This time, constraints declare functions on a type, not its methods.
+
+  Again, Go operator `<` cannot be overloaded, so we use a **function** `Less()`:
+  ```Go
+    type Ordered#[T] constraint {
+	  func Less(T, T) bool
+    }
+  ```
+  which means that `Ordered` is a generic constraint (is it still an interface? we can try to answer later)
+  and has a single type argument `T`.\
+  A concrete type `T` satisfies `Ordered` if there is a function `Less(T,T) bool`.\
+  Since functions cannot be overloaded either, it's immediately evident that
+  we can only declare one function `Less` per package.\
+  That's not what we wanted, and it pushes us toward a much deeper language change:
+  allow function overloading, i.e. multiple functions with the same name but different signatures.
+
+  And once we allow function overloading, why not going the full way and allowing operator overloading too?
+
+  The result would be something like:
+  ```Go
+    type Ordered#[T] constraint {
+	  operator<(T, T) bool
+    }
+  ```
+  and an hypotetical type `Foo` could satisfy `Ordered` by declaring a function
+  ```Go
+    operator<(a, b Foo) bool {
+	  // ...
+    }
+  ```
+
+  A lot of design decisions would have to follow:\
+  In which cases do we allow function overloading and/or operator overloading?\
+  How do we select the function/operator to call when there are multiple candidates
+  with the same name, differing only in their signature?
+
+  And also more mundane questions, as whether we write `operator<(a, b Foo) bool { }`
+  or `func operator<(a, b Foo) bool { }`.
 
 
 **TO BE CONTINUED**
