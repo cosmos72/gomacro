@@ -323,8 +323,8 @@ In exchange it allows:
 
 * declaring constraints with a familiar syntax - the same as method declaration
   and very similar to interface methods
-* creating generic algorithms as `sort#[T]` that work out-of-the-box
-  both on Go basic types and on user-defined types
+* creating generic algorithms as `sort#[T]` and generic types as `sortedmap#[K,V]`
+  that work out of the box on both Go basic types and on user-defined types
 
 
 
