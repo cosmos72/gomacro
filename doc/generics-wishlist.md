@@ -183,6 +183,8 @@ that Go generics are expected to achieve, are:
   It is surely tempting to answer 1. and reuse interfaces as constraints:
   this would spare us from inventing yet another language construct, but is it enough?
 
+  ### Option 1. constraints declare type's methods
+
   Let's check with a relatively simple case: the `Ordered` constraint.\
   It describes types that can be ordered, and there's immediately a difficulty:
   Go operator `<` only works on basic types (integers and floats), and cannot be overloaded
@@ -196,14 +198,13 @@ that Go generics are expected to achieve, are:
   but even in such case you cannot define a custom implementation:\
   operator `<` compares `time.Duration` values as it would compare `int64`.
 
-  So let's say that `Ordered` will use a function `Less()` to compare values.\
-  Here we hit another Go (intentional) limitation: function overloading is not supported,
-  i.e. it's not possible to define multiple functions with the same name
-  and different signatures.
+  So let's say that `Ordered` will instead use a **function** `Less()` to compare values.\
+  Here we hit another Go (intentional) limitation: function overloading is not supported,\
+  i.e. it's not possible to define multiple functions with the same name and different signatures.
 
   Ok, then let's say that `Ordered` will use a **method** `Less()` to compare values.\
   How do we express that a type must have a method `Less()` to be `Ordered`?\
-  With an interface, of course!
+  With an interface, of course:
   ```Go
     type Ordered interface {
 	  Less(/*what here?*/) bool
@@ -225,15 +226,19 @@ that Go generics are expected to achieve, are:
   I chose the syntax `func (T) Less ...` because that's exactly how we already declare
   methods, and the shorter `(T) Less ...` did not sound familiar enough.
 
-  There are still a couple of issues:
+  There are still a couple of issues.
 
-  first, builtin integers and floats do not have any method, so they cannot implement `Ordered`.
+  First issue: builtin integers and floats do not have any method, so they cannot implement `Ordered`.
+  This can only be solved with a Go language specs change which adds methods to basic types.
+  On the other hand user-defined types, including standard library ones as `time.Duration`,
+  could add a method `Less()`.
 
-  second, methods must be declared in the same package as their receiver.\
+  Second issue: methods must be declared in the same package as their receiver.
   In other words, it's not possible to import a type `foo.Bar` and add a method `Less()` to it:
   either the method is already there because the author forecasted the need, or it's not there
-  and we have no way to add it (unless we want to fork the package `foo` and modify it -
+  and there's no way to add it (unless you fork the package `foo` and modify it -
   something that should be a last resort, not the normal case).
+  This cannot be solved reasonably - at most it can become an intentional limitation.
 
 
 
