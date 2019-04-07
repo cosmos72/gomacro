@@ -135,7 +135,8 @@ that Go generics are expected to achieve, are:
 	 of some deeply nested error due to `a < b` used on `func()` values.
 
   2) constraints allow programmers writing generic code to specify explicitly
-     the requirements of their code, i.e. on which types it can be used and why.\
+     the requirements of their code, i.e. on which types it can be used and why.
+
 	 Without them, it is not always simple to understand if a complicated generic function
 	 or type written by someone else can be used with a certain concrete type `T`,
 	 and what are the requirements on such `T`:\
@@ -181,6 +182,61 @@ that Go generics are expected to achieve, are:
 
   It is surely tempting to answer 1. and reuse interfaces as constraints:
   this would spare us from inventing yet another language construct, but is it enough?
+
+  Let's check with a relatively simple case: the `Ordered` constraint.\
+  It describes types that can be ordered, and there's immediately a difficulty:
+  Go operator `<` only works on basic types (integers and floats), and cannot be overloaded
+  i.e. cannot be extended to support further types.
+  It will work on types whose underlying type is integer or float, as for example
+  ```Go
+    package time
+
+    type Duration int64
+  ```
+  but even in such case you cannot define a custom implementation:\
+  operator `<` compares `time.Duration` values as it would compare `int64`.
+
+  So let's say that `Ordered` will use a function `Less()` to compare values.\
+  Here we hit another Go (intentional) limitation: function overloading is not supported,
+  i.e. it's not possible to define multiple functions with the same name
+  and different signatures.
+
+  Ok, then let's say that `Ordered` will use a **method** `Less()` to compare values.\
+  How do we express that a type must have a method `Less()` to be `Ordered`?\
+  With an interface, of course!
+  ```Go
+    type Ordered interface {
+	  Less(/*what here?*/) bool
+    }
+  ```
+  We are getting close: we need to express that the single argument of `Less()`
+  is the same as the receiver. Go does not support this either, but we are trying to
+  extend it with generics, and the addition "we can give a name to the receiver type"
+  feels quite minimal.\
+  What about the following?
+  ```Go
+    type Ordered#[T] interface {
+	  func (T) Less(T) bool
+    }
+  ```
+  It's supposed to mean that `Ordered` is a generic interface, i.e. it's polymorphic,
+  and has a single type argument `T`. To satisfy `Ordered`, a type must have a method
+  `Less(T)` where `T` is also the receiver type (the `func (T)` part).
+  I chose the syntax `func (T) Less ...` because that's exactly how we already declare
+  methods, and the shorter `(T) Less ...` did not sound familiar enough.
+
+  There are still a couple of issues:
+
+  first, builtin integers and floats do not have any method, so they cannot implement `Ordered`.
+
+  second, methods must be declared in the same package as their receiver.\
+  In other words, it's not possible to import a type `foo.Bar` and add a method `Less()` to it:
+  either the method is already there because the author forecasted the need, or it's not there
+  and we have no way to add it (unless we want to fork the package `foo` and modify it -
+  something that should be a last resort, not the normal case).
+
+
+
 
 **TO BE CONTINUED**
 
