@@ -24,6 +24,24 @@ In addition, the author personally added generics to three programming languages
   created by the author, used to contain an implementation of generics.
   It now has a different maintainer.
 
+# Anti-goals
+
+Things the author does not want from Go generics
+
+* a compile-time sub-language:
+
+  Go generics should be an extension of idiomatic Go, not a whole sub-language
+  to be used for compile time operations.
+
+  For example, we should avoid compile-time Turing completeness and "expression templates",
+  two accidental features of C++ templates that together created a sub-language of C++
+  made of template specializations and recursive templates.\
+  Such sub-language also provides arbitrary computation at compile-time (possibly a good thing)
+  with a terrible syntax and no alternative with cleaner syntax.\
+  The much more recent C++ `constexpr` actually provides the desired alternative, clean syntax
+  for compile-time Turing completeness, but it is more limited: it can only manipulate values,
+  not types.
+
 # Goals
 
 The reasons to implement generics in Go can be many, and sometimes contradicting.
@@ -183,7 +201,7 @@ that Go generics are expected to achieve, are:
   It is surely tempting to answer 1. and reuse interfaces as constraints:
   this would spare us from inventing yet another language construct, but is it enough?
 
-### Option 1. constraints declare type's methods
+## Option 1. constraints declare type's methods
 
   Let's check with a relatively simple case: the `Ordered` constraint.\
   It describes types that can be ordered, and there's immediately a difficulty:
@@ -228,7 +246,7 @@ that Go generics are expected to achieve, are:
 
   There are still a couple of issues.
 
-  First issue: builtin integers and floats do not have any method, so they cannot implement `Ordered`.
+  First issue: basic integers and floats do not have any method, so they cannot implement `Ordered`.
   This can only be solved with a Go language specs change which adds methods to basic types.
   On the other hand user-defined types, including standard library ones as `time.Duration`,
   could add a method `Less()`.
@@ -238,9 +256,9 @@ that Go generics are expected to achieve, are:
   either the method is already there because the author forecasted the need, or it's not there
   and there's no way to add it (unless you fork the package `foo` and modify it -
   something that should be a last resort, not the normal case).
-  This cannot be solved reasonably - at most it can become an intentional limitation.
+  This cannot be solved reasonably - but it can become an intentional limitation.
 
-### Option 2. constraints declare functions on a type
+## Option 2. constraints declare functions on a type
 
   Let's continue our thought experiment on the `Ordered` constraint.\
   This time, constraints declare functions on a type, not its methods.
@@ -251,8 +269,8 @@ that Go generics are expected to achieve, are:
 	  func Less(T, T) bool
     }
   ```
-  which means that `Ordered` is a generic constraint (is it still an interface? we can try to answer later)
-  and has a single type argument `T`.\
+  which means that `Ordered` is a generic constraint (is it still an interface?
+  we can try to answer later) and has a single type argument `T`.\
   A concrete type `T` satisfies `Ordered` if there is a function `Less(T,T) bool`.\
   Since functions cannot be overloaded either, it's immediately evident that
   we can only declare one function `Less` per package.\
@@ -285,7 +303,7 @@ that Go generics are expected to achieve, are:
   Although the author really likes Haskell generics, and they happen to go down this exact road,
   it still feels like a big language change and a hard sell to Go core team and Go community.
 
-### Option 3. constraints declare type's fields
+## Option 3. constraints declare type's fields
 
   This would be likely frowned upon in many object-oriented languages as C++ or Java,
   where direct access to object's fields is strongly discouraged in favor of setter/getter methods.
@@ -303,16 +321,17 @@ that Go generics are expected to achieve, are:
 
   In conclusion it seems to be usable only in some cases, and not useful enough even in those.
 
-### Option 4. combination of the above
+## Option 4. combination of the above
 
   The total complexity added to the language would be quite high: the sum of each complexity,
-  plus all the interactions (intentional and accidental) among the above three proposals.
+  plus all the interactions (intentional and accidental) among the proposals.
 
   If option 2. feels like a hard sell, this simply seems too much.
 
-### Option summary
+## Option summary
 
-The best option appears to be the first: constraints declare type's methods.\
+Among the three options analyzed above, the best one appears to be the first:
+constraints declare type's methods.\
 It allows to use generics in many scenarios, yet requires quite limited changes to the language:
 
 * slightly extending `interface` syntax to optionally specify the receiver type
@@ -326,27 +345,119 @@ In exchange it allows:
 * creating generic algorithms as `sort#[T]` and generic types as `sortedmap#[K,V]`
   that work out of the box on both Go basic types and on user-defined types
 
+## Option 1 deeper analysis
+
+In option 1, constraints are interfaces, i.e. they declare the methods of a type.
+With the small extension of allowing to specify also the receiver type,
+they seem very useful and let programmers create very general generic types
+and generic algorithms, yet they seem to have very few unintended side effects
+on the language, and they do not introduce huge language changes.
+
+Are there other downsides we did not consider yet?
+
+Let's analyze more in detail the idea of adding methods on basic types.
+
+To simplify the reasoning, we start with the concrete example `sort#[T]`,
+which as we said requires a method `Less` on `T`.
+
+So let's suppose that `int`, `int8`, `int16`, `int32`, `int64`,
+`uint`, `uint8`, `uint16`, `uint32`, `uint64`, `uintptr`, `float32` and `float64`
+have such method.
+
+Then a type such as `time.Duration`, which is declared as
+```
+package time
+type Duration int64
+```
+will have the method `Less` or not?
+
+### Underlying types
+
+In Go, there is the rule
+* a named type has the methods of its underlying type i.e. "wrapper methods",
+  plus the methods declared on the named type
+Following this rule, the question becomes: what's the underlying type of `time.Duration`?
+
+* If the underlying type is `int64`, then `time.Duration` will have a wrapper method `Less`
+* If the underlying type is something else (what?) then `time.Duration` will probably not have a wrapper method `Less`.
+
+Now things get subtle. Usually, underlying types are **not** named types,
+they are instead unnamed types: channels, maps, slices, arrays, functions, and very often structs.
+
+If `int64` was the underlying type of `time.Duration`, then these two types
+would be assignable to each other, as for example:
+```
+import "time"
+var i int64 = 7
+var d time.Duration = i
+```
+Instead, the above does not compile. It turns out that you need an explicit **conversion**, i.e.
+```
+import "time"
+var i int64 = 7
+var d time.Duration = time.Duration(i)
+```
+which is required when two named types have the same underlying type.
+
+Then the underlying type of both `int64` and `time.Duration` is some unnamed type
+that cannot be mentioned directly, and is not expected to have the method `Less`.
+
+Thus `time.Duration` would **not** have a method `Less` either.
+
+Small issue: if you ask to the package `go/types`, the underlying type of
+`time.Duration` is `int64`. This is inconsistent, and I think Go specs explain
+the inconsistency as an exception.
+
+If we ignore this small issue, we get the following:
+
+* `sort#[T]` works on `int64` because it declares the method `Less`
+* `sort#[T]` does **not** work on `time.Duration` because it lacks the method `Less`
+
+This is clearly annoying and cumbersome.
+
+An alternative is to decide that the underlying type of both `int64` and `time.Duration`
+(the unnamed type that cannot be mentioned directly) has the method `Less`,
+thus both `int64` and `time.Duration` also have `Less` as wrapper method.
+
+The situation becomes:
+
+* `sort#[T]` works on `int64` because it has the wrapper method `Less`
+* `sort#[T]` does **not** work on `time.Duration` because it has the wrapper method `Less`
+
+Now this is good, but it has a subtle side effect: what happens if `time.Duration`
+declares its own method `Less` for some reason?
+
+Such method `Less` shadows (hides) the wrapper method, and `sort#[T]` will happily
+use it for sorting, provided it has the expected signature.\
+Thus we have a way to declare a custom ordering criterion for a type.
+
+In essence, `time.Duration` can define its own ordering by declaring a method
+`Less` - to be precise, a method `func (time.Duration) Less(time.Duration) bool`.
+
+This is very similar to what C++ achieves using operator overloading:
+if a C++ type has the `operator<`, such operator will be used by `std::sort()`
+as default comparison operator.
+
+So we have replaced operator overloading with a different but equivalent mechanism:\
+"declare a method with a certain name and signature".\
+The name `Less` becomes special, because `sort#[T]` looks for it.
+
+But the function or method name `operator<` actualy looks special (it's not alphanumeric),
+while the name `Less` does not look very special (it's alphanumeric).
+
+Thus `time.Duration` may declare a method `Less` for its own purposes,
+without realizing that `sort#[T]` will try to use it.
+
+Worse, `time.Duration` or some other similar type may **already** declare a method `Less`,
+and once we introduce generics, `sort#[T]` would use the method `Less` to compare values,
+instead of comparing the underlying type (`int64` and friends).
+
+This is an unwanted effect, and quite insidious too: an existing, innocent looking
+method `Less` suddenly acquires a special meaning, and causes existing code
+(the various sorting algorithms in package `sort`) to silently change their behaviour.
 
 
 **TO BE CONTINUED**
-
-# Anti-goals
-
-Things the author does not want from Go generics
-
-* a compile-time sub-language:
-
-  Go generics should be an extension of idiomatic Go, not a whole sub-language
-  to be used for compile time operations.
-
-  For example, we should avoid compile-time Turing completeness and "expression templates",
-  two accidental features of C++ templates that together created a sub-language of C++
-  made of template specializations and recursive templates.\
-  Such sub-language also provides arbitrary computation at compile-time (possibly a good thing)
-  with a terrible syntax and no alternative with cleaner syntax.\
-  The much more recent C++ `constexpr` actually provides the desired alternative, clean syntax
-  for compile-time Turing completeness, but it is more limited: it can only manipulate values,
-  not types.
 
 # Design space
 

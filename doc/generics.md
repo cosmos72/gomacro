@@ -1,10 +1,11 @@
 Generics
 ========
 
-implementing generics in Go
----------------------------
+implementing C++-style generics in Go
+-------------------------------------
 
-gomacro contains an experimental implementation of generics.
+gomacro contains an experimental implementation of generics,
+modeled after C++ templates
 
 This file contains observations, choices, difficulties and solutions found
 during such work.
