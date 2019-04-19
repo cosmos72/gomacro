@@ -329,7 +329,7 @@ func (bind *Bind) RuntimeValue(g *CompGlobals, env *Env) r.Value {
 	case VarBind, FuncBind:
 		v = env.Vals[bind.Desc.Index()]
 	case TemplateFuncBind, TemplateTypeBind:
-		if GENERICS_V1 {
+		if GENERICS_V1_CXX {
 			v = bind.Lit.ConstValue()
 			break
 		}

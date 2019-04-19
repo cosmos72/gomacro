@@ -36,7 +36,7 @@ func (c *Comp) DeclType(spec ast.Spec) {
 	if !ok {
 		c.Errorf("unexpected type declaration, expecting *ast.TypeSpec, found: %v // %T", spec, spec)
 	}
-	if GENERICS_V1 {
+	if GENERICS_V1_CXX {
 		if lit, _ := node.Type.(*ast.CompositeLit); lit != nil {
 			c.DeclTemplateType(node)
 			return
@@ -218,7 +218,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 	case *ast.Ident:
 		t = c.ResolveType(node.Name)
 	case *ast.IndexExpr:
-		if GENERICS_V1 {
+		if GENERICS_V1_CXX {
 			t = c.TemplateType(node)
 		} else {
 			c.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))

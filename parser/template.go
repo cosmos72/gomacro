@@ -23,8 +23,14 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-// set to false to disable parsing gomacro generics, version 1
-const GENERICS_V1 = true
+// enable C++-style generics?
+const GENERICS_V1_CXX = mt.GENERICS_V1_CXX
+
+// enable generics "constraints are interfaces" ?
+const GENERICS_V2_CI = mt.GENERICS_V2_CI
+
+// do generics use Foo#[T1,T2...] syntax?
+const GENERICS_HASH = GENERICS_V1_CXX || GENERICS_V2_CI
 
 // parse prefix#[T1,T2...] as &ast.IndexExpr{ &ast.CompositeLit{Type: prefix, Elts: [T1, T2...]} }
 func (p *parser) parseHash(prefix ast.Expr) ast.Expr {

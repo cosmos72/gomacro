@@ -50,7 +50,7 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl) {
 			c.methodDecl(funcdecl)
 			return
 		default:
-			if GENERICS_V1 {
+			if GENERICS_V1_CXX {
 				c.DeclTemplateFunc(funcdecl)
 				return
 			}

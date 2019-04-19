@@ -32,8 +32,8 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-// set to false to disable compiling gomacro generics, version 1
-const GENERICS_V1 = parser.GENERICS_V1
+// enable C++-style generics?
+const GENERICS_V1_CXX = parser.GENERICS_V1_CXX
 
 type templateMaker struct {
 	comp  *Comp

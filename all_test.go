@@ -43,12 +43,14 @@ var _ time.Duration
 type TestFor int
 
 const (
-	S TestFor = 1 << iota // set option OptDebugSleepOnSwitch
-	C                     // test for classic interpreter
-	F                     // test for fast interpreter
-	U                     // test returns untyped constant (relevant only for fast interpreter)
-	Z                     // temporary override: run only these tests, on fast interpreter only
-	A = C | F             // test for both interpreters
+	S  TestFor = 1 << iota // set option OptDebugSleepOnSwitch
+	C                      // test for classic interpreter
+	F                      // test for fast interpreter
+	G1                     // test requires generics v1 (C++-style)
+	G2                     // test requires generics v2
+	U                      // test returns untyped constant (relevant only for fast interpreter)
+	Z                      // temporary override: run only these tests, on fast interpreter only
+	A  = C | F             // test for both interpreters
 )
 
 type TestCase struct {
@@ -77,7 +79,7 @@ func TestClassic(t *testing.T) {
 	// ir.Options |= OptDebugCallStack | OptDebugPanicRecover
 	for i := range testcases {
 		test := testcases[i]
-		if test.testfor&C != 0 {
+		if test.testfor&C != 0 && (mt.GENERICS_V1_CXX || test.testfor&G1 == 0) {
 			t.Run(test.name, func(t *testing.T) { test.classic(t, ir) })
 		}
 	}
@@ -87,7 +89,10 @@ func TestFast(t *testing.T) {
 	ir := fast.New()
 	for i := range testcases {
 		test := testcases[i]
-		if test.testfor&F != 0 && (!foundZ || test.testfor&Z != 0) {
+		if test.testfor&F != 0 &&
+			(!foundZ || test.testfor&Z != 0) &&
+			(mt.GENERICS_V1_CXX || test.testfor&G1 == 0) {
+
 			t.Run(test.name, func(t *testing.T) { test.fast(t, ir) })
 		}
 	}
@@ -1051,7 +1056,7 @@ var testcases = []TestCase{
 	TestCase{C, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
 	TestCase{A, "eval", "Eval(~quote{1+2})", 3, nil},
 	TestCase{C, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
-	TestCase{A, "parse_decl_template_type", "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}",
+	TestCase{A | G1, "parse_decl_template_type", "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}",
 		&ast.GenDecl{
 			Tok: token.TYPE,
 			Specs: []ast.Spec{
@@ -1081,7 +1086,7 @@ var testcases = []TestCase{
 			},
 		}, nil},
 
-	TestCase{A, "parse_decl_template_func", "~quote{template [T] func Sum([]T) T { }}",
+	TestCase{A | G1, "parse_decl_template_func", "~quote{template [T] func Sum([]T) T { }}",
 		&ast.FuncDecl{
 			Recv: &ast.FieldList{
 				List: []*ast.Field{
@@ -1117,7 +1122,7 @@ var testcases = []TestCase{
 			Body: &ast.BlockStmt{},
 		}, nil},
 
-	TestCase{A, "parse_decl_template_method", "~quote{template [T] func (x Pair) Rest() T { }}",
+	TestCase{A | G1, "parse_decl_template_method", "~quote{template [T] func (x Pair) Rest() T { }}",
 		&ast.FuncDecl{
 			Recv: &ast.FieldList{
 				List: []*ast.Field{
@@ -1150,13 +1155,13 @@ var testcases = []TestCase{
 			Body: &ast.BlockStmt{},
 		}, nil},
 
-	TestCase{A, "parse_qual_template_name_1", "~quote{Pair#[]}",
+	TestCase{A | G1, "parse_qual_template_name_1", "~quote{Pair#[]}",
 		&ast.IndexExpr{
 			X:     &ast.Ident{Name: "Pair"},
 			Index: &ast.CompositeLit{},
 		}, nil},
 
-	TestCase{A, "parse_qual_template_name_2", "~quote{Pair#[x + 1]}",
+	TestCase{A | G1, "parse_qual_template_name_2", "~quote{Pair#[x + 1]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Pair"},
 			Index: &ast.CompositeLit{
@@ -1173,7 +1178,7 @@ var testcases = []TestCase{
 			},
 		}, nil},
 
-	TestCase{A, "parse_qual_template_name_3", "~quote{Pair#[T1, T2]}",
+	TestCase{A | G1, "parse_qual_template_name_3", "~quote{Pair#[T1, T2]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Pair"},
 			Index: &ast.CompositeLit{
@@ -1184,7 +1189,7 @@ var testcases = []TestCase{
 			},
 		}, nil},
 
-	TestCase{F, "template_func_1", `
+	TestCase{F | G1, "template_func_1", `
 		template[T] func Sum(args ...T) T {
 			var sum T
 			for _, elem := range args {
@@ -1193,13 +1198,13 @@ var testcases = []TestCase{
 			return sum
 		}`, nil, none,
 	},
-	TestCase{F, "template_func_2", `Sum#[int]`, func(...int) int { return 0 }, nil},
-	TestCase{F, "template_func_3", `Sum#[complex64]`, func(...complex64) complex64 { return 0 }, nil},
-	TestCase{F, "template_func_4", `Sum#[int](1, 2, 3)`, 6, nil},
-	TestCase{F, "template_func_5", `Sum#[complex64](1.1+2.2i, 3.3)`, complex64(1.1+2.2i) + complex64(3.3), nil},
-	TestCase{F, "template_func_6", `Sum#[string]("abc","def","xy","z")`, "abcdefxyz", nil},
+	TestCase{F | G1, "template_func_2", `Sum#[int]`, func(...int) int { return 0 }, nil},
+	TestCase{F | G1, "template_func_3", `Sum#[complex64]`, func(...complex64) complex64 { return 0 }, nil},
+	TestCase{F | G1, "template_func_4", `Sum#[int](1, 2, 3)`, 6, nil},
+	TestCase{F | G1, "template_func_5", `Sum#[complex64](1.1+2.2i, 3.3)`, complex64(1.1+2.2i) + complex64(3.3), nil},
+	TestCase{F | G1, "template_func_6", `Sum#[string]("abc","def","xy","z")`, "abcdefxyz", nil},
 
-	TestCase{F, "template_func_7", `
+	TestCase{F | G1, "template_func_7", `
 		template[T,U] func Transform(slice []T, trans func(T) U) []U {
 			ret := make([]U, len(slice))
 			for i := range slice {
@@ -1209,9 +1214,9 @@ var testcases = []TestCase{
 		}
 		func stringLen(s string) int { return len(s) }`, nil, none,
 	},
-	TestCase{F, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, stringLen)`,
+	TestCase{F | G1, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, stringLen)`,
 		[]int{3, 2, 1}, nil},
-	TestCase{F, "template_func_9", `template[A,B,C] func SwapArgs(f func(A, B) C) func(B,A) C {
+	TestCase{F | G1, "template_func_9", `template[A,B,C] func SwapArgs(f func(A, B) C) func(B,A) C {
 			return func (b B, a A) C {
 				return f(a, b)
 			}
@@ -1219,7 +1224,7 @@ var testcases = []TestCase{
 		SwapArgs#[float64,float64,float64](func (a float64, b float64) float64 { return a/b })(2.0, 3.0)
     `, 1.5, nil},
 
-	TestCase{F, "template_func_curry", `
+	TestCase{F | G1, "template_func_curry", `
 	    template[A,B,C] func Curry(f func(A, B) C) func(A) func(B) C {
 			return func (a A) func (B) C {
 				return func (b B) C {
@@ -1232,7 +1237,7 @@ var testcases = []TestCase{
 	`,
 		5, nil},
 
-	TestCase{F, "template_func_lift_1", `
+	TestCase{F | G1, "template_func_lift_1", `
 	    template[A,B] func Lift1(trans func(A) B) func([]A) []B {
 			return func(slice []A) []B {
 				ret := make([]B, len(slice))
@@ -1246,7 +1251,7 @@ var testcases = []TestCase{
 	`,
 		[]int{1, 2, 3}, nil},
 
-	TestCase{F, "template_func_lift_2", `
+	TestCase{F | G1, "template_func_lift_2", `
 	    // quite a convoluted test
 	    template[A,B] func Lift2(trans func(A) B) func([]A) []B {
 			return Curry#[func(A)B, []A, []B](
@@ -1257,31 +1262,31 @@ var testcases = []TestCase{
 	`,
 		[]int{2, 1, 0}, nil},
 
-	TestCase{F, "recursive_template_func_1", `template[T] func count(a, b T) T { if a <= 0 { return b }; return count#[T](a-1,b+1) }`, nil, none},
-	TestCase{F, "recursive_template_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
-	TestCase{F, "recursive_template_func_3", `count#[uint32](2,3)`, uint32(5), nil},
+	TestCase{F | G1, "recursive_template_func_1", `template[T] func count(a, b T) T { if a <= 0 { return b }; return count#[T](a-1,b+1) }`, nil, none},
+	TestCase{F | G1, "recursive_template_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
+	TestCase{F | G1, "recursive_template_func_3", `count#[uint32](2,3)`, uint32(5), nil},
 
-	TestCase{F, "specialized_template_func_1", `template[] for[bool] func count(a, b bool) bool { return a || b }`, nil, none},
-	TestCase{F, "specialized_template_func_2", `count#[bool]`, func(bool, bool) bool { return false }, nil},
-	TestCase{F, "specialized_template_func_3", `count#[bool](false, true)`, true, nil},
-	TestCase{F, "specialized_template_func_4", `template[T] for[*T] func count(a, b *T) *T { return a }`, nil, none},
-	TestCase{F, "specialized_template_func_5", `count#[*int]`, func(*int, *int) *int { return nil }, nil},
+	TestCase{F | G1, "specialized_template_func_1", `template[] for[bool] func count(a, b bool) bool { return a || b }`, nil, none},
+	TestCase{F | G1, "specialized_template_func_2", `count#[bool]`, func(bool, bool) bool { return false }, nil},
+	TestCase{F | G1, "specialized_template_func_3", `count#[bool](false, true)`, true, nil},
+	TestCase{F | G1, "specialized_template_func_4", `template[T] for[*T] func count(a, b *T) *T { return a }`, nil, none},
+	TestCase{F | G1, "specialized_template_func_5", `count#[*int]`, func(*int, *int) *int { return nil }, nil},
 
-	TestCase{F, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, none},
-	TestCase{F, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
-	TestCase{F, "template_type_3", `PairX#[bool, interface{}] {true, "foo"}`, PairX3{true, "foo"}, nil},
+	TestCase{F | G1, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, none},
+	TestCase{F | G1, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
+	TestCase{F | G1, "template_type_3", `PairX#[bool, interface{}] {true, "foo"}`, PairX3{true, "foo"}, nil},
 
-	TestCase{F, "recursive_template_type_1", `
+	TestCase{F | G1, "recursive_template_type_1", `
 		template[T] type ListX struct { First T; Rest *ListX#[T] }
 		var lx ListX#[error]; lx`, ListX2{}, nil},
-	TestCase{F, "recursive_template_type_2", `ListX#[interface{}]{}`, ListX3{}, nil},
+	TestCase{F | G1, "recursive_template_type_2", `ListX#[interface{}]{}`, ListX3{}, nil},
 
-	TestCase{F, "specialized_template_type_1", `
+	TestCase{F | G1, "specialized_template_type_1", `
 		template[] for[struct{}] type ListX struct { }
 		template [T] for[T,T] type PairX struct { Left, Right T }
 		PairX#[bool,bool]{false,true}`, struct{ Left, Right bool }{false, true}, nil},
 
-	TestCase{F, "turing_complete_template_1", `
+	TestCase{F | G1, "turing_complete_template_1", `
 		template[N] type Fib [len((*Fib#[N-1])(nil)) + len((*Fib#[N-2])(nil))] int
 		template[] for[1] type Fib [1]int
 		template[] for[0] type Fib [0]int
