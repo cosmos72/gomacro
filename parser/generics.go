@@ -27,18 +27,25 @@ import (
 const GENERICS_V1_CXX = mt.GENERICS_V1_CXX
 
 // enable generics "constraints are interfaces" ?
-const GENERICS_V2_CI = mt.GENERICS_V2_CI
+const GENERICS_V2_CTI = mt.GENERICS_V2_CTI
 
 // do generics use Foo#[T1,T2...] syntax?
-const GENERICS_HASH = GENERICS_V1_CXX || GENERICS_V2_CI
+const GENERICS_HASH = GENERICS_V1_CXX || GENERICS_V2_CTI
 
-// parse prefix#[T1,T2...] as &ast.IndexExpr{ &ast.CompositeLit{Type: prefix, Elts: [T1, T2...]} }
+/*
+ * used by GENERICS_V1_CXX and GENERICS_V2_CTI:
+ *    parse prefix#[T1,T2...]
+ *    as &ast.IndexExpr{X: prefix, Index: &ast.CompositeLit{Type: nil, Elts: [T1,T2...] } }
+ * used by GENERICS_V2_CTI:
+ *    parse prefix#[T1:C1,T2:C2...]
+ *    as &ast.IndexExpr{X: prefix, Index: &ast.CompositeLit{Type: nil, Elts: [&KeyValueExpr{T1,C1}, &KeyValueExpr{T2,C2} ...] } }
+ */
 func (p *parser) parseHash(prefix ast.Expr) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "Hash"))
 	}
 	p.expect(mt.HASH)
-	params := p.parseTemplateParams()
+	params := p.parseGenericParams()
 	return &ast.IndexExpr{
 		X:      prefix,
 		Lbrack: params.Lbrace,
@@ -54,12 +61,12 @@ func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
 		defer un(trace(p, "TemplateDecl"))
 	}
 	p.expect(mt.TEMPLATE)
-	params := p.parseTemplateParams()
+	params := p.parseGenericParams()
 
 	var specialize *ast.CompositeLit
 	if p.tok == token.FOR {
 		p.next()
-		specialize = p.parseTemplateParams()
+		specialize = p.parseGenericParams()
 		params.Elts = append(params.Elts, &ast.BadExpr{}, specialize)
 	}
 	switch tok := p.tok; tok {
@@ -83,16 +90,24 @@ func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
 	}
 }
 
-// parse [T1,T2...] in a template declaration
-func (p *parser) parseTemplateParams() *ast.CompositeLit {
+// parse [T1,T2...] in a generic declaration
+func (p *parser) parseGenericParams() *ast.CompositeLit {
 	var list []ast.Expr
 
 	lbrack := p.expect(token.LBRACK)
 	if p.tok != token.RBRACK {
-		list = append(list, p.parseRhsOrType())
-		for p.tok == token.COMMA {
-			p.next()
+		if GENERICS_V1_CXX {
 			list = append(list, p.parseRhsOrType())
+			for p.tok == token.COMMA {
+				p.next()
+				list = append(list, p.parseRhsOrType())
+			}
+		} else if GENERICS_V2_CTI {
+			list = append(list, p.parseElement())
+			for p.tok == token.COMMA {
+				p.next()
+				list = append(list, p.parseElement())
+			}
 		}
 	}
 	rbrack := p.expect(token.RBRACK)

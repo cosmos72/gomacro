@@ -5,14 +5,14 @@
 package token
 
 // enable C++-style generics?
-const GENERICS_V1_CXX = true
+const GENERICS_V1_CXX = false
 
 // enable generics "constraints are interfaces" ?
-const GENERICS_V2_CI = false
+const GENERICS_V2_CTI = true
 
 // can only enable one style of generics
 func init() {
-	if GENERICS_V1_CXX && GENERICS_V2_CI {
+	if GENERICS_V1_CXX && GENERICS_V2_CTI {
 		panic("github.com/cosmos72/gomacro/token: cannot enable both GENERICS_V1_CXX and GENERICS_V2_CI. Please disable at least one of them.")
 	}
 }

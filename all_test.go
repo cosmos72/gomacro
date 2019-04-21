@@ -1056,7 +1056,8 @@ var testcases = []TestCase{
 	TestCase{C, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
 	TestCase{A, "eval", "Eval(~quote{1+2})", 3, nil},
 	TestCase{C, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
-	TestCase{A | G1, "parse_decl_template_type", "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}",
+
+	TestCase{A | G1, "parse_decl_generic_type", "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}",
 		&ast.GenDecl{
 			Tok: token.TYPE,
 			Specs: []ast.Spec{
@@ -1086,7 +1087,7 @@ var testcases = []TestCase{
 			},
 		}, nil},
 
-	TestCase{A | G1, "parse_decl_template_func", "~quote{template [T] func Sum([]T) T { }}",
+	TestCase{A | G1, "parse_decl_generic_func", "~quote{template [T] func Sum([]T) T { }}",
 		&ast.FuncDecl{
 			Recv: &ast.FieldList{
 				List: []*ast.Field{
@@ -1122,7 +1123,7 @@ var testcases = []TestCase{
 			Body: &ast.BlockStmt{},
 		}, nil},
 
-	TestCase{A | G1, "parse_decl_template_method", "~quote{template [T] func (x Pair) Rest() T { }}",
+	TestCase{A | G1, "parse_decl_generic_method", "~quote{template [T] func (x Pair) Rest() T { }}",
 		&ast.FuncDecl{
 			Recv: &ast.FieldList{
 				List: []*ast.Field{
@@ -1155,13 +1156,13 @@ var testcases = []TestCase{
 			Body: &ast.BlockStmt{},
 		}, nil},
 
-	TestCase{A | G1, "parse_qual_template_name_1", "~quote{Pair#[]}",
+	TestCase{A | G1 | G2, "parse_qual_generic_name_1", "~quote{Pair#[]}",
 		&ast.IndexExpr{
 			X:     &ast.Ident{Name: "Pair"},
 			Index: &ast.CompositeLit{},
 		}, nil},
 
-	TestCase{A | G1, "parse_qual_template_name_2", "~quote{Pair#[x + 1]}",
+	TestCase{A | G1 | G2, "parse_qual_generic_name_2", "~quote{Pair#[x + 1]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Pair"},
 			Index: &ast.CompositeLit{
@@ -1178,7 +1179,7 @@ var testcases = []TestCase{
 			},
 		}, nil},
 
-	TestCase{A | G1, "parse_qual_template_name_3", "~quote{Pair#[T1, T2]}",
+	TestCase{A | G1 | G2, "parse_qual_generic_name_3", "~quote{Pair#[T1, T2]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Pair"},
 			Index: &ast.CompositeLit{
@@ -1262,35 +1263,127 @@ var testcases = []TestCase{
 	`,
 		[]int{2, 1, 0}, nil},
 
-	TestCase{F | G1, "recursive_template_func_1", `template[T] func count(a, b T) T { if a <= 0 { return b }; return count#[T](a-1,b+1) }`, nil, none},
-	TestCase{F | G1, "recursive_template_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
-	TestCase{F | G1, "recursive_template_func_3", `count#[uint32](2,3)`, uint32(5), nil},
+	TestCase{F | G1, "recursive_generic_func_1", `template[T] func count(a, b T) T { if a <= 0 { return b }; return count#[T](a-1,b+1) }`, nil, none},
+	TestCase{F | G1, "recursive_generic_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
+	TestCase{F | G1, "recursive_generic_func_3", `count#[uint32](2,3)`, uint32(5), nil},
 
-	TestCase{F | G1, "specialized_template_func_1", `template[] for[bool] func count(a, b bool) bool { return a || b }`, nil, none},
-	TestCase{F | G1, "specialized_template_func_2", `count#[bool]`, func(bool, bool) bool { return false }, nil},
-	TestCase{F | G1, "specialized_template_func_3", `count#[bool](false, true)`, true, nil},
-	TestCase{F | G1, "specialized_template_func_4", `template[T] for[*T] func count(a, b *T) *T { return a }`, nil, none},
-	TestCase{F | G1, "specialized_template_func_5", `count#[*int]`, func(*int, *int) *int { return nil }, nil},
+	TestCase{F | G1, "specialized_generic_func_1", `template[] for[bool] func count(a, b bool) bool { return a || b }`, nil, none},
+	TestCase{F | G1, "specialized_generic_func_2", `count#[bool]`, func(bool, bool) bool { return false }, nil},
+	TestCase{F | G1, "specialized_generic_func_3", `count#[bool](false, true)`, true, nil},
+	TestCase{F | G1, "specialized_generic_func_4", `template[T] for[*T] func count(a, b *T) *T { return a }`, nil, none},
+	TestCase{F | G1, "specialized_generic_func_5", `count#[*int]`, func(*int, *int) *int { return nil }, nil},
 
 	TestCase{F | G1, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, none},
 	TestCase{F | G1, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
 	TestCase{F | G1, "template_type_3", `PairX#[bool, interface{}] {true, "foo"}`, PairX3{true, "foo"}, nil},
 
-	TestCase{F | G1, "recursive_template_type_1", `
+	TestCase{F | G1, "recursive_generic_type_1", `
 		template[T] type ListX struct { First T; Rest *ListX#[T] }
 		var lx ListX#[error]; lx`, ListX2{}, nil},
-	TestCase{F | G1, "recursive_template_type_2", `ListX#[interface{}]{}`, ListX3{}, nil},
+	TestCase{F | G1, "recursive_generic_type_2", `ListX#[interface{}]{}`, ListX3{}, nil},
 
-	TestCase{F | G1, "specialized_template_type_1", `
+	TestCase{F | G1, "specialized_generic_type_1", `
 		template[] for[struct{}] type ListX struct { }
 		template [T] for[T,T] type PairX struct { Left, Right T }
 		PairX#[bool,bool]{false,true}`, struct{ Left, Right bool }{false, true}, nil},
 
-	TestCase{F | G1, "turing_complete_template_1", `
+	TestCase{F | G1, "turing_complete_generic_1", `
 		template[N] type Fib [len((*Fib#[N-1])(nil)) + len((*Fib#[N-2])(nil))] int
 		template[] for[1] type Fib [1]int
 		template[] for[0] type Fib [0]int
 		const Fib30 = len((*Fib#[30])(nil)); Fib30`, 832040, nil},
+
+	TestCase{A | G2, "parse_qual_generic_name_4", "~quote{Set#[T: Eq]}",
+		&ast.IndexExpr{
+			X: &ast.Ident{Name: "Set"},
+			Index: &ast.CompositeLit{
+				Elts: []ast.Expr{
+					&ast.KeyValueExpr{
+						Key:   &ast.Ident{Name: "T"},
+						Value: &ast.Ident{Name: "Eq"},
+					},
+				},
+			},
+		}, nil},
+	TestCase{A | G2, "parse_qual_generic_name_5", "~quote{Set#[T: Eq && Ord]}",
+		&ast.IndexExpr{
+			X: &ast.Ident{Name: "Set"},
+			Index: &ast.CompositeLit{
+				Elts: []ast.Expr{
+					&ast.KeyValueExpr{
+						Key: &ast.Ident{Name: "T"},
+						Value: &ast.BinaryExpr{
+							X:  &ast.Ident{Name: "Eq"},
+							Op: token.LAND,
+							Y:  &ast.Ident{Name: "Ord"},
+						},
+					},
+				},
+			},
+		}, nil},
+	TestCase{A | G2, "parse_qual_generic_name_6", "~quote{Set#[T: Eq#[T] && Ord#[T]]}",
+		&ast.IndexExpr{
+			X: &ast.Ident{Name: "Set"},
+			Index: &ast.CompositeLit{
+				Elts: []ast.Expr{
+					&ast.KeyValueExpr{
+						Key: &ast.Ident{Name: "T"},
+						Value: &ast.BinaryExpr{
+							X: &ast.IndexExpr{
+								X: &ast.Ident{Name: "Eq"},
+								Index: &ast.CompositeLit{
+									Elts: []ast.Expr{
+										&ast.Ident{Name: "T"},
+									},
+								},
+							},
+							Op: token.LAND,
+							Y: &ast.IndexExpr{
+								X: &ast.Ident{Name: "Ord"},
+								Index: &ast.CompositeLit{
+									Elts: []ast.Expr{
+										&ast.Ident{Name: "T"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		}, nil},
+	TestCase{A | G2, "parse_qual_generic_name_7", "~quote{SortedMap#[K: Ord, V: Container#[SortedMap#[K,V],K,V]]}",
+		&ast.IndexExpr{
+			X: &ast.Ident{Name: "SortedMap"},
+			Index: &ast.CompositeLit{
+				Elts: []ast.Expr{
+					&ast.KeyValueExpr{
+						Key:   &ast.Ident{Name: "K"},
+						Value: &ast.Ident{Name: "Ord"},
+					},
+					&ast.KeyValueExpr{
+						Key: &ast.Ident{Name: "V"},
+						Value: &ast.IndexExpr{
+							X: &ast.Ident{Name: "Container"},
+							Index: &ast.CompositeLit{
+								Elts: []ast.Expr{
+									&ast.IndexExpr{
+										X: &ast.Ident{Name: "SortedMap"},
+										Index: &ast.CompositeLit{
+											Elts: []ast.Expr{
+												&ast.Ident{Name: "K"},
+												&ast.Ident{Name: "V"},
+											},
+										},
+									},
+									&ast.Ident{Name: "K"},
+									&ast.Ident{Name: "V"},
+								},
+							},
+						},
+					},
+				},
+			},
+		}, nil},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
