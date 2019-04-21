@@ -2447,11 +2447,24 @@ func (p *parser) parseTypeSpec(doc *ast.CommentGroup, _ token.Token, _ int) ast.
 	spec := &ast.TypeSpec{Doc: doc, Name: ident}
 	p.declare(spec, nil, p.topScope, ast.Typ, ident)
 
+	// generics v2 parameters appear after the type name,
+	// i.e. `type Map#[K,V] struct { ... }`
+	var params *ast.CompositeLit
+
+	if GENERICS_V2_CTI && p.tok == mt.HASH {
+		p.next()
+		params = p.parseGenericParams()
+	}
+
 	if p.tok == token.ASSIGN {
 		spec.Assign = p.pos
 		p.next()
 	}
 	spec.Type = p.parseType()
+	if params != nil {
+		params.Type = spec.Type
+		spec.Type = params
+	}
 	p.expectSemi() // call before accessing p.linecomment
 	spec.Comment = p.lineComment
 

@@ -51,6 +51,7 @@ const (
 	U                      // test returns untyped constant (relevant only for fast interpreter)
 	Z                      // temporary override: run only these tests, on fast interpreter only
 	A  = C | F             // test for both interpreters
+	G  = G1 | G2
 )
 
 type TestCase struct {
@@ -59,6 +60,19 @@ type TestCase struct {
 	program string
 	result0 interface{}
 	results []interface{}
+}
+
+func (tc *TestCase) shouldRun(interp TestFor) bool {
+	if tc.testfor&interp == 0 {
+		return false
+	}
+	if tc.testfor&G1 != 0 {
+		return mt.GENERICS_V1_CXX
+	}
+	if tc.testfor&G2 != 0 {
+		return mt.GENERICS_V2_CTI
+	}
+	return true
 }
 
 var foundZ bool
@@ -78,8 +92,8 @@ func TestClassic(t *testing.T) {
 	ir := classic.New()
 	// ir.Options |= OptDebugCallStack | OptDebugPanicRecover
 	for i := range testcases {
-		test := testcases[i]
-		if test.testfor&C != 0 && (mt.GENERICS_V1_CXX || test.testfor&G1 == 0) {
+		test := &testcases[i]
+		if test.shouldRun(C) {
 			t.Run(test.name, func(t *testing.T) { test.classic(t, ir) })
 		}
 	}
@@ -88,11 +102,8 @@ func TestClassic(t *testing.T) {
 func TestFast(t *testing.T) {
 	ir := fast.New()
 	for i := range testcases {
-		test := testcases[i]
-		if test.testfor&F != 0 &&
-			(!foundZ || test.testfor&Z != 0) &&
-			(mt.GENERICS_V1_CXX || test.testfor&G1 == 0) {
-
+		test := &testcases[i]
+		if (!foundZ || test.testfor&Z != 0) && test.shouldRun(F) {
 			t.Run(test.name, func(t *testing.T) { test.fast(t, ir) })
 		}
 	}
