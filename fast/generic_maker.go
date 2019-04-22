@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * template_maker.go
+ * generic_maker.go
  *
  *  Created on Jun 16, 2018
  *      Author Massimiliano Ghilardi
@@ -35,7 +35,10 @@ import (
 // enable C++-style generics?
 const GENERICS_V1_CXX = parser.GENERICS_V1_CXX
 
-type templateMaker struct {
+// enable "constraints are interfaces" generics?
+const GENERICS_V2_CTI = parser.GENERICS_V2_CTI
+
+type genericMaker struct {
 	comp  *Comp
 	sym   *Symbol
 	ifun  I
@@ -47,20 +50,20 @@ type templateMaker struct {
 	pos   token.Pos
 }
 
-type templateTypeCandidate struct {
-	decl   TemplateTypeDecl
+type genericTypeCandidate struct {
+	decl   GenericTypeDecl
 	params []string
 	vals   []I
 	types  []xr.Type
 }
 
-type templateFuncCandidate struct {
-	decl  TemplateFuncDecl
+type genericFuncCandidate struct {
+	decl  GenericFuncDecl
 	vals  []I
 	types []xr.Type
 }
 
-func (special *templateFuncCandidate) injectBinds(c *Comp) {
+func (special *genericFuncCandidate) injectBinds(c *Comp) {
 	for i, name := range special.decl.Params {
 		t := special.types[i]
 		if val := special.vals[i]; val != nil {
@@ -71,7 +74,7 @@ func (special *templateFuncCandidate) injectBinds(c *Comp) {
 	}
 }
 
-func (special *templateTypeCandidate) injectBinds(c *Comp) {
+func (special *genericTypeCandidate) injectBinds(c *Comp) {
 	for i, name := range special.decl.Params {
 		t := special.types[i]
 		if val := special.vals[i]; val != nil {
@@ -83,7 +86,7 @@ func (special *templateTypeCandidate) injectBinds(c *Comp) {
 }
 
 // return the qualified name of the function or type to instantiate, for example "Pair#[int,string]"
-func (maker *templateMaker) String() string {
+func (maker *genericMaker) String() string {
 	if len(maker.name) != 0 {
 		return maker.name
 	}
@@ -105,8 +108,8 @@ func (maker *templateMaker) String() string {
 	return maker.name
 }
 
-func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMaker {
-	name, templateArgs, ok := splitTemplateArgs(node)
+func (c *Comp) genericMaker(node *ast.IndexExpr, which BindClass) *genericMaker {
+	name, genericArgs, ok := splitTemplateArgs(node)
 	if !ok {
 		return nil
 	}
@@ -114,20 +117,20 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 	if sym == nil {
 		c.Errorf("undefined identifier: %v", name)
 	}
-	n := len(templateArgs)
+	n := len(genericArgs)
 	var params []string
 	ifun := sym.Value
 	ok = false
 	if ifun != nil && sym.Desc.Class() == which {
 		switch which {
-		case TemplateFuncBind:
-			fun, _ := ifun.(*TemplateFunc)
+		case GenericFuncBind:
+			fun, _ := ifun.(*GenericFunc)
 			ok = fun != nil
 			if ok {
 				params = fun.Master.Params
 			}
 		case TemplateTypeBind:
-			typ, _ := ifun.(*TemplateType)
+			typ, _ := ifun.(*GenericType)
 			ok = typ != nil
 			if ok {
 				params = typ.Master.Params
@@ -138,29 +141,29 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 		c.Errorf("symbol is not a %v, cannot use #[...] on it: %s", which, name)
 	}
 	if n != len(params) {
-		c.Errorf("%v expects exactly %d template parameters %v, found %d: %v", which, len(params), params, n, node)
+		c.Errorf("%v expects exactly %d generic parameters %v, found %d: %v", which, len(params), params, n, node)
 	}
 	vals := make([]I, n)
 	types := make([]xr.Type, n)
 
-	// make a copy of templateArgs, then replace constant expressions with their values
-	templateArgs = append([]ast.Expr(nil), templateArgs...)
+	// make a copy of genericArgs, then replace constant expressions with their values
+	genericArgs = append([]ast.Expr(nil), genericArgs...)
 
-	for i, templateArg := range templateArgs {
-		e, t := c.Expr1OrType(templateArg)
+	for i, genericArg := range genericArgs {
+		e, t := c.Expr1OrType(genericArg)
 		if e != nil {
 			if !e.Const() {
-				c.Errorf("argument of template function %q is not a constant: %v", name, templateArg)
+				c.Errorf("argument of generic function %q is not a constant: %v", name, genericArg)
 			}
 			// UntypedLit is unsuitable as map key, because its == is not usable
 			vals[i] = e.EvalConst(COptDefaults)
 			types[i] = e.Type // also remember the type
-			templateArgs[i] = c.constToAstExpr(vals[i], templateArg.Pos())
+			genericArgs[i] = c.constToAstExpr(vals[i], genericArg.Pos())
 		} else {
 			types[i] = t
 		}
 	}
-	return &templateMaker{upc, sym, ifun, templateArgs, vals, types, makeTemplateKey(vals, types), "", node.Pos()}
+	return &genericMaker{upc, sym, ifun, genericArgs, vals, types, makeTemplateKey(vals, types), "", node.Pos()}
 }
 
 func makeTemplateKey(vals []I, types []xr.Type) I {
@@ -231,7 +234,7 @@ func splitTemplateArgs(node *ast.IndexExpr) (string, []ast.Expr, bool) {
 	return "", nil, false
 }
 
-func (c *Comp) templateParams(params []ast.Expr, errlabel string, node ast.Node) ([]string, []ast.Expr) {
+func (c *Comp) genericParams(params []ast.Expr, errlabel string, node ast.Node) ([]string, []ast.Expr) {
 	names := make([]string, 0, len(params))
 	var exprs []ast.Expr
 	for i, param := range params {
@@ -242,7 +245,7 @@ func (c *Comp) templateParams(params []ast.Expr, errlabel string, node ast.Node)
 		case *ast.CompositeLit:
 			exprs = param.Elts
 		default:
-			c.Errorf("invalid template %s declaration: template parameter %d should be *ast.Ident or *ast.CompositeLit, found %T: %v",
+			c.Errorf("invalid generic %s declaration: generic parameter %d should be *ast.Ident or *ast.CompositeLit, found %T: %v",
 				errlabel, i, param, node)
 		}
 	}
@@ -251,9 +254,9 @@ func (c *Comp) templateParams(params []ast.Expr, errlabel string, node ast.Node)
 
 // return the most specialized function declaration applicable to used params.
 // panics if there is no single most specialized declaration.
-func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFuncCandidate) {
-	candidates := map[string]*templateFuncCandidate{
-		maker.sym.Name + "#[...]": &templateFuncCandidate{
+func (maker *genericMaker) chooseFunc(fun *GenericFunc) (string, *genericFuncCandidate) {
+	candidates := map[string]*genericFuncCandidate{
+		maker.sym.Name + "#[...]": &genericFuncCandidate{
 			decl:  fun.Master,
 			vals:  maker.vals,
 			types: maker.types,
@@ -264,7 +267,7 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 	var ok1, ok2 bool
 
 	if debug {
-		g.Debugf("choosing template function for %s from %d specializations", maker.String(), 1+len(fun.Special))
+		g.Debugf("choosing generic function for %s from %d specializations", maker.String(), 1+len(fun.Special))
 	}
 
 	for key, special := range fun.Special {
@@ -284,15 +287,15 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 			if !ok1 && ok2 {
 				// special is more specialized, remove the other
 				if debug {
-					g.Debugf("template function %s is more specialized than %s, removing the latter", key, declKey)
+					g.Debugf("generic function %s is more specialized than %s, removing the latter", key, declKey)
 				}
 				delete(candidates, declKey)
 			}
 		}
 		if debug {
-			g.Debugf("adding   template function specialization  %s to candidates", key)
+			g.Debugf("adding   generic function specialization  %s to candidates", key)
 		}
-		candidates[key] = &templateFuncCandidate{
+		candidates[key] = &genericFuncCandidate{
 			decl:  special,
 			vals:  vals,
 			types: types,
@@ -302,13 +305,13 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 	case 1:
 		for key, candidate := range candidates {
 			if debug {
-				g.Debugf("chosen   template function specialization: %v", key)
+				g.Debugf("chosen   generic function specialization: %v", key)
 			}
 			return key, candidate
 		}
 		fallthrough
 	case 0:
-		g.Errorf("no template function specialization matches %v", maker.String())
+		g.Errorf("no generic function specialization matches %v", maker.String())
 	default:
 		names := make([]string, n)
 		var i int
@@ -317,16 +320,16 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 			i++
 		}
 		sort.Strings(names)
-		g.Errorf("multiple candidates match template function %v:\n\t%s", maker.String(), strings.Join(names, "\n\t"))
+		g.Errorf("multiple candidates match generic function %v:\n\t%s", maker.String(), strings.Join(names, "\n\t"))
 	}
 	return "", nil
 }
 
 // return the most specialized type declaration applicable to used params.
 // panics if there is no single most specialized declaration.
-func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateTypeCandidate) {
-	candidates := map[string]*templateTypeCandidate{
-		maker.sym.Name + "#[...]": &templateTypeCandidate{
+func (maker *genericMaker) chooseType(typ *GenericType) (string, *genericTypeCandidate) {
+	candidates := map[string]*genericTypeCandidate{
+		maker.sym.Name + "#[...]": &genericTypeCandidate{
 			decl:  typ.Master,
 			vals:  maker.vals,
 			types: maker.types,
@@ -337,7 +340,7 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 	var ok1, ok2 bool
 
 	if debug {
-		g.Debugf("choosing template type for %s from %d specializations", maker.String(), 1+len(typ.Special))
+		g.Debugf("choosing generic type for %s from %d specializations", maker.String(), 1+len(typ.Special))
 	}
 
 	for key, special := range typ.Special {
@@ -357,15 +360,15 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 			if !ok1 && ok2 {
 				// special is more specialized, remove the other
 				if debug {
-					g.Debugf("template type %s is more specialized than %s, removing the latter", key, declKey)
+					g.Debugf("generic type %s is more specialized than %s, removing the latter", key, declKey)
 				}
 				delete(candidates, declKey)
 			}
 		}
 		if debug {
-			g.Debugf("adding   template type specialization  %s to candidates", key)
+			g.Debugf("adding   generic type specialization  %s to candidates", key)
 		}
-		candidates[key] = &templateTypeCandidate{
+		candidates[key] = &genericTypeCandidate{
 			decl:  special,
 			vals:  vals,
 			types: types,
@@ -375,13 +378,13 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 	case 1:
 		for key, candidate := range candidates {
 			if debug {
-				g.Debugf("chosen   template type specialization: %v", key)
+				g.Debugf("chosen   generic type specialization: %v", key)
 			}
 			return key, candidate
 		}
 		fallthrough
 	case 0:
-		g.Errorf("no template type specialization matches %v", maker.String())
+		g.Errorf("no generic type specialization matches %v", maker.String())
 	default:
 		names := make([]string, n)
 		var i int
@@ -390,14 +393,14 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 			i++
 		}
 		sort.Strings(names)
-		g.Errorf("multiple candidates match template type %v:\n\t%s", maker.String(), strings.Join(names, "\n\t"))
+		g.Errorf("multiple candidates match generic type %v:\n\t%s", maker.String(), strings.Join(names, "\n\t"))
 	}
 	return "", nil
 }
 
-// if template specialization 'patterns' parametrized on 'names' matches 'exprs',
+// if generic specialization 'patterns' parametrized on 'names' matches 'exprs',
 // return the constants and types required for the match
-func (maker *templateMaker) patternMatches(names []string, patterns []ast.Expr, exprs []ast.Expr) ([]interface{}, []xr.Type, bool) {
+func (maker *genericMaker) patternMatches(names []string, patterns []ast.Expr, exprs []ast.Expr) ([]interface{}, []xr.Type, bool) {
 	vals := make([]interface{}, len(names))
 	types := make([]xr.Type, len(names))
 	ok := true
@@ -411,9 +414,9 @@ func (maker *templateMaker) patternMatches(names []string, patterns []ast.Expr, 
 	return vals, types, ok
 }
 
-// if template specialization 'pattern1' parametrized on 'names' matches 'expr1',
+// if generic specialization 'pattern1' parametrized on 'names' matches 'expr1',
 // fill 'vals' and 'types' with the constants and types required for the match
-func (maker *templateMaker) patternMatch(names []string,
+func (maker *genericMaker) patternMatch(names []string,
 	vals []interface{}, types []xr.Type, pattern ast2.Ast, expr ast2.Ast) bool {
 
 	switch node := pattern.Interface().(type) {
@@ -441,9 +444,9 @@ func (maker *templateMaker) patternMatch(names []string,
 	}
 }
 
-// if template specialization 'pattern1' parametrized on 'names' matches 'expr1',
+// if generic specialization 'pattern1' parametrized on 'names' matches 'expr1',
 // fill 'vals' and 'types' with the constants and types required for the match
-func (maker *templateMaker) patternMatched(i int, vals []interface{}, types []xr.Type, expr ast2.Ast) (ok bool) {
+func (maker *genericMaker) patternMatched(i int, vals []interface{}, types []xr.Type, expr ast2.Ast) (ok bool) {
 	expr1, eok := expr.Interface().(ast.Expr)
 	if !eok {
 		return false

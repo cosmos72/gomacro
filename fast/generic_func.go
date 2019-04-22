@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * template_func.go
+ * generic_func.go
  *
  *  Created on Jun 06, 2018
  *      Author Massimiliano Ghilardi
@@ -27,31 +27,31 @@ import (
 )
 
 // an instantiated (and compiled) template function.
-type TemplateFuncInstance struct {
+type GenericFuncInstance struct {
 	Func *func(*Env) r.Value
 	Type xr.Type
 }
 
 // a template function declaration.
 // either general, or partially specialized or fully specialized
-type TemplateFuncDecl struct {
+type GenericFuncDecl struct {
 	Decl   *ast.FuncLit // template function declaration. use a *ast.FuncLit because we will compile it with Comp.FuncLit()
 	Params []string     // template param names
 	For    []ast.Expr   // partial or full specialization
 }
 
 // template function
-type TemplateFunc struct {
-	Master    TemplateFuncDecl            // master (i.e. non specialized) declaration
-	Special   map[string]TemplateFuncDecl // partially or fully specialized declarations. key is TemplateFuncDecl.For converted to string
-	Instances map[I]*TemplateFuncInstance // cache of instantiated functions. key is [N]interface{}{T1, T2...}
+type GenericFunc struct {
+	Master    GenericFuncDecl            // master (i.e. non specialized) declaration
+	Special   map[string]GenericFuncDecl // partially or fully specialized declarations. key is TemplateFuncDecl.For converted to string
+	Instances map[I]*GenericFuncInstance // cache of instantiated functions. key is [N]interface{}{T1, T2...}
 }
 
-func (f *TemplateFunc) String() string {
+func (f *GenericFunc) String() string {
 	return f.Signature("")
 }
 
-func (f *TemplateFunc) Signature(name string) string {
+func (f *GenericFunc) Signature(name string) string {
 	if f == nil {
 		return "<nil>"
 	}
@@ -76,28 +76,28 @@ func (f *TemplateFunc) Signature(name string) string {
 	return buf.String()
 }
 
-// DeclTemplateFunc stores a template function or method declaration
+// DeclGenericFunc stores a generic function or method declaration
 // for later instantiation
-func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
+func (c *Comp) DeclGenericFunc(decl *ast.FuncDecl) {
 	n := 0
 	if decl.Recv != nil {
 		n = len(decl.Recv.List)
 	}
-	if n < 2 {
-		c.Errorf("invalid template function or method declaration: expecting at least 2 receivers, found %d: %v", n, decl)
+	if n != 2 {
+		c.Errorf("invalid generic function or method declaration: expecting exactly 2 receivers, found %d: %v", n, decl)
 	}
 	if decl.Recv.List[0] != nil {
-		c.Errorf("template method declaration not yet implemented: %v", decl)
+		c.Errorf("generic method declaration not yet implemented: %v", decl)
 	}
 	lit, _ := decl.Recv.List[1].Type.(*ast.CompositeLit)
 	if lit == nil {
-		c.Errorf("invalid template function or method declaration: the second receiver should be an *ast.CompositeLit, found %T: %v",
+		c.Errorf("invalid generic function or method declaration: the second receiver should be an *ast.CompositeLit, found %T: %v",
 			decl.Recv.List[1].Type, decl)
 	}
 
-	params, fors := c.templateParams(lit.Elts, "function or method", decl)
+	params, fors := c.genericParams(lit.Elts, "function or method", decl)
 
-	fdecl := TemplateFuncDecl{
+	fdecl := GenericFuncDecl{
 		Decl: &ast.FuncLit{
 			Type: decl.Type,
 			Body: decl.Body,
@@ -113,14 +113,14 @@ func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
 		if len(params) == 0 {
 			c.Errorf("cannot declare template function with zero template parameters: %v", decl.Type)
 		}
-		bind := c.NewBind(name, TemplateFuncBind, c.TypeOfPtrTemplateFunc())
+		bind := c.NewBind(name, GenericFuncBind, c.TypeOfPtrTemplateFunc())
 
 		// a template function declaration has no runtime effect:
 		// it merely creates the bind for on-demand instantiation by other code
-		bind.Value = &TemplateFunc{
+		bind.Value = &GenericFunc{
 			Master:    fdecl,
-			Special:   make(map[string]TemplateFuncDecl),
-			Instances: make(map[I]*TemplateFuncInstance),
+			Special:   make(map[string]GenericFuncDecl),
+			Instances: make(map[I]*GenericFuncInstance),
 		}
 		return
 	}
@@ -130,7 +130,7 @@ func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
 	if bind == nil {
 		c.Errorf("undefined identifier: %v", name)
 	}
-	fun, ok := bind.Value.(*TemplateFunc)
+	fun, ok := bind.Value.(*GenericFunc)
 	if !ok {
 		c.Errorf("symbol is not a template function, cannot declare function specializations on it: %s // %v", name, bind.Type)
 	}
@@ -144,19 +144,19 @@ func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
 	fun.Special[key] = fdecl
 }
 
-// TemplateFunc compiles a template function name#[T1, T2...] instantiating it if needed.
-func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
-	maker := c.templateMaker(node, TemplateFuncBind)
-	return c.templateFunc(maker, node)
+// GenericFunc compiles a generic function name#[T1, T2...] instantiating it if needed.
+func (c *Comp) GenericFunc(node *ast.IndexExpr) *Expr {
+	maker := c.genericMaker(node, GenericFuncBind)
+	return c.genericFunc(maker, node)
 }
 
-// templateFunc compiles a template function name#[T1, T2...] instantiating it if needed.
+// genericFunc compiles a generic function name#[T1, T2...] instantiating it if needed.
 // node is used only for error messages
-func (c *Comp) templateFunc(maker *templateMaker, node ast.Node) *Expr {
+func (c *Comp) genericFunc(maker *genericMaker, node ast.Node) *Expr {
 	if maker == nil {
 		return nil
 	}
-	fun := maker.ifun.(*TemplateFunc)
+	fun := maker.ifun.(*GenericFunc)
 	key := maker.ikey
 
 	instance, _ := fun.Instances[key]
@@ -224,7 +224,7 @@ func (c *Comp) templateFunc(maker *templateMaker, node ast.Node) *Expr {
 
 // instantiateTemplateFunc instantiates and compiles a template function.
 // node is used only for error messages
-func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node ast.Node) *TemplateFuncInstance {
+func (maker *genericMaker) instantiateFunc(fun *GenericFunc, node ast.Node) *GenericFuncInstance {
 
 	// choose the specialization to use
 	_, special := maker.chooseFunc(fun)
@@ -234,7 +234,7 @@ func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node ast.Node) *T
 	c.UpCost = 0
 	c.Depth--
 
-	// and inject template arguments into it
+	// and inject generic arguments into it
 	special.injectBinds(c)
 
 	key := maker.ikey
@@ -242,31 +242,31 @@ func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node ast.Node) *T
 	defer func() {
 		if panicking {
 			delete(fun.Instances, key)
-			c.ErrorAt(node.Pos(), "error instantiating template function: %v\n\t%v", maker, recover())
+			c.ErrorAt(node.Pos(), "error instantiating generic function: %v\n\t%v", maker, recover())
 		}
 	}()
 
 	if c.Globals.Options&base.OptDebugTemplate != 0 {
-		c.Debugf("forward-declaring template function before instantiation: %v", maker)
+		c.Debugf("forward-declaring generic function before instantiation: %v", maker)
 	}
-	// support for template recursive functions, as for example
+	// support for generic recursive functions, as for example
 	//   template[T] func fib(n T) T { if n <= 2 { return 1 }; return fib#[T](n-1) + fib#[T](n-2) }
 	// requires to cache fib#[T] as instantiated **before** actually instantiating it.
 	//
-	// This is similar to the technique used for non-template recursive function, as
+	// This is similar to the technique used for non-generic recursive function, as
 	//    func fib(n int) int { if n <= 2 { return 1 }; return fib(n-1) + fib(n-2) }
 	// with the difference that the cache is fun.Instances[key] instead of Comp.Binds[name]
 
 	// for such trick to work, we must:
 	// 1. compute in advance the instantiated function type
-	// 2. check TemplateFuncInstance.Func: if it's nil, take its address and dereference it later at runtime
+	// 2. check GenericFuncInstance.Func: if it's nil, take its address and dereference it later at runtime
 	t, _, _ := c.TypeFunction(special.decl.Decl.Type)
 
-	instance := &TemplateFuncInstance{Type: t, Func: new(func(*Env) r.Value)}
+	instance := &GenericFuncInstance{Type: t, Func: new(func(*Env) r.Value)}
 	fun.Instances[key] = instance
 
 	// compile an expression that, when evaluated at runtime in the *Env
-	// where the template function was declared, returns the instantiated function
+	// where the generic function was declared, returns the instantiated function
 	expr := c.FuncLit(special.decl.Decl)
 
 	*instance.Func = expr.AsX1()

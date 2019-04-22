@@ -270,6 +270,14 @@ func (p *printer) exprList(prev0 token.Pos, list []ast.Expr, depth int, mode exp
 	}
 }
 
+// print the infix #[T1,T2...]
+func (p *printer) genericInfix(c *ast.CompositeLit) {
+	p.print(mt.HASH, token.LBRACK)
+	params, _ := splitTemplateArgs(c)
+	p.exprList(c.Lbrace, params, 1, 0, c.Rbrace)
+	p.print(token.RBRACK)
+}
+
 // print the prefix template[T1,T2...] for[Foo#[T1],Bar#[T2],...]
 func (p *printer) templatePrefix(c *ast.CompositeLit) {
 	p.print(mt.TEMPLATE, token.LBRACK)
@@ -320,7 +328,7 @@ func (p *printer) receiver(fields *ast.FieldList) {
 	}
 }
 
-func funcTemplateArgs(fields *ast.FieldList) *ast.CompositeLit {
+func funcGenericArgs(fields *ast.FieldList) *ast.CompositeLit {
 	var c *ast.CompositeLit
 	if fields != nil && len(fields.List) >= 2 {
 		c, _ = fields.List[1].Type.(*ast.CompositeLit)
@@ -1548,11 +1556,15 @@ func (p *printer) spec(spec ast.Spec, n int, doIndent bool) {
 	case *ast.TypeSpec:
 		p.setComment(s.Doc)
 		typ := s.Type
-		if c, ok := typ.(*ast.CompositeLit); ok {
-			// skip template arguments, they are printed by caller p.GenDecl() below
+		c, ok := typ.(*ast.CompositeLit)
+		if ok {
+			// skip generic arguments, they are printed out-of-order
 			typ = c.Type
 		}
 		p.expr(s.Name)
+		if mt.GENERICS_V2_CTI && c != nil {
+			p.genericInfix(c)
+		}
 		if n == 1 {
 			p.print(blank)
 		} else {
@@ -1572,9 +1584,12 @@ func (p *printer) spec(spec ast.Spec, n int, doIndent bool) {
 func (p *printer) genDecl(d *ast.GenDecl) {
 	p.setComment(d.Doc)
 
-	if len(d.Specs) != 0 {
+	// generic types
+	var c *ast.CompositeLit
+
+	if mt.GENERICS_V1_CXX && len(d.Specs) != 0 {
 		if typ, ok := d.Specs[0].(*ast.TypeSpec); ok {
-			if c, ok := typ.Type.(*ast.CompositeLit); ok {
+			if c, ok = typ.Type.(*ast.CompositeLit); ok {
 				// print template arguments.
 				// Assume they are identical for all Specs in the list
 				p.templatePrefix(c)
@@ -1750,8 +1765,8 @@ func (p *printer) funcDecl(d *ast.FuncDecl) {
 
 	p.print(d.Pos())
 
-	c := funcTemplateArgs(d.Recv)
-	if c != nil {
+	c := funcGenericArgs(d.Recv)
+	if c != nil && mt.GENERICS_V1_CXX {
 		// template function or template method
 		p.templatePrefix(c)
 	}
@@ -1761,6 +1776,10 @@ func (p *printer) funcDecl(d *ast.FuncDecl) {
 		p.receiver(d.Recv) // method: print receiver
 	}
 	p.expr(d.Name)
+	if c != nil && mt.GENERICS_V2_CTI {
+		// generic function or generic method
+		p.genericInfix(c)
+	}
 	p.signature(d.Type.Params, d.Type.Results)
 	p.funcBody(p.distanceFrom(d.Pos()), vtab, d.Body)
 }

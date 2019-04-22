@@ -219,7 +219,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		t = c.ResolveType(node.Name)
 	case *ast.IndexExpr:
 		if GENERICS_V1_CXX {
-			t = c.TemplateType(node)
+			t = c.GenericType(node)
 		} else {
 			c.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 		}
@@ -878,8 +878,8 @@ var (
 	rtypeOfFunction        = r.TypeOf(Function{})
 	rtypeOfMacro           = r.TypeOf(Macro{})
 	rtypeOfPtrImport       = r.TypeOf((*Import)(nil))
-	rtypeOfPtrTemplateFunc = r.TypeOf((*TemplateFunc)(nil))
-	rtypeOfPtrTemplateType = r.TypeOf((*TemplateType)(nil))
+	rtypeOfPtrTemplateFunc = r.TypeOf((*GenericFunc)(nil))
+	rtypeOfPtrTemplateType = r.TypeOf((*GenericType)(nil))
 	rtypeOfReflectType     = r.TypeOf((*r.Type)(nil)).Elem()
 	rtypeOfUntypedLit      = r.TypeOf((*UntypedLit)(nil)).Elem()
 

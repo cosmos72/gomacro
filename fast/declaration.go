@@ -310,7 +310,7 @@ func (c *CompBinds) NewBind(o *base.Output, name string, class BindClass, t xr.T
 	}
 	// allocate a slot either in Binds or in IntBinds
 	switch class {
-	case ConstBind, TemplateFuncBind:
+	case ConstBind, GenericFuncBind:
 		index = NoIndex
 	default: // case FuncBind, VarBind:
 		if index == NoIndex {

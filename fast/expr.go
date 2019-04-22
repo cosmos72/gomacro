@@ -184,7 +184,7 @@ func (c *Comp) Expr1OrType(expr ast.Expr) (e *Expr, t xr.Type) {
 				bind, okb := o.Binds[name]
 				var okt bool
 				if GENERICS_V1_CXX && okb {
-					_, okt = bind.Value.(*TemplateType) // template types are stored in Comp.Bind[]
+					_, okt = bind.Value.(*GenericType) // template types are stored in Comp.Bind[]
 					okb = !okt
 				}
 				if okb {
@@ -219,8 +219,8 @@ func (c *Comp) Expr1OrType(expr ast.Expr) (e *Expr, t xr.Type) {
 // IndexExpr compiles a read operation on obj[idx]
 // or a template function name#[T1, T2...]
 func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
-	if GENERICS_V1_CXX {
-		if e := c.TemplateFunc(node); e != nil {
+	if GENERICS_V1_CXX || GENERICS_V2_CTI {
+		if e := c.GenericFunc(node); e != nil {
 			return e
 		}
 	}
@@ -230,8 +230,8 @@ func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
 // IndexExpr1 compiles a single-valued read operation on obj[idx]
 // or a template function name#[T1, T2...]
 func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr {
-	if GENERICS_V1_CXX {
-		if e := c.TemplateFunc(node); e != nil {
+	if GENERICS_V1_CXX || GENERICS_V2_CTI {
+		if e := c.GenericFunc(node); e != nil {
 			return e
 		}
 	}

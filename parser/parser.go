@@ -2542,6 +2542,12 @@ func (p *parser) parseFuncOrMacroDecl(tok token.Token) *ast.FuncDecl {
 
 	ident := p.parseIdent()
 
+	// patch: generic v2 type params
+	var c *ast.CompositeLit
+	if tok != mt.MACRO && mt.GENERICS_V2_CTI && p.tok == mt.HASH {
+		p.next()
+		c = p.parseGenericParams()
+	}
 	params, results := p.parseSignature(scope)
 
 	var body *ast.BlockStmt
@@ -2573,6 +2579,9 @@ func (p *parser) parseFuncOrMacroDecl(tok token.Token) *ast.FuncDecl {
 		}
 	}
 
+	if c != nil {
+		decl = genericFuncDecl(c, decl)
+	}
 	return decl
 }
 

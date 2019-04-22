@@ -101,7 +101,7 @@ func (sym *Symbol) Expr(depth int, g *CompGlobals) *Expr {
 		return sym.expr(depth, g)
 	case IntBind:
 		return sym.intExpr(depth, g)
-	case TemplateFuncBind, TemplateTypeBind:
+	case GenericFuncBind, TemplateTypeBind:
 		if GENERICS_V1_CXX {
 			// dirty... allows var x = template_func_name
 			return &Expr{Lit: Lit{Type: sym.Type, Value: sym.Value}, Sym: sym}

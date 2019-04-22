@@ -72,11 +72,11 @@ func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
 	switch tok := p.tok; tok {
 	case token.TYPE:
 		decl := p.parseGenDecl(tok, p.parseTypeSpec)
-		return templateTypeDecl(params, decl)
+		return genericV1TypeDecl(params, decl)
 
 	case token.FUNC, mt.FUNCTION:
 		decl := p.parseFuncDecl(tok)
-		return templateFuncDecl(params, decl)
+		return genericFuncDecl(params, decl)
 
 	default:
 		pos := p.pos
@@ -119,7 +119,7 @@ func (p *parser) parseGenericParams() *ast.CompositeLit {
 	}
 }
 
-func templateTypeDecl(params *ast.CompositeLit, decl *ast.GenDecl) *ast.GenDecl {
+func genericV1TypeDecl(params *ast.CompositeLit, decl *ast.GenDecl) *ast.GenDecl {
 	for _, spec := range decl.Specs {
 		if typespec, ok := spec.(*ast.TypeSpec); ok {
 			// hack: store template params in *ast.CompositeLit.
@@ -135,7 +135,7 @@ func templateTypeDecl(params *ast.CompositeLit, decl *ast.GenDecl) *ast.GenDecl 
 	return decl
 }
 
-func templateFuncDecl(params *ast.CompositeLit, decl *ast.FuncDecl) *ast.FuncDecl {
+func genericFuncDecl(params *ast.CompositeLit, decl *ast.FuncDecl) *ast.FuncDecl {
 	// hack: store template types as second function receiver.
 	// it's never used for functions and macros.
 	recv := decl.Recv

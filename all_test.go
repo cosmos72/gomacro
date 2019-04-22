@@ -66,13 +66,13 @@ func (tc *TestCase) shouldRun(interp TestFor) bool {
 	if tc.testfor&interp == 0 {
 		return false
 	}
-	if tc.testfor&G1 != 0 {
-		return mt.GENERICS_V1_CXX
+	if tc.testfor&G1 != 0 && mt.GENERICS_V1_CXX {
+		return true
 	}
-	if tc.testfor&G2 != 0 {
-		return mt.GENERICS_V2_CTI
+	if tc.testfor&G2 != 0 && mt.GENERICS_V2_CTI {
+		return true
 	}
-	return true
+	return tc.testfor&(G1|G2) == 0
 }
 
 var foundZ bool
@@ -367,6 +367,26 @@ func init() {
 	bigFloat.SetString("1e1234")
 	bigFloat.Mul(bigFloat, bigFloat)
 	bigFloat.Mul(bigFloat, bigFloat)
+}
+
+func decl_generic_pair_str() string {
+	if mt.GENERICS_V1_CXX {
+		return "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}"
+	} else if mt.GENERICS_V2_CTI {
+		return "~quote{type Pair#[T1,T2] struct { First T1; Second T2 }}"
+	} else {
+		return ""
+	}
+}
+
+func decl_generic_sum_str() string {
+	if mt.GENERICS_V1_CXX {
+		return "~quote{template [T] func Sum([]T) T { }}"
+	} else if mt.GENERICS_V2_CTI {
+		return "~quote{~func Sum#[T] ([]T) T { }}"
+	} else {
+		return ""
+	}
 }
 
 var testcases = []TestCase{
@@ -1068,7 +1088,7 @@ var testcases = []TestCase{
 	TestCase{A, "eval", "Eval(~quote{1+2})", 3, nil},
 	TestCase{C, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
 
-	TestCase{A | G1, "parse_decl_generic_type", "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}",
+	TestCase{A | G1 | G2, "parse_decl_generic_type_1", decl_generic_pair_str(),
 		&ast.GenDecl{
 			Tok: token.TYPE,
 			Specs: []ast.Spec{
@@ -1098,7 +1118,7 @@ var testcases = []TestCase{
 			},
 		}, nil},
 
-	TestCase{A | G1, "parse_decl_generic_func", "~quote{template [T] func Sum([]T) T { }}",
+	TestCase{A | G1 | G2, "parse_decl_generic_func_1", decl_generic_sum_str(),
 		&ast.FuncDecl{
 			Recv: &ast.FieldList{
 				List: []*ast.Field{

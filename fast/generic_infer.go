@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * template_infer.go
+ * generic_infer.go
  *
  *  Created on Jun 06, 2018
  *      Author Massimiliano Ghilardi
@@ -46,10 +46,10 @@ func (inf *inferType) String() string {
 	return "<" + s + ">"
 }
 
-// type inference on template functions
+// type inference on generic functions
 type inferFuncType struct {
 	comp     *Comp
-	tfun     *TemplateFunc
+	tfun     *GenericFunc
 	funcname string
 	inferred map[string]inferType
 	patterns []ast.Expr
@@ -61,20 +61,20 @@ func (inf *inferFuncType) String() string {
 	return inf.tfun.Signature(inf.funcname)
 }
 
-func (c *Comp) inferTemplateFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *Expr {
-	tfun, ok := fun.Value.(*TemplateFunc)
+func (c *Comp) inferGenericFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *Expr {
+	tfun, ok := fun.Value.(*GenericFunc)
 	if !ok {
-		c.Errorf("internal error: Comp.inferTemplateFunc() invoked on non-template function %v: %v", fun.Type, call.Fun)
+		c.Errorf("internal error: Comp.inferTemplateFunc() invoked on non-generic function %v: %v", fun.Type, call.Fun)
 	}
 	var upc *Comp
 	var funcname string
 	{
 		ident, ok := call.Fun.(*ast.Ident)
 		if !ok {
-			c.Errorf("unimplemented type inference on non-name template function %v: %v", call.Fun, call)
+			c.Errorf("unimplemented type inference on non-name generic function %v: %v", call.Fun, call)
 		}
 		if fun.Sym == nil {
-			c.Errorf("unimplemented type inference on non-symbol template function %v %#v: %v", call.Fun, fun, call)
+			c.Errorf("unimplemented type inference on non-symbol generic function %v %#v: %v", call.Fun, fun, call)
 		}
 		// find the scope where fun is declared
 		funcname = ident.Name
@@ -86,7 +86,7 @@ func (c *Comp) inferTemplateFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *E
 		}
 	}
 	if upc == nil {
-		c.Errorf("internal error: Comp.inferTemplateFunc() failed to determine the scope containing template function declaration: %v", call.Fun)
+		c.Errorf("internal error: Comp.inferTemplateFunc() failed to determine the scope containing generic function declaration: %v", call.Fun)
 	}
 
 	master := tfun.Master
@@ -95,7 +95,7 @@ func (c *Comp) inferTemplateFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *E
 	var patterns []ast.Expr
 	ellipsis := call.Ellipsis != token.NoPos
 	variadic := false
-	// collect template function param types expressions
+	// collect generic function param types expressions
 	if fields := typ.Params; fields != nil {
 		if n := len(fields.List); n != 0 {
 			_, variadic = fields.List[n-1].Type.(*ast.Ellipsis)
@@ -107,9 +107,9 @@ func (c *Comp) inferTemplateFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *E
 		}
 	}
 	if variadic && !ellipsis {
-		c.Errorf("unimplemented type inference on variadic template function: %v", call)
+		c.Errorf("unimplemented type inference on variadic generic function: %v", call)
 	} else if !variadic && ellipsis {
-		c.Errorf("invalid use of ... in call to non-variadic template function: %v", call)
+		c.Errorf("invalid use of ... in call to non-variadic generic function: %v", call)
 	}
 
 	// collect call arg types
@@ -133,7 +133,7 @@ func (c *Comp) inferTemplateFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *E
 		}
 	}
 	if nargs != len(patterns) {
-		c.Errorf("template function %v has %d params, cannot call with %d values: %v", tfun, len(patterns), nargs, call)
+		c.Errorf("generic function %v has %d params, cannot call with %d values: %v", tfun, len(patterns), nargs, call)
 	}
 	inferred := make(map[string]inferType)
 	for _, name := range master.Params {
@@ -141,16 +141,16 @@ func (c *Comp) inferTemplateFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *E
 	}
 	inf := inferFuncType{comp: c, tfun: tfun, funcname: funcname, inferred: inferred, patterns: patterns, targs: targs, call: call}
 	vals, types := inf.args()
-	maker := &templateMaker{
+	maker := &genericMaker{
 		comp: upc, sym: fun.Sym, ifun: fun.Sym.Value,
 		exprs: nil, vals: vals, types: types,
 		ikey: makeTemplateKey(vals, types),
 		pos:  inf.call.Pos(),
 	}
-	return c.templateFunc(maker, call)
+	return c.genericFunc(maker, call)
 }
 
-// infer type of template function from arguments
+// infer type of generic function from arguments
 func (inf *inferFuncType) args() (vals []I, types []xr.Type) {
 	exact := false // allow implicit type conversions
 
@@ -182,7 +182,7 @@ func (inf *inferFuncType) args() (vals []I, types []xr.Type) {
 	for i, name := range params {
 		inferred, ok := inf.inferred[name]
 		if !ok || inferred.Type == nil {
-			inf.comp.Errorf("failed to infer %v in call to template function: %v", name, inf.call)
+			inf.comp.Errorf("failed to infer %v in call to generic function: %v", name, inf.call)
 		}
 		types[i] = inferred.Type
 		vals[i] = inferred.Value
@@ -190,7 +190,7 @@ func (inf *inferFuncType) args() (vals []I, types []xr.Type) {
 	return vals, types
 }
 
-// partially infer type of template function for a single parameter
+// partially infer type of generic function for a single parameter
 func (inf *inferFuncType) arg(pattern ast.Expr, targ xr.Type, exact bool) {
 	stars := 0
 	for {
@@ -214,8 +214,8 @@ func (inf *inferFuncType) arg(pattern ast.Expr, targ xr.Type, exact bool) {
 				continue
 			}
 		case *ast.IndexExpr:
-			// function's parameter is itself a template
-			pattern, targ, exact = inf.templateType(node, targ, exact)
+			// function's parameter is itself a generic
+			pattern, targ, exact = inf.genericType(node, targ, exact)
 			if pattern != nil {
 				continue
 			}
@@ -256,7 +256,7 @@ func (inf *inferFuncType) arg(pattern ast.Expr, targ xr.Type, exact bool) {
 	}
 }
 
-// partially infer type of template function from an array or slice parameter
+// partially infer type of generic function from an array or slice parameter
 func (inf *inferFuncType) arrayType(node *ast.ArrayType, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
 	if node.Len == nil {
 		inf.is(node, targ, r.Slice)
@@ -270,7 +270,7 @@ func (inf *inferFuncType) arrayType(node *ast.ArrayType, targ xr.Type, exact boo
 	return node.Elt, targ.Elem(), true
 }
 
-// partially infer type of template function for a channel parameter
+// partially infer type of generic function for a channel parameter
 func (inf *inferFuncType) chanType(node *ast.ChanType, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
 	inf.is(node, targ, r.Chan)
 	tdir := targ.ChanDir()
@@ -281,20 +281,20 @@ func (inf *inferFuncType) chanType(node *ast.ChanType, targ xr.Type, exact bool)
 	return node.Value, targ.Elem(), true
 }
 
-// partially infer type of template function for a constant parameter
+// partially infer type of generic function for a constant parameter
 func (inf *inferFuncType) constant(node ast.Expr, val I, exact bool) {
 	// TODO
-	inf.comp.ErrorAt(node.Pos(), "unimplemented type inference: template function with parameter type %v and argument %v: %v",
+	inf.comp.ErrorAt(node.Pos(), "unimplemented type inference: generic function with parameter type %v and argument %v: %v",
 		node, val, inf.call)
 }
 
-// partially infer type of template function for a func parameter
+// partially infer type of generic function for a func parameter
 func (inf *inferFuncType) funcType(node *ast.FuncType, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
 	// TODO
 	return inf.unimplemented(node, targ)
 }
 
-// partially infer type of template function for an identifier parameter
+// partially infer type of generic function for an identifier parameter
 func (inf *inferFuncType) ident(node *ast.Ident, targ xr.Type, exact bool) {
 	c := inf.comp
 	name := node.Name
@@ -312,7 +312,7 @@ func (inf *inferFuncType) ident(node *ast.Ident, targ xr.Type, exact bool) {
 		return
 	}
 
-	// inferring one of the function template parameters
+	// inferring one of the function generic parameters
 	inf.combine(node, &inferred, inferType{Type: targ, Exact: exact})
 	inf.inferred[name] = inferred
 
@@ -365,33 +365,33 @@ func (inf *inferFuncType) combine(node ast.Expr, inferred *inferType, with infer
 	}
 }
 
-// partially infer type of template function for an interface parameter
+// partially infer type of generic function for an interface parameter
 func (inf *inferFuncType) interfaceType(node *ast.InterfaceType, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
 	// TODO
 	return inf.unimplemented(node, targ)
 }
 
-// partially infer type of template function for a map parameter
+// partially infer type of generic function for a map parameter
 func (inf *inferFuncType) mapType(node *ast.MapType, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
 	inf.is(node, targ, r.Map)
 	inf.arg(node.Key, targ.Key(), true)
 	return node.Value, targ.Elem(), true
 }
 
-// partially infer type of template function for an imported type
+// partially infer type of generic function for an imported type
 func (inf *inferFuncType) selector(node *ast.SelectorExpr, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
 	// TODO
 	return inf.unimplemented(node, targ)
 }
 
-// partially infer type of template function for a struct parameter
+// partially infer type of generic function for a struct parameter
 func (inf *inferFuncType) structType(node *ast.StructType, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
 	// TODO
 	return inf.unimplemented(node, targ)
 }
 
-// partially infer type of template function for a template parameter
-func (inf *inferFuncType) templateType(node *ast.IndexExpr, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
+// partially infer type of generic function for a generic parameter
+func (inf *inferFuncType) genericType(node *ast.IndexExpr, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
 	// TODO
 	return inf.unimplemented(node, targ)
 }

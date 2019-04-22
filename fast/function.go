@@ -50,8 +50,8 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl) {
 			c.methodDecl(funcdecl)
 			return
 		default:
-			if GENERICS_V1_CXX {
-				c.DeclTemplateFunc(funcdecl)
+			if GENERICS_V1_CXX || GENERICS_V2_CTI {
+				c.DeclGenericFunc(funcdecl)
 				return
 			}
 			c.Errorf("invalid function/method declaration: found %d receivers, expecting at most one: %v", n, funcdecl)

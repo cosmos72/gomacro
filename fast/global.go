@@ -224,7 +224,7 @@ const (
 	FuncBind
 	VarBind
 	IntBind
-	TemplateFuncBind
+	GenericFuncBind
 	TemplateTypeBind
 )
 
@@ -238,7 +238,7 @@ func (class BindClass) String() string {
 		return "var"
 	case IntBind:
 		return "intvar"
-	case TemplateFuncBind:
+	case GenericFuncBind:
 		return "template func"
 	case TemplateTypeBind:
 		return "template type"
@@ -328,7 +328,7 @@ func (bind *Bind) RuntimeValue(g *CompGlobals, env *Env) r.Value {
 		v = expr.AsX1()(env)
 	case VarBind, FuncBind:
 		v = env.Vals[bind.Desc.Index()]
-	case TemplateFuncBind, TemplateTypeBind:
+	case GenericFuncBind, TemplateTypeBind:
 		if GENERICS_V1_CXX {
 			v = bind.Lit.ConstValue()
 			break
