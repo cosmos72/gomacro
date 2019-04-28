@@ -101,11 +101,11 @@ func (sym *Symbol) Expr(depth int, g *CompGlobals) *Expr {
 		return sym.expr(depth, g)
 	case IntBind:
 		return sym.intExpr(depth, g)
-	case GenericFuncBind, TemplateTypeBind:
-		if GENERICS_V1_CXX {
-			// dirty... allows var x = template_func_name
+	case GenericFuncBind, GenericTypeBind:
+		if GENERICS_V1_CXX || GENERICS_V2_CTI {
+			// dirty... allows var x = generic_func_name
 			return &Expr{Lit: Lit{Type: sym.Type, Value: sym.Value}, Sym: sym}
-			// g.Errorf("%s name must be followed by #[...] template arguments: %v", class, sym.Name)
+			// g.Errorf("%s name must be followed by #[...] generic arguments: %v", class, sym.Name)
 		}
 		fallthrough
 	default:

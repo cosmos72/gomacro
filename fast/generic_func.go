@@ -111,11 +111,11 @@ func (c *Comp) DeclGenericFunc(decl *ast.FuncDecl) {
 		// master (i.e. not specialized) declaration
 
 		if len(params) == 0 {
-			c.Errorf("cannot declare template function with zero template parameters: %v", decl.Type)
+			c.Errorf("cannot declare generic function with zero generic parameters: %v", decl.Type)
 		}
-		bind := c.NewBind(name, GenericFuncBind, c.TypeOfPtrTemplateFunc())
+		bind := c.NewBind(name, GenericFuncBind, c.TypeOfPtrGenericFunc())
 
-		// a template function declaration has no runtime effect:
+		// a generic function declaration has no runtime effect:
 		// it merely creates the bind for on-demand instantiation by other code
 		bind.Value = &GenericFunc{
 			Master:    fdecl,

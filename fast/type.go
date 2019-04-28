@@ -878,8 +878,8 @@ var (
 	rtypeOfFunction        = r.TypeOf(Function{})
 	rtypeOfMacro           = r.TypeOf(Macro{})
 	rtypeOfPtrImport       = r.TypeOf((*Import)(nil))
-	rtypeOfPtrTemplateFunc = r.TypeOf((*GenericFunc)(nil))
-	rtypeOfPtrTemplateType = r.TypeOf((*GenericType)(nil))
+	rtypeOfPtrGenericFunc = r.TypeOf((*GenericFunc)(nil))
+	rtypeOfPtrGenericType = r.TypeOf((*GenericType)(nil))
 	rtypeOfReflectType     = r.TypeOf((*r.Type)(nil)).Elem()
 	rtypeOfUntypedLit      = r.TypeOf((*UntypedLit)(nil)).Elem()
 
@@ -902,12 +902,12 @@ func (g *CompGlobals) TypeOfPtrImport() xr.Type {
 	return g.Universe.ReflectTypes[rtypeOfPtrImport]
 }
 
-func (g *CompGlobals) TypeOfPtrTemplateFunc() xr.Type {
-	return g.Universe.ReflectTypes[rtypeOfPtrTemplateFunc]
+func (g *CompGlobals) TypeOfPtrGenericFunc() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfPtrGenericFunc]
 }
 
-func (g *CompGlobals) TypeOfPtrTemplateType() xr.Type {
-	return g.Universe.ReflectTypes[rtypeOfPtrTemplateType]
+func (g *CompGlobals) TypeOfPtrGenericType() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfPtrGenericType]
 }
 
 func (g *CompGlobals) TypeOfUntypedLit() xr.Type {

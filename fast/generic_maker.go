@@ -129,7 +129,7 @@ func (c *Comp) genericMaker(node *ast.IndexExpr, which BindClass) *genericMaker 
 			if ok {
 				params = fun.Master.Params
 			}
-		case TemplateTypeBind:
+		case GenericTypeBind:
 			typ, _ := ifun.(*GenericType)
 			ok = typ != nil
 			if ok {

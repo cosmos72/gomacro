@@ -127,7 +127,7 @@ func (c *Comp) DeclTemplateType(spec *ast.TypeSpec) {
 			c.Errorf("cannot declare generic type with zero generic parameters: %v", spec)
 		}
 
-		bind := c.NewBind(name, TemplateTypeBind, c.TypeOfPtrTemplateType())
+		bind := c.NewBind(name, GenericTypeBind, c.TypeOfPtrGenericType())
 		// a generic type declaration has no runtime effect:
 		// it merely creates the bind for on-demand instantiation by other code
 
@@ -160,7 +160,7 @@ func (c *Comp) DeclTemplateType(spec *ast.TypeSpec) {
 
 // GenericType compiles a generic type name#[T1, T2...] instantiating it if needed.
 func (c *Comp) GenericType(node *ast.IndexExpr) xr.Type {
-	maker := c.genericMaker(node, TemplateTypeBind)
+	maker := c.genericMaker(node, GenericTypeBind)
 	if maker == nil {
 		return nil
 	}
