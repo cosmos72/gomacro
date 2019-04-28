@@ -399,6 +399,16 @@ func decl_generic_method_rest_str() string {
 	}
 }
 
+func generic_func(name string, generic_args string) string {
+	if mt.GENERICS_V1_CXX {
+		return "template[" + generic_args + "] func " + name
+	} else if mt.GENERICS_V2_CTI {
+		return "func " + name + "#[" + generic_args + "]"
+	} else {
+		return ""
+	}
+}
+
 var testcases = []TestCase{
 	TestCase{A, "1+1", "1+1", 1 + 1, nil},
 	TestCase{A, "1+'A'", "1+'A'", 'B', nil}, // rune i.e. int32 should win over untyped constant (or int)
@@ -1231,17 +1241,8 @@ var testcases = []TestCase{
 			},
 		}, nil},
 
-	TestCase{F | G1, "generic_func_1", `
-		template[T] func Sum(args ...T) T {
-			var sum T
-			for _, elem := range args {
-				sum += elem
-			}
-			return sum
-		}`, nil, none,
-	},
-	TestCase{F | G2, "generic_func_1", `
-		func Sum#[T] (args ...T) T {
+	TestCase{F | G1 | G2, "generic_func_1",
+		generic_func("Sum", "T") + `(args ...T) T {
 			var sum T
 			for _, elem := range args {
 				sum += elem
@@ -1255,8 +1256,8 @@ var testcases = []TestCase{
 	TestCase{F | G1 | G2, "generic_func_5", `Sum#[complex64](1.1+2.2i, 3.3)`, complex64(1.1+2.2i) + complex64(3.3), nil},
 	TestCase{F | G1 | G2, "generic_func_6", `Sum#[string]("abc","def","xy","z")`, "abcdefxyz", nil},
 
-	TestCase{F | G1, "template_func_7", `
-		template[T,U] func Transform(slice []T, trans func(T) U) []U {
+	TestCase{F | G1 | G2, "generic_func_7",
+		generic_func("Transform", "T,U") + ` (slice []T, trans func(T) U) []U {
 			ret := make([]U, len(slice))
 			for i := range slice {
 				ret[i] = trans(slice[i])
@@ -1265,30 +1266,34 @@ var testcases = []TestCase{
 		}
 		func stringLen(s string) int { return len(s) }`, nil, none,
 	},
-	TestCase{F | G1, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, stringLen)`,
-		[]int{3, 2, 1}, nil},
-	TestCase{F | G1, "template_func_9", `template[A,B,C] func SwapArgs(f func(A, B) C) func(B,A) C {
+	TestCase{F | G1 | G2, "generic_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, stringLen)`,
+		[]int{3, 2, 1}, nil,
+	},
+	TestCase{F | G1 | G2, "generic_func_9",
+		generic_func("SwapArgs", "A,B,C") + ` (f func(A, B) C) func(B,A) C {
 			return func (b B, a A) C {
 				return f(a, b)
 			}
-		}
+		}`, nil, none,
+	},
+	TestCase{F | G1 | G2, "generic_func_10", `
 		SwapArgs#[float64,float64,float64](func (a float64, b float64) float64 { return a/b })(2.0, 3.0)
-    `, 1.5, nil},
-
-	TestCase{F | G1, "template_func_curry", `
-	    template[A,B,C] func Curry(f func(A, B) C) func(A) func(B) C {
+	    `, 1.5, nil,
+	},
+	TestCase{F | G1 | G2, "generic_func_curry",
+		generic_func("Curry", "A,B,C") + ` (f func(A, B) C) func(A) func(B) C {
 			return func (a A) func (B) C {
 				return func (b B) C {
 					return f(a, b)
 				}
 			}
 		}
-		template[T] func add2(a,b T) T { return a+b }
+		` + generic_func("add2", "T") + ` (a,b T) T { return a+b }
 		Curry#[int,int,int](add2#[int])(2)(3)
 	`,
 		5, nil},
 
-	TestCase{F | G1, "template_func_lift_1", `
+	TestCase{F | G1, "generic_func_lift_1", `
 	    template[A,B] func Lift1(trans func(A) B) func([]A) []B {
 			return func(slice []A) []B {
 				ret := make([]B, len(slice))
@@ -1302,7 +1307,7 @@ var testcases = []TestCase{
 	`,
 		[]int{1, 2, 3}, nil},
 
-	TestCase{F | G1, "template_func_lift_2", `
+	TestCase{F | G1, "generic_func_lift_2", `
 	    // quite a convoluted test
 	    template[A,B] func Lift2(trans func(A) B) func([]A) []B {
 			return Curry#[func(A)B, []A, []B](

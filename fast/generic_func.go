@@ -125,6 +125,9 @@ func (c *Comp) DeclGenericFunc(decl *ast.FuncDecl) {
 		return
 	}
 
+	if !GENERICS_V1_CXX {
+		c.Errorf("generic function partial/full specializations are only supported by C++-style generics: %v", decl)
+	}
 	// partially or fully specialized declaration
 	bind := c.Binds[name]
 	if bind == nil {
@@ -132,14 +135,14 @@ func (c *Comp) DeclGenericFunc(decl *ast.FuncDecl) {
 	}
 	fun, ok := bind.Value.(*GenericFunc)
 	if !ok {
-		c.Errorf("symbol is not a template function, cannot declare function specializations on it: %s // %v", name, bind.Type)
+		c.Errorf("symbol is not a generic function, cannot declare function specializations on it: %s // %v", name, bind.Type)
 	}
 	key := c.Globals.Sprintf("%v", &ast.IndexExpr{X: decl.Name, Index: &ast.CompositeLit{Elts: fors}})
 	if len(fun.Master.Params) != len(fors) {
-		c.Errorf("template function specialization for %d parameters, expecting %d: %s", len(fors), len(fun.Master.Params), key)
+		c.Errorf("generic function specialization for %d parameters, expecting %d: %s", len(fors), len(fun.Master.Params), key)
 	}
 	if _, ok := fun.Special[key]; ok {
-		c.Warnf("redefined template function specialization: %s", key)
+		c.Warnf("redefined generic function specialization: %s", key)
 	}
 	fun.Special[key] = fdecl
 }
