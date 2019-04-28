@@ -92,6 +92,9 @@ func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
 
 // parse [T1,T2...] in a generic declaration
 func (p *parser) parseGenericParams() *ast.CompositeLit {
+	if p.trace {
+		defer un(trace(p, "GenericParams"))
+	}
 	var list []ast.Expr
 
 	lbrack := p.expect(token.LBRACK)
@@ -103,10 +106,18 @@ func (p *parser) parseGenericParams() *ast.CompositeLit {
 				list = append(list, p.parseRhsOrType())
 			}
 		} else if GENERICS_V2_CTI {
-			list = append(list, p.parseElement())
-			for p.tok == token.COMMA {
+			for {
+				x := p.parseRhsOrType()
+				if p.tok == token.COLON {
+					colon := p.pos
+					p.next()
+					x = &ast.KeyValueExpr{Key: x, Colon: colon, Value: p.parseRhsOrType()}
+				}
+				list = append(list, x)
+				if p.tok != token.COMMA {
+					break
+				}
 				p.next()
-				list = append(list, p.parseElement())
 			}
 		}
 	}
