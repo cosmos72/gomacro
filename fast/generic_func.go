@@ -56,8 +56,29 @@ func (f *GenericFunc) Signature(name string) string {
 		return "<nil>"
 	}
 	var buf bytes.Buffer // strings.Builder requires Go >= 1.10
-	buf.WriteString("template[")
 	decl := f.Master
+	if GENERICS_V1_CXX {
+		buf.WriteString("template[")
+		for i, param := range decl.Params {
+			if i != 0 {
+				buf.WriteString(", ")
+			}
+			buf.WriteString(param)
+		}
+		buf.WriteString("] ")
+		if len(name) == 0 {
+			(*output.Stringer).Fprintf(nil, &buf, "%v", decl.Decl.Type)
+		} else {
+			(*output.Stringer).Fprintf(nil, &buf, "%v", &ast.FuncDecl{
+				Name: &ast.Ident{Name: name},
+				Type: decl.Decl.Type,
+			})
+		}
+		return buf.String()
+	}
+
+	buf.WriteString(name)
+	buf.WriteString("#[")
 	for i, param := range decl.Params {
 		if i != 0 {
 			buf.WriteString(", ")
@@ -65,14 +86,12 @@ func (f *GenericFunc) Signature(name string) string {
 		buf.WriteString(param)
 	}
 	buf.WriteString("] ")
-	if len(name) == 0 {
-		(*output.Stringer).Fprintf(nil, &buf, "%v", decl.Decl.Type)
-	} else {
-		(*output.Stringer).Fprintf(nil, &buf, "%v", &ast.FuncDecl{
-			Name: &ast.Ident{Name: name},
-			Type: decl.Decl.Type,
-		})
-	}
+	gname := buf.String()
+	buf.Reset()
+	(*output.Stringer).Fprintf(nil, &buf, "%v", &ast.FuncDecl{
+		Name: &ast.Ident{Name: gname},
+		Type: decl.Decl.Type,
+	})
 	return buf.String()
 }
 
