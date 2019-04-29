@@ -409,6 +409,16 @@ func generic_func(name string, generic_args string) string {
 	}
 }
 
+func generic_type(name string, generic_args string) string {
+	if mt.GENERICS_V1_CXX {
+		return "template[" + generic_args + "] type " + name
+	} else if mt.GENERICS_V2_CTI {
+		return "type " + name + "#[" + generic_args + "]"
+	} else {
+		return ""
+	}
+}
+
 var testcases = []TestCase{
 	TestCase{A, "1+1", "1+1", 1 + 1, nil},
 	TestCase{A, "1+'A'", "1+'A'", 'B', nil}, // rune i.e. int32 should win over untyped constant (or int)
@@ -1321,7 +1331,7 @@ var testcases = []TestCase{
 		[]int{1, 2, 3}, nil},
 
 	// quite a convoluted test
-	TestCase{F | G1, "generic_func_lift_2",
+	TestCase{F | G1 | G2, "generic_func_lift_2",
 		generic_func("Lift2", "A,B") + ` (trans func(A) B) func([]A) []B {
 			return Curry#[func(A)B, []A, []B](
 				SwapArgs#[[]A, func(A)B, []B](Transform#[A,B]),
@@ -1331,9 +1341,13 @@ var testcases = []TestCase{
 	`,
 		[]int{2, 1, 0}, nil},
 
-	TestCase{F | G1, "recursive_generic_func_1", `template[T] func count(a, b T) T { if a <= 0 { return b }; return count#[T](a-1,b+1) }`, nil, none},
-	TestCase{F | G1, "recursive_generic_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
-	TestCase{F | G1, "recursive_generic_func_3", `count#[uint32](2,3)`, uint32(5), nil},
+	TestCase{F | G1 | G2, "recursive_generic_func_1",
+		generic_func("count", "T") + ` (a, b T) T { if a <= 0 { return b }
+		return count#[T](a-1,b+1) }`,
+		nil, none,
+	},
+	TestCase{F | G1 | G2, "recursive_generic_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
+	TestCase{F | G1 | G2, "recursive_generic_func_3", `count#[uint32](2,3)`, uint32(5), nil},
 
 	TestCase{F | G1, "specialized_generic_func_1", `template[] for[bool] func count(a, b bool) bool { return a || b }`, nil, none},
 	TestCase{F | G1, "specialized_generic_func_2", `count#[bool]`, func(bool, bool) bool { return false }, nil},
@@ -1341,7 +1355,10 @@ var testcases = []TestCase{
 	TestCase{F | G1, "specialized_generic_func_4", `template[T] for[*T] func count(a, b *T) *T { return a }`, nil, none},
 	TestCase{F | G1, "specialized_generic_func_5", `count#[*int]`, func(*int, *int) *int { return nil }, nil},
 
-	TestCase{F | G1, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, none},
+	TestCase{F | G1, "generic_type_1",
+		generic_type("PairX", "T1,T2") + `struct { First T1; Second T2 }`,
+		nil, none,
+	},
 	TestCase{F | G1, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
 	TestCase{F | G1, "template_type_3", `PairX#[bool, interface{}] {true, "foo"}`, PairX3{true, "foo"}, nil},
 
