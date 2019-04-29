@@ -43,7 +43,7 @@ const (
 	OptDebugRecover
 	OptDebugQuasiquote
 	OptDebugSleepOnSwitch // to torture-test "switch" implementation for race conditions
-	OptDebugTemplate
+	OptDebugGenerics
 	OptShowCompile
 	OptShowEval
 	OptShowEvalType
@@ -72,13 +72,13 @@ var optNames = map[Options]string{
 	OptDebugDebugger:       "?Debugger.Debug",
 	OptDebugField:          "?Field.Debug",
 	OptDebugFromReflect:    "?FromReflect.Debug",
+	OptDebugGenerics:       "?Generics.Debug",
 	OptDebugMacroExpand:    "?MacroExpand.Debug",
 	OptDebugMethod:         "?Method.Debug",
 	OptDebugParse:          "?Parse.Debug",
 	OptDebugRecover:        "?Recover.Debug",
 	OptDebugQuasiquote:     "?Quasiquote.Debug",
 	OptDebugSleepOnSwitch:  "?SwitchSleep.Debug",
-	OptDebugTemplate:       "?Template.Debug",
 	OptShowCompile:         "Compile.Show",
 	OptShowEval:            "Eval.Show",
 	OptShowEvalType:        "Type.Eval.Show",

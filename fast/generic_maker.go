@@ -109,7 +109,7 @@ func (maker *genericMaker) String() string {
 }
 
 func (c *Comp) genericMaker(node *ast.IndexExpr, which BindClass) *genericMaker {
-	name, genericArgs, ok := splitTemplateArgs(node)
+	name, genericArgs, ok := splitGenericArgs(node)
 	if !ok {
 		return nil
 	}
@@ -163,10 +163,10 @@ func (c *Comp) genericMaker(node *ast.IndexExpr, which BindClass) *genericMaker 
 			types[i] = t
 		}
 	}
-	return &genericMaker{upc, sym, ifun, genericArgs, vals, types, makeTemplateKey(vals, types), "", node.Pos()}
+	return &genericMaker{upc, sym, ifun, genericArgs, vals, types, GenericKey(vals, types), "", node.Pos()}
 }
 
-func makeTemplateKey(vals []I, types []xr.Type) I {
+func GenericKey(vals []I, types []xr.Type) I {
 	// slices cannot be used as map keys. use an array and reflection
 	key := r.New(r.ArrayOf(len(types), rtypeOfInterface)).Elem()
 
@@ -224,7 +224,7 @@ func (c *Comp) constToAstExpr(val interface{}, pos token.Pos) ast.Expr {
 	}
 }
 
-func splitTemplateArgs(node *ast.IndexExpr) (string, []ast.Expr, bool) {
+func splitGenericArgs(node *ast.IndexExpr) (string, []ast.Expr, bool) {
 	if ident, _ := node.X.(*ast.Ident); ident != nil {
 		cindex, _ := node.Index.(*ast.CompositeLit)
 		if cindex != nil && cindex.Type == nil {
@@ -263,7 +263,7 @@ func (maker *genericMaker) chooseFunc(fun *GenericFunc) (string, *genericFuncCan
 		},
 	}
 	g := &maker.comp.Globals
-	debug := g.Options&base.OptDebugTemplate != 0
+	debug := g.Options&base.OptDebugGenerics != 0
 	var ok1, ok2 bool
 
 	if debug {
@@ -336,7 +336,7 @@ func (maker *genericMaker) chooseType(typ *GenericType) (string, *genericTypeCan
 		},
 	}
 	g := &maker.comp.Globals
-	debug := g.Options&base.OptDebugTemplate != 0
+	debug := g.Options&base.OptDebugGenerics != 0
 	var ok1, ok2 bool
 
 	if debug {

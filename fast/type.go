@@ -36,9 +36,9 @@ func (c *Comp) DeclType(spec ast.Spec) {
 	if !ok {
 		c.Errorf("unexpected type declaration, expecting *ast.TypeSpec, found: %v // %T", spec, spec)
 	}
-	if GENERICS_V1_CXX {
+	if GENERICS_V1_CXX || GENERICS_V2_CTI {
 		if lit, _ := node.Type.(*ast.CompositeLit); lit != nil {
-			c.DeclTemplateType(node)
+			c.DeclGenericType(node)
 			return
 		}
 	}
@@ -218,7 +218,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 	case *ast.Ident:
 		t = c.ResolveType(node.Name)
 	case *ast.IndexExpr:
-		if GENERICS_V1_CXX {
+		if GENERICS_V1_CXX || GENERICS_V2_CTI {
 			t = c.GenericType(node)
 		} else {
 			c.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
@@ -874,14 +874,14 @@ var (
 	rtypeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
 	rtypeOfForward   = r.TypeOf((*xr.Forward)(nil)).Elem()
 
-	rtypeOfBuiltin         = r.TypeOf(Builtin{})
-	rtypeOfFunction        = r.TypeOf(Function{})
-	rtypeOfMacro           = r.TypeOf(Macro{})
-	rtypeOfPtrImport       = r.TypeOf((*Import)(nil))
+	rtypeOfBuiltin        = r.TypeOf(Builtin{})
+	rtypeOfFunction       = r.TypeOf(Function{})
+	rtypeOfMacro          = r.TypeOf(Macro{})
+	rtypeOfPtrImport      = r.TypeOf((*Import)(nil))
 	rtypeOfPtrGenericFunc = r.TypeOf((*GenericFunc)(nil))
 	rtypeOfPtrGenericType = r.TypeOf((*GenericType)(nil))
-	rtypeOfReflectType     = r.TypeOf((*r.Type)(nil)).Elem()
-	rtypeOfUntypedLit      = r.TypeOf((*UntypedLit)(nil)).Elem()
+	rtypeOfReflectType    = r.TypeOf((*r.Type)(nil)).Elem()
+	rtypeOfUntypedLit     = r.TypeOf((*UntypedLit)(nil)).Elem()
 
 	zeroOfReflectType = r.Zero(rtypeOfReflectType)
 )

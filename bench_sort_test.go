@@ -126,10 +126,10 @@ func shellsort(ints []int) {
 	}
 }`
 
-const shellsort_template_source_string = `
+var shellsort_generic_source_string = `
 var shellshort_gaps = [...]int{701, 301, 132, 57, 23, 10, 4, 1}
 
-template[T] func shellsort(v []T) {
+` + generic_func("shellsort", "T") + ` (v []T) {
 	var i, j, n int
 	var temp T
 	n = len(v)
@@ -171,9 +171,9 @@ func BenchmarkShellSortFastInts(b *testing.B) {
 	benchmark_sort(b, sort)
 }
 
-func BenchmarkShellSortFastTemplate(b *testing.B) {
+func BenchmarkShellSortFastGeneric(b *testing.B) {
 	ir := fast.New()
-	ir.Eval(shellsort_template_source_string)
+	ir.Eval(shellsort_generic_source_string)
 
 	// extract the function shellsort#[int]()
 	vs, _ := ir.Eval("shellsort#[int]")

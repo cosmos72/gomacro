@@ -64,7 +64,7 @@ func (inf *inferFuncType) String() string {
 func (c *Comp) inferGenericFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *Expr {
 	tfun, ok := fun.Value.(*GenericFunc)
 	if !ok {
-		c.Errorf("internal error: Comp.inferTemplateFunc() invoked on non-generic function %v: %v", fun.Type, call.Fun)
+		c.Errorf("internal error: Comp.inferGenericFunc() invoked on non-generic function %v: %v", fun.Type, call.Fun)
 	}
 	var upc *Comp
 	var funcname string
@@ -86,7 +86,7 @@ func (c *Comp) inferGenericFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *Ex
 		}
 	}
 	if upc == nil {
-		c.Errorf("internal error: Comp.inferTemplateFunc() failed to determine the scope containing generic function declaration: %v", call.Fun)
+		c.Errorf("internal error: Comp.inferGenericFunc() failed to determine the scope containing generic function declaration: %v", call.Fun)
 	}
 
 	master := tfun.Master
@@ -144,7 +144,7 @@ func (c *Comp) inferGenericFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *Ex
 	maker := &genericMaker{
 		comp: upc, sym: fun.Sym, ifun: fun.Sym.Value,
 		exprs: nil, vals: vals, types: types,
-		ikey: makeTemplateKey(vals, types),
+		ikey: GenericKey(vals, types),
 		pos:  inf.call.Pos(),
 	}
 	return c.genericFunc(maker, call)

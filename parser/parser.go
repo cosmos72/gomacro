@@ -1278,7 +1278,7 @@ func (p *parser) parseIndexOrSlice(x ast.Expr) ast.Expr {
 	if p.tok != token.COLON {
 		index0 = p.parseRhsOrType()
 		if GENERICS_HASH && p.tok == token.COMMA {
-			// parse [A, B...] used in templates
+			// parse [A, B...] used in generics
 			var list = []ast.Expr{index0}
 			for p.tok == token.COMMA {
 				p.next()
@@ -1478,7 +1478,7 @@ func isTypeName(x ast.Expr) bool {
 	case *ast.BadExpr:
 	case *ast.Ident:
 	case *ast.IndexExpr:
-		// template type, for example Pair#[T1,T2]
+		// generic type, for example Pair#[T1,T2]
 		return GENERICS_HASH
 	case *ast.SelectorExpr:
 		_, isIdent := t.X.(*ast.Ident)
@@ -1495,7 +1495,7 @@ func isLiteralType(x ast.Expr) bool {
 	case *ast.BadExpr:
 	case *ast.Ident:
 	case *ast.IndexExpr:
-		// template type, for example Pair#[T1,T2]
+		// generic type, for example Pair#[T1,T2]
 		return GENERICS_HASH
 	case *ast.SelectorExpr:
 		_, isIdent := t.X.(*ast.Ident)
@@ -2604,7 +2604,7 @@ func (p *parser) parseDecl(sync func(*parser)) ast.Decl {
 	case mt.MACRO: // patch: parse a macro declaration
 		return p.parseMacroDecl()
 
-	case mt.TEMPLATE: // patch: parse a template declaration
+	case mt.TEMPLATE: // patch: parse a C++ template style generics declaration
 		if GENERICS_V1_CXX {
 			return p.parseTemplateDecl(sync)
 		}

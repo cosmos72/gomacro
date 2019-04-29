@@ -299,7 +299,7 @@ func (x Ellipsis) Size() int     { return 1 }
 func (x EmptyStmt) Size() int    { return 0 }
 func (x ExprStmt) Size() int     { return 1 }
 func (x Field) Size() int {
-	// do not crash on nil *ast.Field as first receiver of template functions
+	// do not crash on nil *ast.Field as first receiver of generic functions
 	if x.X == nil {
 		return 0
 	}

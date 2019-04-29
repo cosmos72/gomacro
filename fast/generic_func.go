@@ -26,24 +26,24 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-// an instantiated (and compiled) template function.
+// an instantiated (and compiled) generic function.
 type GenericFuncInstance struct {
 	Func *func(*Env) r.Value
 	Type xr.Type
 }
 
-// a template function declaration.
+// a generic function declaration.
 // either general, or partially specialized or fully specialized
 type GenericFuncDecl struct {
-	Decl   *ast.FuncLit // template function declaration. use a *ast.FuncLit because we will compile it with Comp.FuncLit()
-	Params []string     // template param names
+	Decl   *ast.FuncLit // generic function declaration. use a *ast.FuncLit because we will compile it with Comp.FuncLit()
+	Params []string     // generic param names
 	For    []ast.Expr   // partial or full specialization
 }
 
-// template function
+// generic function
 type GenericFunc struct {
 	Master    GenericFuncDecl            // master (i.e. non specialized) declaration
-	Special   map[string]GenericFuncDecl // partially or fully specialized declarations. key is TemplateFuncDecl.For converted to string
+	Special   map[string]GenericFuncDecl // partially or fully specialized declarations. key is GenericFuncDecl.For converted to string
 	Instances map[I]*GenericFuncInstance // cache of instantiated functions. key is [N]interface{}{T1, T2...}
 }
 
@@ -183,16 +183,16 @@ func (c *Comp) genericFunc(maker *genericMaker, node ast.Node) *Expr {
 
 	instance, _ := fun.Instances[key]
 	g := &c.Globals
-	debug := g.Options&base.OptDebugTemplate != 0
+	debug := g.Options&base.OptDebugGenerics != 0
 	if instance != nil {
 		if debug {
-			g.Debugf("found instantiated template function %v", maker)
+			g.Debugf("found instantiated generic function %v", maker)
 		}
 	} else {
 		if debug {
-			g.Debugf("instantiating template function %v", maker)
+			g.Debugf("instantiating generic function %v", maker)
 		}
-		// hard part: instantiate the template function.
+		// hard part: instantiate the generic function.
 		// must be instantiated in the same *Comp where it was declared!
 		instance = maker.instantiateFunc(fun, node)
 	}
@@ -210,7 +210,7 @@ func (c *Comp) genericFunc(maker *genericMaker, node ast.Node) *Expr {
 	}
 	upn := maker.sym.Upn
 	if debug {
-		g.Debugf("template function: %v, upn = %v, instance = %v", maker, upn, instance)
+		g.Debugf("generic function: %v, upn = %v, instance = %v", maker, upn, instance)
 	}
 	// switch to the correct *Env before evaluating expr
 	switch upn {
@@ -244,7 +244,7 @@ func (c *Comp) genericFunc(maker *genericMaker, node ast.Node) *Expr {
 	return exprFun(instance.Type, retfun)
 }
 
-// instantiateTemplateFunc instantiates and compiles a template function.
+// instantiateFunc instantiates and compiles a generic function.
 // node is used only for error messages
 func (maker *genericMaker) instantiateFunc(fun *GenericFunc, node ast.Node) *GenericFuncInstance {
 
@@ -268,7 +268,7 @@ func (maker *genericMaker) instantiateFunc(fun *GenericFunc, node ast.Node) *Gen
 		}
 	}()
 
-	if c.Globals.Options&base.OptDebugTemplate != 0 {
+	if c.Globals.Options&base.OptDebugGenerics != 0 {
 		c.Debugf("forward-declaring generic function before instantiation: %v", maker)
 	}
 	// support for generic recursive functions, as for example

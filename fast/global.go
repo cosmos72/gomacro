@@ -61,8 +61,8 @@ type Lit struct {
 	// when Lit is embedded in other structs that represent non-constant expressions,
 	// Value is usually nil
 	//
-	// when Lit is embedded in a Bind with class == TemplateFuncBind,
-	// Value is the *TemplateFunc containing the function source code
+	// when Lit is embedded in a Bind with class == GenericFuncBind,
+	// Value is the *GenericFunc containing the function source code
 	// to be specialized and compiled upon instantiation.
 	Value I
 }
@@ -239,9 +239,9 @@ func (class BindClass) String() string {
 	case IntBind:
 		return "intvar"
 	case GenericFuncBind:
-		return "template func"
+		return "generic func"
 	case GenericTypeBind:
-		return "template type"
+		return "generic type"
 	default:
 		return fmt.Sprintf("unknown%d", uint(class))
 	}
@@ -329,7 +329,7 @@ func (bind *Bind) RuntimeValue(g *CompGlobals, env *Env) r.Value {
 	case VarBind, FuncBind:
 		v = env.Vals[bind.Desc.Index()]
 	case GenericFuncBind, GenericTypeBind:
-		if GENERICS_V1_CXX {
+		if GENERICS_V1_CXX || GENERICS_V2_CTI {
 			v = bind.Lit.ConstValue()
 			break
 		}

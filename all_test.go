@@ -401,7 +401,7 @@ func decl_generic_method_rest_str() string {
 
 func generic_func(name string, generic_args string) string {
 	if mt.GENERICS_V1_CXX {
-		return "template[" + generic_args + "] func " + name
+		return "template[" + generic_args + "] func " + name + " "
 	} else if mt.GENERICS_V2_CTI {
 		return "func " + name + "#[" + generic_args + "]"
 	} else {
@@ -411,7 +411,7 @@ func generic_func(name string, generic_args string) string {
 
 func generic_type(name string, generic_args string) string {
 	if mt.GENERICS_V1_CXX {
-		return "template[" + generic_args + "] type " + name
+		return "template[" + generic_args + "] type " + name + " "
 	} else if mt.GENERICS_V2_CTI {
 		return "type " + name + "#[" + generic_args + "]"
 	} else {
@@ -1355,21 +1355,21 @@ var testcases = []TestCase{
 	TestCase{F | G1, "specialized_generic_func_4", `template[T] for[*T] func count(a, b *T) *T { return a }`, nil, none},
 	TestCase{F | G1, "specialized_generic_func_5", `count#[*int]`, func(*int, *int) *int { return nil }, nil},
 
-	TestCase{F | G1, "generic_type_1",
+	TestCase{F | G1 | G2, "generic_type_1",
 		generic_type("PairX", "T1,T2") + `struct { First T1; Second T2 }`,
 		nil, none,
 	},
-	TestCase{F | G1, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
-	TestCase{F | G1, "template_type_3", `PairX#[bool, interface{}] {true, "foo"}`, PairX3{true, "foo"}, nil},
+	TestCase{F | G1 | G2, "generic_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
+	TestCase{F | G1 | G2, "generic_type_3", `PairX#[bool, interface{}] {true, "foo"}`, PairX3{true, "foo"}, nil},
 
-	TestCase{F | G1, "recursive_generic_type_1", `
-		template[T] type ListX struct { First T; Rest *ListX#[T] }
+	TestCase{F | G1 | G2, "recursive_generic_type_1",
+		generic_type("ListX", "T") + `struct { First T; Rest *ListX#[T] }
 		var lx ListX#[error]; lx`, ListX2{}, nil},
-	TestCase{F | G1, "recursive_generic_type_2", `ListX#[interface{}]{}`, ListX3{}, nil},
+	TestCase{F | G1 | G2, "recursive_generic_type_2", `ListX#[interface{}]{}`, ListX3{}, nil},
 
 	TestCase{F | G1, "specialized_generic_type_1", `
 		template[] for[struct{}] type ListX struct { }
-		template [T] for[T,T] type PairX struct { Left, Right T }
+		template[T] for[T,T] type PairX struct { Left, Right T }
 		PairX#[bool,bool]{false,true}`, struct{ Left, Right bool }{false, true}, nil},
 
 	TestCase{F | G1, "turing_complete_generic_1", `
@@ -1378,7 +1378,7 @@ var testcases = []TestCase{
 		template[] for[0] type Fib [0]int
 		const Fib30 = len((*Fib#[30])(nil)); Fib30`, 832040, nil},
 
-	TestCase{A | G2, "parse_qual_generic_name_4", "~quote{Set#[T: Eq]}",
+	TestCase{A | G2, "parse_generic_constraint_1", "~quote{Set#[T: Eq]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Set"},
 			Index: &ast.CompositeLit{
@@ -1390,7 +1390,7 @@ var testcases = []TestCase{
 				},
 			},
 		}, nil},
-	TestCase{A | G2, "parse_qual_generic_name_5", "~quote{Set#[T: Eq && Ord]}",
+	TestCase{A | G2, "parse_generic_constraint_2", "~quote{Set#[T: Eq && Ord]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Set"},
 			Index: &ast.CompositeLit{
@@ -1406,7 +1406,7 @@ var testcases = []TestCase{
 				},
 			},
 		}, nil},
-	TestCase{A | G2, "parse_qual_generic_name_6", "~quote{Set#[T: Eq#[T] && Ord#[T]]}",
+	TestCase{A | G2, "parse_generic_constraint_3", "~quote{Set#[T: Eq#[T] && Ord#[T]]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Set"},
 			Index: &ast.CompositeLit{
@@ -1436,7 +1436,7 @@ var testcases = []TestCase{
 				},
 			},
 		}, nil},
-	TestCase{A | G2, "parse_qual_generic_name_7", "~quote{SortedMap#[K: Ord, V: Container#[SortedMap#[K,V],K,V]]}",
+	TestCase{A | G2, "parse_generic_constraint_4", "~quote{SortedMap#[K: Ord, V: Container#[SortedMap#[K,V],K,V]]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "SortedMap"},
 			Index: &ast.CompositeLit{

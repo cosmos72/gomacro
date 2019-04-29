@@ -39,7 +39,7 @@ type funcMaker struct {
 // For closure declarations, use FuncLit()
 //
 // This method is named DeclFunc instead of FuncDecl
-// for uniformity with DeclType, DeclConst*, DeclVar*, DeclTemplate*
+// for uniformity with DeclType, DeclConst*, DeclVar*, DeclGeneric*
 func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl) {
 	var ismacro bool
 	if funcdecl.Recv != nil {

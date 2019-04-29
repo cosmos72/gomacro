@@ -97,9 +97,9 @@ func (t *GenericType) String() string {
 	return buf.String()
 }
 
-// DeclTemplateType stores a generic type declaration
+// DeclGenericType stores a generic type declaration
 // for later instantiation
-func (c *Comp) DeclTemplateType(spec *ast.TypeSpec) {
+func (c *Comp) DeclGenericType(spec *ast.TypeSpec) {
 
 	lit, _ := spec.Type.(*ast.CompositeLit)
 	if lit == nil {
@@ -168,7 +168,7 @@ func (c *Comp) GenericType(node *ast.IndexExpr) xr.Type {
 	key := maker.ikey
 
 	g := &c.Globals
-	debug := g.Options&base.OptDebugTemplate != 0
+	debug := g.Options&base.OptDebugGenerics != 0
 
 	instance, _ := typ.Instances[key]
 	if instance != nil {
@@ -213,7 +213,7 @@ func (maker *genericMaker) instantiateType(typ *GenericType, node *ast.IndexExpr
 	//
 	var t xr.Type
 	if !special.decl.Alias && maker.sym.Name != "_" {
-		if c.Globals.Options&base.OptDebugTemplate != 0 {
+		if c.Globals.Options&base.OptDebugGenerics != 0 {
 			c.Debugf("forward-declaring generic type before instantiation: %v", maker)
 		}
 		// support for generic recursive types, as for example

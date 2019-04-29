@@ -273,7 +273,7 @@ func (p *printer) exprList(prev0 token.Pos, list []ast.Expr, depth int, mode exp
 // print the infix #[T1,T2...]
 func (p *printer) genericInfix(c *ast.CompositeLit) {
 	p.print(mt.HASH, token.LBRACK)
-	params, _ := splitTemplateArgs(c)
+	params, _ := splitGenericArgs(c)
 	p.exprList(c.Lbrace, params, 1, 0, c.Rbrace)
 	p.print(token.RBRACK)
 }
@@ -281,7 +281,7 @@ func (p *printer) genericInfix(c *ast.CompositeLit) {
 // print the prefix template[T1,T2...] for[Foo#[T1],Bar#[T2],...]
 func (p *printer) templatePrefix(c *ast.CompositeLit) {
 	p.print(mt.TEMPLATE, token.LBRACK)
-	params, specialize := splitTemplateArgs(c)
+	params, specialize := splitGenericArgs(c)
 	p.exprList(c.Lbrace, params, 1, 0, c.Rbrace)
 	p.print(token.RBRACK, blank)
 	if specialize != nil {
@@ -291,7 +291,7 @@ func (p *printer) templatePrefix(c *ast.CompositeLit) {
 	}
 }
 
-func splitTemplateArgs(c *ast.CompositeLit) ([]ast.Expr, *ast.CompositeLit) {
+func splitGenericArgs(c *ast.CompositeLit) ([]ast.Expr, *ast.CompositeLit) {
 	list := c.Elts
 	var specialize *ast.CompositeLit
 	var i, n int
@@ -317,7 +317,7 @@ func (p *printer) receiver(fields *ast.FieldList) {
 			p.parameters(fields)
 			p.print(blank)
 		default:
-			// multiple receivers -> template function or template method
+			// multiple receivers -> generic function or generic method
 			if fields.List[0] != nil {
 				p.print(token.NoPos, token.LPAREN)
 				p.parameters0(token.NoPos, fields.List[0:1], token.NoPos)
@@ -1767,7 +1767,7 @@ func (p *printer) funcDecl(d *ast.FuncDecl) {
 
 	c := funcGenericArgs(d.Recv)
 	if c != nil && mt.GENERICS_V1_CXX {
-		// template function or template method
+		// generic function or generic method
 		p.templatePrefix(c)
 	}
 

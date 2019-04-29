@@ -89,7 +89,7 @@ func newTopInterp(path string) *Interp {
 	universe.CachePackage(types.NewPackage("fast", "fast"))
 	universe.CachePackage(types.NewPackage("main", "main"))
 
-	// no need to scavenge for Builtin, Function, Macro, *Import, *TemplateFunc, *TemplateType and UntypedLit fields and methods.
+	// no need to scavenge for Builtin, Function, Macro, *Import, *GenericFunc, *GenericType and UntypedLit fields and methods.
 	// actually, making them opaque helps securing against malicious interpreted code.
 	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfMacro, rtypeOfPtrImport, rtypeOfPtrGenericFunc, rtypeOfPtrGenericType} {
 		cg.opaqueType(rtype, "fast")

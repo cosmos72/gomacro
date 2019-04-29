@@ -82,7 +82,7 @@ func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 		t = fun.Type
 		builtin = true
 	}
-	// compile args early, and use them to infer template function instantiation
+	// compile args early, and use them to infer generic function instantiation
 	var args []*Expr
 	if len(node.Args) == 1 {
 		// support foo(bar()) where bar() returns multiple values
@@ -100,7 +100,7 @@ func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 	switch t.Kind() {
 	case r.Func:
 	case r.Ptr:
-		if GENERICS_V1_CXX && t.ReflectType() == rtypeOfPtrGenericFunc {
+		if (GENERICS_V1_CXX || GENERICS_V2_CTI) && t.ReflectType() == rtypeOfPtrGenericFunc {
 			fun = c.inferGenericFunc(node, fun, args)
 			t = fun.Type
 			break

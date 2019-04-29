@@ -147,7 +147,7 @@ func genericV1TypeDecl(params *ast.CompositeLit, decl *ast.GenDecl) *ast.GenDecl
 }
 
 func genericFuncDecl(params *ast.CompositeLit, decl *ast.FuncDecl) *ast.FuncDecl {
-	// hack: store template types as second function receiver.
+	// hack: store generic types as second function receiver.
 	// it's never used for functions and macros.
 	recv := decl.Recv
 	if recv == nil {
@@ -156,7 +156,7 @@ func genericFuncDecl(params *ast.CompositeLit, decl *ast.FuncDecl) *ast.FuncDecl
 	}
 	list := []*ast.Field{
 		nil,
-		// add template types as second receiver
+		// add generic types as second receiver
 		&ast.Field{Type: params},
 	}
 	if len(recv.List) != 0 {
