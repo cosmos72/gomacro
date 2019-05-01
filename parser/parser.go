@@ -1007,7 +1007,7 @@ func (p *parser) parseInterfaceType() *ast.InterfaceType {
 	lbrace := p.expect(token.LBRACE)
 	scope := ast.NewScope(nil) // interface scope
 	var list []*ast.Field
-	for p.tok == token.IDENT {
+	for p.tok == token.IDENT || (GENERICS_V2_CTI && p.tok == token.FUNC) {
 		list = append(list, p.parseMethodSpec(scope))
 	}
 	rbrace := p.expect(token.RBRACE)
@@ -1066,7 +1066,7 @@ func (p *parser) tryIdentOrType() ast.Expr {
 	switch p.tok {
 	case token.IDENT:
 		ident := p.parseTypeName()
-		if GENERICS_HASH && p.tok == mt.HASH {
+		if _GENERICS_HASH && p.tok == mt.HASH {
 			// parse Foo#[T1,T2...]
 			return p.parseHash(ident)
 		}
@@ -1187,7 +1187,7 @@ func (p *parser) parseOperand(lhs bool) ast.Expr {
 	switch p.tok {
 	case token.IDENT:
 		var x ast.Expr = p.parseIdent()
-		if GENERICS_HASH && p.tok == mt.HASH {
+		if _GENERICS_HASH && p.tok == mt.HASH {
 			// parse Foo#[T1,T2...]
 			x = p.parseHash(x)
 		} else if !lhs {
@@ -1277,7 +1277,7 @@ func (p *parser) parseIndexOrSlice(x ast.Expr) ast.Expr {
 	var index0 ast.Expr
 	if p.tok != token.COLON {
 		index0 = p.parseRhsOrType()
-		if GENERICS_HASH && p.tok == token.COMMA {
+		if _GENERICS_HASH && p.tok == token.COMMA {
 			// parse [A, B...] used in generics
 			var list = []ast.Expr{index0}
 			for p.tok == token.COMMA {
@@ -1479,7 +1479,7 @@ func isTypeName(x ast.Expr) bool {
 	case *ast.Ident:
 	case *ast.IndexExpr:
 		// generic type, for example Pair#[T1,T2]
-		return GENERICS_HASH
+		return _GENERICS_HASH
 	case *ast.SelectorExpr:
 		_, isIdent := t.X.(*ast.Ident)
 		return isIdent
@@ -1496,7 +1496,7 @@ func isLiteralType(x ast.Expr) bool {
 	case *ast.Ident:
 	case *ast.IndexExpr:
 		// generic type, for example Pair#[T1,T2]
-		return GENERICS_HASH
+		return _GENERICS_HASH
 	case *ast.SelectorExpr:
 		_, isIdent := t.X.(*ast.Ident)
 		return isIdent

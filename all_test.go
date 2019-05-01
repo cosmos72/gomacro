@@ -1378,7 +1378,7 @@ var testcases = []TestCase{
 		template[] for[0] type Fib [0]int
 		const Fib30 = len((*Fib#[30])(nil)); Fib30`, 832040, nil},
 
-	TestCase{A | G2, "parse_generic_constraint_1", "~quote{Set#[T: Eq]}",
+	TestCase{A | G2, "parse_constrained_generic_1", "~quote{Set#[T: Eq]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Set"},
 			Index: &ast.CompositeLit{
@@ -1390,7 +1390,7 @@ var testcases = []TestCase{
 				},
 			},
 		}, nil},
-	TestCase{A | G2, "parse_generic_constraint_2", "~quote{Set#[T: Eq && Ord]}",
+	TestCase{A | G2, "parse_constrained_generic_2", "~quote{Set#[T: Eq && Ord]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Set"},
 			Index: &ast.CompositeLit{
@@ -1406,7 +1406,7 @@ var testcases = []TestCase{
 				},
 			},
 		}, nil},
-	TestCase{A | G2, "parse_generic_constraint_3", "~quote{Set#[T: Eq#[T] && Ord#[T]]}",
+	TestCase{A | G2, "parse_constrained_generic_3", "~quote{Set#[T: Eq#[T] && Ord#[T]]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Set"},
 			Index: &ast.CompositeLit{
@@ -1436,7 +1436,7 @@ var testcases = []TestCase{
 				},
 			},
 		}, nil},
-	TestCase{A | G2, "parse_generic_constraint_4", "~quote{SortedMap#[K: Ord, V: Container#[SortedMap#[K,V],K,V]]}",
+	TestCase{A | G2, "parse_constrained_generic_4", "~quote{SortedMap#[K: Ord, V: Container#[SortedMap#[K,V],K,V]]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "SortedMap"},
 			Index: &ast.CompositeLit{
@@ -1464,6 +1464,50 @@ var testcases = []TestCase{
 									&ast.Ident{Name: "V"},
 								},
 							},
+						},
+					},
+				},
+			},
+		}, nil},
+	TestCase{A | G2, "parse_generic_constraint_1", `~quote{
+		type Eq#[T] interface{
+			Equal(T) bool
+		}}`,
+		&ast.GenDecl{
+			Tok: token.TYPE,
+			Specs: []ast.Spec{
+				&ast.TypeSpec{
+					Name: &ast.Ident{Name: "Eq"},
+					Type: &ast.CompositeLit{
+						Type: &ast.InterfaceType{
+							Methods: &ast.FieldList{
+								List: []*ast.Field{
+									&ast.Field{
+										Names: []*ast.Ident{
+											&ast.Ident{Name: "Equal"},
+										},
+										Type: &ast.FuncType{
+											Params: &ast.FieldList{
+												List: []*ast.Field{
+													&ast.Field{
+														Type: &ast.Ident{Name: "T"},
+													},
+												},
+											},
+											Results: &ast.FieldList{
+												List: []*ast.Field{
+													&ast.Field{
+														Type: &ast.Ident{Name: "bool"},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						Elts: []ast.Expr{
+							&ast.Ident{Name: "T"},
 						},
 					},
 				},

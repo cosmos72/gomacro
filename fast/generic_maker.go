@@ -27,16 +27,15 @@ import (
 
 	"github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base"
-
-	"github.com/cosmos72/gomacro/parser"
+	mt "github.com/cosmos72/gomacro/token"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // enable C++-style generics?
-const GENERICS_V1_CXX = parser.GENERICS_V1_CXX
+const GENERICS_V1_CXX = mt.GENERICS_V1_CXX
 
 // enable "constraints are interfaces" generics?
-const GENERICS_V2_CTI = parser.GENERICS_V2_CTI
+const GENERICS_V2_CTI = mt.GENERICS_V2_CTI
 
 type genericMaker struct {
 	comp  *Comp
