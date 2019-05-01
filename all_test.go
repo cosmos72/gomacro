@@ -1471,7 +1471,7 @@ var testcases = []TestCase{
 		}, nil},
 	TestCase{A | G2, "parse_generic_constraint_1", `~quote{
 		type Eq#[T] interface{
-			Equal(T) bool
+			func (T) Equal(T) bool
 		}}`,
 		&ast.GenDecl{
 			Tok: token.TYPE,
@@ -1486,18 +1486,21 @@ var testcases = []TestCase{
 										Names: []*ast.Ident{
 											&ast.Ident{Name: "Equal"},
 										},
-										Type: &ast.FuncType{
-											Params: &ast.FieldList{
-												List: []*ast.Field{
-													&ast.Field{
-														Type: &ast.Ident{Name: "T"},
+										Type: &ast.MapType{
+											Key: &ast.Ident{Name: "T"}, // receiver
+											Value: &ast.FuncType{
+												Params: &ast.FieldList{
+													List: []*ast.Field{
+														&ast.Field{
+															Type: &ast.Ident{Name: "T"},
+														},
 													},
 												},
-											},
-											Results: &ast.FieldList{
-												List: []*ast.Field{
-													&ast.Field{
-														Type: &ast.Ident{Name: "bool"},
+												Results: &ast.FieldList{
+													List: []*ast.Field{
+														&ast.Field{
+															Type: &ast.Ident{Name: "bool"},
+														},
 													},
 												},
 											},

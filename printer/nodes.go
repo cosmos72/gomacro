@@ -491,13 +491,19 @@ func (p *printer) fieldList(fields *ast.FieldList, isStruct, isIncomplete bool) 
 				}
 				p.expr(f.Type)
 			} else { // interface
-				if ftyp, isFtyp := f.Type.(*ast.FuncType); isFtyp {
+				typ := f.Type
+				if mtyp, isMtyp := typ.(*ast.MapType); isMtyp {
+					// method with explicit receiver
+					p.print(mtyp.Pos(), token.FUNC, blank, token.LPAREN, mtyp.Key, token.RPAREN, blank)
+					typ = mtyp.Value
+				}
+				if ftyp, isFtyp := typ.(*ast.FuncType); isFtyp {
 					// method
 					p.expr(f.Names[0])
 					p.signature(ftyp.Params, ftyp.Results)
 				} else {
 					// embedded interface
-					p.expr(f.Type)
+					p.expr(typ)
 				}
 			}
 			p.print(blank, rbrace, token.RBRACE)
@@ -568,13 +574,20 @@ func (p *printer) fieldList(fields *ast.FieldList, isStruct, isIncomplete bool) 
 			}
 			p.setComment(f.Doc)
 			p.recordLine(&line)
-			if ftyp, isFtyp := f.Type.(*ast.FuncType); isFtyp {
+
+			typ := f.Type
+			if mtyp, isMtyp := typ.(*ast.MapType); isMtyp {
+				// method with explicit receiver
+				p.print(mtyp.Pos(), token.FUNC, blank, token.LPAREN, mtyp.Key, token.RPAREN, blank)
+				typ = mtyp.Value
+			}
+			if ftyp, isFtyp := typ.(*ast.FuncType); isFtyp {
 				// method
 				p.expr(f.Names[0])
 				p.signature(ftyp.Params, ftyp.Results)
 			} else {
 				// embedded interface
-				p.expr(f.Type)
+				p.expr(typ)
 			}
 			p.setComment(f.Comment)
 		}

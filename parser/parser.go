@@ -976,22 +976,63 @@ func (p *parser) parseMethodSpec(scope *ast.Scope) *ast.Field {
 	}
 
 	doc := p.leadComment
+	var isMethod bool
+	var ident *ast.Ident
 	var idents []*ast.Ident
-	var typ ast.Expr
-	x := p.parseTypeName()
-	if ident, isIdent := x.(*ast.Ident); isIdent && p.tok == token.LPAREN {
-		// method
+	var typ, recv ast.Expr
+	var funcPos token.Pos
+	var genericParams *ast.CompositeLit
+
+	if GENERICS_V2_CTI && p.tok == token.FUNC {
+		isMethod = true
+		funcPos = p.pos
+		p.next()
+		// func may be followed by receiver
+		if p.tok == token.LPAREN {
+			p.next()
+			recv = p.parseVarType(false)
+			if _, ok := recv.(*ast.Ident); ok && p.tok != token.RPAREN {
+				// recv above is the receiver name, not its type
+				recv = p.parseVarType(false)
+			}
+			p.expect(token.RPAREN)
+		}
+		// and must be followed by the function name
+		ident = p.parseIdent()
+	} else {
+		// either method or embedded interface
+		typ = p.parseTypeName()
+		ident, _ = typ.(*ast.Ident)
+	}
+	if ident != nil {
 		idents = []*ast.Ident{ident}
+	}
+	if GENERICS_V2_CTI && p.tok == mt.HASH {
+		genericParams = p.parseGenericParams()
+	}
+
+	if isMethod || (ident != nil && p.tok == token.LPAREN) {
+		// method
 		scope := ast.NewScope(nil) // method scope
 		params, results := p.parseSignature(scope)
 		typ = &ast.FuncType{Func: token.NoPos, Params: params, Results: results}
+		if recv != nil {
+			typ = &ast.MapType{
+				Map:   funcPos,
+				Key:   recv,
+				Value: typ,
+			}
+		}
 	} else {
 		// embedded interface
-		typ = x
 		p.resolve(typ)
 	}
 	p.expectSemi() // call before accessing p.linecomment
 
+	if genericParams != nil {
+		genericParams.Type = typ
+		typ = genericParams
+	}
 	spec := &ast.Field{Doc: doc, Names: idents, Type: typ, Comment: p.lineComment}
 	p.declare(spec, nil, scope, ast.Fun, idents...)
 
