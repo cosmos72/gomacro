@@ -27,6 +27,10 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+type genericInterfaceReceiverType struct{}
+
+var genericInterfaceReceiverKey genericInterfaceReceiverType
+
 // compile an interface definition
 func (c *Comp) TypeInterface(node *ast.InterfaceType) xr.Type {
 	if node.Methods == nil || len(node.Methods.List) == 0 {
@@ -42,6 +46,9 @@ func (c *Comp) TypeInterface(node *ast.InterfaceType) xr.Type {
 			methodnames = append(methodnames, names[i])
 			methodtypes = append(methodtypes, typ)
 		} else {
+			if typ.Kind() != r.Interface {
+				c.Errorf("embedded interface is not an interface: %v", typ)
+			}
 			embeddedtypes = append(embeddedtypes, typ)
 		}
 	}

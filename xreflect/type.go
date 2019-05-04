@@ -20,6 +20,7 @@ import (
 	"go/types"
 	"reflect"
 
+	mt "github.com/cosmos72/gomacro/token"
 	"github.com/cosmos72/gomacro/typeutil"
 )
 
@@ -275,7 +276,30 @@ func (t *xtype) Implements(u Type) bool {
 	if u.Kind() != reflect.Interface {
 		xerrorf(t, "Type.Implements of non-interface type: %v", u)
 	}
-	return t.gtype == u.GoType() || types.Implements(t.gtype, u.GoType().Underlying().(*types.Interface))
+	xu := unwrap(u)
+	return t.gtype == xu.gtype ||
+		(types.Implements(t.gtype, xu.gtype.Underlying().(*types.Interface)) &&
+			matchReceiverType(t, xu))
+}
+
+func matchReceiverType(t, u *xtype) bool {
+	t = getConstrainedReceiverType(t, true)
+	u = getConstrainedReceiverType(u, false)
+	return t == nil || u == nil || t.identicalTo(u)
+}
+
+func getConstrainedReceiverType(t *xtype, lhs bool) *xtype {
+	if mt.GENERICS_V2_CTI {
+		if lhs && t.kind != reflect.Interface {
+			return t
+		}
+		if recv, ok := t.GetUserData(ConstrainedInterfaceReceiverType); ok {
+			if trecv, ok := recv.(Type); ok {
+				return unwrap(trecv)
+			}
+		}
+	}
+	return nil
 }
 
 // IdenticalTo reports whether the type is identical to type u.
@@ -291,17 +315,41 @@ func (t *xtype) identicalTo(u *xtype) bool {
 // AssignableTo reports whether a value of the type is assignable to type u.
 func (t *xtype) AssignableTo(u Type) bool {
 	// debugf("AssignableTo: <%v> <%v>", t, u)
-	return t.gtype == u.GoType() || types.AssignableTo(t.gtype, u.GoType())
+	return t.gtype == u.GoType() ||
+		(types.AssignableTo(t.gtype, u.GoType()) &&
+			matchReceiverType(t, unwrap(u)))
 }
 
 // ConvertibleTo reports whether a value of the type is convertible to type u.
 func (t *xtype) ConvertibleTo(u Type) bool {
-	return t.gtype == u.GoType() || types.ConvertibleTo(t.gtype, u.GoType())
+	return t.gtype == u.GoType() ||
+		(types.ConvertibleTo(t.gtype, u.GoType()) &&
+			matchReceiverType(t, unwrap(u)))
 }
 
 // Comparable reports whether values of this type are comparable.
 func (t *xtype) Comparable() bool {
 	return types.Comparable(t.gtype)
+}
+
+// GetUserData returns the user-supplied data of the type.
+func (t *xtype) GetUserData(key interface{}) (interface{}, bool) {
+	if t == nil {
+		return nil, false
+	}
+	val, ok := t.userdata[key]
+	return val, ok
+}
+
+// SetUserData sets the user-supplied data of the type.
+func (t *xtype) SetUserData(key, value interface{}) {
+	if t.userdata == nil {
+		t.userdata = map[interface{}]interface{}{
+			key: value,
+		}
+	} else {
+		t.userdata[key] = value
+	}
 }
 
 // Zero returns a Value representing the zero value for the specified type.

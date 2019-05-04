@@ -338,6 +338,16 @@ func (t Type) GetMethods() *[]reflect.Value {
 	return t[0].GetMethods()
 }
 
+// GetUserData returns the user-supplied data of the type.
+func (t Type) GetUserData(key interface{}) (interface{}, bool) {
+	return t[0].GetUserData(key)
+}
+
+// SetUserData sets the user-supplied data of the type.
+func (t Type) SetUserData(key, value interface{}) {
+	t[0].SetUserData(key, value)
+}
+
 func wrap(t *xtype) Type {
 	if t != nil {
 		return Type{t}

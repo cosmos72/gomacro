@@ -265,23 +265,30 @@ const interface_interpreted_2_source_string = `
 `
 
 var (
-	cti = r.StructOf(
+	classicInterfHeader = r.StructField{Name: StrGensymInterface, Type: r.TypeOf((*interface{})(nil)).Elem()}
+	fastInterfHeader    = r.StructField{Name: StrGensymInterface, Type: r.TypeOf(xr.InterfaceHeader{})}
+
+	classicTypStringer = r.StructOf(
 		[]r.StructField{
-			r.StructField{Name: StrGensymInterface, Type: r.TypeOf((*interface{})(nil)).Elem()},
+			classicInterfHeader,
 			r.StructField{Name: "String", Type: r.TypeOf((*func() string)(nil)).Elem()},
 		},
 	)
-	fti = r.StructOf(
+	fastTypeStringer = r.StructOf(
 		[]r.StructField{
-			r.StructField{Name: StrGensymInterface, Type: r.TypeOf(xr.InterfaceHeader{})},
+			fastInterfHeader,
 			r.StructField{Name: "String", Type: r.TypeOf((*func() string)(nil)).Elem()},
 		},
 	)
-
-	csi = r.Zero(cti).Interface()
-	fsi = r.Zero(r.PtrTo(fti)).Interface()
-
-	zeroValues = []r.Value{}
+	fastTypeEqint = r.StructOf(
+		[]r.StructField{
+			fastInterfHeader,
+			r.StructField{Name: "Equal", Type: r.TypeOf((*func(int) bool)(nil)).Elem()},
+		},
+	)
+	classicObjStringer = r.Zero(classicTypStringer).Interface()
+	fastObjStringer    = r.Zero(r.PtrTo(fastTypeStringer)).Interface()
+	fastObjEqint       = r.Zero(r.PtrTo(fastTypeEqint)).Interface()
 )
 
 var nil_map_int_string map[int]string
@@ -549,8 +556,8 @@ var testcases = []TestCase{
 
 	TestCase{A, "type_int8", "type t8 int8; var u8 t8; u8", int8(0), nil},
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
-	TestCase{C, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", csi, nil},
-	TestCase{F, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", fsi, nil},
+	TestCase{C, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", classicObjStringer, nil},
+	TestCase{F, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", fastObjStringer, nil},
 	TestCase{F, "type_struct_0", "type PairPrivate struct { a, b rune }; var pp PairPrivate; pp.a+pp.b", rune(0), nil},
 	TestCase{A, "type_struct_1", "type Pair struct { A rune; B string}; var pair Pair; pair", Pair{}, nil},
 	TestCase{A, "type_struct_2", "type Triple struct { Pair; C float32 }; var triple Triple; triple.C", float32(0), nil},
@@ -1516,6 +1523,22 @@ var testcases = []TestCase{
 				},
 			},
 		}, nil},
+	TestCase{F | G2, "generic_constraint_1", `
+		type Eq#[T] interface{
+			func (T) Equal(T) bool
+		}
+		var xg1 Eq#[int]
+		xg1`, fastObjEqint, nil},
+	TestCase{F | G2, "generic_constraint_2", `
+		type UInt uint
+		func (i UInt) Equal(j UInt) bool {
+			return i == j
+		}`, nil, none},
+	TestCase{F | G2, "generic_constraint_3", `
+		xg2 := UInt(9)
+		var xg3 Eq#[UInt]
+		xg3 = xg2
+		xg2`, uint(9), nil},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {

@@ -294,6 +294,8 @@ func MissingMethod(t, tinterf Type) *Method {
 		mtdinterf = tinterf.Method(0)
 		return &mtdinterf
 	}
+	xt := unwrap(t)
+	xtinterf := unwrap(tinterf)
 	for i := 0; i < n; i++ {
 		mtdinterf = tinterf.Method(i)
 		mtd, count := t.MethodByName(mtdinterf.Name, mtdinterf.Pkg.Name())
@@ -302,7 +304,7 @@ func MissingMethod(t, tinterf Type) *Method {
 			if t.Kind() != reflect.Interface {
 				tfunc = removeReceiver(tfunc)
 			}
-			if !mtdinterf.Type.IdenticalTo(tfunc) {
+			if mtdinterf.Type.IdenticalTo(tfunc) && matchReceiverType(xt, xtinterf) {
 				continue
 			}
 		}

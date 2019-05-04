@@ -80,6 +80,7 @@ type xtype struct {
 	methodvalues []reflect.Value
 	fieldcache   map[QName]StructField
 	methodcache  map[QName]Method
+	userdata     map[interface{}]interface{}
 }
 
 // QName is a replacement for go/types.Id and implements accurate comparison

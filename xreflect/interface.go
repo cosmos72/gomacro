@@ -21,6 +21,8 @@ import (
 	"go/types"
 	"reflect"
 	"sort"
+
+	mt "github.com/cosmos72/gomacro/token"
 )
 
 func IsEmulatedInterface(t Type) bool {
@@ -57,18 +59,28 @@ func EmulatedInterfaceGetMethod(obj reflect.Value, index int) reflect.Value {
 // create []*types.Func suitable for types.NewInterface.
 // makes a copy of each methods[i].gunderlying().(*types.Signature)
 // because types.NewInterface will destructively modify them!
-func toGoFuncs(pkg *Package, names []string, methods []Type) []*types.Func {
-	gfuns := make([]*types.Func, len(methods))
+func toGoFuncs(pkg *Package, names []string, methods []Type) (gfuns []*types.Func, recv Type) {
+	gfuns = make([]*types.Func, len(methods))
 	for i, t := range methods {
-		switch gsig := t.gunderlying().(type) {
-		case *types.Signature:
+		if mt.GENERICS_V2_CTI && t.Kind() == reflect.Map {
+			tkey := t.Key()
+			if recv != nil && !recv.IdenticalTo(tkey) {
+				errorf(t, "generic interface has two incompatible constraints on method receiver type: %v and %v",
+					recv, tkey)
+			}
+			recv = tkey
+			t = t.Elem()
+		}
+		gund := t.gunderlying()
+
+		if gsig, ok := gund.(*types.Signature); ok {
 			gsig = cloneGoSignature(gsig)
 			gfuns[i] = types.NewFunc(token.NoPos, (*types.Package)(pkg), names[i], gsig)
-		default:
-			errorf(t, "interface contains non-function: %s %v", names[i], t)
+			continue
 		}
+		errorf(t, "interface contains non-function: %s %v", names[i], t)
 	}
-	return gfuns
+	return gfuns, recv
 }
 
 func cloneGoSignature(gsig *types.Signature) *types.Signature {
@@ -107,6 +119,10 @@ func (a *byQName) Swap(i, j int) {
 	a.method[i], a.method[j] = a.method[j], a.method[i]
 }
 
+type genericV2InterfaceReceiverType struct{}
+
+var ConstrainedInterfaceReceiverType genericV2InterfaceReceiverType
+
 // InterfaceOf returns a new interface for the given methods and embedded types.
 // After the methods and embeddeds are fully defined, call Complete() to mark
 // the interface as complete and compute wrapper methods for embedded fields.
@@ -136,7 +152,7 @@ func (v *Universe) InterfaceOf(pkg *Package, methodnames []string, methodtypes [
 		methodnames[i] = qname.name
 	}
 
-	gmethods := toGoFuncs(pkg, methodnames, methodtypes)
+	gmethods, recv := toGoFuncs(pkg, methodnames, methodtypes)
 	gembeddeds := toGoNamedTypes(embeddeds)
 
 	gtype := types.NewInterface(gmethods, gembeddeds)
@@ -149,7 +165,14 @@ func (v *Universe) InterfaceOf(pkg *Package, methodnames []string, methodtypes [
 	rfields[0] = approxInterfaceHeader()
 
 	for i, methodtype := range methodtypes {
-		rfields[i+1] = approxInterfaceMethodAsField(methodnames[i], methodtype.ReflectType())
+		name := methodnames[i]
+		if mt.GENERICS_V2_CTI && methodtype.Kind() == reflect.Map {
+			methodtype = methodtype.Elem()
+		}
+		if methodtype.Kind() != reflect.Func {
+			errorf(methodtype, "interface contains non-function: %s %v", name, methodtype)
+		}
+		rfields[i+1] = approxInterfaceMethodAsField(name, methodtype.ReflectType())
 	}
 	for _, e := range embeddeds {
 		n := e.NumMethod()
@@ -164,6 +187,9 @@ func (v *Universe) InterfaceOf(pkg *Package, methodnames []string, methodtypes [
 	rtype := reflect.PtrTo(reflect.StructOf(rfields))
 	t := v.maketype3(reflect.Interface, gtype, rtype)
 	setInterfaceMethods(t)
+	if recv != nil {
+		t.SetUserData(ConstrainedInterfaceReceiverType, recv)
+	}
 	// debugf("InterfaceOf: new type %v", t)
 	// debugf("           types.Type %v", gtype)
 	// debugf("         reflect.Type %v", rtype)
@@ -215,16 +241,19 @@ func setInterfaceMethods(t Type) {
 	xt.methodvalues = make([]reflect.Value, n)
 	rtype := xt.rtype
 	for i := 0; i < n; i++ {
-		xt.methodvalues[i] = interfaceMethod(rtype, i)
+		xt.methodvalues[i] = interfaceMethod(t, rtype, i)
 	}
 }
 
 // create and return a single wrapper function that forwards the call to the i-th closure
 // stored in the emulated interface struct rtype (that will be received as first parameter)
-func interfaceMethod(rtype reflect.Type, index int) reflect.Value {
+func interfaceMethod(t Type, rtype reflect.Type, index int) reflect.Value {
 	// rtype is *struct { InterfaceHeader; closures... }
 	index++
 	rclosure := rtype.Elem().Field(index).Type
+	if rclosure.Kind() != reflect.Func {
+		errorf(t, "interface method %d is not a function: %v", index-1, rclosure)
+	}
 	rfunc := rAddReceiver(rtype, rclosure)
 	return reflect.MakeFunc(rfunc, func(args []reflect.Value) []reflect.Value {
 		return args[0].Elem().Field(index).Call(args[1:])

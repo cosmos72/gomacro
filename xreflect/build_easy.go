@@ -227,6 +227,12 @@ type Type interface {
 	// GetMethods returns the pointer to the method values.
 	// It panics if the type is unnamed
 	GetMethods() *[]reflect.Value
+
+	// GetUserData returns the user-supplied data of the type.
+	GetUserData(key interface{}) (interface{}, bool)
+
+	// SetUserData sets the user-supplied data of the type.
+	SetUserData(key, value interface{})
 }
 
 func unwrap(t Type) *xtype {
