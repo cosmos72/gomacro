@@ -22,8 +22,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/cosmos72/gomacro/go/parser"
 	"github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/parser"
 )
 
 func TestRemoveItem(t *testing.T) {
@@ -80,7 +80,7 @@ func _testSorter(t *testing.T, filename string) {
 	}
 
 	var p parser.Parser
-	fset := token.NewFileSet()
+	fset := mtoken.NewFileSet()
 	p.Init(fset, filename, 0, bytes)
 
 	nodes, err := p.Parse()

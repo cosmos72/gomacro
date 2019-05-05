@@ -24,7 +24,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos72/gomacro/typeutil"
+	"github.com/cosmos72/gomacro/go/typeutil"
 )
 
 var u = NewUniverse()
