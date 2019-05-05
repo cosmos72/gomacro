@@ -22,11 +22,11 @@ import (
 
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/reflect"
-	mt "github.com/cosmos72/gomacro/token"
+	mtoken "github.com/cosmos72/gomacro/go/mtoken"
 )
 
 func (env *Env) unsupportedBinaryExpr(xv r.Value, op token.Token, yv r.Value) r.Value {
-	opstr := mt.String(op)
+	opstr := mtoken.String(op)
 	ret, _ := env.Errorf("unsupported binary operation %s between <%v> and <%v>: %v %s %v", opstr, typeOf(xv), typeOf(yv), xv, opstr, yv)
 	return ret
 }

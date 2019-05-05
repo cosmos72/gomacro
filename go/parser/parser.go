@@ -24,13 +24,13 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/cosmos72/gomacro/scanner"
-	mt "github.com/cosmos72/gomacro/token"
+	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/scanner"
 )
 
 // The parser structure holds the parser's internal state.
 type parser struct {
-	file    *mt.File
+	file    *mtoken.File
 	errors  scanner.ErrorList
 	scanner scanner.Scanner
 
@@ -75,10 +75,10 @@ type parser struct {
 	targetStack [][]*ast.Ident // stack of unresolved labels
 }
 
-func (p *parser) init(fset *mt.FileSet, filename string, lineOffset int, src []byte, mode Mode) {
+func (p *parser) init(fset *mtoken.FileSet, filename string, lineOffset int, src []byte, mode Mode) {
 	// Explicitly initialize all private fields since a parser may be reused.
 	if fset == nil {
-		fset = mt.NewFileSet()
+		fset = mtoken.NewFileSet()
 	}
 	p.file = fset.AddFile(filename, -1, len(src), lineOffset)
 	p.errors = nil
@@ -286,12 +286,12 @@ func (p *parser) next0() {
 	// very first token (!p.pos.IsValid()) is not initialized
 	// (it is token.ILLEGAL), so don't print it .
 	if p.trace && p.pos.IsValid() {
-		s := mt.String(p.tok) // patch: support macro-related keywords
+		s := mtoken.String(p.tok) // patch: support macro-related keywords
 		switch {
 		case p.tok.IsLiteral():
 			p.printTrace(s, p.lit)
 		case p.tok.IsOperator(), p.tok.IsKeyword(),
-			mt.IsMacroKeyword(p.tok): // patch: support macro-related keywords
+			mtoken.IsMacroKeyword(p.tok): // patch: support macro-related keywords
 
 			p.printTrace("\"" + s + "\"")
 		default:
@@ -424,7 +424,7 @@ func (p *parser) errorExpected(pos token.Pos, msg string) {
 		if p.tok == token.SEMICOLON && p.lit == "\n" {
 			msg += ", found newline"
 		} else {
-			msg += ", found '" + mt.String(p.tok) + "'"
+			msg += ", found '" + mtoken.String(p.tok) + "'"
 			if p.tok.IsLiteral() {
 				msg += " " + p.lit
 			}
@@ -436,7 +436,7 @@ func (p *parser) errorExpected(pos token.Pos, msg string) {
 func (p *parser) expect(tok token.Token) token.Pos {
 	pos := p.pos
 	if p.tok != tok {
-		p.errorExpected(pos, "'"+mt.String(tok)+"'")
+		p.errorExpected(pos, "'"+mtoken.String(tok)+"'")
 	}
 	p.next() // make progress
 	return pos
@@ -500,7 +500,7 @@ func syncStmt(p *parser) {
 		case token.BREAK, token.CONST, token.CONTINUE, token.DEFER,
 			token.FALLTHROUGH, token.FOR, token.GO, token.GOTO,
 			token.IF, token.RETURN, token.SELECT, token.SWITCH,
-			token.TYPE, token.VAR, mt.FUNCTION, mt.TEMPLATE:
+			token.TYPE, token.VAR, mtoken.FUNCTION, mtoken.TEMPLATE:
 			// Return only if parser made some progress since last
 			// sync or if it has not reached 10 sync calls without
 			// progress. Otherwise consume at least one token to
@@ -535,7 +535,7 @@ func syncStmt(p *parser) {
 func syncDecl(p *parser) {
 	for {
 		switch p.tok {
-		case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.FUNCTION, mt.TEMPLATE:
+		case token.CONST, token.TYPE, token.VAR, token.FUNC, mtoken.FUNCTION, mtoken.TEMPLATE:
 			// see comments in syncStmt
 			if p.pos == p.syncPos && p.syncCnt < 10 {
 				p.syncCnt++
@@ -1007,7 +1007,7 @@ func (p *parser) parseMethodSpec(scope *ast.Scope) *ast.Field {
 	if ident != nil {
 		idents = []*ast.Ident{ident}
 	}
-	if GENERICS_V2_CTI && p.tok == mt.HASH {
+	if GENERICS_V2_CTI && p.tok == mtoken.HASH {
 		genericParams = p.parseGenericParams()
 	}
 
@@ -1107,7 +1107,7 @@ func (p *parser) tryIdentOrType() ast.Expr {
 	switch p.tok {
 	case token.IDENT:
 		ident := p.parseTypeName()
-		if _GENERICS_HASH && p.tok == mt.HASH {
+		if _GENERICS_HASH && p.tok == mtoken.HASH {
 			// parse Foo#[T1,T2...]
 			return p.parseHash(ident)
 		}
@@ -1118,7 +1118,7 @@ func (p *parser) tryIdentOrType() ast.Expr {
 		return p.parseStructType()
 	case token.MUL:
 		return p.parsePointerType()
-	case token.FUNC, mt.LAMBDA:
+	case token.FUNC, mtoken.LAMBDA:
 		typ, _ := p.parseFuncType(p.tok)
 		return typ
 	case token.INTERFACE:
@@ -1133,7 +1133,7 @@ func (p *parser) tryIdentOrType() ast.Expr {
 		typ := p.parseType()
 		rparen := p.expect(token.RPAREN)
 		return &ast.ParenExpr{Lparen: lparen, X: typ, Rparen: rparen}
-	case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE: // patch: support quote and friends inside types
+	case mtoken.QUOTE, mtoken.QUASIQUOTE, mtoken.UNQUOTE: // patch: support quote and friends inside types
 		return p.parseQuote()
 	}
 
@@ -1157,7 +1157,7 @@ func (p *parser) parseStmtList() (list []ast.Stmt) {
 		defer un(trace(p, "StatementList"))
 	}
 
-	for p.tok != mt.TYPECASE && p.tok != token.CASE && p.tok != token.DEFAULT && p.tok != token.RBRACE && p.tok != token.EOF {
+	for p.tok != mtoken.TYPECASE && p.tok != token.CASE && p.tok != token.DEFAULT && p.tok != token.RBRACE && p.tok != token.EOF {
 		list = append(list, p.parseStmt())
 	}
 
@@ -1228,7 +1228,7 @@ func (p *parser) parseOperand(lhs bool) ast.Expr {
 	switch p.tok {
 	case token.IDENT:
 		var x ast.Expr = p.parseIdent()
-		if _GENERICS_HASH && p.tok == mt.HASH {
+		if _GENERICS_HASH && p.tok == mtoken.HASH {
 			// parse Foo#[T1,T2...]
 			x = p.parseHash(x)
 		} else if !lhs {
@@ -1250,14 +1250,14 @@ func (p *parser) parseOperand(lhs bool) ast.Expr {
 		rparen := p.expect(token.RPAREN)
 		return &ast.ParenExpr{Lparen: lparen, X: x, Rparen: rparen}
 
-	case token.FUNC, mt.LAMBDA:
+	case token.FUNC, mtoken.LAMBDA:
 		// patch: lambda. equivalent to func, useful to resolve ambiguities between closures
 		// and function/method declarations
 		return p.parseFuncTypeOrLit(p.tok)
 
 	// patch: quote and friends
 	// TODO: accept ms.MACRO here and interpret as local macro definition? (i.e. Common Lisp macrolet)
-	case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+	case mtoken.QUOTE, mtoken.QUASIQUOTE, mtoken.UNQUOTE, mtoken.UNQUOTE_SPLICE:
 		return p.parseQuote()
 
 	// patch: accept block statements inside expressions. allows to nest macro calls,
@@ -2026,7 +2026,7 @@ func (p *parser) parseCaseClause(typeSwitch bool) ast.Stmt {
 
 	pos := p.pos
 	var list []ast.Expr
-	if p.tok == mt.TYPECASE {
+	if p.tok == mtoken.TYPECASE {
 		p.next()
 		list = p.parseTypeList()
 	} else if p.tok == token.CASE {
@@ -2307,7 +2307,7 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 	}
 
 	switch p.tok {
-	case token.CONST, token.TYPE, token.VAR, mt.FUNCTION:
+	case token.CONST, token.TYPE, token.VAR, mtoken.FUNCTION:
 		// patch: allow function/method declarations inside statements. extremely useful for ~quote and ~quasiquote
 		s = &ast.DeclStmt{Decl: p.parseDecl(syncStmt)}
 	case
@@ -2315,8 +2315,8 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 		token.IDENT, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING, token.FUNC, token.LPAREN, // operands
 		token.LBRACK, token.STRUCT, token.MAP, token.CHAN, token.INTERFACE, // composite types
 		token.ADD, token.SUB, token.MUL, token.AND, token.XOR, token.ARROW, token.NOT, // unary operators
-		mt.MACRO, mt.SPLICE, mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE, // patch: macro, quote and friends
-		mt.LAMBDA:
+		mtoken.MACRO, mtoken.SPLICE, mtoken.QUOTE, mtoken.QUASIQUOTE, mtoken.UNQUOTE, mtoken.UNQUOTE_SPLICE, // patch: macro, quote and friends
+		mtoken.LAMBDA:
 
 		s, _ = p.parseSimpleStmt(labelOk)
 		// because of the required look-ahead, labeled statements are
@@ -2355,7 +2355,7 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 	case token.RBRACE:
 		// a semicolon may be omitted before a closing "}"
 		s = &ast.EmptyStmt{Semicolon: p.pos, Implicit: true}
-	case mt.TEMPLATE:
+	case mtoken.TEMPLATE:
 		if GENERICS_V1_CXX {
 			s = &ast.DeclStmt{Decl: p.parseDecl(syncStmt)}
 			break
@@ -2492,7 +2492,7 @@ func (p *parser) parseTypeSpec(doc *ast.CommentGroup, _ token.Token, _ int) ast.
 	// i.e. `type Map#[K,V] struct { ... }`
 	var params *ast.CompositeLit
 
-	if GENERICS_V2_CTI && p.tok == mt.HASH {
+	if GENERICS_V2_CTI && p.tok == mtoken.HASH {
 		p.next()
 		params = p.parseGenericParams()
 	}
@@ -2563,7 +2563,7 @@ func (p *parser) parseMacroDecl() *ast.FuncDecl {
 	if p.trace {
 		defer un(trace(p, "MacroDecl"))
 	}
-	decl := p.parseFuncOrMacroDecl(mt.MACRO)
+	decl := p.parseFuncOrMacroDecl(mtoken.MACRO)
 	// add zero-length receiver list, to mark decl as a macro
 	decl.Recv = &ast.FieldList{List: []*ast.Field{}}
 	return decl
@@ -2577,7 +2577,7 @@ func (p *parser) parseFuncOrMacroDecl(tok token.Token) *ast.FuncDecl {
 
 	var recv *ast.FieldList
 	// patch: macros cannot have a receiver
-	if tok != mt.MACRO && p.tok == token.LPAREN {
+	if tok != mtoken.MACRO && p.tok == token.LPAREN {
 		recv = p.parseParameters(scope, false)
 	}
 
@@ -2585,7 +2585,7 @@ func (p *parser) parseFuncOrMacroDecl(tok token.Token) *ast.FuncDecl {
 
 	// patch: generic v2 type params
 	var c *ast.CompositeLit
-	if tok != mt.MACRO && mt.GENERICS_V2_CTI && p.tok == mt.HASH {
+	if tok != mtoken.MACRO && mtoken.GENERICS_V2_CTI && p.tok == mtoken.HASH {
 		p.next()
 		c = p.parseGenericParams()
 	}
@@ -2639,13 +2639,13 @@ func (p *parser) parseDecl(sync func(*parser)) ast.Decl {
 	case token.TYPE:
 		f = p.parseTypeSpec
 
-	case token.FUNC, mt.FUNCTION:
+	case token.FUNC, mtoken.FUNCTION:
 		return p.parseFuncDecl(p.tok)
 
-	case mt.MACRO: // patch: parse a macro declaration
+	case mtoken.MACRO: // patch: parse a macro declaration
 		return p.parseMacroDecl()
 
-	case mt.TEMPLATE: // patch: parse a C++ template style generics declaration
+	case mtoken.TEMPLATE: // patch: parse a C++ template style generics declaration
 		if GENERICS_V1_CXX {
 			return p.parseTemplateDecl(sync)
 		}

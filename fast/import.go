@@ -357,9 +357,9 @@ func (imp *Import) loadTypes(g *CompGlobals, pkgref *genimport.PackageRef) {
 }
 
 // loadProxies adds to thread-global maps the proxies found in import
-func (g *CompGlobals) loadProxies(proxies map[string]r.Type, xtypes map[string]xr.Type) {
+func (g *CompGlobals) loadProxies(proxies map[string]r.Type, types map[string]xr.Type) {
 	for name, proxy := range proxies {
-		xtype := xtypes[name]
+		xtype := types[name]
 		if xtype == nil {
 			g.Warnf("import %q: type not found for proxy <%v>", proxy.PkgPath(), proxy)
 			continue

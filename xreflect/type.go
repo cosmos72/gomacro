@@ -17,11 +17,12 @@
 package xreflect
 
 import (
-	"go/types"
 	"reflect"
 
-	mt "github.com/cosmos72/gomacro/token"
-	"github.com/cosmos72/gomacro/typeutil"
+	"go/types"
+
+	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/typeutil"
 )
 
 func identicalType(t, u Type) bool {
@@ -289,7 +290,7 @@ func matchReceiverType(t, u *xtype) bool {
 }
 
 func getConstrainedReceiverType(t *xtype, lhs bool) *xtype {
-	if mt.GENERICS_V2_CTI {
+	if mtoken.GENERICS_V2_CTI {
 		if lhs && t.kind != reflect.Interface {
 			return t
 		}

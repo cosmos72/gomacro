@@ -22,7 +22,7 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
-	mt "github.com/cosmos72/gomacro/token"
+	mtoken "github.com/cosmos72/gomacro/go/mtoken"
 )
 
 type macroExpandCtx struct {
@@ -70,17 +70,17 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 	if expr, ok := in.(UnaryExpr); ok {
 		isBlockWithinExpr := false
 		switch expr.X.Op {
-		case mt.MACRO:
+		case mtoken.MACRO:
 			isBlockWithinExpr = true
-		case mt.QUOTE:
+		case mtoken.QUOTE:
 			// QUOTE prevents macroexpansion only if found outside any QUASIQUOTE
 			if quasiquoteDepth == 0 {
 				return saved, anythingExpanded
 			}
-		case mt.QUASIQUOTE:
+		case mtoken.QUASIQUOTE:
 			// extract the body of QUASIQUOTE
 			quasiquoteDepth++
-		case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+		case mtoken.UNQUOTE, mtoken.UNQUOTE_SPLICE:
 			// extract the body of UNQUOTE or UNQUOTE_SPLICE
 			quasiquoteDepth--
 		default:

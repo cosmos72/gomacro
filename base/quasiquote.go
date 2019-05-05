@@ -21,8 +21,8 @@ import (
 	"go/token"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	mp "github.com/cosmos72/gomacro/parser"
-	mt "github.com/cosmos72/gomacro/token"
+	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	mp "github.com/cosmos72/gomacro/go/parser"
 )
 
 // SimplifyNodeForQuote unwraps ast.BlockStmt, ast.ExprStmt, ast.ParenExpr and ast.DeclStmt
@@ -198,7 +198,7 @@ func DuplicateNestedUnquotes(src UnaryExpr, depth int, toappend Ast) Ast {
 	return head
 }
 
-// return the expression inside nested mt.UNQUOTE and/or mt.UNQUOTE_SPLICE contained in 'unquote'
+// return the expression inside nested mtoken.UNQUOTE and/or mtoken.UNQUOTE_SPLICE contained in 'unquote'
 func DescendNestedUnquotes(unquote UnaryExpr) (lastUnquote UnaryExpr, depth int) {
 	depth = 1
 	for {
@@ -212,7 +212,7 @@ func DescendNestedUnquotes(unquote UnaryExpr) (lastUnquote UnaryExpr, depth int)
 				form = UnwrapTrivialAst(block.Get(0))
 				if form != nil && form.Size() == 1 {
 					if expr, ok := form.(UnaryExpr); ok {
-						if op := expr.Op(); op == mt.UNQUOTE || op == mt.UNQUOTE_SPLICE {
+						if op := expr.Op(); op == mtoken.UNQUOTE || op == mtoken.UNQUOTE_SPLICE {
 							unquote = expr
 							depth++
 							continue
@@ -226,7 +226,7 @@ func DescendNestedUnquotes(unquote UnaryExpr) (lastUnquote UnaryExpr, depth int)
 	}
 }
 
-// return the sequence of nested mt.UNQUOTE and/or mt.UNQUOTE_SPLICE contained in 'unquote'
+// return the sequence of nested mtoken.UNQUOTE and/or mtoken.UNQUOTE_SPLICE contained in 'unquote'
 func CollectNestedUnquotes(unquote UnaryExpr) ([]token.Token, []token.Pos) {
 	// Debugf("CollectNestedUnquotes: %v // %T", unquote.X, unquote.X)
 
@@ -245,7 +245,7 @@ func CollectNestedUnquotes(unquote UnaryExpr) ([]token.Token, []token.Pos) {
 				form = UnwrapTrivialAst(block.Get(0))
 				if form != nil && form.Size() == 1 {
 					if expr, ok := form.(UnaryExpr); ok {
-						if op := expr.X.Op; op == mt.UNQUOTE || op == mt.UNQUOTE_SPLICE {
+						if op := expr.X.Op; op == mtoken.UNQUOTE || op == mtoken.UNQUOTE_SPLICE {
 							unquote = expr
 							continue
 						}

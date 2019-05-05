@@ -29,12 +29,12 @@ import (
 	. "github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/base/reflect"
-	"github.com/cosmos72/gomacro/printer"
-	mt "github.com/cosmos72/gomacro/token"
+	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/printer"
 )
 
 type Stringer struct {
-	Fileset    *mt.FileSet
+	Fileset    *mtoken.FileSet
 	Pos        token.Pos
 	Line       int
 	NamedTypes map[r.Type]string
@@ -309,12 +309,12 @@ func (st *Stringer) nodeToPrintable(node ast.Node) interface{} {
 	if node == nil {
 		return nil
 	}
-	var fset *mt.FileSet
+	var fset *mtoken.FileSet
 	if st != nil {
 		fset = st.Fileset
 	}
 	if fset == nil {
-		fset = mt.NewFileSet()
+		fset = mtoken.NewFileSet()
 	}
 	var buf bytes.Buffer
 	err := config.Fprint(&buf, &fset.FileSet, node)

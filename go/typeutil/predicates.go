@@ -8,6 +8,7 @@ package typeutil
 
 import (
 	"go/ast"
+
 	"go/types"
 )
 

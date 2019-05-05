@@ -19,12 +19,12 @@ package fast
 import (
 	"go/ast"
 	"go/token"
-	"go/types"
 	r "reflect"
 	"sort"
 	"unsafe"
 
-	"github.com/cosmos72/gomacro/typeutil"
+	"github.com/cosmos72/gomacro/go/typeutil"
+	"go/types"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 

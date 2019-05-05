@@ -18,11 +18,11 @@ package xreflect
 
 import (
 	"go/token"
-	"go/types"
 	"reflect"
 	"sort"
 
-	mt "github.com/cosmos72/gomacro/token"
+	"github.com/cosmos72/gomacro/go/mtoken"
+	"go/types"
 )
 
 func IsEmulatedInterface(t Type) bool {
@@ -62,7 +62,7 @@ func EmulatedInterfaceGetMethod(obj reflect.Value, index int) reflect.Value {
 func toGoFuncs(pkg *Package, names []string, methods []Type) (gfuns []*types.Func, recv Type) {
 	gfuns = make([]*types.Func, len(methods))
 	for i, t := range methods {
-		if mt.GENERICS_V2_CTI && t.Kind() == reflect.Map {
+		if mtoken.GENERICS_V2_CTI && t.Kind() == reflect.Map {
 			tkey := t.Key()
 			if recv != nil && !recv.IdenticalTo(tkey) {
 				errorf(t, "generic interface has two incompatible constraints on method receiver type: %v and %v",
@@ -166,7 +166,7 @@ func (v *Universe) InterfaceOf(pkg *Package, methodnames []string, methodtypes [
 
 	for i, methodtype := range methodtypes {
 		name := methodnames[i]
-		if mt.GENERICS_V2_CTI && methodtype.Kind() == reflect.Map {
+		if mtoken.GENERICS_V2_CTI && methodtype.Kind() == reflect.Map {
 			methodtype = methodtype.Elem()
 		}
 		if methodtype.Kind() != reflect.Func {

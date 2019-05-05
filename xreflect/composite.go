@@ -17,8 +17,9 @@
 package xreflect
 
 import (
-	"go/types"
 	"reflect"
+
+	"go/types"
 )
 
 // ChanDir returns a channel type's direction.

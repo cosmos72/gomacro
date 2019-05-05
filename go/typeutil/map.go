@@ -9,8 +9,9 @@ package typeutil
 import (
 	"bytes"
 	"fmt"
-	"go/types"
 	"reflect"
+
+	"go/types"
 )
 
 // Map is a hash-table-based mapping from types (types.Type) to
@@ -355,12 +356,12 @@ func (h Hasher) hashFor(t types.Type) uint32 {
 			// fmt.Printf("Hash for interface <%v> method %q <%v>\n", t, m.Name(), m.Type())
 
 			hash = (hash<<5 | hash>>27) + 7*hashString(m.Name())
-			if mt, ok := m.Type().Underlying().(*types.Signature); ok {
-				if mt.Variadic() {
+			if mtoken, ok := m.Type().Underlying().(*types.Signature); ok {
+				if mtoken.Variadic() {
 					hash *= 8863
 				}
 				// do NOT hash the receiver of an interface... it may be the interface itself
-				hash += 3*h.hashTuple(mt.Params()) + 5*h.hashTuple(mt.Results())
+				hash += 3*h.hashTuple(mtoken.Params()) + 5*h.hashTuple(mtoken.Results())
 			}
 		}
 		return hash

@@ -7,8 +7,9 @@
 package typeutil
 
 import (
-	"go/types"
 	"strings"
+
+	"go/types"
 )
 
 // String returns a string representation of given type,

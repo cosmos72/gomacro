@@ -5,17 +5,16 @@
 // Package token defines constants representing the lexical tokens of the Go
 // programming language and basic operations on tokens (printing, predicates).
 //
-package token
+package mtoken
 
 import (
 	"go/token"
-	base "go/token"
 )
 
-type Token = base.Token
+type Token = token.Token
 
 const (
-	QUOTE Token = (base.VAR+127)&^127 + iota
+	QUOTE Token = (token.VAR+127)&^127 + iota
 	QUASIQUOTE
 	UNQUOTE
 	UNQUOTE_SPLICE

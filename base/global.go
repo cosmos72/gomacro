@@ -31,9 +31,9 @@ import (
 	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/output"
 	bstrings "github.com/cosmos72/gomacro/base/strings"
+	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	mp "github.com/cosmos72/gomacro/go/parser"
 	"github.com/cosmos72/gomacro/imports"
-	mp "github.com/cosmos72/gomacro/parser"
-	mt "github.com/cosmos72/gomacro/token"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -72,7 +72,7 @@ func NewGlobals() *Globals {
 	g := &Globals{
 		Output: Output{
 			Stringer: output.Stringer{
-				Fileset:    mt.NewFileSet(),
+				Fileset:    mtoken.NewFileSet(),
 				NamedTypes: make(map[r.Type]string),
 			},
 			// using both os.Stdout and os.Stderr can interleave impredictably

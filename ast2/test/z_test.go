@@ -23,8 +23,8 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base/output"
-	"github.com/cosmos72/gomacro/parser"
-	"github.com/cosmos72/gomacro/token"
+	"github.com/cosmos72/gomacro/go/parser"
+	"github.com/cosmos72/gomacro/go/mtoken"
 )
 
 func TestToNodes(t *testing.T) {

@@ -22,8 +22,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/cosmos72/gomacro/parser"
-	"github.com/cosmos72/gomacro/token"
+	"github.com/cosmos72/gomacro/go/parser"
+	"github.com/cosmos72/gomacro/go/mtoken"
 )
 
 func TestRemoveItem(t *testing.T) {

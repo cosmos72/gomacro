@@ -1,3 +1,5 @@
+// +build gomacro_jit
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -8,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * jit.go
+ * jit_experimental.go
  *
  *  Created on Feb 16, 2019
  *      Author Massimiliano Ghilardi
@@ -40,7 +42,7 @@ type jitField struct {
 
 var (
 	jit_verbose int  = 0
-	jit_enabled bool = false
+	jit_enabled bool = true
 
 	envInts  jitField // description of Env.Ints struct field
 	envIP    jitField // description of Env.IP   struct field
@@ -111,18 +113,6 @@ func jitCheckSupported() {
 		}
 		jit_enabled = false
 		return
-	}
-	s := os.Getenv("GOMACRO_JIT")
-	if s == "" {
-		// leave default value of jit_enabled
-		return
-	}
-	// set jit_enabled from environment variable GOMACRO_JIT:
-	// 0 = disable, anything else = enable
-	i, _ := strconv.Atoi(s)
-	jit_enabled = i != 0
-	if jit_enabled && jit_verbose > 0 {
-		output.Debugf("Jit: enabled with environment variable GOMACRO_JIT")
 	}
 	// stmtNop = jitMakeInterpNop()
 }
@@ -316,6 +306,7 @@ func (j *Jit) Symbol(e *Expr) *Expr {
 }
 
 // if supported, return a jit-compiled statement that will perform va OP= init
+// return nil on failure
 func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
 	if j == nil {
 		return nil

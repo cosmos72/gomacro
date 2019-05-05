@@ -21,7 +21,7 @@ import (
 	"go/ast"
 	"go/token"
 
-	mt "github.com/cosmos72/gomacro/token"
+	mtoken "github.com/cosmos72/gomacro/go/mtoken"
 )
 
 // patch: quote and friends
@@ -32,7 +32,7 @@ func (p *parser) parseQuote() ast.Expr {
 
 	op := p.tok
 	opPos := p.pos
-	opName := mt.String(op) // use the actual name QUOTE/QUASIQUOTE/UNQUOTE/UNQUOTE_SPLICE even if we found ~' ~` ~, ~,@
+	opName := mtoken.String(op) // use the actual name QUOTE/QUASIQUOTE/UNQUOTE/UNQUOTE_SPLICE even if we found ~' ~` ~, ~,@
 	p.next()
 
 	var node ast.Node
@@ -57,7 +57,7 @@ func (p *parser) parseQuote() ast.Expr {
 		node = &ast.BasicLit{ValuePos: p.pos, Kind: p.tok, Value: p.lit}
 		p.next()
 
-	case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+	case mtoken.QUOTE, mtoken.QUASIQUOTE, mtoken.UNQUOTE, mtoken.UNQUOTE_SPLICE:
 		node = p.parseQuote()
 
 	case token.LBRACE:
@@ -92,7 +92,7 @@ func (p *parser) parseStmtListQuoted() (list []ast.Stmt) {
 
 	var stmt ast.Stmt
 	for p.tok != token.RBRACE && p.tok != token.EOF {
-		if p.tok == mt.TYPECASE {
+		if p.tok == mtoken.TYPECASE {
 			stmt = p.parseCaseClause(true)
 		} else if p.tok == token.CASE || p.tok == token.DEFAULT {
 			stmt = p.parseCaseClause(false)
@@ -189,5 +189,5 @@ func (p *parser) parseExprBlock() ast.Expr {
 	// MACRO func() { /*block*/ }
 	typ := &ast.FuncType{Params: &ast.FieldList{}}
 	fun := &ast.FuncLit{Type: typ, Body: block}
-	return &ast.UnaryExpr{OpPos: pos, Op: mt.MACRO, X: fun}
+	return &ast.UnaryExpr{OpPos: pos, Op: mtoken.MACRO, X: fun}
 }

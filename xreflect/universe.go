@@ -17,12 +17,11 @@
 package xreflect
 
 import (
-	"go/types"
+	"go/types" // Importer, ImporterFrom
 	"reflect"
-	// "runtime/debug"
 	"sync"
 
-	"github.com/cosmos72/gomacro/typeutil"
+	"github.com/cosmos72/gomacro/go/typeutil"
 )
 
 type Types struct {

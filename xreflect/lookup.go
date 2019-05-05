@@ -17,10 +17,10 @@
 package xreflect
 
 import (
-	"go/types"
 	"reflect"
 
-	"github.com/cosmos72/gomacro/typeutil"
+	"github.com/cosmos72/gomacro/go/typeutil"
+	"go/types"
 )
 
 type depthMap struct {

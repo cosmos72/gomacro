@@ -32,8 +32,8 @@ import (
 	"github.com/cosmos72/gomacro/base/untyped"
 	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/fast"
-	mp "github.com/cosmos72/gomacro/parser"
-	mt "github.com/cosmos72/gomacro/token"
+	"github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/parser"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -66,10 +66,10 @@ func (tc *TestCase) shouldRun(interp TestFor) bool {
 	if tc.testfor&interp == 0 {
 		return false
 	}
-	if tc.testfor&G1 != 0 && mt.GENERICS_V1_CXX {
+	if tc.testfor&G1 != 0 && mtoken.GENERICS_V1_CXX {
 		return true
 	}
-	if tc.testfor&G2 != 0 && mt.GENERICS_V2_CTI {
+	if tc.testfor&G2 != 0 && mtoken.GENERICS_V2_CTI {
 		return true
 	}
 	return tc.testfor&(G1|G2) == 0
@@ -302,23 +302,23 @@ func for_range_string(s string) int32 {
 }
 
 func makeQuote(node ast.Node) *ast.UnaryExpr {
-	return makequote2(mt.QUOTE, node)
+	return makequote2(mtoken.QUOTE, node)
 }
 
 func makeQUASIQUOTE(node ast.Node) *ast.UnaryExpr {
-	return makequote2(mt.QUASIQUOTE, node)
+	return makequote2(mtoken.QUASIQUOTE, node)
 }
 
 func makeUNQUOTE(node ast.Node) *ast.UnaryExpr {
-	return makequote2(mt.UNQUOTE, node)
+	return makequote2(mtoken.UNQUOTE, node)
 }
 
 func makeUNQUOTE_SPLICE(node ast.Node) *ast.UnaryExpr {
-	return makequote2(mt.UNQUOTE_SPLICE, node)
+	return makequote2(mtoken.UNQUOTE_SPLICE, node)
 }
 
 func makequote2(op token.Token, node ast.Node) *ast.UnaryExpr {
-	unary, _ := mp.MakeQuote(nil, op, token.NoPos, node)
+	unary, _ := parser.MakeQuote(nil, op, token.NoPos, node)
 	return unary
 }
 
@@ -377,9 +377,9 @@ func init() {
 }
 
 func decl_generic_type_pair_str() string {
-	if mt.GENERICS_V1_CXX {
+	if mtoken.GENERICS_V1_CXX {
 		return "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}"
-	} else if mt.GENERICS_V2_CTI {
+	} else if mtoken.GENERICS_V2_CTI {
 		return "~quote{type Pair#[T1,T2] struct { First T1; Second T2 }}"
 	} else {
 		return ""
@@ -387,9 +387,9 @@ func decl_generic_type_pair_str() string {
 }
 
 func decl_generic_func_sum_str() string {
-	if mt.GENERICS_V1_CXX {
+	if mtoken.GENERICS_V1_CXX {
 		return "~quote{template [T] func Sum([]T) T { }}"
-	} else if mt.GENERICS_V2_CTI {
+	} else if mtoken.GENERICS_V2_CTI {
 		return "~quote{~func Sum#[T] ([]T) T { }}"
 	} else {
 		return ""
@@ -397,9 +397,9 @@ func decl_generic_func_sum_str() string {
 }
 
 func decl_generic_method_rest_str() string {
-	if mt.GENERICS_V1_CXX {
+	if mtoken.GENERICS_V1_CXX {
 		return "~quote{template [T] func (x Pair) Rest() T { }}"
-	} else if mt.GENERICS_V2_CTI {
+	} else if mtoken.GENERICS_V2_CTI {
 		return "~quote{~func (x Pair) Rest#[T] () T { }}"
 	} else {
 		return ""
@@ -407,9 +407,9 @@ func decl_generic_method_rest_str() string {
 }
 
 func generic_func(name string, generic_args string) string {
-	if mt.GENERICS_V1_CXX {
+	if mtoken.GENERICS_V1_CXX {
 		return "template[" + generic_args + "] func " + name + " "
-	} else if mt.GENERICS_V2_CTI {
+	} else if mtoken.GENERICS_V2_CTI {
 		return "func " + name + "#[" + generic_args + "]"
 	} else {
 		return ""
@@ -417,9 +417,9 @@ func generic_func(name string, generic_args string) string {
 }
 
 func generic_type(name string, generic_args string) string {
-	if mt.GENERICS_V1_CXX {
+	if mtoken.GENERICS_V1_CXX {
 		return "template[" + generic_args + "] type " + name + " "
-	} else if mt.GENERICS_V2_CTI {
+	} else if mtoken.GENERICS_V2_CTI {
 		return "type " + name + "#[" + generic_args + "]"
 	} else {
 		return ""

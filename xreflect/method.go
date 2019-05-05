@@ -18,10 +18,10 @@ package xreflect
 
 import (
 	"go/ast"
-	"go/types"
 	"reflect"
 
-	"github.com/cosmos72/gomacro/typeutil"
+	"github.com/cosmos72/gomacro/go/typeutil"
+	"go/types"
 )
 
 // return detailed string representation of a method signature, including its receiver if present

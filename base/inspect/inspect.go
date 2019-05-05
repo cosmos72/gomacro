@@ -106,7 +106,7 @@ func (ip *Inspector) Eval(cmd string) error {
 		ip.ShowHelp()
 	case strings.HasPrefix("methods", cmd):
 		t := ip.types[len(ip.types)-1]
-		xt := ip.xtypes[len(ip.xtypes)-1]
+		xt := ip.xtypes[len(ip.types)-1]
 		ip.showMethods(t, xt)
 	case strings.HasPrefix("quit", cmd):
 		return errors.New("user quit")

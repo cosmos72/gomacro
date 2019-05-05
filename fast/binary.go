@@ -24,7 +24,7 @@ import (
 
 	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/base/untyped"
-	mt "github.com/cosmos72/gomacro/token"
+	mtoken "github.com/cosmos72/gomacro/go/mtoken"
 )
 
 func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
@@ -347,7 +347,7 @@ func (c *Comp) unimplementedBinaryExpr(node *ast.BinaryExpr, x *Expr, y *Expr) *
 }
 
 func (c *Comp) badBinaryExpr(reason string, node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
-	opstr := mt.String(node.Op)
+	opstr := mtoken.String(node.Op)
 	var xstr, ystr string
 	if x.Const() {
 		xstr = x.String() + " "

@@ -22,7 +22,7 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
-	mt "github.com/cosmos72/gomacro/token"
+	mtoken "github.com/cosmos72/gomacro/go/mtoken"
 )
 
 // MacroExpandNodeCodewalk traverses the whole AST tree using pre-order traversal,
@@ -70,17 +70,17 @@ func (c *Comp) macroExpandCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythi
 	if expr, ok := in.(UnaryExpr); ok {
 		op := expr.X.Op
 		switch op {
-		case mt.MACRO:
+		case mtoken.MACRO:
 			break
-		case mt.QUOTE:
+		case mtoken.QUOTE:
 			// QUOTE prevents macroexpansion only if found outside any QUASIQUOTE
 			if quasiquoteDepth == 0 {
 				return saved, anythingExpanded
 			}
-		case mt.QUASIQUOTE:
+		case mtoken.QUASIQUOTE:
 			// extract the body of QUASIQUOTE
 			quasiquoteDepth++
-		case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+		case mtoken.UNQUOTE, mtoken.UNQUOTE_SPLICE:
 			// extract the body of UNQUOTE or UNQUOTE_SPLICE
 			quasiquoteDepth--
 		default:
@@ -88,7 +88,7 @@ func (c *Comp) macroExpandCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythi
 		}
 		inChild := UnwrapTrivialAst(in.Get(0).Get(1))
 		outChild, expanded := c.macroExpandCodewalk(inChild, quasiquoteDepth)
-		if op == mt.MACRO {
+		if op == mtoken.MACRO {
 			return outChild, expanded
 		}
 		out := in

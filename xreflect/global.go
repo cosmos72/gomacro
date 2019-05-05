@@ -18,11 +18,13 @@ package xreflect
 
 import (
 	"go/ast"
-	"go/types"
+	_types "go/types"
 	"reflect"
+
+	"go/types"
 )
 
-type Package types.Package
+type Package _types.Package
 
 type Forward interface{}
 
