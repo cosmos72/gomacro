@@ -36,6 +36,8 @@ type Jit struct {
 	lastMachineCode jit.MachineCode
 }
 
+type jitExpr = jit.Expr
+
 type jitField struct {
 	index jit.Const
 }

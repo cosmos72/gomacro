@@ -28,7 +28,6 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/untyped"
-	"github.com/cosmos72/gomacro/jit"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -141,7 +140,7 @@ type Expr struct {
 	Types []xr.Type // in case the expression produces multiple values. if nil, use Lit.Type.
 	Fun   I         // function that evaluates the expression at runtime.
 	Sym   *Symbol   // in case the expression is a symbol
-	Jit   jit.Expr  // expression to jit-compile, or nil if not supported
+	Jit   jitExpr   // expression to jit-compile, or nil if not supported
 	EFlags
 }
 

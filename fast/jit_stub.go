@@ -21,18 +21,15 @@ package fast
 import (
 	"go/token"
 
-	"github.com/cosmos72/gomacro/jit"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
+
+type jitExpr struct{}
 
 type Jit struct{}
 
 func NewJit() *Jit {
 	return nil
-}
-
-func (j *Jit) InitArch(arch jit.Arch) *Jit {
-	return j
 }
 
 // if supported, set e.Jit to jit constant == e.Lit.Value
