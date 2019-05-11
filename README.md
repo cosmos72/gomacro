@@ -90,12 +90,8 @@ Gomacro can be used as:
   and call any other function or library: they can even read and write files,
   open network connections, etc... as a normal Go function can do.
 
-  Run `gomacro -m -w FILENAMES` to parse and expand macros in one or more files.
-  For each filename on the command line, gomacro will parse it, expand macros,
-  then create a corresponding FILENAME.go with the parsed and macroexpanded
-  imports, declarations and statements.
-
-  To parse and macroexpand all *.gomacro files in a directory, run `gomacro -m -w DIRECTORY`
+  See [doc/code_generation.pdf](https://github.com/cosmos72/gomacro/blob/master/doc/code_generation.pdf)
+  for an introduction to the topic.
 
 ## Installation
 
@@ -185,7 +181,8 @@ Compared to compiled Go, gomacro supports several extensions:
 
   Be aware that converting a huge value to string, as typing `f` at REPL would do, can be very slow.
 
-* macros, quoting and quasiquoting (to be documented)
+* macros, quoting and quasiquoting: see
+  [doc/code_generation.pdf](https://github.com/cosmos72/gomacro/blob/master/doc/code_generation.pdf)
 
 and slightly relaxed checks:
 
