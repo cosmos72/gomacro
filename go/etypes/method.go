@@ -8,6 +8,8 @@ package etypes
 
 import (
 	"go/token"
+
+	"github.com/cosmos72/gomacro/go/etoken"
 )
 
 func (b *Basic) NumMethods() int     { b.initMethods(); return len(b.methods) }
@@ -37,7 +39,7 @@ func (b *Basic) initMethods() {
 	// TODO
 }
 func (a *Array) initMethods() {
-	if len(a.methods) != 0 {
+	if !etoken.GENERICS_V2_CTI || len(a.methods) != 0 {
 		return
 	}
 	v := NewVar(token.NoPos, nil, "a", a)
@@ -56,7 +58,7 @@ func (a *Array) initMethods() {
 	}
 }
 func (s *Slice) initMethods() {
-	if len(s.methods) != 0 {
+	if !etoken.GENERICS_V2_CTI || len(s.methods) != 0 {
 		return
 	}
 	v := NewVar(token.NoPos, nil, "s", s)
@@ -78,7 +80,7 @@ func (s *Slice) initMethods() {
 	}
 }
 func (m *Map) initMethods() {
-	if len(m.methods) != 0 {
+	if !etoken.GENERICS_V2_CTI || len(m.methods) != 0 {
 		return
 	}
 	v := NewVar(token.NoPos, nil, "m", m)
@@ -95,7 +97,7 @@ func (m *Map) initMethods() {
 	}
 }
 func (c *Chan) initMethods() {
-	if len(c.methods) != 0 {
+	if !etoken.GENERICS_V2_CTI || len(c.methods) != 0 {
 		return
 	}
 	v := NewVar(token.NoPos, nil, "c", c)
