@@ -33,16 +33,80 @@ func (m *Map) Method(i int) *Func       { m.initMethods(); return m.methods[i] }
 func (c *Chan) Method(i int) *Func      { c.initMethods(); return c.methods[i] }
 
 func (b *Basic) initMethods() {
-	if len(b.methods) != 0 {
+	if !etoken.GENERICS_V2_CTI || len(b.methods) != 0 || b.info&IsUntyped != 0 {
 		return
 	}
-	// TODO
+	info := b.info
+	v := NewVar(token.NoPos, nil, "v", b)
+	vbool := NewVar(token.NoPos, nil, "", Typ[Bool])
+	tuple_v := NewTuple(v)
+	tuple_bool := NewTuple(vbool)
+	sig_vv := NewSignature(v, nil, tuple_v, false)
+	sig_vvv := NewSignature(v, tuple_v, tuple_v, false)
+	if info&IsNumeric != 0 {
+		b.methods = append(b.methods,
+			NewFunc(token.NoPos, nil, "Add", sig_vvv),
+			NewFunc(token.NoPos, nil, "Sub", sig_vvv),
+			NewFunc(token.NoPos, nil, "Mul", sig_vvv),
+			NewFunc(token.NoPos, nil, "Div", sig_vvv),
+			NewFunc(token.NoPos, nil, "Neg", sig_vv),
+		)
+	} else if info&IsString != 0 {
+		b.methods = append(b.methods,
+			NewFunc(token.NoPos, nil, "Add", sig_vvv),
+		)
+	}
+	if info&IsInteger != 0 {
+		_8 := NewVar(token.NoPos, nil, "", Typ[Uint8])
+		tuple_8 := NewTuple(_8)
+		sig_v8v := NewSignature(v, tuple_v, tuple_8, false)
+		b.methods = append(b.methods,
+			NewFunc(token.NoPos, nil, "Rem", sig_vvv),
+			NewFunc(token.NoPos, nil, "And", sig_vvv),
+			NewFunc(token.NoPos, nil, "Or", sig_vvv),
+			NewFunc(token.NoPos, nil, "Xor", sig_vvv),
+			NewFunc(token.NoPos, nil, "Shl", sig_v8v),
+			NewFunc(token.NoPos, nil, "Shr", sig_v8v),
+			NewFunc(token.NoPos, nil, "Andnot", sig_vvv),
+			NewFunc(token.NoPos, nil, "Not", sig_vv), // unary ^
+		)
+	} else if info&IsComplex != 0 {
+		var fl *Basic
+		if b.kind == Complex64 {
+			fl = Typ[Float32]
+		} else {
+			fl = Typ[Float64]
+		}
+		vfl := NewVar(token.NoPos, nil, "", fl)
+		tuple_fl := NewTuple(vfl)
+		sig_vfl := NewSignature(v, nil, tuple_fl, false)
+		b.methods = append(b.methods,
+			NewFunc(token.NoPos, nil, "Real", sig_vfl),
+			NewFunc(token.NoPos, nil, "Imag", sig_vfl),
+		)
+	} else if info&IsBoolean != 0 {
+		b.methods = append(b.methods,
+			NewFunc(token.NoPos, nil, "Not", sig_vv),
+		)
+	}
+	sig_vvbool := NewSignature(v, tuple_v, tuple_bool, false)
+	if info&IsOrdered != 0 {
+		b.methods = append(b.methods,
+			NewFunc(token.NoPos, nil, "Equal", sig_vvbool),
+			NewFunc(token.NoPos, nil, "Less", sig_vvbool),
+		)
+	} else {
+		b.methods = append(b.methods,
+			NewFunc(token.NoPos, nil, "Equal", sig_vvbool),
+		)
+	}
 }
 func (a *Array) initMethods() {
 	if !etoken.GENERICS_V2_CTI || len(a.methods) != 0 {
 		return
 	}
 	v := NewVar(token.NoPos, nil, "a", a)
+	vptr := NewVar(token.NoPos, nil, "a", NewPointer(a))
 	vint := NewVar(token.NoPos, nil, "", Typ[Int])
 	velem := NewVar(token.NoPos, nil, "", a.elem)
 	tuple_int := NewTuple(vint)
@@ -52,9 +116,9 @@ func (a *Array) initMethods() {
 	a.methods = []*Func{
 		NewFunc(token.NoPos, nil, "Cap", NewSignature(v, nil, tuple_int, false)),
 		NewFunc(token.NoPos, nil, "Get", NewSignature(v, tuple_int, tuple_elem, false)),
-		NewFunc(token.NoPos, nil, "GetAddr", NewSignature(v, tuple_int, tuple_ptrelem, false)),
+		NewFunc(token.NoPos, nil, "GetAddr", NewSignature(vptr, tuple_int, tuple_ptrelem, false)),
 		NewFunc(token.NoPos, nil, "Len", NewSignature(v, nil, tuple_int, false)),
-		NewFunc(token.NoPos, nil, "Set", NewSignature(v, tuple_int_elem, nil, false)),
+		NewFunc(token.NoPos, nil, "Set", NewSignature(vptr, tuple_int_elem, nil, false)),
 	}
 }
 func (s *Slice) initMethods() {
