@@ -24,7 +24,7 @@ import (
 	"io"
 
 	"github.com/cosmos72/gomacro/base/output"
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 func ReadBytes(src interface{}) []byte {
@@ -398,7 +398,7 @@ func lastIsKeywordIgnoresNl(line []byte, first, last int) bool {
 		}
 	}
 	str := string(line[start:end])
-	tok := mtoken.Lookup(str)
+	tok := etoken.Lookup(str)
 	ignorenl := false
 	switch tok {
 	case token.IDENT, token.BREAK, token.CONTINUE, token.FALLTHROUGH, token.RETURN:

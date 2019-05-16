@@ -23,11 +23,11 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 func (env *Env) unsupportedUnaryExpr(xv r.Value, op token.Token) (r.Value, []r.Value) {
-	opstr := mtoken.String(op)
+	opstr := etoken.String(op)
 	return env.Errorf("unsupported unary expression %s on <%v>: %s %v", opstr, typeOf(xv), opstr, xv)
 }
 
@@ -57,22 +57,22 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 	// and our extension "block statement inside expression" are:
 	// a block statements, wrapped in a closure, wrapped in a unary expression "MACRO", i.e.:
 	// MACRO func() { /*block*/ }
-	case mtoken.MACRO:
+	case etoken.MACRO:
 		block := node.X.(*ast.FuncLit).Body
 		return env.evalBlock(block)
 
-	case mtoken.QUOTE:
+	case etoken.QUOTE:
 		block := node.X.(*ast.FuncLit).Body
 		ret := env.evalQuote(block)
 		return r.ValueOf(ret), nil
 
-	case mtoken.QUASIQUOTE:
+	case etoken.QUASIQUOTE:
 		block := node.X.(*ast.FuncLit).Body
 		ret := env.evalQuasiquote(block)
 		return r.ValueOf(ret), nil
 
-	case mtoken.UNQUOTE, mtoken.UNQUOTE_SPLICE:
-		return env.Errorf("%s not inside quasiquote: %v <%v>", mtoken.String(op), node, r.TypeOf(node))
+	case etoken.UNQUOTE, etoken.UNQUOTE_SPLICE:
+		return env.Errorf("%s not inside quasiquote: %v <%v>", etoken.String(op), node, r.TypeOf(node))
 	}
 
 	xv, _ := env.EvalNode(node.X)

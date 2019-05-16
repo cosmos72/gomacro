@@ -16,7 +16,7 @@ import (
 	"text/tabwriter"
 	"unicode"
 
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 const (
@@ -933,7 +933,7 @@ func (p *printer) print(args ...interface{}) {
 			p.lastTok = x.Kind
 
 		case token.Token:
-			s := mtoken.String(x)
+			s := etoken.String(x)
 			if mayCombine(p.lastTok, s[0]) {
 				// the previous and the current token must be
 				// separated by a blank otherwise they combine

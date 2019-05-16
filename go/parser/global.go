@@ -11,7 +11,7 @@ import (
 	"go/ast"
 	"go/token"
 
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 // A Mode value is a set of flags (or 0).
@@ -41,7 +41,7 @@ func (p *parser) Configure(mode Mode, macroChar rune) {
 	p.macroChar = macroChar
 }
 
-func (p *parser) Init(fileset *mtoken.FileSet, filename string, lineOffset int, src []byte) {
+func (p *parser) Init(fileset *etoken.FileSet, filename string, lineOffset int, src []byte) {
 	p.init(fileset, filename, lineOffset, src, p.mode)
 }
 
@@ -71,7 +71,7 @@ func (p *parser) Parse() (list []ast.Node, err error) {
 		list = append(list, p.parseAny())
 		// fmt.Printf("// parser position is now %d (%s). parsed %#v\n", p.pos, p.file.Position(p.pos), list[len(list)-1])
 		if p.pos == lastpos1 {
-			p.error(p.pos, fmt.Sprintf("skipping '%s' to continue", mtoken.String(p.tok)))
+			p.error(p.pos, fmt.Sprintf("skipping '%s' to continue", etoken.String(p.tok)))
 			p.next()
 		} else {
 			lastpos1 = lastpos2
@@ -100,7 +100,7 @@ func (p *parser) parseAny() ast.Node {
 		node = p.parsePackage()
 	case token.IMPORT:
 		node = p.parseGenDecl(token.IMPORT, p.parseImportSpec)
-	case token.CONST, token.TYPE, token.VAR, token.FUNC, mtoken.MACRO, mtoken.FUNCTION, mtoken.TEMPLATE:
+	case token.CONST, token.TYPE, token.VAR, token.FUNC, etoken.MACRO, etoken.FUNCTION, etoken.TEMPLATE:
 		// a "func" at top level can be either a function declaration: func foo(args) /*...*/
 		// or a method declaration: func (receiver) foo(args) /*...*/
 		// or a function literal, i.e. a closure: func(args) /*...*/

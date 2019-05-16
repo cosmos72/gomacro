@@ -23,7 +23,7 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base/output"
-	"github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/etoken"
 	"github.com/cosmos72/gomacro/go/parser"
 )
 
@@ -49,7 +49,7 @@ func _testToNodes(t *testing.T, filename string) {
 		return
 	}
 
-	fset := mtoken.NewFileSet()
+	fset := etoken.NewFileSet()
 	st := output.Stringer{Fileset: fset}
 
 	var p parser.Parser

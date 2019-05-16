@@ -26,7 +26,7 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/reflect"
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 	mp "github.com/cosmos72/gomacro/go/parser"
 )
 
@@ -41,14 +41,14 @@ func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 	node := SimplifyNodeForQuote(block, true)
 
 	if block != nil && len(block.List) == 1 {
-		if unary, ok := SimplifyNodeForQuote(block.List[0], false).(*ast.UnaryExpr); ok && (unary.Op == mtoken.UNQUOTE || unary.Op == mtoken.UNQUOTE_SPLICE) {
+		if unary, ok := SimplifyNodeForQuote(block.List[0], false).(*ast.UnaryExpr); ok && (unary.Op == etoken.UNQUOTE || unary.Op == etoken.UNQUOTE_SPLICE) {
 			// to support quasiquote{unquote ...} and quasiquote{unquote_splice ...}
 			// we invoke SimplifyNodeForQuote() at the end, not at the beginning.
 
 			in := ToAst(block)
 			expr := c.quasiquote1(in, 1, true)
 
-			if unary.Op == mtoken.UNQUOTE_SPLICE {
+			if unary.Op == etoken.UNQUOTE_SPLICE {
 				return expr
 			}
 			fun := expr.AsX1()
@@ -68,7 +68,7 @@ func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 func (c *Comp) Quasiquote(in Ast) *Expr {
 	switch form := in.(type) {
 	case UnaryExpr:
-		if form.Op() == mtoken.QUASIQUOTE {
+		if form.Op() == etoken.QUASIQUOTE {
 			body := form.X.X.(*ast.FuncLit).Body
 			return c.quasiquote1(ToAst(body), 1, true)
 		}
@@ -92,7 +92,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 		label = " splice"
 	}
 	if debug {
-		c.Debugf("Quasiquote[%d]%s expanding %s: %v // %T", depth, label, mtoken.String(mtoken.QUASIQUOTE), in.Interface(), in.Interface())
+		c.Debugf("Quasiquote[%d]%s expanding %s: %v // %T", depth, label, etoken.String(etoken.QUASIQUOTE), in.Interface(), in.Interface())
 	}
 
 	switch in := in.(type) {
@@ -150,14 +150,14 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 	case UnaryExpr:
 		unary := in.X
 		switch op := unary.Op; op {
-		case mtoken.UNQUOTE, mtoken.UNQUOTE_SPLICE:
+		case etoken.UNQUOTE, etoken.UNQUOTE_SPLICE:
 			inner, unquoteDepth := DescendNestedUnquotes(in)
 			if debug {
 				c.Debugf("Quasiquote[%d]%s deep splice expansion? %v. unquoteDepth = %d, inner.Op() = %s: %v // %T",
-					depth, label, unquoteDepth > 1 && unquoteDepth >= depth && inner.Op() == mtoken.UNQUOTE_SPLICE,
-					unquoteDepth, mtoken.String(inner.Op()), inner, inner)
+					depth, label, unquoteDepth > 1 && unquoteDepth >= depth && inner.Op() == etoken.UNQUOTE_SPLICE,
+					unquoteDepth, etoken.String(inner.Op()), inner, inner)
 			}
-			if unquoteDepth > 1 && unquoteDepth >= depth && inner.Op() == mtoken.UNQUOTE_SPLICE {
+			if unquoteDepth > 1 && unquoteDepth >= depth && inner.Op() == etoken.UNQUOTE_SPLICE {
 				// complication: in Common Lisp, the right-most unquote pairs with the left-most comma!
 				// we implement the same mechanics, so we must drill down to the last unquote/unquote_splice
 				// and, for unquote_splice, create a copy of the unquote/unquote_splice stack for each result.
@@ -171,7 +171,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 				node := SimplifyNodeForQuote(inner.X.X.(*ast.FuncLit).Body, true)
 				form := ToAst(node)
 				if debug {
-					c.Debugf("Quasiquote[%d]%s deep splice compiling %s: %v // %T", depth, label, mtoken.String(inner.Op()), node, node)
+					c.Debugf("Quasiquote[%d]%s deep splice compiling %s: %v // %T", depth, label, etoken.String(inner.Op()), node, node)
 				}
 				fun := c.compileExpr(form).AsX1()
 				toks, pos := CollectNestedUnquotes(in)
@@ -195,20 +195,20 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 				}), true
 			}
 			fallthrough
-		case mtoken.QUOTE, mtoken.QUASIQUOTE:
+		case etoken.QUOTE, etoken.QUASIQUOTE:
 			node := SimplifyNodeForQuote(unary.X.(*ast.FuncLit).Body, true)
 			form := ToAst(node)
 
-			if op == mtoken.QUASIQUOTE {
+			if op == etoken.QUASIQUOTE {
 				depth++
-			} else if op == mtoken.UNQUOTE || op == mtoken.UNQUOTE_SPLICE {
+			} else if op == etoken.UNQUOTE || op == etoken.UNQUOTE_SPLICE {
 				depth--
 			}
 			if depth <= 0 {
 				if debug {
-					c.Debugf("Quasiquote[%d]%s compiling %s: %v // %T", depth, label, mtoken.String(op), node, node)
+					c.Debugf("Quasiquote[%d]%s compiling %s: %v // %T", depth, label, etoken.String(op), node, node)
 				}
-				return c.compileExpr(form), op == mtoken.UNQUOTE_SPLICE
+				return c.compileExpr(form), op == etoken.UNQUOTE_SPLICE
 			}
 			fun := c.quasiquote1(form, depth, true).AsX1()
 			if fun == nil {
@@ -220,7 +220,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 				pos = node.Pos()
 				position = c.Fileset.Position(pos)
 			}
-			if op == mtoken.UNQUOTE_SPLICE {
+			if op == etoken.UNQUOTE_SPLICE {
 				return c.quoteUnquoteSplice(op, pos, position, fun), false
 			}
 			return exprX1(c.Universe.FromReflectType(rtypeOfUnaryExpr), func(env *Env) r.Value {
@@ -228,7 +228,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 				if fun != nil {
 					x := reflect.Interface(fun(env))
 					if debug {
-						output.Debugf("Quasiquote: env = %p, body of %s: <%v> returned %v <%v>", env, mtoken.String(op), r.TypeOf(fun), x, r.TypeOf(x))
+						output.Debugf("Quasiquote: env = %p, body of %s: <%v> returned %v <%v>", env, etoken.String(op), r.TypeOf(fun), x, r.TypeOf(x))
 					}
 					node = AnyToAstWithNode(x, position).Node()
 				}
@@ -318,7 +318,7 @@ func (c *Comp) quoteUnquoteSplice(op token.Token, pos token.Pos, position token.
 					prefix = fmt.Sprintf("%s: ", position)
 				}
 				output.Errorf("%s%s returned invalid type, expecting AstWithNode or AstWithSlice: %v, <%v>",
-					prefix, mtoken.String(mtoken.UNQUOTE_SPLICE), form, r.TypeOf(form))
+					prefix, etoken.String(etoken.UNQUOTE_SPLICE), form, r.TypeOf(form))
 				return Nil
 			}
 		}

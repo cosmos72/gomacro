@@ -22,22 +22,22 @@ import (
 	"go/token"
 
 	"github.com/cosmos72/gomacro/base"
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 	switch node.Op {
-	case mtoken.QUOTE:
+	case etoken.QUOTE:
 		// surprisingly easy :)
 		block := node.X.(*ast.FuncLit).Body
 		node := base.SimplifyNodeForQuote(block, true)
 		return c.exprValue(nil, node)
 
-	case mtoken.QUASIQUOTE:
+	case etoken.QUASIQUOTE:
 		return c.quasiquoteUnary(node)
 
-	case mtoken.UNQUOTE, mtoken.UNQUOTE_SPLICE:
-		c.Errorf("invalid %s outside %s: %v", mtoken.String(node.Op), mtoken.String(mtoken.QUASIQUOTE), node)
+	case etoken.UNQUOTE, etoken.UNQUOTE_SPLICE:
+		c.Errorf("invalid %s outside %s: %v", etoken.String(node.Op), etoken.String(etoken.QUASIQUOTE), node)
 
 	case token.AND:
 		// c.Expr(node.X) is useless here... skip it
@@ -105,7 +105,7 @@ func (c *Comp) unimplementedUnaryExpr(node *ast.UnaryExpr, xe *Expr) *Expr {
 }
 
 func (c *Comp) badUnaryExpr(reason string, node *ast.UnaryExpr, xe *Expr) *Expr {
-	opstr := mtoken.String(node.Op)
+	opstr := etoken.String(node.Op)
 	if xe != nil {
 		c.Errorf("%s unary operation %s on <%v>: %s %v",
 			reason, opstr, xe.Type, opstr, node.X)

@@ -20,7 +20,7 @@ import (
 	"go/types"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/etoken"
 	"github.com/cosmos72/gomacro/go/typeutil"
 )
 
@@ -289,7 +289,7 @@ func matchReceiverType(t, u *xtype) bool {
 }
 
 func getConstrainedReceiverType(t *xtype, lhs bool) *xtype {
-	if mtoken.GENERICS_V2_CTI {
+	if etoken.GENERICS_V2_CTI {
 		if lhs && t.kind != r.Interface {
 			return t
 		}

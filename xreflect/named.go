@@ -57,7 +57,7 @@ func (v *Universe) reflectNamedOf(name, pkgpath string, kind r.Kind, rtype r.Typ
 		// rtype will often be inaccurate and equal to Incomplete.
 		// All these issues will be fixed by Type.SetUnderlying()
 		kind,
-		// if mtoken.GENERICS_V2_CTI, v.BasicTypes[kind] is a named type
+		// if etoken.GENERICS_V2_CTI, v.BasicTypes[kind] is a named type
 		// wrapping the actual basic type
 		types.NewNamed(typename, underlying.GoType().Underlying(), nil),
 		rtype,

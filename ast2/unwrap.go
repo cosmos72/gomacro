@@ -21,7 +21,7 @@ import (
 	"go/token"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/etoken"
 )
 
 // ToNode converts Ast back ast.Node, or panics on failure
@@ -297,5 +297,5 @@ func BlockStmtToExpr(node *ast.BlockStmt) ast.Expr {
 	// so we return a unary expression: MACRO (func() { /*block*/ })
 	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
 	fun := &ast.FuncLit{Type: typ, Body: node}
-	return &ast.UnaryExpr{Op: mtoken.MACRO, X: fun}
+	return &ast.UnaryExpr{Op: etoken.MACRO, X: fun}
 }

@@ -24,7 +24,7 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/reflect"
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 func (env *Env) evalExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) []r.Value {
@@ -169,7 +169,7 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 }
 
 func (env *Env) unsupportedLogicalOperand(op token.Token, xv r.Value) (r.Value, []r.Value) {
-	return env.Errorf("unsupported type in logical operation %s: expecting bool, found %v <%v>", mtoken.String(op), xv, typeOf(xv))
+	return env.Errorf("unsupported type in logical operation %s: expecting bool, found %v <%v>", etoken.String(op), xv, typeOf(xv))
 }
 
 func (env *Env) evalSliceExpr(node *ast.SliceExpr) (r.Value, []r.Value) {

@@ -27,15 +27,15 @@ import (
 
 	"github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base"
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // enable C++-style generics?
-const GENERICS_V1_CXX = mtoken.GENERICS_V1_CXX
+const GENERICS_V1_CXX = etoken.GENERICS_V1_CXX
 
 // enable "contracts are interfaces" generics?
-const GENERICS_V2_CTI = mtoken.GENERICS_V2_CTI
+const GENERICS_V2_CTI = etoken.GENERICS_V2_CTI
 
 type genericMaker struct {
 	comp  *Comp

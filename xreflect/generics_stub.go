@@ -22,11 +22,11 @@
 package xreflect
 
 import (
-	"github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/etoken"
 )
 
 func (v *Universe) addBasicTypesMethodsCTI() {
-	if !mtoken.GENERICS_V2_CTI {
+	if !etoken.GENERICS_V2_CTI {
 		return
 	}
 }

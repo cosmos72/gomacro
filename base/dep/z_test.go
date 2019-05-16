@@ -22,7 +22,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/etoken"
 	"github.com/cosmos72/gomacro/go/parser"
 )
 
@@ -80,7 +80,7 @@ func _testSorter(t *testing.T, filename string) {
 	}
 
 	var p parser.Parser
-	fset := mtoken.NewFileSet()
+	fset := etoken.NewFileSet()
 	p.Init(fset, filename, 0, bytes)
 
 	nodes, err := p.Parse()

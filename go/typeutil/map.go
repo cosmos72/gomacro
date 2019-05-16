@@ -356,12 +356,12 @@ func (h Hasher) hashFor(t types.Type) uint32 {
 			// fmt.Printf("Hash for interface <%v> method %q <%v>\n", t, m.Name(), m.Type())
 
 			hash = (hash<<5 | hash>>27) + 7*hashString(m.Name())
-			if mtoken, ok := m.Type().Underlying().(*types.Signature); ok {
-				if mtoken.Variadic() {
+			if etoken, ok := m.Type().Underlying().(*types.Signature); ok {
+				if etoken.Variadic() {
 					hash *= 8863
 				}
 				// do NOT hash the receiver of an interface... it may be the interface itself
-				hash += 3*h.hashTuple(mtoken.Params()) + 5*h.hashTuple(mtoken.Results())
+				hash += 3*h.hashTuple(etoken.Params()) + 5*h.hashTuple(etoken.Results())
 			}
 		}
 		return hash

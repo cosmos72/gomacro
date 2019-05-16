@@ -17,7 +17,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 // Formatting issues:
@@ -272,7 +272,7 @@ func (p *printer) exprList(prev0 token.Pos, list []ast.Expr, depth int, mode exp
 
 // print the infix #[T1,T2...]
 func (p *printer) genericInfix(c *ast.CompositeLit) {
-	p.print(mtoken.HASH, token.LBRACK)
+	p.print(etoken.HASH, token.LBRACK)
 	params, _ := splitGenericArgs(c)
 	p.exprList(c.Lbrace, params, 1, 0, c.Rbrace)
 	p.print(token.RBRACK)
@@ -280,7 +280,7 @@ func (p *printer) genericInfix(c *ast.CompositeLit) {
 
 // print the prefix template[T1,T2...] for[Foo#[T1],Bar#[T2],...]
 func (p *printer) templatePrefix(c *ast.CompositeLit) {
-	p.print(mtoken.TEMPLATE, token.LBRACK)
+	p.print(etoken.TEMPLATE, token.LBRACK)
 	params, specialize := splitGenericArgs(c)
 	p.exprList(c.Lbrace, params, 1, 0, c.Rbrace)
 	p.print(token.RBRACK, blank)
@@ -825,7 +825,7 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int) {
 			case token.RANGE:
 				// TODO(gri) Remove this code if it cannot be reached.
 				p.print(blank)
-			case mtoken.QUOTE, mtoken.QUASIQUOTE, mtoken.UNQUOTE, mtoken.UNQUOTE_SPLICE:
+			case etoken.QUOTE, etoken.QUASIQUOTE, etoken.UNQUOTE, etoken.UNQUOTE_SPLICE:
 				if flit, ok := x.X.(*ast.FuncLit); ok {
 					p.block(flit.Body, 1)
 					return
@@ -871,7 +871,7 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int) {
 		p.expr1(x.X, token.HighestPrec, 1)
 		if c, ok := x.Index.(*ast.CompositeLit); ok && c.Type == nil {
 			// Pair#[A,B] is parsed as &ast.IndexExpr{X: Pair, Index: &ast.CompositeLit{Elts: [A,B]}}
-			p.print(mtoken.HASH, x.Lbrack, token.LBRACK)
+			p.print(etoken.HASH, x.Lbrack, token.LBRACK)
 			p.exprList(c.Lbrace, c.Elts, depth+1, 0, c.Rbrace)
 			p.print(x.Rbrack, token.RBRACK)
 			break
@@ -1575,7 +1575,7 @@ func (p *printer) spec(spec ast.Spec, n int, doIndent bool) {
 			typ = c.Type
 		}
 		p.expr(s.Name)
-		if mtoken.GENERICS_V2_CTI && c != nil {
+		if etoken.GENERICS_V2_CTI && c != nil {
 			p.genericInfix(c)
 		}
 		if n == 1 {
@@ -1600,7 +1600,7 @@ func (p *printer) genDecl(d *ast.GenDecl) {
 	// generic types
 	var c *ast.CompositeLit
 
-	if mtoken.GENERICS_V1_CXX && len(d.Specs) != 0 {
+	if etoken.GENERICS_V1_CXX && len(d.Specs) != 0 {
 		if typ, ok := d.Specs[0].(*ast.TypeSpec); ok {
 			if c, ok = typ.Type.(*ast.CompositeLit); ok {
 				// print template arguments.
@@ -1779,7 +1779,7 @@ func (p *printer) funcDecl(d *ast.FuncDecl) {
 	p.print(d.Pos())
 
 	c := funcGenericArgs(d.Recv)
-	if c != nil && mtoken.GENERICS_V1_CXX {
+	if c != nil && etoken.GENERICS_V1_CXX {
 		// generic function or generic method
 		p.templatePrefix(c)
 	}
@@ -1789,7 +1789,7 @@ func (p *printer) funcDecl(d *ast.FuncDecl) {
 		p.receiver(d.Recv) // method: print receiver
 	}
 	p.expr(d.Name)
-	if c != nil && mtoken.GENERICS_V2_CTI {
+	if c != nil && etoken.GENERICS_V2_CTI {
 		// generic function or generic method
 		p.genericInfix(c)
 	}

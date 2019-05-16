@@ -20,14 +20,14 @@ import (
 	"go/ast"
 	"go/token"
 
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 // enable C++-style generics?
-const GENERICS_V1_CXX = mtoken.GENERICS_V1_CXX
+const GENERICS_V1_CXX = etoken.GENERICS_V1_CXX
 
 // enable generics "contracts are interfaces" ?
-const GENERICS_V2_CTI = mtoken.GENERICS_V2_CTI
+const GENERICS_V2_CTI = etoken.GENERICS_V2_CTI
 
 // do generics use Foo#[T1,T2...] syntax?
 const _GENERICS_HASH = GENERICS_V1_CXX || GENERICS_V2_CTI
@@ -44,7 +44,7 @@ func (p *parser) parseHash(prefix ast.Expr) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "Hash"))
 	}
-	p.expect(mtoken.HASH)
+	p.expect(etoken.HASH)
 	params := p.parseGenericParams()
 	return &ast.IndexExpr{
 		X:      prefix,
@@ -60,7 +60,7 @@ func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
 	if p.trace {
 		defer un(trace(p, "TemplateDecl"))
 	}
-	p.expect(mtoken.TEMPLATE)
+	p.expect(etoken.TEMPLATE)
 	params := p.parseGenericParams()
 
 	var specialize *ast.CompositeLit
@@ -74,7 +74,7 @@ func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
 		decl := p.parseGenDecl(tok, p.parseTypeSpec)
 		return genericV1TypeDecl(params, decl)
 
-	case token.FUNC, mtoken.FUNCTION:
+	case token.FUNC, etoken.FUNCTION:
 		decl := p.parseFuncDecl(tok)
 		return genericFuncDecl(params, decl)
 

@@ -17,7 +17,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	mtoken "github.com/cosmos72/gomacro/go/mtoken"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 // An ErrorHandler may be provided to Scanner.Init. If a syntax error is
@@ -33,7 +33,7 @@ type ErrorHandler func(pos token.Position, msg string)
 //
 type Scanner struct {
 	// immutable state
-	file *mtoken.File // source file handle
+	file *etoken.File // source file handle
 	dir  string       // directory portion of file.Name()
 	src  []byte       // source
 	err  ErrorHandler // error reporting; or nil
@@ -114,7 +114,7 @@ const (
 // Note that Init may call err if there is an error in the first character
 // of the file.
 //
-func (s *Scanner) Init(file *mtoken.File, src []byte, err ErrorHandler, mode Mode, macroChar rune) {
+func (s *Scanner) Init(file *etoken.File, src []byte, err ErrorHandler, mode Mode, macroChar rune) {
 	// Explicitly initialize all fields since a scanner may be reused.
 	if file.Size() != len(src) {
 		panic(fmt.Sprintf("file size (%d) does not match src len (%d)", file.Size(), len(src)))
@@ -618,7 +618,7 @@ scanAgain:
 		lit = s.scanIdentifier()
 		if len(lit) > 1 {
 			// keywords are longer than one letter - avoid lookup otherwise
-			tok = mtoken.Lookup(lit)
+			tok = etoken.Lookup(lit)
 			switch tok {
 			case token.IDENT, token.BREAK, token.CONTINUE, token.FALLTHROUGH, token.RETURN:
 				insertSemi = true
@@ -732,7 +732,7 @@ scanAgain:
 			} else if ch == '/' {
 				tok = s.switch2(token.QUO, token.QUO_ASSIGN)
 			} else if ch == '#' {
-				tok = mtoken.HASH
+				tok = etoken.HASH
 			} else {
 				s.error(s.file.Offset(pos), fmt.Sprintf("illegal character %#U", ch))
 				insertSemi = s.insertSemi // preserve insertSemi info
@@ -767,7 +767,7 @@ scanAgain:
 			tok = s.switch3(token.OR, token.OR_ASSIGN, '|', token.LOR)
 		case '@':
 			// patch: support macro, quote and friends
-			tok = mtoken.SPLICE
+			tok = etoken.SPLICE
 		case s.macroChar:
 			// patch: support macro, quote and friends. s.macroChar is configurable, default is '~'
 			// quote           macroChar '
@@ -777,21 +777,21 @@ scanAgain:
 			switch s.ch {
 			case '\'':
 				s.next()
-				tok = mtoken.QUOTE
+				tok = etoken.QUOTE
 			case '`', '"': // accept both ~` and ~" as ~quasiquote, because ~` confuses syntax hilighting in IDEs
 				s.next()
-				tok = mtoken.QUASIQUOTE
+				tok = etoken.QUASIQUOTE
 			case ',':
 				s.next()
 				if s.ch == '@' {
 					s.next()
-					tok = mtoken.UNQUOTE_SPLICE
+					tok = etoken.UNQUOTE_SPLICE
 				} else {
-					tok = mtoken.UNQUOTE
+					tok = etoken.UNQUOTE
 				}
 			default:
 				lit = s.scanIdentifier()
-				tok = mtoken.LookupSpecial(lit)
+				tok = etoken.LookupSpecial(lit)
 				if tok == token.ILLEGAL {
 					s.error(s.file.Offset(pos), fmt.Sprintf("expecting macro-related keyword after '%c', found '%c%s'", s.macroChar, s.macroChar, lit))
 					insertSemi = s.insertSemi // preserve insertSemi info
