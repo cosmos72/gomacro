@@ -18,7 +18,7 @@ package xreflect
 
 import (
 	"go/types" // Importer, ImporterFrom
-	"reflect"
+	r "reflect"
 	"sync"
 
 	"github.com/cosmos72/gomacro/go/typeutil"
@@ -33,7 +33,7 @@ type Universe struct {
 	// FromReflectType() map of types under construction.
 	// v.addmethods() will be invoked on them once the topmost FromReflectType() finishes.
 	partialTypes    Types
-	ReflectTypes    map[reflect.Type]Type
+	ReflectTypes    map[r.Type]Type
 	BasicTypes      []Type
 	TypeOfInterface Type
 	TypeOfForward   Type
@@ -69,9 +69,9 @@ func (v *Universe) rebuild() bool {
 	return v.RebuildDepth > 0
 }
 
-func (v *Universe) cache(rt reflect.Type, t Type) Type {
+func (v *Universe) cache(rt r.Type, t Type) Type {
 	if v.ReflectTypes == nil {
-		v.ReflectTypes = make(map[reflect.Type]Type)
+		v.ReflectTypes = make(map[r.Type]Type)
 	}
 	v.ReflectTypes[rt] = t
 	// debugf("added rtype to cache: %v -> %v (%v)", rt, t, t.ReflectType())
@@ -152,7 +152,7 @@ func (v *Universe) importPackage(path string) *Package {
 	return (*Package)(pkg)
 }
 
-func (v *Universe) namedTypeFromImport(rtype reflect.Type) Type {
+func (v *Universe) namedTypeFromImport(rtype r.Type) Type {
 	t := v.namedTypeFromPackageCache(rtype)
 	if unwrap(t) != nil {
 		return t
@@ -164,7 +164,7 @@ func (v *Universe) namedTypeFromImport(rtype reflect.Type) Type {
 	return v.namedTypeFromPackage(rtype, (*types.Package)(pkg))
 }
 
-func (v *Universe) namedTypeFromPackageCache(rtype reflect.Type) Type {
+func (v *Universe) namedTypeFromPackageCache(rtype r.Type) Type {
 	pkgpath := rtype.PkgPath()
 	pkg := (*types.Package)(v.Packages[pkgpath])
 	if pkg != nil {
@@ -173,7 +173,7 @@ func (v *Universe) namedTypeFromPackageCache(rtype reflect.Type) Type {
 	return nil
 }
 
-func (v *Universe) namedTypeFromPackage(rtype reflect.Type, pkg *types.Package) Type {
+func (v *Universe) namedTypeFromPackage(rtype r.Type, pkg *types.Package) Type {
 	name := rtype.Name()
 	if scope := pkg.Scope(); scope != nil && len(name) != 0 {
 		if obj := scope.Lookup(name); obj != nil {

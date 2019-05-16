@@ -7,7 +7,7 @@ package mtoken
 // enable C++-style generics?
 const GENERICS_V1_CXX = true
 
-// enable generics "constraints are interfaces" ?
+// enable generics "contracts are interfaces" ?
 const GENERICS_V2_CTI = false
 
 // can only enable one style of generics

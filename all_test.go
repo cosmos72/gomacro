@@ -1476,7 +1476,7 @@ var testcases = []TestCase{
 				},
 			},
 		}, nil},
-	TestCase{A | G2, "parse_generic_constraint_1", `~quote{
+	TestCase{A | G2, "parse_generic_contract_1", `~quote{
 		type Eq#[T] interface{
 			func (T) Equal(T) bool
 		}}`,
@@ -1523,18 +1523,18 @@ var testcases = []TestCase{
 				},
 			},
 		}, nil},
-	TestCase{F | G2, "generic_constraint_1", `
+	TestCase{F | G2, "generic_contract_1", `
 		type Eq#[T] interface{
 			func (T) Equal(T) bool
 		}
 		var xg1 Eq#[int]
 		xg1`, fastObjEqint, nil},
-	TestCase{F | G2, "generic_constraint_2", `
+	TestCase{F | G2, "generic_contract_2", `
 		type UInt uint
 		func (i UInt) Equal(j UInt) bool {
 			return i == j
 		}`, nil, none},
-	TestCase{F | G2, "generic_constraint_3", `
+	TestCase{F | G2, "generic_contract_3", `
 		xg2 := UInt(9)
 		var xg3 Eq#[UInt]
 		xg3 = xg2

@@ -18,10 +18,10 @@ package xreflect
 
 import (
 	"go/ast"
-	"reflect"
+	"go/types"
+	r "reflect"
 
 	"github.com/cosmos72/gomacro/go/typeutil"
-	"go/types"
 )
 
 // return detailed string representation of a method signature, including its receiver if present
@@ -111,10 +111,10 @@ func (t *xtype) Method(i int) Method {
 }
 
 func checkMethod(t *xtype, i int) {
-	if t.kind == reflect.Ptr {
+	if t.kind == r.Ptr {
 		xerrorf(t, "Method of %s type %v. Invoke Method() on type's Elem() instead", i, t.kind, t)
 	}
-	if !t.Named() && t.kind != reflect.Interface {
+	if !t.Named() && t.kind != r.Interface {
 		xerrorf(t, "Method of type %v that cannot have methods", t.kind, t)
 	}
 }
@@ -126,18 +126,18 @@ func (t *xtype) method(i int) Method {
 	resizemethodvalues(t)
 
 	rtype := t.rtype
-	var rfunctype reflect.Type
+	var rfunctype r.Type
 	rfunc := t.methodvalues[i]
-	if rfunc.Kind() == reflect.Func {
+	if rfunc.Kind() == r.Func {
 		// easy, method is cached already
 		rfunctype = rfunc.Type()
 	} else if _, ok := t.gtype.Underlying().(*types.Interface); ok {
-		if rtype.Kind() == reflect.Ptr && isReflectInterfaceStruct(rtype.Elem()) {
+		if rtype.Kind() == r.Ptr && isReflectInterfaceStruct(rtype.Elem()) {
 			// rtype is our emulated interface type,
 			// i.e. a pointer to a struct containing: InterfaceHeader, [0]struct { embeddeds }, methods (without receiver)
 			rfield := rtype.Elem().Field(i + 2)
 			rfunctype = rAddReceiver(rtype, rfield.Type)
-		} else if rtype.Kind() != reflect.Interface {
+		} else if rtype.Kind() != r.Interface {
 			xerrorf(t, "inconsistent interface type <%v>: expecting interface reflect.Type, found <%v>", t, rtype)
 		} else if ast.IsExported(name) {
 			// rtype is an interface type, and reflect only returns exported methods
@@ -156,14 +156,14 @@ func (t *xtype) method(i int) Method {
 	} else {
 		rmethod, _ := rtype.MethodByName(gfunc.Name())
 		rfunc = rmethod.Func
-		if rfunc.Kind() != reflect.Func {
-			if rtype.Kind() != reflect.Ptr {
+		if rfunc.Kind() != r.Func {
+			if rtype.Kind() != r.Ptr {
 				// also search in the method set of pointer-to-t
-				rmethod, _ = reflect.PtrTo(rtype).MethodByName(gfunc.Name())
+				rmethod, _ = r.PtrTo(rtype).MethodByName(gfunc.Name())
 				rfunc = rmethod.Func
 			}
 		}
-		if rfunc.Kind() != reflect.Func {
+		if rfunc.Kind() != r.Func {
 			if ast.IsExported(name) {
 				xerrorf(t, "type <%v>: reflect method %q not found", t, gfunc.Name())
 			}
@@ -176,37 +176,37 @@ func (t *xtype) method(i int) Method {
 }
 
 // insert recv as the the first parameter of rtype function type
-func rAddReceiver(recv reflect.Type, rtype reflect.Type) reflect.Type {
+func rAddReceiver(recv r.Type, rtype r.Type) r.Type {
 	nin := rtype.NumIn()
-	rin := make([]reflect.Type, nin+1)
+	rin := make([]r.Type, nin+1)
 	rin[0] = recv
 	for i := 0; i < nin; i++ {
 		rin[i+1] = rtype.In(i)
 	}
 	nout := rtype.NumOut()
-	rout := make([]reflect.Type, nout)
+	rout := make([]r.Type, nout)
 	for i := 0; i < nout; i++ {
 		rout[i] = rtype.Out(i)
 	}
-	return reflect.FuncOf(rin, rout, rtype.IsVariadic())
+	return r.FuncOf(rin, rout, rtype.IsVariadic())
 }
 
 // remove the first parameter of rtype function type
-func rRemoveReceiver(rtype reflect.Type) reflect.Type {
+func rRemoveReceiver(rtype r.Type) r.Type {
 	nin := rtype.NumIn()
 	if nin == 0 {
 		return rtype
 	}
-	rin := make([]reflect.Type, nin-1)
+	rin := make([]r.Type, nin-1)
 	for i := 1; i < nin; i++ {
 		rin[i-1] = rtype.In(i)
 	}
 	nout := rtype.NumOut()
-	rout := make([]reflect.Type, nout)
+	rout := make([]r.Type, nout)
 	for i := 0; i < nout; i++ {
 		rout[i] = rtype.Out(i)
 	}
-	return reflect.FuncOf(rin, rout, nin > 1 && rtype.IsVariadic())
+	return r.FuncOf(rin, rout, nin > 1 && rtype.IsVariadic())
 }
 
 // remove the first parameter of t function type
@@ -239,7 +239,7 @@ func (t *xtype) gmethod(i int) *types.Func {
 	return gfun
 }
 
-func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]reflect.Value, rfunctype reflect.Type) Method {
+func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]r.Value, rfunctype r.Type) Method {
 	// sanity checks
 	name := gfun.Name()
 	gsig := gfun.Type().Underlying().(*types.Signature)
@@ -278,7 +278,7 @@ func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]reflect.Value, 
 func resizemethodvalues(t *xtype) {
 	n := t.NumMethod()
 	if cap(t.methodvalues) < n {
-		slice := make([]reflect.Value, n, n+n/2+4)
+		slice := make([]r.Value, n, n+n/2+4)
 		copy(slice, t.methodvalues)
 		t.methodvalues = slice
 	} else if len(t.methodvalues) < n {
@@ -301,7 +301,7 @@ func MissingMethod(t, tinterf Type) *Method {
 		mtd, count := t.MethodByName(mtdinterf.Name, mtdinterf.Pkg.Name())
 		if count == 1 {
 			tfunc := mtd.Type
-			if t.Kind() != reflect.Interface {
+			if t.Kind() != r.Interface {
 				tfunc = removeReceiver(tfunc)
 			}
 			if mtdinterf.Type.IdenticalTo(tfunc) && matchReceiverType(xt, xtinterf) {

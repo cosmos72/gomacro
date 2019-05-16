@@ -34,7 +34,7 @@ import (
 // enable C++-style generics?
 const GENERICS_V1_CXX = mtoken.GENERICS_V1_CXX
 
-// enable "constraints are interfaces" generics?
+// enable "contracts are interfaces" generics?
 const GENERICS_V2_CTI = mtoken.GENERICS_V2_CTI
 
 type genericMaker struct {

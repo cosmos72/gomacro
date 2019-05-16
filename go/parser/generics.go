@@ -26,7 +26,7 @@ import (
 // enable C++-style generics?
 const GENERICS_V1_CXX = mtoken.GENERICS_V1_CXX
 
-// enable generics "constraints are interfaces" ?
+// enable generics "contracts are interfaces" ?
 const GENERICS_V2_CTI = mtoken.GENERICS_V2_CTI
 
 // do generics use Foo#[T1,T2...] syntax?

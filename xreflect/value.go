@@ -17,17 +17,17 @@
 package xreflect
 
 import (
-	"reflect"
+	r "reflect"
 )
 
 type Value struct {
-	reflect.Value
+	r.Value
 	XType Type
 }
 
-func (v Value) Kind() reflect.Kind {
+func (v Value) Kind() r.Kind {
 	if v.XType == nil {
-		return reflect.Invalid
+		return r.Invalid
 	}
 	return v.XType.Kind()
 }

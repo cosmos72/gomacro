@@ -24,6 +24,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cosmos72/gomacro/go/mtoken"
+
 	"github.com/cosmos72/gomacro/go/typeutil"
 )
 
@@ -124,9 +126,14 @@ func TestBasic(t *testing.T) {
 		is(t, typ.Kind(), rtype.Kind())
 		is(t, typ.Name(), rtype.Name())
 		is(t, typ.ReflectType(), rtype)
-		istypeof(t, typ.GoType(), (*types.Basic)(nil))
+		if mtoken.GENERICS_V2_CTI {
+			istypeof(t, typ.GoType(), (*types.Basic)(nil))
+		} else {
+			istypeof(t, typ.GoType(), (*types.Named)(nil))
+			istypeof(t, typ.GoType().Underlying(), (*types.Basic)(nil))
+		}
 
-		basic := typ.GoType().(*types.Basic)
+		basic := typ.GoType().Underlying().(*types.Basic)
 		k := ToReflectKind(basic.Kind())
 		is(t, k, rtype.Kind())
 	}

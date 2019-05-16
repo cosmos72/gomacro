@@ -17,10 +17,10 @@
 package xreflect
 
 import (
-	"reflect"
+	"go/types"
+	r "reflect"
 
 	"github.com/cosmos72/gomacro/go/typeutil"
-	"go/types"
 )
 
 type depthMap struct {
@@ -42,7 +42,7 @@ func (m *depthMap) visited(gtype types.Type, depth int) bool {
 // and the number of fields found at the same (shallowest) depth: 0 if not found.
 // Private fields are returned only if they were declared in pkgpath.
 func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int) {
-	if name == "_" || t.kind != reflect.Struct {
+	if name == "_" || t.kind != r.Struct {
 		return
 	}
 	// debugf("field cache for %v <%v> = %v", unsafe.Pointer(t), t, t.fieldcache)
@@ -204,7 +204,7 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	// debugf("method cache for %v <%v> = %v", unsafe.Pointer(t), t, t.methodcache)
 
 	// only named types and interfaces can have methods
-	if name == "_" || (!t.Named() && t.kind != reflect.Interface) {
+	if name == "_" || (!t.Named() && t.kind != r.Interface) {
 		return
 	}
 	v := t.universe
@@ -215,7 +215,7 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 }
 
 func (t *xtype) methodByName(name, pkgpath string) (method Method, count int) {
-	if name == "_" || (!t.Named() && t.kind != reflect.Interface) {
+	if name == "_" || (!t.Named() && t.kind != r.Interface) {
 		return
 	}
 	qname := QName2(name, pkgpath)
@@ -265,9 +265,9 @@ func methodByName(t *xtype, qname QName, index []int) (method Method, count int)
 	// debugf("methodByName: visiting %v <%v> <%v> at depth %d", t.kind, t.gtype, t.rtype, len(index))
 
 	// also support embedded fields: they can be interfaces, named types, pointers to named types
-	if t.kind == reflect.Ptr {
+	if t.kind == r.Ptr {
 		te := unwrap(t.elem())
-		if te.kind == reflect.Interface || te.kind == reflect.Ptr {
+		if te.kind == r.Interface || te.kind == r.Ptr {
 			return
 		}
 		t = te
@@ -319,7 +319,7 @@ func (v *Universe) VisitFields(t Type, visitor func(StructField)) {
 		for _, xt := range curr {
 			// embedded fields can be named types or pointers to named types
 			xt, _ = derefStruct(xt)
-			if xt == nil || xt.kind != reflect.Struct || seen.At(xt.gtype) != nil {
+			if xt == nil || xt.kind != r.Struct || seen.At(xt.gtype) != nil {
 				continue
 			}
 			seen.Set(xt.gtype, xt.gtype)

@@ -21,14 +21,14 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
-	"reflect"
+	r "reflect"
 )
 
 // Field returns a struct type's i'th field.
 // It panics if the type's Kind is not Struct.
 // It panics if i is not in the range [0, NumField()).
 func (t *xtype) Field(i int) StructField {
-	if t.kind != reflect.Struct {
+	if t.kind != r.Struct {
 		xerrorf(t, "Field of non-struct type %v", t)
 	}
 	v := t.universe
@@ -39,7 +39,7 @@ func (t *xtype) Field(i int) StructField {
 }
 
 func (t *xtype) field(i int) StructField {
-	if t.kind != reflect.Struct {
+	if t.kind != r.Struct {
 		xerrorf(t, "Field of non-struct type %v", t)
 	}
 	gtype := t.gtype.Underlying().(*types.Struct)
@@ -48,7 +48,7 @@ func (t *xtype) field(i int) StructField {
 		xerrorf(t, "Field(%v) out of bounds, struct type has %v fields: %v", i, gtype.NumFields(), t)
 	}
 	va := gtype.Field(i)
-	var rf reflect.StructField
+	var rf r.StructField
 	if t.rtype != rTypeOfForward {
 		rf = t.rtype.Field(i)
 	} else {
@@ -82,14 +82,14 @@ func (t *xtype) field(i int) StructField {
 // NumField returns a struct type's field count.
 // It panics if the type's Kind is not Struct.
 func (t *xtype) NumField() int {
-	if t.kind != reflect.Struct {
+	if t.kind != r.Struct {
 		xerrorf(t, "NumField of non-struct type %v", t)
 	}
 	gtype := t.gunderlying().(*types.Struct)
 	return gtype.NumFields()
 }
 
-func (field *StructField) toReflectField(forceExported bool) reflect.StructField {
+func (field *StructField) toReflectField(forceExported bool) r.StructField {
 	var pkgpath string
 	if pkg := field.Pkg; pkg != nil && !forceExported {
 		pkgpath = pkg.Path()
@@ -98,7 +98,7 @@ func (field *StructField) toReflectField(forceExported bool) reflect.StructField
 	if forceExported {
 		name = toExportedFieldName(name, field.Type, field.Anonymous)
 	}
-	return reflect.StructField{
+	return r.StructField{
 		Name:    name,
 		PkgPath: pkgpath,
 		Type:    field.Type.ReflectType(),
@@ -111,8 +111,8 @@ func (field *StructField) toReflectField(forceExported bool) reflect.StructField
 	}
 }
 
-func toReflectFields(fields []StructField, forceExported bool) []reflect.StructField {
-	rfields := make([]reflect.StructField, len(fields))
+func toReflectFields(fields []StructField, forceExported bool) []r.StructField {
+	rfields := make([]r.StructField, len(fields))
 	for i := range fields {
 		rfields[i] = fields[i].toReflectField(forceExported)
 	}
@@ -125,7 +125,7 @@ func (field *StructField) sanitize(i int) {
 	}
 	t := field.Type
 	name := t.Name()
-	if len(name) == 0 && t.Kind() == reflect.Ptr {
+	if len(name) == 0 && t.Kind() == r.Ptr {
 		name = t.elem().Name()
 	}
 	if len(name) == 0 {
@@ -162,7 +162,7 @@ func toTags(fields []StructField) []string {
 
 func toExportedFieldName(name string, t Type, anonymous bool) string {
 	if len(name) == 0 && unwrap(t) != nil {
-		if name = t.Name(); len(name) == 0 && t.Kind() == reflect.Ptr {
+		if name = t.Name(); len(name) == 0 && t.Kind() == r.Ptr {
 			name = t.elem().Name()
 		}
 	}
@@ -182,6 +182,6 @@ func (v *Universe) StructOf(fields []StructField) Type {
 	rfields := toReflectFields(fields, true)
 	return v.MakeType(
 		types.NewStruct(vars, tags),
-		reflect.StructOf(rfields),
+		r.StructOf(rfields),
 	)
 }

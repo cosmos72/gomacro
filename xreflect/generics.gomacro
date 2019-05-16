@@ -1,0 +1,236 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
+ *
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ *
+ * generics.go
+ *
+ *  Created on May 12, 2019
+ *      Author Massimiliano Ghilardi
+ */
+
+package xreflect
+
+import (
+	r "reflect"
+
+	"github.com/cosmos72/gomacro/go/mtoken"
+)
+
+:import (
+	"go/ast"
+	r "reflect"
+)
+
+:macro addmethods(typ ast.Node) ast.Node {
+	var t r.Type = EvalType(typ)
+	switch t.Kind() {
+		case r.Bool:
+			return ~"{
+				idx := []int{
+					xt.AddMethod("Equal", tsigbool),
+				}
+				mvec := xt.GetMethods()
+				(*mvec)[idx[0]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
+					return a == b
+				})
+			}
+		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
+			r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+			return ~"{
+				tsig := v.FuncOf(tpair, []Type{t}, false)
+				tsigshift := v.FuncOf(tpair, tuint8single, false)
+				idx := []int{
+					xt.AddMethod("Equal", tsigbool),
+					xt.AddMethod("Less", tsigbool),
+					xt.AddMethod("Add", tsig),
+					xt.AddMethod("Sub", tsig),
+					xt.AddMethod("Mul", tsig),
+					xt.AddMethod("Quo", tsig),
+					xt.AddMethod("Rem", tsig),
+					xt.AddMethod("And", tsig),
+					xt.AddMethod("Or", tsig),
+					xt.AddMethod("Xor", tsig),
+					xt.AddMethod("Andnot", tsig),
+					xt.AddMethod("Shl", tsigshift),
+					xt.AddMethod("Shr", tsigshift),
+				}
+				mvec := xt.GetMethods()
+				(*mvec)[idx[0]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
+					return a == b
+				})
+				(*mvec)[idx[1]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
+					return a < b
+				})
+				(*mvec)[idx[2]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a + b
+				})
+				(*mvec)[idx[3]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a - b
+				})
+				(*mvec)[idx[4]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a * b
+				})
+				(*mvec)[idx[5]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a / b
+				})
+				(*mvec)[idx[6]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a % b
+				})
+				(*mvec)[idx[7]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a & b
+				})
+				(*mvec)[idx[8]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a | b
+				})
+				(*mvec)[idx[9]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a ^ b
+				})
+				(*mvec)[idx[10]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a &^ b
+				})
+				(*mvec)[idx[11]] = r.ValueOf(func(a ~,typ, b uint8) ~,typ {
+					return a << b
+				})
+				(*mvec)[idx[12]] = r.ValueOf(func(a ~,typ, b uint8) ~,typ {
+					return a >> b
+				})
+			}
+		case r.Float32, r.Float64:
+			return ~"{
+				tsig := v.FuncOf(tpair, []Type{t}, false)
+				idx := []int{
+					xt.AddMethod("Equal", tsigbool),
+					xt.AddMethod("Less", tsigbool),
+					xt.AddMethod("Add", tsig),
+					xt.AddMethod("Sub", tsig),
+					xt.AddMethod("Mul", tsig),
+					xt.AddMethod("Quo", tsig),
+				}
+				mvec := xt.GetMethods()
+				(*mvec)[idx[0]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
+					return a == b
+				})
+				(*mvec)[idx[1]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
+					return a < b
+				})
+				(*mvec)[idx[2]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a + b
+				})
+				(*mvec)[idx[3]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a - b
+				})
+				(*mvec)[idx[4]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a * b
+				})
+				(*mvec)[idx[5]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a / b
+				})
+			}
+		case r.Complex64, r.Complex128:
+			return ~"{
+				tsig := v.FuncOf(tpair, []Type{t}, false)
+				idx := []int{
+					xt.AddMethod("Equal", tsigbool),
+					xt.AddMethod("Add", tsig),
+					xt.AddMethod("Sub", tsig),
+					xt.AddMethod("Mul", tsig),
+					xt.AddMethod("Quo", tsig),
+				}
+				mvec := xt.GetMethods()
+				(*mvec)[idx[0]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
+					return a == b
+				})
+				(*mvec)[idx[1]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a + b
+				})
+				(*mvec)[idx[2]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a - b
+				})
+				(*mvec)[idx[3]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a * b
+				})
+				(*mvec)[idx[4]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a / b
+				})
+			}
+		case r.String:
+			return ~"{
+				tsig := v.FuncOf(tpair, []Type{t}, false)
+				idx := []int{
+					xt.AddMethod("Equal", tsigbool),
+					xt.AddMethod("Less", tsigbool),
+					xt.AddMethod("Add", tsig),
+				}
+				mvec := xt.GetMethods()
+				(*mvec)[idx[0]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
+					return a == b
+				})
+				(*mvec)[idx[1]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
+					return a < b
+				})
+				(*mvec)[idx[2]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
+					return a + b
+				})
+			}
+		default:
+			return ~'{}
+	}
+}
+
+func (v *Universe) addBasicTypesMethodsCTI() {
+	if !mtoken.GENERICS_V2_CTI {
+		return
+	}
+	tboolvec := []Type{v.BasicTypes[r.Bool]}
+	tuint8single := []Type{v.BasicTypes[r.Uint8]}
+	for _, t := range v.BasicTypes {
+		if t == nil {
+			continue
+		}
+		xt := unwrap(t)
+		tpair := []Type{t, t}
+		tsigbool := v.FuncOf(tpair, tboolvec, false)
+		switch xt.kind {
+		case r.Bool:
+			addmethods; bool
+		case r.Int:
+			addmethods; int
+		case r.Int8:
+			addmethods; int8
+		case r.Int16:
+			addmethods; int16
+		case r.Int32:
+			addmethods; int32
+		case r.Int64:
+			addmethods; int64
+		case r.Uint:
+			addmethods; uint
+		case r.Uint8:
+			addmethods; uint8
+		case r.Uint16:
+			addmethods; uint16
+		case r.Uint32:
+			addmethods; uint32
+		case r.Uint64:
+			addmethods; uint64
+		case r.Uintptr:
+			addmethods; uintptr
+		case r.Float32:
+			addmethods; float32
+		case r.Float64:
+			addmethods; float64
+		case r.Complex64:
+			addmethods; complex64
+		case r.Complex128:
+			addmethods; complex128
+		case r.String:
+			addmethods; string
+		}
+	}
+}

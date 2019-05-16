@@ -19,7 +19,7 @@ package xreflect
 
 import (
 	"go/types"
-	"reflect"
+	r "reflect"
 )
 
 type z struct{}
@@ -130,11 +130,11 @@ func (t Type) PkgPath() string {
 //        struct { Elem int; Rest interface{} }
 //    i.e. the type name will be missing due to limitation 1 above,
 //    and the field 'Rest' will have type interface{} instead of *List due to limitation 5.
-func (t Type) ReflectType() reflect.Type {
+func (t Type) ReflectType() r.Type {
 	return t(z{}).ReflectType()
 }
 
-func (t Type) UnsafeForceReflectType(rtype reflect.Type) {
+func (t Type) UnsafeForceReflectType(rtype r.Type) {
 	t(z{}).UnsafeForceReflectType(rtype)
 }
 
@@ -168,7 +168,7 @@ func (t Type) Bits() int {
 
 // ChanDir returns a channel type's direction.
 // It panics if the type's Kind is not Chan.
-func (t Type) ChanDir() reflect.ChanDir {
+func (t Type) ChanDir() r.ChanDir {
 	return t(z{}).ChanDir()
 }
 
@@ -225,9 +225,9 @@ func (t Type) Key() Type {
 }
 
 // Kind returns the specific kind of the type.
-func (t Type) Kind() reflect.Kind {
+func (t Type) Kind() r.Kind {
 	if t == nil {
-		return reflect.Invalid
+		return r.Invalid
 	}
 	return t(z{}).Kind()
 }
@@ -336,7 +336,7 @@ func (t Type) Universe() *Universe {
 
 // GetMethods returns the pointer to the method values.
 // It panics if the type is unnamed
-func (t Type) GetMethods() *[]reflect.Value {
+func (t Type) GetMethods() *[]r.Value {
 	return t(z{}).GetMethods()
 }
 

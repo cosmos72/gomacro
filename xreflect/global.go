@@ -19,7 +19,7 @@ package xreflect
 import (
 	"go/ast"
 	_types "go/types"
-	"reflect"
+	r "reflect"
 
 	"go/types"
 )
@@ -31,18 +31,18 @@ type Forward interface{}
 // InterfaceHeader is the internal header of interpreted interfaces
 type InterfaceHeader struct {
 	// val and typ must be private! otherwise interpreted code may mess with them and break type safety
-	val reflect.Value
+	val r.Value
 	typ Type
 }
 
-func MakeInterfaceHeader(val reflect.Value, typ Type) InterfaceHeader {
+func MakeInterfaceHeader(val r.Value, typ Type) InterfaceHeader {
 	if val.IsValid() && val.CanSet() {
 		val = val.Convert(val.Type()) // make a copy
 	}
 	return InterfaceHeader{val, typ}
 }
 
-func (h InterfaceHeader) Value() reflect.Value {
+func (h InterfaceHeader) Value() r.Value {
 	return h.val
 }
 
@@ -53,11 +53,11 @@ func (h InterfaceHeader) Type() Type {
 type Method struct {
 	Name       string
 	Pkg        *Package
-	Type       Type             // method type
-	Funs       *[]reflect.Value // (*Funs)[Index] is the method, with receiver as first argument
-	Index      int              // index for Type.Method
-	FieldIndex []int            // embedded fields index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
-	GoFun      *types.Func      // for completeness
+	Type       Type        // method type
+	Funs       *[]r.Value  // (*Funs)[Index] is the method, with receiver as first argument
+	Index      int         // index for Type.Method
+	FieldIndex []int       // embedded fields index sequence for r.Type.FieldByIndex or r.Value.FieldByIndex
+	GoFun      *types.Func // for completeness
 }
 
 type StructField struct {
@@ -67,19 +67,19 @@ type StructField struct {
 	// field name. It may be nil for upper case (exported) field names.
 	// See https://golang.org/ref/spec#Uniqueness_of_identifiers
 	Pkg       *Package
-	Type      Type              // field type
-	Tag       reflect.StructTag // field tag string
-	Offset    uintptr           // offset within struct, in bytes. meaningful only if all Deref[] are false
-	Index     []int             // index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
-	Anonymous bool              // is an embedded field. If true, Name should be empty or equal to the type's name
+	Type      Type        // field type
+	Tag       r.StructTag // field tag string
+	Offset    uintptr     // offset within struct, in bytes. meaningful only if all Deref[] are false
+	Index     []int       // index sequence for r.Type.FieldByIndex or r.Value.FieldByIndex
+	Anonymous bool        // is an embedded field. If true, Name should be empty or equal to the type's name
 }
 
 type xtype struct {
-	kind         reflect.Kind
+	kind         r.Kind
 	gtype        types.Type
-	rtype        reflect.Type
+	rtype        r.Type
 	universe     *Universe
-	methodvalues []reflect.Value
+	methodvalues []r.Value
 	fieldcache   map[QName]StructField
 	methodcache  map[QName]Method
 	userdata     map[interface{}]interface{}
