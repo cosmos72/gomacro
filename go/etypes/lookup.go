@@ -100,7 +100,8 @@ func lookupFieldOrMethod(T Type, addressable bool, pkg *Package, name string) (o
 
 			// If we have a named type, we may have associated methods.
 			// Look for those first.
-			if named, _ := typ.(*Named); named != nil {
+			named, _ := typ.(*Named)
+			if named != nil {
 				if seen[named] {
 					// We have seen this type before, at a more shallow depth
 					// (note that multiples of this type at the current depth
@@ -113,20 +114,21 @@ func lookupFieldOrMethod(T Type, addressable bool, pkg *Package, name string) (o
 					seen = make(map[*Named]bool)
 				}
 				seen[named] = true
-
-				// look for a matching attached method
-				if i, m := lookupMethod(named.methods, pkg, name); m != nil {
-					// potential match
-					// caution: method may not have a proper signature yet
-					index = concat(e.index, i)
-					if obj != nil || e.multiples {
-						return nil, index, false // collision
-					}
-					obj = m
-					indirect = e.indirect
-					continue // we can't have a matching field or interface method
+			}
+			// look for a matching attached method
+			if i, m := lookupMethod(declaredMethods(typ), pkg, name); m != nil {
+				// potential match
+				// caution: method may not have a proper signature yet
+				index = concat(e.index, i)
+				if obj != nil || e.multiples {
+					return nil, index, false // collision
 				}
+				obj = m
+				indirect = e.indirect
+				continue // we can't have a matching field or interface method
+			}
 
+			if named != nil {
 				// continue with underlying type
 				typ = named.underlying
 			}

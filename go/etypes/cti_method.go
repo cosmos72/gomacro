@@ -1,8 +1,9 @@
-// Copyright 2011 The Go Authors. All rights reserved.
+// Copyright 2019 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 // This file sets up the pre-declared methods of a type.
+// Needed by Go generics implementation "contracts are interfaces"
 
 package etypes
 
@@ -12,7 +13,7 @@ import (
 	"github.com/cosmos72/gomacro/go/etoken"
 )
 
-func (b *Basic) NumMethods() int     { b.initMethods(); return len(b.methods) }
+func (b *Basic) NumMethods() int     { return len(b.methods) }
 func (a *Array) NumMethods() int     { a.initMethods(); return len(a.methods) }
 func (s *Slice) NumMethods() int     { s.initMethods(); return len(s.methods) }
 func (s *Struct) NumMethods() int    { return 0 }
@@ -22,7 +23,7 @@ func (s *Signature) NumMethods() int { return 0 }
 func (m *Map) NumMethods() int       { m.initMethods(); return len(m.methods) }
 func (c *Chan) NumMethods() int      { c.initMethods(); return len(c.methods) }
 
-func (b *Basic) Method(i int) *Func     { b.initMethods(); return b.methods[i] }
+func (b *Basic) Method(i int) *Func     { return b.methods[i] }
 func (a *Array) Method(i int) *Func     { a.initMethods(); return a.methods[i] }
 func (s *Slice) Method(i int) *Func     { s.initMethods(); return s.methods[i] }
 func (s *Struct) Method(i int) *Func    { return ([]*Func)(nil)[i] }
@@ -52,8 +53,14 @@ func (b *Basic) initMethods() {
 			NewFunc(token.NoPos, nil, "Neg", sig_vv),
 		)
 	} else if info&IsString != 0 {
+		vint := NewVar(token.NoPos, nil, "", Typ[Int])
+		velem := NewVar(token.NoPos, nil, "", Typ[Byte])
+		tuple_int := NewTuple(vint)
+		tuple_elem := NewTuple(velem)
 		b.methods = append(b.methods,
 			NewFunc(token.NoPos, nil, "Add", sig_vvv),
+			NewFunc(token.NoPos, nil, "Get", NewSignature(v, tuple_int, tuple_elem, false)),
+			NewFunc(token.NoPos, nil, "Len", NewSignature(v, nil, tuple_int, false)),
 		)
 	}
 	if info&IsInteger != 0 {
@@ -100,6 +107,7 @@ func (b *Basic) initMethods() {
 			NewFunc(token.NoPos, nil, "Equal", sig_vvbool),
 		)
 	}
+	shellsortFuncs(b.methods)
 }
 func (a *Array) initMethods() {
 	if !etoken.GENERICS_V2_CTI || len(a.methods) != 0 {
@@ -175,7 +183,57 @@ func (c *Chan) initMethods() {
 		NewFunc(token.NoPos, nil, "Cap", NewSignature(v, nil, tuple_int, false)),
 		NewFunc(token.NoPos, nil, "Close", NewSignature(v, nil, nil, false)),
 		NewFunc(token.NoPos, nil, "Len", NewSignature(v, nil, tuple_int, false)),
-		NewFunc(token.NoPos, nil, "Recv", NewSignature(v, nil, tuple_elem_bool, false)),
-		NewFunc(token.NoPos, nil, "Send", NewSignature(v, tuple_elem, nil, false)),
+	}
+	if c.dir == SendRecv || c.dir == RecvOnly {
+		c.methods = append(c.methods,
+			NewFunc(token.NoPos, nil, "Recv", NewSignature(v, nil, tuple_elem_bool, false)),
+		)
+	}
+	if c.dir == SendRecv || c.dir == SendOnly {
+		c.methods = append(c.methods,
+			NewFunc(token.NoPos, nil, "Send", NewSignature(v, tuple_elem, nil, false)),
+		)
+	}
+}
+
+// array indexing is faster that slice indexing,
+// provided the array is *not* copied. so use a pointer to array
+var shellshort_gaps = &[...]int{701, 301, 132, 57, 23, 10, 4, 1}
+
+func shellsortFuncs(vf []*Func) {
+	var i, j, n, gap int
+	var f *Func
+	n = len(vf)
+	for _, gap = range shellshort_gaps {
+		for i = gap; i < n; i++ {
+			f = vf[i]
+			for j = i; j >= gap && vf[j-gap].name > f.name; j -= gap {
+				vf[j] = vf[j-gap]
+			}
+			vf[j] = f
+		}
+	}
+}
+
+func declaredMethods(t Type) []*Func {
+	switch t := t.(type) {
+	case *Named:
+		return t.methods
+	case *Basic:
+		return t.methods
+	case *Array:
+		t.initMethods()
+		return t.methods
+	case *Slice:
+		t.initMethods()
+		return t.methods
+	case *Map:
+		t.initMethods()
+		return t.methods
+	case *Chan:
+		t.initMethods()
+		return t.methods
+	default:
+		return nil
 	}
 }

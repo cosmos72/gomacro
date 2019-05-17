@@ -103,7 +103,8 @@ func NewMethodSet(T Type) *MethodSet {
 
 			// If we have a named type, we may have associated methods.
 			// Look for those first.
-			if named, _ := typ.(*Named); named != nil {
+			named, _ := typ.(*Named)
+			if named != nil {
 				if seen[named] {
 					// We have seen this type before, at a more shallow depth
 					// (note that multiples of this type at the current depth
@@ -116,9 +117,11 @@ func NewMethodSet(T Type) *MethodSet {
 					seen = make(map[*Named]bool)
 				}
 				seen[named] = true
+			}
 
-				mset = mset.add(named.methods, e.index, e.indirect, e.multiples)
+			mset = mset.add(declaredMethods(typ), e.index, e.indirect, e.multiples)
 
+			if named != nil {
 				// continue with underlying type
 				typ = named.underlying
 			}
