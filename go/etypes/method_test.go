@@ -11,23 +11,23 @@ import (
 	"github.com/cosmos72/gomacro/go/etoken"
 )
 
-func mkVar(t Type) *Var {
+func mkvar(t Type) *Var {
 	return NewVar(token.NoPos, nil, "", t)
 }
 
-func mkTuple(ts ...Type) *Tuple {
+func mktuple(ts ...Type) *Tuple {
 	vs := make([]*Var, len(ts))
 	for i := range ts {
-		vs[i] = mkVar(ts[i])
+		vs[i] = mkvar(ts[i])
 	}
 	return NewTuple(vs...)
 }
 
-func mkFunc(name string, params *Tuple, results *Tuple) *Func {
+func mkfunc(name string, params *Tuple, results *Tuple) *Func {
 	return NewFunc(token.NoPos, nil, name, NewSignature(nil, params, results, false))
 }
 
-func mkInterface(fs ...*Func) *Interface {
+func mkinterface(fs ...*Func) *Interface {
 	return NewInterface(fs, nil).Complete()
 }
 
@@ -39,9 +39,9 @@ func mkInterface(fs ...*Func) *Interface {
  * }
  */
 func mkInterfaceCapLen() *Interface {
-	return mkInterface(
-		mkFunc("Cap", nil, mkTuple(Typ[Int])),
-		mkFunc("Len", nil, mkTuple(Typ[Int])),
+	return mkinterface(
+		mkfunc("Cap", nil, mktuple(Typ[Int])),
+		mkfunc("Len", nil, mktuple(Typ[Int])),
 	)
 }
 
@@ -52,8 +52,8 @@ func mkInterfaceCapLen() *Interface {
  * }
  */
 func mkInterfaceGetAddr(key, value Type) *Interface {
-	return mkInterface(
-		mkFunc("GetAddr", mkTuple(key), mkTuple(NewPointer(value))),
+	return mkinterface(
+		mkfunc("GetAddr", mktuple(key), mktuple(NewPointer(value))),
 	)
 }
 
@@ -65,9 +65,9 @@ func mkInterfaceGetAddr(key, value Type) *Interface {
  * }
  */
 func mkInterfaceGetLen(key, value Type) *Interface {
-	return mkInterface(
-		mkFunc("Get", mkTuple(key), mkTuple(value)),
-		mkFunc("Len", nil, mkTuple(Typ[Int])),
+	return mkinterface(
+		mkfunc("Get", mktuple(key), mktuple(value)),
+		mkfunc("Len", nil, mktuple(Typ[Int])),
 	)
 }
 
@@ -79,9 +79,9 @@ func mkInterfaceGetLen(key, value Type) *Interface {
  * }
  */
 func mkInterfaceSendRecv(elem Type) *Interface {
-	return mkInterface(
-		mkFunc("Send", mkTuple(elem), nil),
-		mkFunc("Recv", mkTuple(elem, Typ[Bool]), nil),
+	return mkinterface(
+		mkfunc("Send", mktuple(elem), nil),
+		mkfunc("Recv", mktuple(elem, Typ[Bool]), nil),
 	)
 }
 
@@ -92,8 +92,8 @@ func mkInterfaceSendRecv(elem Type) *Interface {
  * }
  */
 func mkInterfaceSet(key, value Type) *Interface {
-	return mkInterface(
-		mkFunc("Set", mkTuple(key, value), nil),
+	return mkinterface(
+		mkfunc("Set", mktuple(key, value), nil),
 	)
 }
 
