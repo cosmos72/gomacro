@@ -18,13 +18,12 @@ package xreflect
 
 import (
 	"go/ast"
-	_types "go/types"
 	r "reflect"
 
-	"go/types"
+	"github.com/cosmos72/gomacro/go/types"
 )
 
-type Package _types.Package
+type Package types.Package
 
 type Forward interface{}
 

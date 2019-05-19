@@ -19,7 +19,7 @@ package xreflect
 import (
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/go/mtoken"
+	"github.com/cosmos72/gomacro/go/etoken"
 )
 
 :import (
@@ -44,7 +44,7 @@ import (
 			r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 			return ~"{
 				tsig := v.FuncOf(tpair, []Type{t}, false)
-				tsigshift := v.FuncOf(tpair, tuint8single, false)
+				tsigshift := v.FuncOf(tpair, tuint8vec, false)
 				idx := []int{
 					xt.AddMethod("Equal", tsigbool),
 					xt.AddMethod("Less", tsigbool),
@@ -184,11 +184,11 @@ import (
 }
 
 func (v *Universe) addBasicTypesMethodsCTI() {
-	if !mtoken.GENERICS_V2_CTI {
+	if !etoken.GENERICS_V2_CTI {
 		return
 	}
 	tboolvec := []Type{v.BasicTypes[r.Bool]}
-	tuint8single := []Type{v.BasicTypes[r.Uint8]}
+	tuint8vec := []Type{v.BasicTypes[r.Uint8]}
 	for _, t := range v.BasicTypes {
 		if t == nil {
 			continue

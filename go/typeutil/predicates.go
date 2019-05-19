@@ -9,7 +9,7 @@ package typeutil
 import (
 	"go/ast"
 
-	"go/types"
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 // Identical reports whether x and y are identical.

@@ -20,7 +20,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"go/types"
 	"io"
 	"os"
 	r "reflect"
@@ -29,6 +28,7 @@ import (
 	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/gls"
+	"github.com/cosmos72/gomacro/go/types"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 

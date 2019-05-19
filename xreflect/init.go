@@ -17,9 +17,10 @@
 package xreflect
 
 import (
-	"go/types"
 	r "reflect"
 	"unsafe"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 var rbasictypes = []r.Type{

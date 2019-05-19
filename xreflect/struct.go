@@ -20,8 +20,9 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"go/types"
 	r "reflect"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 // Field returns a struct type's i'th field.

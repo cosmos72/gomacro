@@ -17,13 +17,13 @@
 package xreflect
 
 import (
-	"go/types"
 	"io"
 	"os"
 	r "reflect"
 	"testing"
 	"time"
 
+	"github.com/cosmos72/gomacro/go/types"
 	"github.com/cosmos72/gomacro/go/typeutil"
 )
 

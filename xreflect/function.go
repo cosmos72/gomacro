@@ -18,8 +18,9 @@ package xreflect
 
 import (
 	"fmt"
-	"go/types"
 	r "reflect"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 // IsMethod reports whether a function type's contains a receiver, i.e. is a method.

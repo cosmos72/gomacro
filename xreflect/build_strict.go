@@ -18,8 +18,9 @@
 package xreflect
 
 import (
-	"go/types"
 	"reflect"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 // Type:s must be compared with IdenticalTo, not with ==

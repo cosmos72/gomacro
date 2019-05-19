@@ -17,10 +17,11 @@
 package xreflect
 
 import (
+	"fmt"
 	"go/ast"
-	"go/types"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/go/types"
 	"github.com/cosmos72/gomacro/go/typeutil"
 )
 
@@ -304,6 +305,7 @@ func MissingMethod(t, tinterf Type) *Method {
 			if t.Kind() != r.Interface {
 				tfunc = removeReceiver(tfunc)
 			}
+			fmt.Printf("MissingMethod: comparing %v against expected interface method %v\n", tfunc, mtdinterf)
 			if mtdinterf.Type.IdenticalTo(tfunc) && matchReceiverType(xt, xtinterf) {
 				continue
 			}

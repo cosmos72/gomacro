@@ -27,8 +27,28 @@ const (
 	funcSetRecv    funcOption = true
 )
 
+// should be called with argument Universe
+// to initialize basic types, constants true/false/iota and 'error'
+func (c *Converter) Init(universe *Scope) {
+	// create builtin package i.e. universe
+	p := NewPackage("", "")
+	if universe != nil {
+		// fill package with contents of universe scope
+		scope := p.Scope()
+		for _, name := range universe.Names() {
+			scope.Insert(universe.Lookup(name))
+		}
+	}
+	c.pkg = map[string]*Package{
+		"": p,
+	}
+}
+
 // convert *go/types.Package -> *github.com/cosmos72/gomacro/go/types.Package
 func (c *Converter) Package(g *types.Package) *Package {
+	if g == nil {
+		return nil
+	}
 	c.cache = nil
 	p := c.mkpackage(g)
 	scope := g.Scope()
@@ -69,7 +89,11 @@ func (c *Converter) Func(g *types.Func) *Func {
 
 // convert *go/types.TypeName -> *github.com/cosmos72/gomacro/go/types.TypeName
 func (c *Converter) TypeName(g *types.TypeName) *TypeName {
-	return NewTypeName(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.Type(g.Type()))
+	ret, _ := c.mktypename(g)
+	if ret.typ == nil {
+		ret.typ = c.typ(g.Type())
+	}
+	return ret
 }
 
 // convert *go/types.Var -> *github.com/cosmos72/gomacro/go/types.Var
@@ -156,7 +180,7 @@ func (c *Converter) mkmap(g *types.Map) *Map {
 
 func (c *Converter) mknamed(g *types.Named) *Named {
 	typename, found := c.mktypename(g.Obj())
-	if found {
+	if found && typename.Type() != nil {
 		return typename.Type().(*Named)
 	}
 	t := NewNamed(typename, nil, nil)
@@ -204,23 +228,12 @@ func (c *Converter) mkpackage(g *types.Package) *Package {
 		return p
 	}
 	p := NewPackage(path, g.Name())
-	if c.pkg == nil {
-		c.pkg = make(map[string]*Package)
-	}
 	c.pkg[path] = p
 	return p
 }
 
 func (c *Converter) universe() *Package {
-	if p := c.pkg[""]; p != nil {
-		return p
-	}
-	p := NewPackage("", "")
-	if c.pkg == nil {
-		c.pkg = make(map[string]*Package)
-	}
-	c.pkg[""] = p
-	return p
+	return c.pkg[""]
 }
 
 func (c *Converter) mktypename(g *types.TypeName) (*TypeName, bool) {
@@ -230,6 +243,7 @@ func (c *Converter) mktypename(g *types.TypeName) (*TypeName, bool) {
 	}
 	scope := pkg.Scope()
 	obj := scope.Lookup(g.Name())
+	// to preserve type identity, reuse existing typename if found
 	if typename, ok := obj.(*TypeName); ok {
 		return typename, true
 	}

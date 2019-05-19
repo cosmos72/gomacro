@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"go/types"
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 // Map is a hash-table-based mapping from types (types.Type) to

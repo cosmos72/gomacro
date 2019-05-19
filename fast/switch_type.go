@@ -23,8 +23,8 @@ import (
 	"sort"
 	"unsafe"
 
+	"github.com/cosmos72/gomacro/go/types"
 	"github.com/cosmos72/gomacro/go/typeutil"
-	"go/types"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 

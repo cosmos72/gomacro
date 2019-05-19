@@ -56,6 +56,7 @@ func TestConverterType(t *testing.T) {
 		types.NewChan(types.RecvOnly, named),
 	}
 	var c Converter
+	c.Init(Universe)
 	for _, g := range gs {
 		typ := c.Type(g)
 		s1, s2 := typ.String(), g.String()
@@ -65,24 +66,19 @@ func TestConverterType(t *testing.T) {
 	}
 }
 
-func TestConverterPackage(t *testing.T) {
+func TestConverterUniverse(t *testing.T) {
+	// test that converting an empty, unnamed package
+	// returns the universe package
 	gpkg := types.NewPackage("", "")
-	{
-		ginscope := types.Universe
-		goutscope := gpkg.Scope()
-		for _, name := range ginscope.Names() {
-			obj := ginscope.Lookup(name)
-			goutscope.Insert(obj)
-		}
-	}
 	var c Converter
+	c.Init(Universe)
+	expectedpkg := c.pkg[""]
 	pkg := c.Package(gpkg)
-	outnames := pkg.Scope().Names()
-	names := []string{
-		"bool", "byte", "complex128", "complex64", "error", "false", "float32", "float64",
-		"int", "int16", "int32", "int64", "int8", "iota", "rune", "string", "true",
-		"uint", "uint16", "uint32", "uint64", "uint8", "uintptr",
+	if pkg != expectedpkg {
+		t.Errorf("error converting the unnamed package: expecting %v, found %v\n", expectedpkg, pkg)
 	}
+	outnames := pkg.Scope().Names()
+	names := Universe.Names()
 	if len(outnames) != len(names) {
 		t.Errorf("scope contains %d names, expecting %d", len(outnames), len(names))
 	}

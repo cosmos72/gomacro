@@ -8,9 +8,10 @@ package typeutil
 
 import (
 	"go/token"
-	"go/types"
 	"strings"
 	"testing"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 func fail(t *testing.T, actual interface{}, expected interface{}) {

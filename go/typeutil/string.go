@@ -9,7 +9,7 @@ package typeutil
 import (
 	"strings"
 
-	"go/types"
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 // String returns a string representation of given type,

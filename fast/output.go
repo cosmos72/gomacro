@@ -18,7 +18,6 @@ package fast
 
 import (
 	"fmt"
-	"go/types"
 	"io"
 	r "reflect"
 	"sort"
@@ -26,6 +25,7 @@ import (
 	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/paths"
+	"github.com/cosmos72/gomacro/go/types"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 

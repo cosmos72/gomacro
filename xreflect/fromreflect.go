@@ -19,9 +19,10 @@ package xreflect
 import (
 	"go/ast"
 	"go/token"
-	"go/types"
 	r "reflect"
 	"strings"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 // TypeOf creates a Type corresponding to reflect.TypeOf() of given value.

@@ -17,10 +17,10 @@
 package xreflect
 
 import (
-	"go/types" // Importer, ImporterFrom
 	r "reflect"
 	"sync"
 
+	"github.com/cosmos72/gomacro/go/types"
 	"github.com/cosmos72/gomacro/go/typeutil"
 )
 
@@ -40,7 +40,7 @@ type Universe struct {
 	TypeOfError     Type
 	TryResolve      func(name, pkgpath string) Type
 	Packages        map[string]*Package
-	Importer        types.ImporterFrom
+	Importer        *Importer
 	RebuildDepth    int
 	DebugDepth      int
 	mutex           sync.Mutex
@@ -148,6 +148,8 @@ func (v *Universe) importPackage(path string) *Package {
 		return nil
 	}
 	// debugf("imported package %q", path)
+
+	// convert go/types.Package -> github.com/cosmos72/go/types.Package
 	v.cachePackage(pkg)
 	return (*Package)(pkg)
 }

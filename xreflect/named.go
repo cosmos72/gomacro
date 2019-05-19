@@ -18,10 +18,11 @@ package xreflect
 
 import (
 	"go/token"
-	"go/types"
 	r "reflect"
 	"sort"
 	"unsafe"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 // NamedOf returns a new named type for the given type name and package.

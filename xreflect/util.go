@@ -19,8 +19,9 @@ package xreflect
 import (
 	"fmt"
 	"go/token"
-	"go/types"
 	r "reflect"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 func concat(a, b []int) []int {
