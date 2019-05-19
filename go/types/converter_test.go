@@ -26,7 +26,7 @@ func gmksignature(params *types.Tuple, results *types.Tuple) *types.Signature {
 	return types.NewSignature(nil, params, results, false)
 }
 
-func TestConverter(t *testing.T) {
+func TestConverterType(t *testing.T) {
 	pos := token.NoPos
 	gerr := types.Universe.Lookup("error").Type()
 	gpkg := types.NewPackage("time", "time")
@@ -61,6 +61,34 @@ func TestConverter(t *testing.T) {
 		s1, s2 := typ.String(), g.String()
 		if s1 != s2 {
 			t.Errorf("conversion mismatch: got %s expecting %s", s1, s2)
+		}
+	}
+}
+
+func TestConverterPackage(t *testing.T) {
+	gpkg := types.NewPackage("", "")
+	{
+		ginscope := types.Universe
+		goutscope := gpkg.Scope()
+		for _, name := range ginscope.Names() {
+			obj := ginscope.Lookup(name)
+			goutscope.Insert(obj)
+		}
+	}
+	var c Converter
+	pkg := c.Package(gpkg)
+	outnames := pkg.Scope().Names()
+	names := []string{
+		"bool", "byte", "complex128", "complex64", "error", "false", "float32", "float64",
+		"int", "int16", "int32", "int64", "int8", "iota", "rune", "string", "true",
+		"uint", "uint16", "uint32", "uint64", "uint8", "uintptr",
+	}
+	if len(outnames) != len(names) {
+		t.Errorf("scope contains %d names, expecting %d", len(outnames), len(names))
+	}
+	for i, name := range names {
+		if name != outnames[i] {
+			t.Errorf("scope contains %q, expecting %q", outnames[i], name)
 		}
 	}
 }

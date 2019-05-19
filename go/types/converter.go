@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// This file converts objects from go/types to github.com/cosmos72/go/etypes
+// This file converts objects from go/types to github.com/cosmos72/go/types
 
 package types
 
@@ -26,6 +26,174 @@ const (
 	funcIgnoreRecv funcOption = false
 	funcSetRecv    funcOption = true
 )
+
+// convert *go/types.Package -> *github.com/cosmos72/gomacro/go/types.Package
+func (c *Converter) Package(g *types.Package) *Package {
+	c.cache = nil
+	p := c.mkpackage(g)
+	scope := g.Scope()
+	for _, name := range scope.Names() {
+		obj := c.Object(scope.Lookup(name))
+		if obj != nil {
+			p.scope.Insert(obj)
+		}
+	}
+	return p
+}
+
+// convert go/types.Object -> github.com/cosmos72/gomacro/go/types.Object
+func (c *Converter) Object(g types.Object) Object {
+	switch g := g.(type) {
+	case *types.Const:
+		return c.Const(g)
+	case *types.Func:
+		return c.Func(g)
+	case *types.TypeName:
+		return c.TypeName(g)
+	case *types.Var:
+		return c.Var(g)
+	default:
+		return nil
+	}
+}
+
+// convert *go/types.Const -> *github.com/cosmos72/gomacro/go/types.Const
+func (c *Converter) Const(g *types.Const) *Const {
+	return NewConst(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.Type(g.Type()), g.Val())
+}
+
+// convert *go/types.Func -> *github.com/cosmos72/gomacro/go/types.Func
+func (c *Converter) Func(g *types.Func) *Func {
+	return NewFunc(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.Type(g.Type()).(*Signature))
+}
+
+// convert *go/types.TypeName -> *github.com/cosmos72/gomacro/go/types.TypeName
+func (c *Converter) TypeName(g *types.TypeName) *TypeName {
+	return NewTypeName(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.Type(g.Type()))
+}
+
+// convert *go/types.Var -> *github.com/cosmos72/gomacro/go/types.Var
+func (c *Converter) Var(g *types.Var) *Var {
+	return NewVar(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.Type(g.Type()))
+}
+
+// convert go/types.Type -> github.com/cosmos72/gomacro/go/types.Type
+func (c *Converter) Type(g types.Type) Type {
+	ret := c.typ(g)
+	for _, t := range c.tocomplete {
+		t.Complete()
+	}
+	c.tocomplete = c.tocomplete[0:0:cap(c.tocomplete)]
+
+	for t, g := range c.toaddmethods {
+		c.addmethods(t, g)
+		delete(c.toaddmethods, t)
+	}
+	return ret
+}
+
+func (c *Converter) typ(g types.Type) Type {
+	t := c.cache[g]
+	if t != nil {
+		return t
+	}
+	switch g := g.(type) {
+	case *types.Array:
+		elem := c.typ(g.Elem())
+		t = NewArray(elem, g.Len())
+	case *types.Basic:
+		return Typ[BasicKind(g.Kind())]
+	case *types.Chan:
+		elem := c.typ(g.Elem())
+		t = NewChan(ChanDir(g.Dir()), elem)
+	case *types.Interface:
+		t = c.mkinterface(g)
+	case *types.Map:
+		t = c.mkmap(g)
+	case *types.Named:
+		t = c.mknamed(g)
+	case *types.Pointer:
+		elem := c.typ(g.Elem())
+		t = NewPointer(elem)
+	case *types.Signature:
+		t = c.mksignature(g, funcSetRecv)
+	case *types.Slice:
+		elem := c.typ(g.Elem())
+		t = NewSlice(elem)
+	case *types.Struct:
+		t = c.mkstruct(g)
+	default:
+		panic(fmt.Errorf("Converter.Type(): unsupported types.Type: %T", g))
+	}
+	if c.cache == nil {
+		c.cache = make(map[types.Type]Type)
+	}
+	c.cache[g] = t
+	return t
+}
+
+func (c *Converter) mkinterface(g *types.Interface) *Interface {
+	n := g.NumExplicitMethods()
+	fs := make([]*Func, n)
+	for i := 0; i < n; i++ {
+		fs[i] = c.mkfunc(g.ExplicitMethod(i), funcIgnoreRecv)
+	}
+	n = g.NumEmbeddeds()
+	es := make([]Type, n)
+	for i := 0; i < n; i++ {
+		es[i] = c.typ(g.EmbeddedType(i))
+	}
+	t := NewInterfaceType(fs, es)
+	c.tocomplete = append(c.tocomplete, t)
+	return t
+}
+
+func (c *Converter) mkmap(g *types.Map) *Map {
+	key := c.typ(g.Key())
+	elem := c.typ(g.Elem())
+	return NewMap(key, elem)
+}
+
+func (c *Converter) mknamed(g *types.Named) *Named {
+	typename, found := c.mktypename(g.Obj())
+	if found {
+		return typename.Type().(*Named)
+	}
+	t := NewNamed(typename, nil, nil)
+	u := c.typ(g.Underlying())
+	t.SetUnderlying(u)
+	if g.NumMethods() != 0 {
+		if c.toaddmethods == nil {
+			c.toaddmethods = make(map[*Named]*types.Named)
+		}
+		c.toaddmethods[t] = g
+	}
+	return t
+}
+
+func (c *Converter) mksignature(g *types.Signature, opt funcOption) *Signature {
+	var recv *Var
+	if opt == funcSetRecv {
+		recv = c.mkparam(g.Recv())
+	}
+	return NewSignature(
+		recv,
+		c.mkparams(g.Params()),
+		c.mkparams(g.Results()),
+		g.Variadic(),
+	)
+}
+
+func (c *Converter) mkstruct(g *types.Struct) *Struct {
+	n := g.NumFields()
+	fields := make([]*Var, n)
+	tags := make([]string, n)
+	for i := 0; i < n; i++ {
+		fields[i] = c.mkfield(g.Field(i))
+		tags[i] = g.Tag(i)
+	}
+	return NewStruct(fields, tags)
+}
 
 func (c *Converter) mkpackage(g *types.Package) *Package {
 	if g == nil {
@@ -100,121 +268,9 @@ func (c *Converter) mkvar(g *types.Var) *Var {
 	return NewVar(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.typ(g.Type()))
 }
 
-func (c *Converter) Type(g types.Type) Type {
-	if c.cache == nil {
-		c.cache = make(map[types.Type]Type)
-	}
-	ret := c.typ(g)
-	for _, t := range c.tocomplete {
-		t.Complete()
-	}
-	c.tocomplete = c.tocomplete[0:0:cap(c.tocomplete)]
-
-	for t, g := range c.toaddmethods {
-		c.addmethods(t, g)
-		delete(c.toaddmethods, t)
-	}
-	return ret
-}
-
-func (c *Converter) typ(g types.Type) Type {
-	t := c.cache[g]
-	if t != nil {
-		return t
-	}
-	switch g := g.(type) {
-	case *types.Array:
-		elem := c.typ(g.Elem())
-		t = NewArray(elem, g.Len())
-	case *types.Basic:
-		return Typ[BasicKind(g.Kind())]
-	case *types.Chan:
-		elem := c.typ(g.Elem())
-		t = NewChan(ChanDir(g.Dir()), elem)
-	case *types.Interface:
-		t = c.mkinterface(g)
-	case *types.Map:
-		t = c.mkmap(g)
-	case *types.Named:
-		t = c.mknamed(g)
-	case *types.Pointer:
-		elem := c.typ(g.Elem())
-		t = NewPointer(elem)
-	case *types.Signature:
-		t = c.mksignature(g, funcSetRecv)
-	case *types.Slice:
-		elem := c.typ(g.Elem())
-		t = NewSlice(elem)
-	case *types.Struct:
-		t = c.mkstruct(g)
-	default:
-		panic(fmt.Errorf("Converter.Type(): unsupported types.Type: %T", g))
-	}
-	c.cache[g] = t
-	return t
-}
-
-func (c *Converter) mkinterface(g *types.Interface) *Interface {
-	n := g.NumExplicitMethods()
-	fs := make([]*Func, n)
-	for i := 0; i < n; i++ {
-		fs[i] = c.mkfunc(g.ExplicitMethod(i), funcIgnoreRecv)
-	}
-	n = g.NumEmbeddeds()
-	es := make([]Type, n)
-	for i := 0; i < n; i++ {
-		es[i] = c.typ(g.EmbeddedType(i))
-	}
-	t := NewInterfaceType(fs, es)
-	c.tocomplete = append(c.tocomplete, t)
-	return t
-}
-
-func (c *Converter) mkmap(g *types.Map) *Map {
-	key := c.typ(g.Key())
-	elem := c.typ(g.Elem())
-	return NewMap(key, elem)
-}
-
-func (c *Converter) mknamed(g *types.Named) *Named {
-	typename, found := c.mktypename(g.Obj())
-	if found {
-		return typename.Type().(*Named)
-	}
-	t := NewNamed(typename, nil, nil)
-	u := c.typ(g.Underlying())
-	t.SetUnderlying(u)
-	if g.NumMethods() != 0 {
-		if c.toaddmethods == nil {
-			c.toaddmethods = make(map[*Named]*types.Named)
-		}
-		c.toaddmethods[t] = g
-	}
-	return t
-}
-
-func (c *Converter) mksignature(g *types.Signature, opt funcOption) *Signature {
-	var recv *Var
-	if opt == funcSetRecv {
-		recv = c.mkparam(g.Recv())
-	}
-	return NewSignature(
-		recv,
-		c.mkparams(g.Params()),
-		c.mkparams(g.Results()),
-		g.Variadic(),
-	)
-}
-
-func (c *Converter) mkstruct(g *types.Struct) *Struct {
-	n := g.NumFields()
-	fields := make([]*Var, n)
-	tags := make([]string, n)
-	for i := 0; i < n; i++ {
-		fields[i] = c.mkfield(g.Field(i))
-		tags[i] = g.Tag(i)
-	}
-	return NewStruct(fields, tags)
+func (c *Converter) mkfunc(m *types.Func, opt funcOption) *Func {
+	sig := c.mksignature(m.Type().(*types.Signature), opt)
+	return NewFunc(m.Pos(), c.mkpackage(m.Pkg()), m.Name(), sig)
 }
 
 func (c *Converter) addmethods(t *Named, g *types.Named) {
@@ -223,9 +279,4 @@ func (c *Converter) addmethods(t *Named, g *types.Named) {
 		m := c.mkfunc(g.Method(i), funcSetRecv)
 		t.AddMethod(m)
 	}
-}
-
-func (c *Converter) mkfunc(m *types.Func, opt funcOption) *Func {
-	sig := c.mksignature(m.Type().(*types.Signature), opt)
-	return NewFunc(m.Pos(), c.mkpackage(m.Pkg()), m.Name(), sig)
 }
