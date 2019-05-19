@@ -97,6 +97,10 @@ func mkInterfaceSet(key, value Type) *Interface {
 	)
 }
 
+func mkNamed(name string, underlying Type) *Named {
+	return NewNamed(NewTypeName(token.NoPos, nil, name, nil), underlying, nil)
+}
+
 type tcase struct {
 	typ        Type
 	interfaces []*Interface
@@ -140,12 +144,27 @@ func TestBasicMethodsForGenerics(t *testing.T) {
 		return false
 	}
 
+	tarray := NewArray(Typ[Uint8], 0)
+	tchan := NewChan(SendRecv, Typ[Int])
+	tmap := NewMap(Typ[Int], Typ[Uint8])
+	tslice := NewSlice(Typ[Uint8])
+	tstring := Typ[String]
+
+	tchannamed := mkNamed("ChanInt", tchan)
+	tmapnamed := mkNamed("MapIntUint8", tmap)
+	tslicenamed := mkNamed("SliceUint8", tslice)
+	tstringnamed := mkNamed("String", tstring)
+
 	tcases := []tcase{
-		mkcase(Typ[String], getlen),
-		mkcase(NewPointer(NewArray(Typ[Uint8], 0)), caplen, getaddr, getlen, set),
-		mkcase(NewSlice(Typ[Uint8]), caplen, getaddr, getlen, set),
-		mkcase(NewMap(Typ[Int], Typ[Uint8]), getlen, set),
-		mkcase(NewChan(SendRecv, Typ[Int]), caplen, sendrecv),
+		mkcase(NewPointer(tarray), caplen, getaddr, getlen, set),
+		mkcase(tchan, caplen, sendrecv),
+		mkcase(tchannamed, caplen, sendrecv),
+		mkcase(tmap, getlen, set),
+		mkcase(tmapnamed, getlen, set),
+		mkcase(tslice, caplen, getaddr, getlen, set),
+		mkcase(tslicenamed, caplen, getaddr, getlen, set),
+		mkcase(tstring, getlen),
+		mkcase(tstringnamed, getlen),
 	}
 
 	for _, c := range tcases {

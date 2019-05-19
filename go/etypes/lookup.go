@@ -115,6 +115,7 @@ func lookupFieldOrMethod(T Type, addressable bool, pkg *Package, name string) (o
 				}
 				seen[named] = true
 			}
+		again:
 			// look for a matching attached method
 			if i, m := lookupMethod(declaredMethods(typ), pkg, name); m != nil {
 				// potential match
@@ -131,6 +132,8 @@ func lookupFieldOrMethod(T Type, addressable bool, pkg *Package, name string) (o
 			if named != nil {
 				// continue with underlying type
 				typ = named.underlying
+				named = nil
+				goto again
 			}
 
 			switch t := typ.(type) {

@@ -113,7 +113,6 @@ func (a *Array) initMethods() {
 	if !etoken.GENERICS_V2_CTI || len(a.methods) != 0 {
 		return
 	}
-	v := NewVar(token.NoPos, nil, "a", a)
 	vptr := NewVar(token.NoPos, nil, "a", NewPointer(a))
 	vint := NewVar(token.NoPos, nil, "", Typ[Int])
 	velem := NewVar(token.NoPos, nil, "", a.elem)
@@ -121,11 +120,12 @@ func (a *Array) initMethods() {
 	tuple_elem := NewTuple(velem)
 	tuple_ptrelem := NewTuple(NewVar(token.NoPos, nil, "", NewPointer(a.elem)))
 	tuple_int_elem := NewTuple(vint, velem)
+	// receiver is pointer-to-array to avoid hidden O(N) cost of array copy
 	a.methods = []*Func{
-		NewFunc(token.NoPos, nil, "Cap", NewSignature(v, nil, tuple_int, false)),
-		NewFunc(token.NoPos, nil, "Get", NewSignature(v, tuple_int, tuple_elem, false)),
+		NewFunc(token.NoPos, nil, "Cap", NewSignature(vptr, nil, tuple_int, false)),
+		NewFunc(token.NoPos, nil, "Get", NewSignature(vptr, tuple_int, tuple_elem, false)),
 		NewFunc(token.NoPos, nil, "GetAddr", NewSignature(vptr, tuple_int, tuple_ptrelem, false)),
-		NewFunc(token.NoPos, nil, "Len", NewSignature(v, nil, tuple_int, false)),
+		NewFunc(token.NoPos, nil, "Len", NewSignature(vptr, nil, tuple_int, false)),
 		NewFunc(token.NoPos, nil, "Set", NewSignature(vptr, tuple_int_elem, nil, false)),
 	}
 }

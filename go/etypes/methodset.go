@@ -119,11 +119,14 @@ func NewMethodSet(T Type) *MethodSet {
 				seen[named] = true
 			}
 
+		again:
 			mset = mset.add(declaredMethods(typ), e.index, e.indirect, e.multiples)
 
 			if named != nil {
 				// continue with underlying type
 				typ = named.underlying
+				named = nil
+				goto again
 			}
 
 			switch t := typ.(type) {

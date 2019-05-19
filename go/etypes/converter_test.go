@@ -59,10 +59,8 @@ func TestConverter(t *testing.T) {
 	for _, g := range gs {
 		typ := c.Type(g)
 		s1, s2 := typ.String(), g.String()
-		if s1 == s2 {
-			t.Log(s1)
-		} else {
-			t.Errorf("conversion mismatch: got %q expecting %q", s1, s2)
+		if s1 != s2 {
+			t.Errorf("conversion mismatch: got %s expecting %s", s1, s2)
 		}
 	}
 }
