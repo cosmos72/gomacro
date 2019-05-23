@@ -22,6 +22,8 @@ import (
 	"sort"
 	"unsafe"
 
+	"github.com/cosmos72/gomacro/go/etoken"
+
 	"github.com/cosmos72/gomacro/go/types"
 )
 
@@ -225,7 +227,7 @@ func unsafeRemoveMethods(gtype *types.Named, names []string, pkgpath string) {
 // GetMethods returns the pointer to the method values.
 // It panics if the type is unnamed
 func (t *xtype) GetMethods() *[]r.Value {
-	if !t.Named() {
+	if !etoken.GENERICS_V2_CTI && !t.Named() {
 		xerrorf(t, "GetMethods on unnamed type %v", t)
 	}
 	resizemethodvalues(t)

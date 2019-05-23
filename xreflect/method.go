@@ -21,6 +21,8 @@ import (
 	"go/ast"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/go/etoken"
+
 	"github.com/cosmos72/gomacro/go/types"
 	"github.com/cosmos72/gomacro/go/typeutil"
 )
@@ -118,7 +120,7 @@ func checkMethod(t *xtype, i int) {
 	if t.kind == r.Ptr {
 		xerrorf(t, "Method of %s type %v. Invoke Method() on type's Elem() instead", i, t.kind, t)
 	}
-	if !t.Named() && t.kind != r.Interface {
+	if !etoken.GENERICS_V2_CTI && !t.Named() && t.kind != r.Interface {
 		xerrorf(t, "Method of type %v that cannot have methods", t.kind, t)
 	}
 }
