@@ -39,8 +39,9 @@ func (t *xtype) NumMethod() int {
 	num := 0
 	if gt, ok := t.gtype.Underlying().(*types.Interface); ok {
 		num = gt.NumMethods()
-	} else if gt, ok := t.gtype.(*types.Named); ok {
-		num = gt.NumMethods()
+	} else {
+		// generics v2 add methods to most types
+		num = t.gtype.NumMethods()
 	}
 	return num
 }
@@ -51,8 +52,9 @@ func (t *xtype) NumExplicitMethod() int {
 	num := 0
 	if gt, ok := t.gtype.Underlying().(*types.Interface); ok {
 		num = gt.NumExplicitMethods()
-	} else if gt, ok := t.gtype.(*types.Named); ok {
-		num = gt.NumMethods()
+	} else {
+		// generics v2 add methods to most types
+		num = t.gtype.NumMethods()
 	}
 	return num
 }
@@ -77,13 +79,6 @@ func goTypeNumAllMethod(gt types.Type, visited map[types.Type]struct{}) int {
 		}
 		visited[gt] = struct{}{}
 		switch t := gt.(type) {
-		case *types.Named:
-			count += t.NumMethods()
-			u := t.Underlying()
-			if u != gt {
-				gt = u
-				continue
-			}
 		case *types.Interface:
 			count += t.NumMethods()
 		case *types.Struct:
@@ -92,6 +87,14 @@ func goTypeNumAllMethod(gt types.Type, visited map[types.Type]struct{}) int {
 				if f := t.Field(i); f.Anonymous() {
 					count += goTypeNumAllMethod(f.Type(), visited)
 				}
+			}
+		default:
+			// generics v2 add methods to most types
+			count += t.NumMethods()
+			u := t.Underlying()
+			if u != gt {
+				gt = u
+				continue
 			}
 		}
 		break
@@ -164,14 +167,10 @@ func (t *xtype) method(i int) Method {
 				rfunc = rmethod.Func
 			}
 		}
-		if rfunc.Kind() != r.Func {
-			if ast.IsExported(name) {
-				xerrorf(t, "type <%v>: reflect method %q not found", t, gfunc.Name())
-			}
-		} else {
+		if rfunc.Kind() == r.Func {
 			rfunctype = rmethod.Type
+			t.methodvalues[i] = rfunc
 		}
-		t.methodvalues[i] = rfunc
 	}
 	return t.makemethod(i, gfunc, &t.methodvalues, rfunctype) // lock already held
 }
@@ -232,10 +231,8 @@ func (t *xtype) gmethod(i int) *types.Func {
 	var gfun *types.Func
 	if gtype, ok := t.gtype.Underlying().(*types.Interface); ok {
 		gfun = gtype.Method(i)
-	} else if gtype, ok := t.gtype.(*types.Named); ok {
-		gfun = gtype.Method(i)
 	} else {
-		xerrorf(t, "Method on invalid type %v", t)
+		gfun = t.gtype.Method(i)
 	}
 	return gfun
 }

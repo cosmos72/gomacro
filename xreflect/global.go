@@ -102,6 +102,13 @@ func (q QName) PkgPath() string {
 	return q.pkgpath
 }
 
+func (q QName) String() string {
+	if len(q.pkgpath) == 0 {
+		return q.name
+	}
+	return q.pkgpath + "." + q.name
+}
+
 func QLess(p, q QName) bool {
 	return p.pkgpath < q.pkgpath || (p.pkgpath == q.pkgpath && p.name < q.name)
 }

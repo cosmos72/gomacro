@@ -32,151 +32,117 @@ import (
 	switch t.Kind() {
 		case r.Bool:
 			return ~"{
-				idx := []int{
-					xt.AddMethod("Equal", tsigbool),
+				for i, n := 0, xt.NumMethod(); i < n; i++ {
+					switch xt.Method(i).Name {
+					case "Equal":
+						(*mvec)[i] = r.ValueOf(func(a bool, b bool) bool { return a == b })
+					case "Not":
+						(*mvec)[i] = r.ValueOf(func(a bool) bool { return !a })
+					}
 				}
-				mvec := xt.GetMethods()
-				(*mvec)[idx[0]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
-					return a == b
-				})
 			}
 		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
 			r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 			return ~"{
-				tsig := v.FuncOf(tpair, []Type{t}, false)
-				tsigshift := v.FuncOf(tpair, tuint8vec, false)
-				idx := []int{
-					xt.AddMethod("Equal", tsigbool),
-					xt.AddMethod("Less", tsigbool),
-					xt.AddMethod("Add", tsig),
-					xt.AddMethod("Sub", tsig),
-					xt.AddMethod("Mul", tsig),
-					xt.AddMethod("Quo", tsig),
-					xt.AddMethod("Rem", tsig),
-					xt.AddMethod("And", tsig),
-					xt.AddMethod("Or", tsig),
-					xt.AddMethod("Xor", tsig),
-					xt.AddMethod("Andnot", tsig),
-					xt.AddMethod("Shl", tsigshift),
-					xt.AddMethod("Shr", tsigshift),
+				for i, n := 0, xt.NumMethod(); i < n; i++ {
+					switch xt.Method(i).Name {
+					case "Equal":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a == b })
+					case "Less":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a < b })
+					case "Add":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a + b })
+					case "Sub":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a - b })
+					case "Mul":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a * b })
+					case "Quo":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a / b })
+					case "Neg":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,typ { return -a })
+					case "Rem":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a % b })
+					case "And":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a & b })
+					case "Andnot":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a &^ b })
+					case "Or":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a | b })
+					case "Xor":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a ^ b })
+					case "Not":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,typ { return ^a })
+					case "Shl":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b uint8) ~,typ { return a << b })
+					case "Shr":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b uint8) ~,typ { return a >> b })
+					}
 				}
-				mvec := xt.GetMethods()
-				(*mvec)[idx[0]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
-					return a == b
-				})
-				(*mvec)[idx[1]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
-					return a < b
-				})
-				(*mvec)[idx[2]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a + b
-				})
-				(*mvec)[idx[3]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a - b
-				})
-				(*mvec)[idx[4]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a * b
-				})
-				(*mvec)[idx[5]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a / b
-				})
-				(*mvec)[idx[6]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a % b
-				})
-				(*mvec)[idx[7]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a & b
-				})
-				(*mvec)[idx[8]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a | b
-				})
-				(*mvec)[idx[9]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a ^ b
-				})
-				(*mvec)[idx[10]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a &^ b
-				})
-				(*mvec)[idx[11]] = r.ValueOf(func(a ~,typ, b uint8) ~,typ {
-					return a << b
-				})
-				(*mvec)[idx[12]] = r.ValueOf(func(a ~,typ, b uint8) ~,typ {
-					return a >> b
-				})
 			}
 		case r.Float32, r.Float64:
 			return ~"{
-				tsig := v.FuncOf(tpair, []Type{t}, false)
-				idx := []int{
-					xt.AddMethod("Equal", tsigbool),
-					xt.AddMethod("Less", tsigbool),
-					xt.AddMethod("Add", tsig),
-					xt.AddMethod("Sub", tsig),
-					xt.AddMethod("Mul", tsig),
-					xt.AddMethod("Quo", tsig),
+				for i, n := 0, xt.NumMethod(); i < n; i++ {
+					switch xt.Method(i).Name {
+					case "Equal":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a == b })
+					case "Less":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a < b })
+					case "Add":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a + b })
+					case "Sub":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a - b })
+					case "Mul":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a * b })
+					case "Quo":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a / b })
+					case "Neg":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,typ { return -a })
+					}
 				}
-				mvec := xt.GetMethods()
-				(*mvec)[idx[0]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
-					return a == b
-				})
-				(*mvec)[idx[1]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
-					return a < b
-				})
-				(*mvec)[idx[2]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a + b
-				})
-				(*mvec)[idx[3]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a - b
-				})
-				(*mvec)[idx[4]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a * b
-				})
-				(*mvec)[idx[5]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a / b
-				})
 			}
 		case r.Complex64, r.Complex128:
+		    tre := ~'float64
+			if t.Kind() == r.Complex64 {
+				tre = ~'float32
+			}
 			return ~"{
-				tsig := v.FuncOf(tpair, []Type{t}, false)
-				idx := []int{
-					xt.AddMethod("Equal", tsigbool),
-					xt.AddMethod("Add", tsig),
-					xt.AddMethod("Sub", tsig),
-					xt.AddMethod("Mul", tsig),
-					xt.AddMethod("Quo", tsig),
+				for i, n := 0, xt.NumMethod(); i < n; i++ {
+					switch xt.Method(i).Name {
+					case "Equal":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a == b })
+					case "Add":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a + b })
+					case "Sub":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a - b })
+					case "Mul":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a * b })
+					case "Quo":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a / b })
+					case "Neg":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,typ { return -a })
+					case "Real":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,tre { return real(a) })
+					case "Imag":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,tre { return imag(a) })
+					}
 				}
-				mvec := xt.GetMethods()
-				(*mvec)[idx[0]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
-					return a == b
-				})
-				(*mvec)[idx[1]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a + b
-				})
-				(*mvec)[idx[2]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a - b
-				})
-				(*mvec)[idx[3]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a * b
-				})
-				(*mvec)[idx[4]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a / b
-				})
 			}
 		case r.String:
 			return ~"{
-				tsig := v.FuncOf(tpair, []Type{t}, false)
-				idx := []int{
-					xt.AddMethod("Equal", tsigbool),
-					xt.AddMethod("Less", tsigbool),
-					xt.AddMethod("Add", tsig),
+				for i, n := 0, xt.NumMethod(); i < n; i++ {
+					switch xt.Method(i).Name {
+					case "Equal":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a == b })
+					case "Less":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a < b })
+					case "Add":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a + b })
+					case "Get":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b int) uint8 { return a[b] })
+					case "Len":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ) int { return len(a) })
+					}
 				}
-				mvec := xt.GetMethods()
-				(*mvec)[idx[0]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
-					return a == b
-				})
-				(*mvec)[idx[1]] = r.ValueOf(func(a ~,typ, b ~,typ) bool {
-					return a < b
-				})
-				(*mvec)[idx[2]] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ {
-					return a + b
-				})
 			}
 		default:
 			return ~'{}
@@ -187,15 +153,12 @@ func (v *Universe) addBasicTypesMethodsCTI() {
 	if !etoken.GENERICS_V2_CTI {
 		return
 	}
-	tboolvec := []Type{v.BasicTypes[r.Bool]}
-	tuint8vec := []Type{v.BasicTypes[r.Uint8]}
 	for _, t := range v.BasicTypes {
 		if t == nil {
 			continue
 		}
 		xt := unwrap(t)
-		tpair := []Type{t, t}
-		tsigbool := v.FuncOf(tpair, tboolvec, false)
+		mvec := xt.GetMethods()
 		switch xt.kind {
 		case r.Bool:
 			addmethods; bool

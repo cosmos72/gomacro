@@ -49,7 +49,7 @@ func (b *Basic) initMethods() {
 			NewFunc(token.NoPos, nil, "Add", sig_vvv),
 			NewFunc(token.NoPos, nil, "Sub", sig_vvv),
 			NewFunc(token.NoPos, nil, "Mul", sig_vvv),
-			NewFunc(token.NoPos, nil, "Div", sig_vvv),
+			NewFunc(token.NoPos, nil, "Quo", sig_vvv),
 			NewFunc(token.NoPos, nil, "Neg", sig_vv),
 		)
 	} else if info&IsString != 0 {
@@ -70,12 +70,12 @@ func (b *Basic) initMethods() {
 		b.methods = append(b.methods,
 			NewFunc(token.NoPos, nil, "Rem", sig_vvv),
 			NewFunc(token.NoPos, nil, "And", sig_vvv),
+			NewFunc(token.NoPos, nil, "Andnot", sig_vvv),
 			NewFunc(token.NoPos, nil, "Or", sig_vvv),
 			NewFunc(token.NoPos, nil, "Xor", sig_vvv),
+			NewFunc(token.NoPos, nil, "Not", sig_vv), // unary ^
 			NewFunc(token.NoPos, nil, "Shl", sig_v8v),
 			NewFunc(token.NoPos, nil, "Shr", sig_v8v),
-			NewFunc(token.NoPos, nil, "Andnot", sig_vvv),
-			NewFunc(token.NoPos, nil, "Not", sig_vv), // unary ^
 		)
 	} else if info&IsComplex != 0 {
 		var fl *Basic

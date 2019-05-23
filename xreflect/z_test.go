@@ -23,6 +23,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cosmos72/gomacro/go/etoken"
+
 	"github.com/cosmos72/gomacro/go/types"
 	"github.com/cosmos72/gomacro/go/typeutil"
 )
@@ -199,7 +201,14 @@ func TestMap(t *testing.T) {
 	is(t, typ.Kind(), r.Map)
 	is(t, typ.Name(), "")
 	is(t, typ.ReflectType(), rtype)
-	is(t, typ.NumAllMethod(), 0)
+	is(t, rtype.NumMethod(), 0)
+	if etoken.GENERICS_V2_CTI {
+		is(t, typ.NumMethod(), 4)
+		is(t, typ.NumAllMethod(), 4)
+	} else {
+		is(t, typ.NumMethod(), 0)
+		is(t, typ.NumAllMethod(), 0)
+	}
 	istypeof(t, typ.GoType(), (*types.Map)(nil))
 }
 
@@ -210,7 +219,12 @@ func TestMethod(t *testing.T) {
 	is(t, typ.Kind(), r.Int)
 	is(t, typ.Name(), "MyInt")
 	is(t, typ.ReflectType(), rtype)
-	is(t, typ.NumAllMethod(), 0)
+	is(t, typ.NumMethod(), 0)
+	if etoken.GENERICS_V2_CTI {
+		is(t, typ.NumAllMethod(), 15)
+	} else {
+		is(t, typ.NumAllMethod(), 0)
+	}
 	istypeof(t, typ.GoType(), (*types.Named)(nil))
 }
 
@@ -222,7 +236,13 @@ func TestNamed(t *testing.T) {
 	is(t, typ.Kind(), r.Map)
 	is(t, typ.Name(), "MyMap")
 	is(t, typ.ReflectType(), rtype)
-	is(t, typ.NumAllMethod(), rtype.NumMethod())
+	is(t, rtype.NumMethod(), 0)
+	is(t, typ.NumMethod(), 0)
+	if etoken.GENERICS_V2_CTI {
+		is(t, typ.NumAllMethod(), 4)
+	} else {
+		is(t, typ.NumAllMethod(), 0)
+	}
 	istypeof(t, typ.GoType(), (*types.Named)(nil))
 }
 

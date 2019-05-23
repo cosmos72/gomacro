@@ -19,6 +19,7 @@ package xreflect
 import (
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/go/etoken"
 	"github.com/cosmos72/gomacro/go/types"
 	"github.com/cosmos72/gomacro/go/typeutil"
 )
@@ -203,8 +204,9 @@ func anonymousFields(t *xtype, offset uintptr, index []int, m *depthMap) []Struc
 func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	// debugf("method cache for %v <%v> = %v", unsafe.Pointer(t), t, t.methodcache)
 
-	// only named types and interfaces can have methods
-	if name == "_" || (!t.Named() && t.kind != r.Interface) {
+	// only named types and interfaces can have methods,
+	// unless generics v2 are enabled: they add a few methods to most types
+	if name == "_" || (!etoken.GENERICS_V2_CTI && !t.Named() && t.kind != r.Interface) {
 		return
 	}
 	v := t.universe
@@ -215,7 +217,9 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 }
 
 func (t *xtype) methodByName(name, pkgpath string) (method Method, count int) {
-	if name == "_" || (!t.Named() && t.kind != r.Interface) {
+	// only named types and interfaces can have methods,
+	// unless generics v2 are enabled: they add a few methods to most types
+	if name == "_" || (!etoken.GENERICS_V2_CTI && !t.Named() && t.kind != r.Interface) {
 		return
 	}
 	qname := QName2(name, pkgpath)
@@ -273,15 +277,19 @@ func methodByName(t *xtype, qname QName, index []int) (method Method, count int)
 		t = te
 	}
 	n := t.NumMethod()
+	// fmt.Printf("looking up method %v in type %v\n", qname, t)
 	for i := 0; i < n; i++ {
 		gmethod := t.gmethod(i)
 		if matchMethodByName(qname, gmethod) {
+			// fmt.Printf("  match   : method %v\n", QNameGo(gmethod))
 			if count == 0 {
 				method = t.method(i)                                 // lock already held
 				method.FieldIndex = concat(index, method.FieldIndex) // make a copy of index
 				// debugf("methodByName: %d-th explicit method of <%v> matches: %#v", i, t.rtype, method)
 			}
 			count++
+		} else {
+			// fmt.Printf("  mismatch: method %v\n", QNameGo(gmethod))
 		}
 	}
 	return
