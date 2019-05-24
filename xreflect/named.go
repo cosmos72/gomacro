@@ -139,7 +139,7 @@ func (t *xtype) AddMethod(name string, signature Type) int {
 	gfun := types.NewFunc(token.NoPos, gpkg, name, gsig)
 
 	n1 := gtype.NumMethods()
-	index := unsafeAddMethod(gtype, gfun)
+	index := gtype.ReplaceMethod(gfun)
 	n2 := gtype.NumMethods()
 
 	// update the caches... be careful if the method was just redefined
@@ -181,24 +181,6 @@ type unsafeNamed struct {
 	obj        *types.TypeName
 	underlying types.Type
 	methods    []*types.Func
-}
-
-// patched version of go/types.Named.AddMethod() that *overwrites* matching methods
-// (the original does not)
-func unsafeAddMethod(gtype *types.Named, gfun *types.Func) int {
-	if gfun.Name() == "_" {
-		return -1
-	}
-	gt := (*unsafeNamed)(unsafe.Pointer(gtype))
-	qname := QNameGo(gfun)
-	for i, m := range gt.methods {
-		if qname == QNameGo(m) {
-			gt.methods[i] = gfun
-			return i
-		}
-	}
-	gt.methods = append(gt.methods, gfun)
-	return len(gt.methods) - 1
 }
 
 func unsafeRemoveMethods(gtype *types.Named, names []string, pkgpath string) {

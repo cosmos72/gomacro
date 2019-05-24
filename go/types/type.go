@@ -475,6 +475,19 @@ func (t *Named) AddMethod(m *Func) {
 	}
 }
 
+// ReplaceMethod replaces method m if it is already in the method list,
+// otherwise adds it. Returns the method index.
+func (t *Named) ReplaceMethod(m *Func) int {
+	i, _ := lookupMethod(t.methods, m.pkg, m.name)
+	if i >= 0 {
+		t.methods[i] = m
+	} else {
+		i = len(t.methods)
+		t.methods = append(t.methods, m)
+	}
+	return i
+}
+
 // Implementations for Type methods.
 
 func (b *Basic) Underlying() Type     { return b }

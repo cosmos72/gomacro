@@ -37,9 +37,6 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-var _ sync.WaitGroup
-var _ time.Duration
-
 type TestFor int
 
 const (
@@ -47,7 +44,7 @@ const (
 	C                      // test for classic interpreter
 	F                      // test for fast interpreter
 	G1                     // test requires generics v1 (C++-style)
-	G2                     // test requires generics v2
+	G2                     // test requires generics v2 "contracts are interfaces"false
 	U                      // test returns untyped constant (relevant only for fast interpreter)
 	Z                      // temporary override: run only these tests, on fast interpreter only
 	A  = C | F             // test for both interpreters
