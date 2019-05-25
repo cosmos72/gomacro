@@ -154,10 +154,14 @@ func makeArrayMethods(t Type, underlying *Array) []*Func {
 	vptr := newVar(NewPointer(t))
 	vint := newVar(Typ[Int])
 	velem := newVar(underlying.elem)
+	vslice := newVar(NewSlice(underlying.elem))
 	tuple_int := NewTuple(vint)
+	tuple_int_int := NewTuple(vint, vint)
+	tuple_int_int_int := NewTuple(vint, vint, vint)
 	tuple_elem := NewTuple(velem)
 	tuple_ptrelem := NewTuple(newVar(NewPointer(underlying.elem)))
 	tuple_int_elem := NewTuple(vint, velem)
+	tuple_slice := NewTuple(vslice)
 	// receiver is pointer-to-array to avoid hidden O(N) cost of array copy
 	return []*Func{
 		newFunc("Cap", NewSignature(vptr, nil, tuple_int, false)),
@@ -165,6 +169,8 @@ func makeArrayMethods(t Type, underlying *Array) []*Func {
 		newFunc("GetAddr", NewSignature(vptr, tuple_int, tuple_ptrelem, false)),
 		newFunc("Len", NewSignature(vptr, nil, tuple_int, false)),
 		newFunc("Set", NewSignature(vptr, tuple_int_elem, nil, false)),
+		newFunc("Slice", NewSignature(vptr, tuple_int_int, tuple_slice, false)),
+		newFunc("Slice3", NewSignature(vptr, tuple_int_int_int, tuple_slice, false)),
 	}
 }
 
@@ -229,6 +235,8 @@ func makeSliceMethods(t Type, underlying *Slice) []*Func {
 	velem := newVar(elem)
 	tuple_v := NewTuple(v)
 	tuple_int := NewTuple(vint)
+	tuple_int_int := NewTuple(vint, vint)
+	tuple_int_int_int := NewTuple(vint, vint, vint)
 	tuple_elem := NewTuple(velem)
 	tuple_ptrelem := NewTuple(newVar(NewPointer(elem)))
 	tuple_int_elem := NewTuple(vint, velem)
@@ -245,6 +253,8 @@ func makeSliceMethods(t Type, underlying *Slice) []*Func {
 			newFunc("GetAddr", NewSignature(v, tuple_int, tuple_ptrelem, false)),
 			newFunc("Len", NewSignature(v, nil, tuple_int, false)),
 			newFunc("Set", NewSignature(v, tuple_int_elem, nil, false)),
+			newFunc("Slice", NewSignature(v, tuple_int_int, tuple_v, false)),
+			newFunc("Slice3", NewSignature(v, tuple_int_int_int, tuple_v, false)),
 		}
 	}
 	return []*Func{
@@ -255,6 +265,8 @@ func makeSliceMethods(t Type, underlying *Slice) []*Func {
 		newFunc("GetAddr", NewSignature(v, tuple_int, tuple_ptrelem, false)),
 		newFunc("Len", NewSignature(v, nil, tuple_int, false)),
 		newFunc("Set", NewSignature(v, tuple_int_elem, nil, false)),
+		newFunc("Slice", NewSignature(v, tuple_int_int, tuple_v, false)),
+		newFunc("Slice3", NewSignature(v, tuple_int_int_int, tuple_v, false)),
 	}
 }
 
