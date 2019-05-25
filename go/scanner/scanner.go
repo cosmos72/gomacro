@@ -54,7 +54,7 @@ type Scanner struct {
 
 const bom = 0xFEFF // byte order mark, only permitted as very first character
 
-// Read the next Unicode char into s.ch.
+// Read the next Unicode rune into s.ch.
 // s.ch < 0 means end-of-file.
 //
 func (s *Scanner) next() {
@@ -342,8 +342,29 @@ func (s *Scanner) scanNumber(seenDecimalPoint bool) (token.Token, string) {
 
 fraction:
 	if s.ch == '.' {
-		tok = token.FLOAT
+		// allow methods on numbers, i.e. NUMBER.MethodName
+		// by checking whether the first rune after '.' is NOT a digit, 'e', 'E' or 'i'
+		// this means numbers cannot have one-character methods named 'E'
+		if s.rdOffset < len(s.src) {
+			ch := s.src[s.rdOffset]
+			if digitVal(rune(ch)) >= 10 && ch != 'E' && ch != 'e' && ch != 'i' {
+				// method name
+				goto exit
+			}
+			if ch == 'E' {
+				// could be either exponent or method name starting with 'E'
+				// as for example "Equal"
+				if s.rdOffset+1 < len(s.src) {
+					ch = s.src[s.rdOffset+1]
+					if ch != '-' && ch != '+' && digitVal(rune(ch)) >= 10 {
+						goto exit
+					}
+				}
+			}
+		}
+		// parse as float
 		s.next()
+		tok = token.FLOAT
 		s.scanMantissa(10)
 	}
 

@@ -141,6 +141,8 @@ import (
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b int) uint8 { return a[b] })
 					case "Len":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ) int { return len(a) })
+					case "Slice":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b int, c int) ~,typ { return a[b:c] })
 					}
 				}
 			}

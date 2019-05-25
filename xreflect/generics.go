@@ -1479,6 +1479,12 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				(*mvec)[i] = r.ValueOf(func(a string,
 
 				) int { return len(a) })
+			case "Slice":
+				(*mvec)[i] = r.ValueOf(func(a string,
+
+					b int, c int) string {
+					return a[b:c]
+				})
 			}
 		}
 	}

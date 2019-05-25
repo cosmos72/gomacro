@@ -91,11 +91,13 @@ func makeBasicMethods(t Type, underlying *Basic) []*Func {
 		vint := newVar(Typ[Int])
 		velem := newVar(Typ[Byte])
 		tuple_int := NewTuple(vint)
+		tuple_int_int := NewTuple(vint, vint)
 		tuple_elem := NewTuple(velem)
 		methods = append(methods,
 			newFunc("Add", sig_vvv),
 			newFunc("Get", NewSignature(v, tuple_int, tuple_elem, false)),
 			newFunc("Len", NewSignature(v, nil, tuple_int, false)),
+			newFunc("Slice", NewSignature(v, tuple_int_int, tuple_v, false)),
 		)
 	}
 	if info&IsInteger != 0 {
