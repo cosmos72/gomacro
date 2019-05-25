@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cosmos72/gomacro/go/etoken"
+
 	"github.com/cosmos72/gomacro/go/types"
 )
 
@@ -205,7 +207,9 @@ func newTuple(t *testing.T, x ...*types.Var) *types.Tuple {
 func newNamed(t *testing.T, namestr string, underlying types.Type) *types.Named {
 	name := types.NewTypeName(token.NoPos, nil, "MyInt", nil)
 	named := types.NewNamed(name, types.Typ[types.Int], nil)
-	is(t, named.NumMethods(), 0)
+	if !etoken.GENERICS_V2_CTI {
+		is(t, named.NumMethods(), 0)
+	}
 	is(t, named.Obj(), name)
 	is(t, named.Underlying(), types.Typ[types.Int])
 	is(t, named.String(), "MyInt")
