@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"go/ast"
 	"go/token"
-	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/output"
@@ -223,7 +222,7 @@ func (maker *genericMaker) instantiateType(typ *GenericType, node *ast.IndexExpr
 		// This is similar to the technique used for non-generic recursive types, as
 		//    type List struct { First int; Rest *List }
 		// with the difference that the cache is typ.Instances[key] instead of Comp.Types[name]
-		t = c.Universe.NamedOf(maker.String(), c.FileComp().Path, r.Invalid /*kind not yet known*/)
+		t = c.Universe.NamedOf(maker.String(), c.FileComp().Path)
 		typ.Instances[key] = t
 		u := c.Type(special.decl.Decl)
 		c.SetUnderlyingType(t, u)

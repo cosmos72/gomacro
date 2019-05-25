@@ -11,14 +11,10 @@ import (
 	"github.com/cosmos72/gomacro/go/etoken"
 )
 
-func mkvar(t Type) *Var {
-	return NewVar(token.NoPos, nil, "", t)
-}
-
 func mktuple(ts ...Type) *Tuple {
 	vs := make([]*Var, len(ts))
 	for i := range ts {
-		vs[i] = mkvar(ts[i])
+		vs[i] = newVar(ts[i])
 	}
 	return NewTuple(vs...)
 }
@@ -48,25 +44,25 @@ func mkInterfaceCapLen() *Interface {
 /**
  * return
  * interface {
- *   GetAddr(k Key) *Value
+ *   AddrIndex(k Key) *Value
  * }
  */
-func mkInterfaceGetAddr(key, value Type) *Interface {
+func mkInterfaceAddrIndex(key, value Type) *Interface {
 	return mkinterface(
-		mkfunc("GetAddr", mktuple(key), mktuple(NewPointer(value))),
+		mkfunc("AddrIndex", mktuple(key), mktuple(NewPointer(value))),
 	)
 }
 
 /**
  * return
  * interface {
- *   Get(k Key) Value
+ *   Index(k Key) Value
  *   Len() int
  * }
  */
-func mkInterfaceGetLen(key, value Type) *Interface {
+func mkInterfaceIndexLen(key, value Type) *Interface {
 	return mkinterface(
-		mkfunc("Get", mktuple(key), mktuple(value)),
+		mkfunc("Index", mktuple(key), mktuple(value)),
 		mkfunc("Len", nil, mktuple(Typ[Int])),
 	)
 }
@@ -88,12 +84,12 @@ func mkInterfaceSendRecv(elem Type) *Interface {
 /**
  * return
  * interface {
- *   Set(k Key, v Value)
+ *   SetIndex(k Key, v Value)
  * }
  */
-func mkInterfaceSet(key, value Type) *Interface {
+func mkInterfaceSetIndex(key, value Type) *Interface {
 	return mkinterface(
-		mkfunc("Set", mktuple(key, value), nil),
+		mkfunc("SetIndex", mktuple(key, value), nil),
 	)
 }
 
@@ -110,7 +106,7 @@ func mkcase(typ Type, interfaces ...*Interface) tcase {
 	return tcase{typ, interfaces}
 }
 
-func TestBasicMethodsForGenerics(t *testing.T) {
+func TestCTIMethods(t *testing.T) {
 	if !etoken.GENERICS_V2_CTI {
 		t.SkipNow()
 		return
@@ -128,12 +124,12 @@ func TestBasicMethodsForGenerics(t *testing.T) {
 		}
 	}
 	caplen := mkInterfaceCapLen()
-	getaddr := mkInterfaceGetAddr(Typ[Int], Typ[Uint8])
-	getlen := mkInterfaceGetLen(Typ[Int], Typ[Uint8])
-	set := mkInterfaceSet(Typ[Int], Typ[Uint8])
+	addrindex := mkInterfaceAddrIndex(Typ[Int], Typ[Uint8])
+	getlen := mkInterfaceIndexLen(Typ[Int], Typ[Uint8])
+	set := mkInterfaceSetIndex(Typ[Int], Typ[Uint8])
 	sendrecv := mkInterfaceSendRecv(Typ[Int])
 	allifaces := []*Interface{
-		caplen, getaddr, getlen, set,
+		caplen, addrindex, getlen, set,
 	}
 	contains := func(slice []*Interface, key *Interface) bool {
 		for _, elem := range slice {
@@ -156,13 +152,13 @@ func TestBasicMethodsForGenerics(t *testing.T) {
 	tstringnamed := mkNamed("String", tstring)
 
 	tcases := []tcase{
-		mkcase(NewPointer(tarray), caplen, getaddr, getlen, set),
+		mkcase(NewPointer(tarray), caplen, addrindex, getlen, set),
 		mkcase(tchan, caplen, sendrecv),
 		mkcase(tchannamed, caplen, sendrecv),
 		mkcase(tmap, getlen, set),
 		mkcase(tmapnamed, getlen, set),
-		mkcase(tslice, caplen, getaddr, getlen, set),
-		mkcase(tslicenamed, caplen, getaddr, getlen, set),
+		mkcase(tslice, caplen, addrindex, getlen, set),
+		mkcase(tslicenamed, caplen, addrindex, getlen, set),
 		mkcase(tstring, getlen),
 		mkcase(tstringnamed, getlen),
 	}

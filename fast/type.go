@@ -126,7 +126,7 @@ func (c *Comp) DeclNamedType(name string) xr.Type {
 	} else if c.Types == nil {
 		c.Types = make(map[string]xr.Type)
 	}
-	t := c.Universe.NamedOf(name, c.FileComp().Path, r.Invalid /*kind not yet known*/)
+	t := c.Universe.NamedOf(name, c.FileComp().Path)
 	c.Types[name] = t
 	return t
 }

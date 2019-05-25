@@ -212,24 +212,25 @@ func TestMap(t *testing.T) {
 	istypeof(t, typ.GoType(), (*types.Map)(nil))
 }
 
-func TestMethod(t *testing.T) {
-	typ := u.NamedOf("MyInt", "main", r.Int)
+func TestIntMethod(t *testing.T) {
+	typ := u.NamedOf("MyInt", "main")
 	typ.SetUnderlying(u.BasicTypes[r.Int])
 	rtype := r.TypeOf(int(0))
 	is(t, typ.Kind(), r.Int)
 	is(t, typ.Name(), "MyInt")
 	is(t, typ.ReflectType(), rtype)
-	is(t, typ.NumMethod(), 0)
 	if etoken.GENERICS_V2_CTI {
-		is(t, typ.NumAllMethod(), 15)
+		is(t, typ.NumMethod(), 15)
+		is(t, typ.NumAllMethod(), 30)
 	} else {
+		is(t, typ.NumMethod(), 0)
 		is(t, typ.NumAllMethod(), 0)
 	}
 	istypeof(t, typ.GoType(), (*types.Named)(nil))
 }
 
 func TestNamed(t *testing.T) {
-	typ := u.NamedOf("MyMap", "main", r.Map)
+	typ := u.NamedOf("MyMap", "main")
 	underlying := u.MapOf(u.TypeOfInterface, u.BasicTypes[r.Bool])
 	typ.SetUnderlying(underlying)
 	rtype := r.TypeOf(map[interface{}]bool{})
@@ -237,19 +238,20 @@ func TestNamed(t *testing.T) {
 	is(t, typ.Name(), "MyMap")
 	is(t, typ.ReflectType(), rtype)
 	is(t, rtype.NumMethod(), 0)
-	is(t, typ.NumMethod(), 0)
 	if etoken.GENERICS_V2_CTI {
-		is(t, typ.NumAllMethod(), 4)
+		is(t, typ.NumMethod(), 4)
+		is(t, typ.NumAllMethod(), 8)
 	} else {
+		is(t, typ.NumMethod(), 0)
 		is(t, typ.NumAllMethod(), 0)
 	}
 	istypeof(t, typ.GoType(), (*types.Named)(nil))
 }
 
 func TestSelfReference(t *testing.T) {
-	typ := u.NamedOf("List", "main", r.Struct)
+	typ := u.NamedOf("List", "main")
 
-	is(t, typ.Kind(), r.Struct)
+	is(t, typ.Kind(), r.Invalid)
 	isidenticalgotype(t, typ.gunderlying(), u.TypeOfForward.GoType())
 
 	underlying := u.StructOf([]StructField{
@@ -257,6 +259,7 @@ func TestSelfReference(t *testing.T) {
 		StructField{Name: "Rest", Type: typ},
 	})
 	typ.SetUnderlying(underlying)
+	is(t, typ.Kind(), r.Struct)
 	typ1 := typ.Field(1).Type
 	rtype := r.TypeOf(struct {
 		First int
@@ -300,7 +303,7 @@ func TestStruct(t *testing.T) {
 }
 
 func TestEmbedded(t *testing.T) {
-	etyp := u.NamedOf("Box", "", r.Struct)
+	etyp := u.NamedOf("Box", "")
 	etyp.SetUnderlying(u.StructOf([]StructField{
 		StructField{Name: "Value", Type: u.BasicTypes[r.Int]},
 	}))
@@ -420,7 +423,7 @@ func TestFromReflect4(t *testing.T) {
 			approxInterfaceHeader(),
 			r.StructField{Name: "String", Type: r.TypeOf((*ToString)(nil)).Elem()},
 		}))
-	typ := u.NamedOf("Stringer", "io", r.Interface)
+	typ := u.NamedOf("Stringer", "io")
 	v := NewUniverse()
 	v.RebuildDepth = MaxDepth
 	underlying := v.FromReflectType(rtype)
@@ -601,13 +604,13 @@ func makeIoReaderWriterType() Type {
 	out := []Type{u.BasicTypes[r.Int], u.TypeOfError}
 	method := u.FuncOf(in, out, false)
 	read_interf := u.InterfaceOf(nil, []string{"Read"}, []Type{method}, nil).Complete()
-	reader := u.NamedOf("Reader", "io", r.Interface)
+	reader := u.NamedOf("Reader", "io")
 	reader.SetUnderlying(read_interf)
 	write_interf := u.InterfaceOf(nil, []string{"Write"}, []Type{method}, nil).Complete()
-	writer := u.NamedOf("Writer", "io", r.Interface)
+	writer := u.NamedOf("Writer", "io")
 	writer.SetUnderlying(write_interf)
 	rw_interf := u.InterfaceOf(nil, nil, nil, []Type{reader, writer}).Complete()
-	readwriter := u.NamedOf("ReadWriter", "io", r.Interface)
+	readwriter := u.NamedOf("ReadWriter", "io")
 	readwriter.SetUnderlying(rw_interf)
 	return readwriter
 }

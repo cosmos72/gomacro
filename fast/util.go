@@ -68,7 +68,7 @@ func (g *CompGlobals) opaqueNamedType(rtype r.Type, name string, pkgpath string)
 	default:
 		g.Errorf("internal error: unimplemented opaqueNamedType for kind=%v, expecting kind=Struct", k)
 	}
-	t := v.NamedOf(name, pkgpath, r.Struct)
+	t := v.NamedOf(name, pkgpath)
 	t.SetUnderlying(v.TypeOf(struct{}{}))
 	t.UnsafeForceReflectType(rtype)
 	v.ReflectTypes[rtype] = t // also cache Type in g.Universe.ReflectTypes

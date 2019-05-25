@@ -121,7 +121,7 @@ func (v *Universe) fromReflectType(rtype r.Type) Type {
 			}
 		}
 		// t.gunderlying() will often be interface{}. ugly and dangerous, but no solution
-		t = v.reflectNamedOf(name, rtype.PkgPath(), rtype.Kind(), rtype)
+		t = v.reflectNamedOf(name, rtype.PkgPath(), rtype)
 		v.cache(rtype, t) // support self-referencing types
 	}
 	if debug {
@@ -324,7 +324,7 @@ func (v *Universe) fromReflectField(rfield *r.StructField) StructField {
 // rebuildnamed re-creates a named Type based on t, having the given name and pkgpath
 func (v *Universe) rebuildnamed(t Type, name string, pkgpath string) Type {
 	if t.Name() != name || t.PkgPath() != pkgpath {
-		t2 := v.namedOf(name, pkgpath, t.Kind())
+		t2 := v.namedOf(name, pkgpath)
 		rtype := t.ReflectType()
 		// do not trust v.maketype() detection of reflect.Kind from t.gunderlying():
 		// t may be incomplete, thus t.gunderlying() could be a dummy interface{}

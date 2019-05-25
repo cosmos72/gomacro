@@ -13,25 +13,28 @@ import (
 	"github.com/cosmos72/gomacro/go/etoken"
 )
 
+// declare CTI methods on basic types, Array, Chan, Map, Slice
+// and named types wrapping them
+
 func (b *Basic) NumMethods() int     { return len(b.methods) }
 func (a *Array) NumMethods() int     { a.initMethods(); return len(a.methods) }
+func (c *Chan) NumMethods() int      { c.initMethods(); return len(c.methods) }
+func (m *Map) NumMethods() int       { m.initMethods(); return len(m.methods) }
+func (p *Pointer) NumMethods() int   { return 0 }
+func (s *Signature) NumMethods() int { return 0 }
 func (s *Slice) NumMethods() int     { s.initMethods(); return len(s.methods) }
 func (s *Struct) NumMethods() int    { return 0 }
-func (p *Pointer) NumMethods() int   { return 0 }
 func (t *Tuple) NumMethods() int     { return 0 }
-func (s *Signature) NumMethods() int { return 0 }
-func (m *Map) NumMethods() int       { m.initMethods(); return len(m.methods) }
-func (c *Chan) NumMethods() int      { c.initMethods(); return len(c.methods) }
 
 func (b *Basic) Method(i int) *Func     { return b.methods[i] }
 func (a *Array) Method(i int) *Func     { a.initMethods(); return a.methods[i] }
+func (c *Chan) Method(i int) *Func      { c.initMethods(); return c.methods[i] }
+func (m *Map) Method(i int) *Func       { m.initMethods(); return m.methods[i] }
+func (p *Pointer) Method(i int) *Func   { return ([]*Func)(nil)[i] }
+func (s *Signature) Method(i int) *Func { return ([]*Func)(nil)[i] }
 func (s *Slice) Method(i int) *Func     { s.initMethods(); return s.methods[i] }
 func (s *Struct) Method(i int) *Func    { return ([]*Func)(nil)[i] }
-func (p *Pointer) Method(i int) *Func   { return ([]*Func)(nil)[i] }
 func (t *Tuple) Method(i int) *Func     { return ([]*Func)(nil)[i] }
-func (s *Signature) Method(i int) *Func { return ([]*Func)(nil)[i] }
-func (m *Map) Method(i int) *Func       { m.initMethods(); return m.methods[i] }
-func (c *Chan) Method(i int) *Func      { c.initMethods(); return c.methods[i] }
 
 func (b *Basic) initMethods() {
 	if etoken.GENERICS_V2_CTI && len(b.methods) == 0 {
@@ -56,6 +59,25 @@ func (m *Map) initMethods() {
 func (s *Slice) initMethods() {
 	if etoken.GENERICS_V2_CTI && len(s.methods) == 0 {
 		s.methods = makeSliceMethods(s, s)
+	}
+}
+
+func (t *Named) initMethods() {
+	if etoken.GENERICS_V2_CTI && len(t.methods) == 0 {
+		var methods []*Func
+		switch u := t.underlying.(type) {
+		case *Basic:
+			methods = makeBasicMethods(t, u)
+		case *Array:
+			methods = makeArrayMethods(t, u)
+		case *Chan:
+			methods = makeChanMethods(t, u)
+		case *Map:
+			methods = makeMapMethods(t, u)
+		case *Slice:
+			methods = makeSliceMethods(t, u)
+		}
+		t.methods = methods
 	}
 }
 
@@ -95,7 +117,7 @@ func makeBasicMethods(t Type, underlying *Basic) []*Func {
 		tuple_elem := NewTuple(velem)
 		methods = append(methods,
 			newFunc("Add", sig_vvv),
-			newFunc("Get", NewSignature(v, tuple_int, tuple_elem, false)),
+			newFunc("Index", NewSignature(v, tuple_int, tuple_elem, false)),
 			newFunc("Len", NewSignature(v, nil, tuple_int, false)),
 			newFunc("Slice", NewSignature(v, tuple_int_int, tuple_v, false)),
 		)
@@ -167,10 +189,12 @@ func makeArrayMethods(t Type, underlying *Array) []*Func {
 	// receiver is pointer-to-array to avoid hidden O(N) cost of array copy
 	return []*Func{
 		newFunc("Cap", NewSignature(vptr, nil, tuple_int, false)),
-		newFunc("Get", NewSignature(vptr, tuple_int, tuple_elem, false)),
-		newFunc("GetAddr", NewSignature(vptr, tuple_int, tuple_ptrelem, false)),
+		newFunc("Copy", NewSignature(vptr, tuple_slice, nil, false)),
+		// TODO CopyString
+		newFunc("Index", NewSignature(vptr, tuple_int, tuple_elem, false)),
+		newFunc("AddrIndex", NewSignature(vptr, tuple_int, tuple_ptrelem, false)),
 		newFunc("Len", NewSignature(vptr, nil, tuple_int, false)),
-		newFunc("Set", NewSignature(vptr, tuple_int_elem, nil, false)),
+		newFunc("SetIndex", NewSignature(vptr, tuple_int_elem, nil, false)),
 		newFunc("Slice", NewSignature(vptr, tuple_int_int, tuple_slice, false)),
 		newFunc("Slice3", NewSignature(vptr, tuple_int_int_int, tuple_slice, false)),
 	}
@@ -222,10 +246,10 @@ func makeMapMethods(t Type, underlying *Map) []*Func {
 	tuple_elem := NewTuple(velem)
 	tuple_int_elem := NewTuple(vint, velem)
 	return []*Func{
-		newFunc("Delete", NewSignature(v, tuple_int, nil, false)),
-		newFunc("Get", NewSignature(v, tuple_int, tuple_elem, false)),
+		newFunc("DelIndex", NewSignature(v, tuple_int, nil, false)),
+		newFunc("Index", NewSignature(v, tuple_int, tuple_elem, false)),
 		newFunc("Len", NewSignature(v, nil, tuple_int, false)),
-		newFunc("Set", NewSignature(v, tuple_int_elem, nil, false)),
+		newFunc("SetIndex", NewSignature(v, tuple_int_elem, nil, false)),
 	}
 }
 
@@ -239,6 +263,11 @@ func makeSliceMethods(t Type, underlying *Slice) []*Func {
 	vint := newVar(Typ[Int])
 	velem := newVar(elem)
 	tuple_v := NewTuple(v)
+	tuple_slice := tuple_v
+	if _, ok := t.(*Slice); !ok {
+		// last argument of variadic method Append must be unnamed slice
+		tuple_slice = NewTuple(newVar(NewSlice(elem)))
+	}
 	tuple_int := NewTuple(vint)
 	tuple_int_int := NewTuple(vint, vint)
 	tuple_int_int_int := NewTuple(vint, vint, vint)
@@ -249,27 +278,27 @@ func makeSliceMethods(t Type, underlying *Slice) []*Func {
 		// special case: also has methods AppendString and CopyString
 		tuple_string := NewTuple(newVar(Typ[String]))
 		return []*Func{
-			newFunc("Append", NewSignature(v, tuple_v, tuple_v, true)),
+			newFunc("Append", NewSignature(v, tuple_slice, tuple_v, true)),
 			newFunc("AppendString", NewSignature(v, tuple_string, tuple_v, false)),
 			newFunc("Cap", NewSignature(v, nil, tuple_int, false)),
 			newFunc("Copy", NewSignature(v, tuple_v, nil, false)),
 			newFunc("CopyString", NewSignature(v, tuple_string, nil, false)),
-			newFunc("Get", NewSignature(v, tuple_int, tuple_elem, false)),
-			newFunc("GetAddr", NewSignature(v, tuple_int, tuple_ptrelem, false)),
+			newFunc("Index", NewSignature(v, tuple_int, tuple_elem, false)),
+			newFunc("AddrIndex", NewSignature(v, tuple_int, tuple_ptrelem, false)),
 			newFunc("Len", NewSignature(v, nil, tuple_int, false)),
-			newFunc("Set", NewSignature(v, tuple_int_elem, nil, false)),
+			newFunc("SetIndex", NewSignature(v, tuple_int_elem, nil, false)),
 			newFunc("Slice", NewSignature(v, tuple_int_int, tuple_v, false)),
 			newFunc("Slice3", NewSignature(v, tuple_int_int_int, tuple_v, false)),
 		}
 	}
 	return []*Func{
-		newFunc("Append", NewSignature(v, tuple_v, tuple_v, true)),
+		newFunc("Append", NewSignature(v, tuple_slice, tuple_v, true)),
 		newFunc("Cap", NewSignature(v, nil, tuple_int, false)),
 		newFunc("Copy", NewSignature(v, tuple_v, nil, false)),
-		newFunc("Get", NewSignature(v, tuple_int, tuple_elem, false)),
-		newFunc("GetAddr", NewSignature(v, tuple_int, tuple_ptrelem, false)),
+		newFunc("Index", NewSignature(v, tuple_int, tuple_elem, false)),
+		newFunc("AddrIndex", NewSignature(v, tuple_int, tuple_ptrelem, false)),
 		newFunc("Len", NewSignature(v, nil, tuple_int, false)),
-		newFunc("Set", NewSignature(v, tuple_int_elem, nil, false)),
+		newFunc("SetIndex", NewSignature(v, tuple_int_elem, nil, false)),
 		newFunc("Slice", NewSignature(v, tuple_int_int, tuple_v, false)),
 		newFunc("Slice3", NewSignature(v, tuple_int_int_int, tuple_v, false)),
 	}

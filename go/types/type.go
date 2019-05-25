@@ -4,7 +4,11 @@
 
 package types
 
-import "sort"
+import (
+	"sort"
+
+	"github.com/cosmos72/gomacro/go/etoken"
+)
 
 // A Type represents a type of Go.
 // All types implement the Type interface.
@@ -441,9 +445,17 @@ func NewNamed(obj *TypeName, underlying Type, methods []*Func) *Named {
 	if _, ok := underlying.(*Named); ok {
 		panic("types.NewNamed: underlying type must not be *Named")
 	}
-	typ := &Named{obj: obj, underlying: underlying, methods: methods}
+	typ := &Named{obj: obj, underlying: underlying, methods: nil}
 	if obj.typ == nil {
 		obj.typ = typ
+	}
+	if etoken.GENERICS_V2_CTI {
+		typ.initMethods()
+		for _, m := range methods {
+			typ.ReplaceMethod(m)
+		}
+	} else {
+		typ.methods = methods
 	}
 	return typ
 }
@@ -466,6 +478,7 @@ func (t *Named) SetUnderlying(underlying Type) {
 		panic("types.Named.SetUnderlying: underlying type must not be *Named")
 	}
 	t.underlying = underlying
+	t.initMethods()
 }
 
 // AddMethod adds method m unless it is already in the method list.

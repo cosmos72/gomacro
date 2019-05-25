@@ -31,42 +31,38 @@ import (
 // Initially, the underlying type may be set to interface{} - use SetUnderlying to change it.
 // These two steps are separate to allow creating self-referencing types,
 // as for example type List struct { Elem int; Rest *List }
-func (v *Universe) NamedOf(name, pkgpath string, kind r.Kind) Type {
+func (v *Universe) NamedOf(name, pkgpath string) Type {
 	if v.ThreadSafe {
 		defer un(lock(v))
 	}
-	return v.namedOf(name, pkgpath, kind)
+	return v.namedOf(name, pkgpath)
 }
 
-func (v *Universe) namedOf(name, pkgpath string, kind r.Kind) Type {
-	underlying := v.BasicTypes[kind]
-	if underlying == nil {
-		underlying = v.TypeOfForward
-	}
-	return v.reflectNamedOf(name, pkgpath, kind, underlying.ReflectType())
+func (v *Universe) namedOf(name, pkgpath string) Type {
+	return v.reflectNamedOf(name, pkgpath, v.TypeOfForward.ReflectType())
 }
 
 // alternate version of namedOf(), to be used when reflect.Type is known
-func (v *Universe) reflectNamedOf(name, pkgpath string, kind r.Kind, rtype r.Type) Type {
-	underlying := v.BasicTypes[kind]
+func (v *Universe) reflectNamedOf(name, pkgpath string, rtype r.Type) Type {
+	underlying := v.BasicTypes[rtype.Kind()]
 	if underlying == nil {
-		underlying = v.TypeOfInterface
+		underlying = v.TypeOfForward
 	}
 	pkg := v.loadPackage(pkgpath)
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, nil)
 	t := v.maketype3(
-		// kind may be inaccurate or reflect.Invalid;
+		// kind is reflect.Invalid;
 		// underlying.GoType() will often be inaccurate and equal to interface{};
-		// rtype will often be inaccurate and equal to Incomplete.
+		// rtype will often be inaccurate and equal to TypeOfForward.
 		// All these issues will be fixed by Type.SetUnderlying()
-		kind,
+		r.Invalid,
 		// if etoken.GENERICS_V2_CTI, v.BasicTypes[kind] is a named type
 		// wrapping the actual basic type
 		types.NewNamed(typename, underlying.GoType().Underlying(), nil),
 		rtype,
 	)
 	if etoken.GENERICS_V2_CTI && underlying.NumExplicitMethod() != 0 {
-		// TODO v.addTypeMethodsCTI(t)
+		v.addTypeMethodsCTI(unwrap(t))
 	}
 	return t
 }
@@ -78,22 +74,24 @@ func (t *xtype) SetUnderlying(underlying Type) {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
 		v := t.universe
-		if t.kind != r.Invalid || gtype.Underlying() != v.TypeOfInterface.GoType() || t.rtype != v.TypeOfInterface.ReflectType() {
+		if t.kind != r.Invalid || gtype.Underlying() != v.TypeOfForward.GoType() || t.rtype != v.TypeOfForward.ReflectType() {
 			// redefined type. try really hard to support it.
 			v.InvalidateCache()
 			// xerrorf(t, "SetUnderlying invoked multiple times on named type %v", t)
 		}
-		tunderlying := unwrap(underlying)
-		gunderlying := tunderlying.gtype.Underlying() // in case underlying is named
-		t.kind = gtypeToKind(t, gunderlying)
+		xunderlying := unwrap(underlying)
+		gunderlying := xunderlying.gtype.Underlying() // in case underlying is named
+		t.kind = gtypeToKind(xunderlying, gunderlying)
 		gtype.SetUnderlying(gunderlying)
 		// debugf("SetUnderlying: updated <%v> reflect Type from <%v> to <%v>", gtype, t.rtype, underlying.ReflectType())
 		t.rtype = underlying.ReflectType()
 		if t.kind == r.Interface {
 			// propagate methodvalues from underlying interface to named type
-			t.methodvalues = tunderlying.methodvalues
+			t.methodvalues = xunderlying.methodvalues
 			t.methodcache = nil
 			t.fieldcache = nil
+		} else if etoken.GENERICS_V2_CTI {
+			v.addTypeMethodsCTI(t)
 		}
 	default:
 		xerrorf(t, "SetUnderlying of unnamed type %v", t)

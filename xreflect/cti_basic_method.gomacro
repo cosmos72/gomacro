@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * generics.go
+ * cti_basic_method.go
  *
  *  Created on May 12, 2019
  *      Author Massimiliano Ghilardi
@@ -137,7 +137,7 @@ import (
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a < b })
 					case "Add":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a + b })
-					case "Get":
+					case "Index":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b int) uint8 { return a[b] })
 					case "Len":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ) int { return len(a) })

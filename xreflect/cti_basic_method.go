@@ -13,7 +13,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * generics.go
+ * cti_basic_method.go
  *
  *  Created on May 12, 2019
  *      Author Massimiliano Ghilardi
@@ -1471,7 +1471,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) string {
 					return a + b
 				})
-			case "Get":
+			case "Index":
 				(*mvec)[i] = r.ValueOf(func(a string,
 
 					b int) uint8 { return a[b] })

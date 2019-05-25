@@ -1387,7 +1387,7 @@ var testcases = []TestCase{
 	TestCase{F | G2, "cti_basic_method_3", `true.Not()`, false, nil},
 	TestCase{F | G2, "cti_basic_method_4", `uint64(7).Less(7)`, false, nil},
 	TestCase{F | G2, "cti_basic_method_5", `8.Equal(8)`, true, nil},
-	TestCase{F | G2, "cti_basic_method_6", `"abc".Get(2)`, "abc"[2], nil},
+	TestCase{F | G2, "cti_basic_method_6", `"abc".Index(2)`, "abc"[2], nil},
 	TestCase{F | G2, "cti_basic_method_7", `"abcdefgh".Len()`, len("abcdefgh"), nil},
 	TestCase{F | G2, "cti_basic_method_8", `"wxyz".Slice(1,2)`, "wxyz"[1:2], nil},
 
