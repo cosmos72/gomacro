@@ -184,6 +184,7 @@ func makeChanMethods(t Type, underlying *Chan) []*Func {
 	vint := newVar(Typ[Int])
 	velem := newVar(underlying.elem)
 	tuple_int := NewTuple(vint)
+	tuple_bool := NewTuple(vbool)
 	tuple_elem := NewTuple(velem)
 	tuple_elem_bool := NewTuple(velem, vbool)
 	methods = []*Func{
@@ -195,11 +196,13 @@ func makeChanMethods(t Type, underlying *Chan) []*Func {
 	if dir == SendRecv || dir == RecvOnly {
 		methods = append(methods,
 			newFunc("Recv", NewSignature(v, nil, tuple_elem_bool, false)),
+			newFunc("TryRecv", NewSignature(v, nil, tuple_elem_bool, false)),
 		)
 	}
 	if dir == SendRecv || dir == SendOnly {
 		methods = append(methods,
 			newFunc("Send", NewSignature(v, tuple_elem, nil, false)),
+			newFunc("TrySend", NewSignature(v, tuple_elem, tuple_bool, false)),
 		)
 	}
 	return methods
