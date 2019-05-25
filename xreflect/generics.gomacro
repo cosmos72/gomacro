@@ -64,7 +64,7 @@ import (
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a % b })
 					case "And":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a & b })
-					case "Andnot":
+					case "AndNot":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a &^ b })
 					case "Or":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a | b })
@@ -72,9 +72,9 @@ import (
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a ^ b })
 					case "Not":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,typ { return ^a })
-					case "Shl":
+					case "Lsh":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b uint8) ~,typ { return a << b })
-					case "Shr":
+					case "Rsh":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b uint8) ~,typ { return a >> b })
 					}
 				}

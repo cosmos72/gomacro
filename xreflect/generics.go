@@ -126,7 +126,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) int {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a int,
 
 					b int,
@@ -156,13 +156,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) int {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a int,
 
 					b uint8) int {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a int,
 
 					b uint8) int {
@@ -240,7 +240,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) int8 {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a int8,
 
 					b int8,
@@ -270,13 +270,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) int8 {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a int8,
 
 					b uint8) int8 {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a int8,
 
 					b uint8) int8 {
@@ -354,7 +354,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) int16 {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a int16,
 
 					b int16,
@@ -384,13 +384,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) int16 {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a int16,
 
 					b uint8) int16 {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a int16,
 
 					b uint8) int16 {
@@ -468,7 +468,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) int32 {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a int32,
 
 					b int32,
@@ -498,13 +498,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) int32 {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a int32,
 
 					b uint8) int32 {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a int32,
 
 					b uint8) int32 {
@@ -581,7 +581,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) int64 {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a int64,
 
 					b int64,
@@ -611,13 +611,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) int64 {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a int64,
 
 					b uint8) int64 {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a int64,
 
 					b uint8) int64 {
@@ -690,7 +690,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uint {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a uint,
 
 					b uint,
@@ -720,13 +720,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uint {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a uint,
 
 					b uint8) uint {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a uint,
 
 					b uint8) uint {
@@ -795,7 +795,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uint8 {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a uint8,
 
 					b uint8,
@@ -825,13 +825,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uint8 {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a uint8,
 
 					b uint8) uint8 {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a uint8,
 
 					b uint8) uint8 {
@@ -894,7 +894,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uint16 {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a uint16,
 
 					b uint16,
@@ -924,13 +924,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uint16 {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a uint16,
 
 					b uint8) uint16 {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a uint16,
 
 					b uint8) uint16 {
@@ -989,7 +989,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uint32 {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a uint32,
 
 					b uint32,
@@ -1019,13 +1019,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uint32 {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a uint32,
 
 					b uint8) uint32 {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a uint32,
 
 					b uint8) uint32 {
@@ -1080,7 +1080,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uint64 {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a uint64,
 
 					b uint64,
@@ -1110,13 +1110,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uint64 {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a uint64,
 
 					b uint8) uint64 {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a uint64,
 
 					b uint8) uint64 {
@@ -1167,7 +1167,7 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uintptr {
 					return a & b
 				})
-			case "Andnot":
+			case "AndNot":
 				(*mvec)[i] = r.ValueOf(func(a uintptr,
 
 					b uintptr,
@@ -1197,13 +1197,13 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 				) uintptr {
 					return ^a
 				})
-			case "Shl":
+			case "Lsh":
 				(*mvec)[i] = r.ValueOf(func(a uintptr,
 
 					b uint8) uintptr {
 					return a << b
 				})
-			case "Shr":
+			case "Rsh":
 				(*mvec)[i] = r.ValueOf(func(a uintptr,
 
 					b uint8) uintptr {

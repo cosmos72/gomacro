@@ -101,16 +101,16 @@ func makeBasicMethods(t Type, underlying *Basic) []*Func {
 	if info&IsInteger != 0 {
 		_8 := newVar(Typ[Uint8])
 		tuple_8 := NewTuple(_8)
-		sig_v8v := NewSignature(v, tuple_v, tuple_8, false)
+		sig_v8v := NewSignature(v, tuple_8, tuple_v, false)
 		methods = append(methods,
 			newFunc("Rem", sig_vvv),
 			newFunc("And", sig_vvv),
-			newFunc("Andnot", sig_vvv),
+			newFunc("AndNot", sig_vvv),
 			newFunc("Or", sig_vvv),
 			newFunc("Xor", sig_vvv),
-			newFunc("Not", sig_vv), // unary ^
-			newFunc("Shl", sig_v8v),
-			newFunc("Shr", sig_v8v),
+			newFunc("Not", sig_vv),  // unary ^
+			newFunc("Lsh", sig_v8v), // left shift <<
+			newFunc("Rsh", sig_v8v), // right shift >>
 		)
 	} else if info&IsComplex != 0 {
 		var fl *Basic
