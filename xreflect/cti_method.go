@@ -36,21 +36,26 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 	rt := xt.rtype
 	rbool := rbasictypes[r.Bool]
 	rint := rbasictypes[r.Int]
-	rkey := rint
-	var relem r.Type
 
+	rkey := rint
 	if k == r.Map {
 		rkey = rt.Key()
 	}
+
+	var relem r.Type
 	if k == r.Array || k == r.Chan || k == r.Map || k == r.Slice {
 		relem = rt.Elem()
 	} else if k == r.String {
 		relem = rbasictypes[r.Uint8]
 	}
+
+	if k == r.Array {
+		// methods on arrays have pointer receiver
+		rt = r.PtrTo(rt)
+	}
 	vt := []r.Type{rt}
 	vtkey := []r.Type{rt, rkey}
 	vint := []r.Type{rint}
-	velem := []r.Type{relem}
 
 	n := xt.NumExplicitMethod()
 	m := xt.methodvalues
@@ -76,9 +81,17 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 		case "Len":
 			m[i] = r.MakeFunc(r.FuncOf(vt, vint, false), ctiLen)
 		case "Slice":
-			m[i] = r.MakeFunc(r.FuncOf([]r.Type{rt, rkey, rkey}, velem, false), ctiSlice)
+			vret := vt
+			if k == r.Array {
+				vret = []r.Type{r.SliceOf(relem)}
+			}
+			m[i] = r.MakeFunc(r.FuncOf([]r.Type{rt, rkey, rkey}, vret, false), ctiSlice)
 		case "Slice3":
-			m[i] = r.MakeFunc(r.FuncOf([]r.Type{rt, rkey, rkey, rkey}, velem, false), ctiSlice3)
+			vret := vt
+			if k == r.Array {
+				vret = []r.Type{r.SliceOf(relem)}
+			}
+			m[i] = r.MakeFunc(r.FuncOf([]r.Type{rt, rkey, rkey, rkey}, vret, false), ctiSlice3)
 
 			// indexing
 		case "AddrIndex":

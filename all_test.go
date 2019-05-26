@@ -1393,8 +1393,13 @@ var testcases = []TestCase{
 	TestCase{F | G2, "cti_basic_method_9", `"abcdefgh".Len()`, len("abcdefgh"), nil},
 	TestCase{F | G2, "cti_basic_method_10", `"wxyz".Slice(1,2)`, "wxyz"[1:2], nil},
 
-	TestCase{F | G2, "cti_method_1", `[]int{1,2}.Len()`, len([]int{1, 2}), nil},
-	TestCase{F | G2, "cti_method_2", `map[int]uint{1:1,-2:2}.Index(-2)`, map[int]uint{1: 1, -2: 2}[-2], nil},
+	TestCase{F | G2, "cti_method_array_len", `[...]int{1,2}.Len()`, len([...]int{1, 2}), nil},
+	TestCase{F | G2, "cti_method_array_index", `[...]int{999:1}.Index(999)`, 1, nil},
+	TestCase{F | G2, "cti_method_array_slice", `[...]int{0,1,2,3,4,5}.Slice(2,5)`, []int{2, 3, 4}, nil},
+	TestCase{F | G2, "cti_method_chan_cap", `make(chan int).Cap()`, cap(make(chan int)), nil},
+	TestCase{F | G2, "cti_method_slice_len", `[]int{3,4,5}.Len()`, len([]int{3, 4, 5}), nil},
+	TestCase{F | G2, "cti_method_slice_slice", `[]int{0,1,2,3,4,5}.Slice(1,4)`, []int{1, 2, 3}, nil},
+	TestCase{F | G2, "cti_method_map_index", `map[int]uint{1:1,-2:2}.Index(-2)`, map[int]uint{1: 1, -2: 2}[-2], nil},
 
 	TestCase{A | G2, "parse_constrained_generic_1", "~quote{Set#[T: Eq]}",
 		&ast.IndexExpr{
