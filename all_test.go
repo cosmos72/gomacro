@@ -475,6 +475,18 @@ var testcases = []TestCase{
 	TestCase{A, "iota_implicit_1", "const ( c8 uint = iota+8; c9 ); c8", uint(8), nil},
 	TestCase{A, "iota_implicit_2", "c9", uint(9), nil},
 
+	TestCase{F, "zero_value_constructor_1", "int()", int(0), nil},
+	TestCase{F, "zero_value_constructor_2", "uint16()", uint16(0), nil},
+	TestCase{F, "zero_value_constructor_3", "float32()", float32(0), nil},
+	TestCase{F, "zero_value_constructor_4", "complex128()", complex128(0), nil},
+	TestCase{F, "zero_value_constructor_5", "string()", "", nil},
+	TestCase{F, "zero_value_constructor_6", "[]int()", ([]int)(nil), nil},
+	TestCase{F, "zero_value_constructor_7", "[2]int()", [2]int{0, 0}, nil},
+	TestCase{F, "zero_value_constructor_8", "map[int]int()", (map[int]int)(nil), nil},
+	TestCase{F, "zero_value_constructor_9", "chan string()", (chan string)(nil), nil},
+	TestCase{F, "zero_value_constructor_10", "(*bool)()", (*bool)(nil), nil},
+	TestCase{F, "zero_value_constructor_11", "struct{Foo int}()", struct{ Foo int }{}, nil},
+
 	TestCase{A, "var_0", "var v0 int = 11; v0", 11, nil},
 	TestCase{A, "var_1", "var v1 bool; v1", false, nil},
 	TestCase{A, "var_2", "var v2 uint8 = 7; v2", uint8(7), nil},

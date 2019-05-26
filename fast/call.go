@@ -56,11 +56,18 @@ func (call *Call) MakeArgfunsX1() []func(*Env) r.Value {
 // CallExpr compiles a function call or a type conversion
 func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 	var fun *Expr
-	if len(node.Args) == 1 {
+	switch n := len(node.Args); n {
+	case 0, 1:
+		// zero arguments: either a function call or a type constructor
+		// one argument: either a function call or a type conversion
 		var t xr.Type
 		fun, t = c.Expr1OrType(node.Fun)
 		if t != nil {
-			return c.Convert(node.Args[0], t)
+			if n == 0 {
+				return c.exprValue(t, xr.Zero(t).Interface())
+			} else {
+				return c.Convert(node.Args[0], t)
+			}
 		}
 	}
 	call := c.prepareCall(node, fun)

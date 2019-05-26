@@ -181,6 +181,9 @@ Compared to compiled Go, gomacro supports several extensions:
 
   Be aware that converting a huge value to string, as typing `f` at REPL would do, can be very slow.
 
+* zero value constructors: for any type `T`, the expression `T()`
+  returns the zero value of the type
+
 * macros, quoting and quasiquoting: see
   [doc/code_generation.pdf](https://github.com/cosmos72/gomacro/blob/master/doc/code_generation.pdf)
 
