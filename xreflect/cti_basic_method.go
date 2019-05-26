@@ -34,24 +34,25 @@ func (v *Universe) addBasicTypesMethodsCTI() {
 
 	for _, t := range v.BasicTypes {
 		if t != nil {
-			v.addBasicTypeMethodsCTI(t)
+			v.addBasicTypeMethodsCTI(unwrap(t))
 		}
 	}
 
 }
-func (v *Universe) addBasicTypeMethodsCTI(t Type) {
+func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 	if !etoken.GENERICS_V2_CTI {
 		return
 	}
 
-	xt := unwrap(t)
 	mvec := xt.GetMethods()
 	switch xt.kind {
 	case r.Bool:
 		for i, n := 0, xt.NumMethod(); i < n; i++ {
 			switch xt.Method(i).Name {
 			case "Equal":
-				(*mvec)[i] = r.ValueOf(func(a bool, b bool) bool { return a == b })
+				(*mvec)[i] = r.ValueOf(func(a bool,
+					b bool,
+				) bool { return a == b })
 			case "Not":
 				(*mvec)[i] = r.ValueOf(func(z bool,
 
@@ -835,7 +836,9 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 		for i, n := 0, xt.NumMethod(); i < n; i++ {
 			switch xt.Method(i).Name {
 			case "Equal":
-				(*mvec)[i] = r.ValueOf(func(a uint, b uint) bool { return a == b })
+				(*mvec)[i] = r.ValueOf(func(a uint,
+					b uint,
+				) bool { return a == b })
 			case "Cmp":
 				(*mvec)[i] = r.ValueOf(func(a uint,
 
@@ -986,7 +989,9 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 			case "Equal":
 				(*mvec)[i] = r.ValueOf(func(a uint8, b uint8) bool { return a == b })
 			case "Cmp":
-				(*mvec)[i] = r.ValueOf(func(a uint8, b uint8) int {
+				(*mvec)[i] = r.ValueOf(func(a uint8,
+					b uint8,
+				) int {
 					if a < b {
 						return -1
 					}
@@ -1141,7 +1146,9 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 					return 0
 				})
 			case "Less":
-				(*mvec)[i] = r.ValueOf(func(a uint16, b uint16) bool { return a < b })
+				(*mvec)[i] = r.ValueOf(func(a uint16,
+					b uint16,
+				) bool { return a < b })
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z uint16,
 
@@ -1284,7 +1291,12 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 			case "Less":
 				(*mvec)[i] = r.ValueOf(func(a uint32, b uint32) bool { return a < b })
 			case "Add":
-				(*mvec)[i] = r.ValueOf(func(z uint32, a uint32, b uint32) uint32 { return a + b })
+				(*mvec)[i] = r.ValueOf(func(z uint32,
+					a uint32,
+					b uint32,
+				) uint32 {
+					return a + b
+				})
 			case "Sub":
 				(*mvec)[i] = r.ValueOf(func(z uint32,
 
@@ -1421,7 +1433,12 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 					return a + b
 				})
 			case "Sub":
-				(*mvec)[i] = r.ValueOf(func(z uint64, a uint64, b uint64) uint64 { return a - b })
+				(*mvec)[i] = r.ValueOf(func(z uint64,
+					a uint64,
+					b uint64,
+				) uint64 {
+					return a - b
+				})
 			case "Mul":
 				(*mvec)[i] = r.ValueOf(func(z uint64,
 
@@ -1552,7 +1569,12 @@ func (v *Universe) addBasicTypeMethodsCTI(t Type) {
 					return a - b
 				})
 			case "Mul":
-				(*mvec)[i] = r.ValueOf(func(z uintptr, a uintptr, b uintptr) uintptr { return a * b })
+				(*mvec)[i] = r.ValueOf(func(z uintptr,
+					a uintptr,
+					b uintptr,
+				) uintptr {
+					return a * b
+				})
 			case "Quo":
 				(*mvec)[i] = r.ValueOf(func(z uintptr,
 

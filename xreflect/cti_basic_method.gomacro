@@ -163,16 +163,15 @@ func (v *Universe) addBasicTypesMethodsCTI() {
 	}
 	for _, t := range v.BasicTypes {
 		if t != nil {
-			v.addBasicTypeMethodsCTI(t)
+			v.addBasicTypeMethodsCTI(unwrap(t))
 		}
 	}
 }
 
-func (v *Universe) addBasicTypeMethodsCTI(t Type) {
+func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 	if !etoken.GENERICS_V2_CTI {
 		return
 	}
-	xt := unwrap(t)
 	mvec := xt.GetMethods()
 	switch xt.kind {
 	case r.Bool:

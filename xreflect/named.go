@@ -50,7 +50,7 @@ func (v *Universe) reflectNamedOf(name, pkgpath string, rtype r.Type) Type {
 	}
 	pkg := v.loadPackage(pkgpath)
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, nil)
-	t := v.maketype3(
+	return v.maketype3(
 		// kind is reflect.Invalid;
 		// underlying.GoType() will often be inaccurate and equal to interface{};
 		// rtype will often be inaccurate and equal to TypeOfForward.
@@ -61,10 +61,6 @@ func (v *Universe) reflectNamedOf(name, pkgpath string, rtype r.Type) Type {
 		types.NewNamed(typename, underlying.GoType().Underlying(), nil),
 		rtype,
 	)
-	if etoken.GENERICS_V2_CTI && underlying.NumExplicitMethod() != 0 {
-		v.addTypeMethodsCTI(unwrap(t))
-	}
-	return t
 }
 
 // SetUnderlying sets the underlying type of a named type and marks t as complete.

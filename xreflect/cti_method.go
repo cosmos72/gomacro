@@ -22,6 +22,20 @@ import (
 	"github.com/cosmos72/gomacro/go/etoken"
 )
 
+var vtrue = r.ValueOf(true)
+var vfalse = r.ValueOf(false)
+var vvtruefalse = map[bool][]r.Value{true: {vtrue}, false: {vfalse}}
+
+type cmp uint8
+
+const (
+	cmp_less cmp = iota
+	cmp_eq
+	cmp_gtr
+)
+
+var vvcmp = [...][]r.Value{cmp_less: {r.ValueOf(-1)}, cmp_eq: {r.ValueOf(0)}, cmp_gtr: {r.ValueOf(1)}}
+
 // declare CTI methods on Array, Chan, Map, Slice
 
 func (v *Universe) addTypeMethodsCTI(xt *xtype) {
@@ -30,7 +44,21 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 	}
 	k := xt.kind
 	switch k {
+	case r.Bool, r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
+		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr,
+		r.Float32, r.Float64, r.Complex64, r.Complex128, r.String:
+		if xt.rtype == rbasictypes[k] {
+			// use optimized implementations in cti_basic_method.go
+			v.addBasicTypeMethodsCTI(xt)
+		} else {
+			v.addBasicTypeReflectMethodsCTI(xt)
+		}
+		return
 	case r.Func, r.Interface, r.Ptr, r.Struct, r.UnsafePointer:
+		return
+	}
+	n := xt.NumExplicitMethod()
+	if n == 0 {
 		return
 	}
 	rt := xt.rtype
@@ -57,7 +85,6 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 	vtkey := []r.Type{rt, rkey}
 	vint := []r.Type{rint}
 
-	n := xt.NumExplicitMethod()
 	m := xt.methodvalues
 	if len(m) < n {
 		xt.methodvalues = make([]r.Value, n)
@@ -125,8 +152,6 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 			sig := r.FuncOf(vtkey, []r.Type{relem, rbool}, false)
 
 			zero := r.Zero(relem)
-			vtrue := r.ValueOf(true)
-			vfalse := r.ValueOf(false)
 			m[i] = r.MakeFunc(sig,
 				func(v []r.Value) []r.Value {
 					elem := v[0].MapIndex(v[1])
@@ -266,4 +291,559 @@ func ctiTrySend(v []r.Value) []r.Value {
 func ctiClose(v []r.Value) []r.Value {
 	v[0].Close()
 	return nil
+}
+
+// add CTI methods to named type wrapping a basic type
+func (v *Universe) addBasicTypeReflectMethodsCTI(xt *xtype) {
+	if !etoken.GENERICS_V2_CTI {
+		return
+	}
+
+	rt := xt.rtype
+	vt := []r.Type{rt}
+	vtt := []r.Type{rt, rt}
+	vttt := []r.Type{rt, rt, rt}
+	sig_tt_bool := r.FuncOf(vtt, []r.Type{rbasictypes[r.Bool]}, false)
+	sig_unary := r.FuncOf(vtt, vt, false)
+	sig_binary := r.FuncOf(vttt, vt, false)
+
+	mvec := xt.GetMethods()
+	switch xt.kind {
+	case r.Bool:
+		for i, n := 0, xt.NumMethod(); i < n; i++ {
+			switch xt.Method(i).Name {
+			case "Equal":
+				(*mvec)[i] = r.MakeFunc(
+					sig_tt_bool,
+					func(v []r.Value) []r.Value {
+						flag := v[0].Bool() == v[1].Bool()
+						return vvtruefalse[flag]
+					},
+				)
+			case "Not":
+				(*mvec)[i] = r.MakeFunc(
+					r.FuncOf(vtt, vt, false),
+					func(v []r.Value) []r.Value {
+						rtyp := v[0].Type()
+						ret := r.ValueOf(!v[1].Bool()).Convert(rtyp)
+						return []r.Value{ret}
+					},
+				)
+			}
+		}
+	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+
+		for i, n := 0, xt.NumMethod(); i < n; i++ {
+			switch xt.Method(i).Name {
+			case "Equal":
+				(*mvec)[i] = r.MakeFunc(
+					sig_tt_bool,
+					func(v []r.Value) []r.Value {
+						flag := v[0].Int() == v[1].Int()
+						return vvtruefalse[flag]
+					},
+				)
+			case "Cmp":
+				(*mvec)[i] = r.MakeFunc(
+					r.FuncOf(vtt, []r.Type{rbasictypes[r.Int]}, false),
+					func(v []r.Value) []r.Value {
+						a, b := v[0].Int(), v[1].Int()
+						ret := cmp_eq
+						if a < b {
+							ret = cmp_less
+						} else if a > b {
+							ret = cmp_gtr
+						}
+						return vvcmp[ret]
+					},
+				)
+			case "Less":
+				(*mvec)[i] = r.MakeFunc(
+					sig_tt_bool,
+					func(v []r.Value) []r.Value {
+						flag := v[0].Int() < v[1].Int()
+						return vvtruefalse[flag]
+					},
+				)
+			case "Add":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() + v[2].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Sub":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() - v[2].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Mul":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() * v[2].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Quo":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() / v[2].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Neg":
+				(*mvec)[i] = r.MakeFunc(
+					sig_unary,
+					func(v []r.Value) []r.Value {
+						ret := -v[1].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Rem":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() % v[2].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "And":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() & v[2].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "AndNot":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() &^ v[2].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Or":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() | v[2].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Xor":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() ^ v[2].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Not":
+				(*mvec)[i] = r.MakeFunc(
+					sig_unary,
+					func(v []r.Value) []r.Value {
+						ret := ^v[1].Int()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Lsh":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() << uint8(v[2].Uint())
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Rsh":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Int() >> uint8(v[2].Uint())
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			}
+		}
+	case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+
+		for i, n := 0, xt.NumMethod(); i < n; i++ {
+			switch xt.Method(i).Name {
+			case "Equal":
+				(*mvec)[i] = r.MakeFunc(
+					sig_tt_bool,
+					func(v []r.Value) []r.Value {
+						flag := v[0].Uint() == v[1].Uint()
+						return vvtruefalse[flag]
+					},
+				)
+			case "Cmp":
+				(*mvec)[i] = r.MakeFunc(
+					r.FuncOf(vtt, []r.Type{rbasictypes[r.Int]}, false),
+					func(v []r.Value) []r.Value {
+						a, b := v[0].Uint(), v[1].Uint()
+						ret := cmp_eq
+						if a < b {
+							ret = cmp_less
+						} else if a > b {
+							ret = cmp_gtr
+						}
+						return vvcmp[ret]
+					},
+				)
+			case "Less":
+				(*mvec)[i] = r.MakeFunc(
+					sig_tt_bool,
+					func(v []r.Value) []r.Value {
+						flag := v[0].Uint() < v[1].Uint()
+						return vvtruefalse[flag]
+					},
+				)
+			case "Add":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() + v[2].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Sub":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() - v[2].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Mul":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() * v[2].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Quo":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() / v[2].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Neg":
+				(*mvec)[i] = r.MakeFunc(
+					sig_unary,
+					func(v []r.Value) []r.Value {
+						ret := -v[1].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Rem":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() % v[2].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "And":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() & v[2].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "AndNot":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() &^ v[2].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Or":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() | v[2].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Xor":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() ^ v[2].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Not":
+				(*mvec)[i] = r.MakeFunc(
+					sig_unary,
+					func(v []r.Value) []r.Value {
+						ret := ^v[1].Uint()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Lsh":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() << uint8(v[2].Uint())
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Rsh":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Uint() >> uint8(v[2].Uint())
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			}
+		}
+	case r.Float32, r.Float64:
+
+		for i, n := 0, xt.NumMethod(); i < n; i++ {
+			switch xt.Method(i).Name {
+			case "Equal":
+				(*mvec)[i] = r.MakeFunc(
+					sig_tt_bool,
+					func(v []r.Value) []r.Value {
+						flag := v[0].Float() == v[1].Float()
+						return vvtruefalse[flag]
+					},
+				)
+			case "Cmp":
+				(*mvec)[i] = r.MakeFunc(
+					r.FuncOf(vtt, []r.Type{rbasictypes[r.Int]}, false),
+					func(v []r.Value) []r.Value {
+						a, b := v[0].Float(), v[1].Float()
+						ret := cmp_eq
+						if a < b {
+							ret = cmp_less
+						} else if a > b {
+							ret = cmp_gtr
+						}
+						return vvcmp[ret]
+					},
+				)
+			case "Less":
+				(*mvec)[i] = r.MakeFunc(
+					sig_tt_bool,
+					func(v []r.Value) []r.Value {
+						flag := v[0].Float() < v[1].Float()
+						return vvtruefalse[flag]
+					},
+				)
+			case "Add":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Float() + v[2].Float()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Sub":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Float() - v[2].Float()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Mul":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Float() * v[2].Float()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Quo":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Float() / v[2].Float()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Neg":
+				(*mvec)[i] = r.MakeFunc(
+					sig_unary,
+					func(v []r.Value) []r.Value {
+						ret := -v[1].Float()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			}
+		}
+	case r.Complex64, r.Complex128:
+
+		for i, n := 0, xt.NumMethod(); i < n; i++ {
+			switch xt.Method(i).Name {
+			case "Equal":
+				(*mvec)[i] = r.MakeFunc(
+					sig_tt_bool,
+					func(v []r.Value) []r.Value {
+						flag := v[0].Complex() == v[1].Complex()
+						return vvtruefalse[flag]
+					},
+				)
+			case "Add":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Complex() + v[2].Complex()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Sub":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Complex() - v[2].Complex()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Mul":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Complex() * v[2].Complex()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Quo":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].Complex() / v[2].Complex()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Neg":
+				(*mvec)[i] = r.MakeFunc(
+					sig_unary,
+					func(v []r.Value) []r.Value {
+						ret := -v[1].Complex()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Real":
+				if xt.kind == r.Complex64 {
+					(*mvec)[i] = r.MakeFunc(
+						r.FuncOf(vt, []r.Type{rbasictypes[r.Float32]}, false),
+						func(v []r.Value) []r.Value {
+							ret := float32(real(v[0].Complex()))
+							return []r.Value{r.ValueOf(ret)}
+						},
+					)
+				} else {
+					(*mvec)[i] = r.MakeFunc(
+						r.FuncOf(vt, []r.Type{rbasictypes[r.Float64]}, false),
+						func(v []r.Value) []r.Value {
+							ret := real(v[0].Complex())
+							return []r.Value{r.ValueOf(ret)}
+						},
+					)
+				}
+			case "Imag":
+				if xt.kind == r.Complex64 {
+					(*mvec)[i] = r.MakeFunc(
+						r.FuncOf(vt, []r.Type{rbasictypes[r.Float32]}, false),
+						func(v []r.Value) []r.Value {
+							ret := float32(imag(v[0].Complex()))
+							return []r.Value{r.ValueOf(ret)}
+						},
+					)
+				} else {
+					(*mvec)[i] = r.MakeFunc(
+						r.FuncOf(vt, []r.Type{rbasictypes[r.Float64]}, false),
+						func(v []r.Value) []r.Value {
+							ret := imag(v[0].Complex())
+							return []r.Value{r.ValueOf(ret)}
+						},
+					)
+				}
+			}
+		}
+	case r.String:
+
+		for i, n := 0, xt.NumMethod(); i < n; i++ {
+			switch xt.Method(i).Name {
+			case "Equal":
+				(*mvec)[i] = r.MakeFunc(
+					sig_tt_bool,
+					func(v []r.Value) []r.Value {
+						flag := v[0].String() == v[1].String()
+						return vvtruefalse[flag]
+					},
+				)
+			case "Cmp":
+				(*mvec)[i] = r.MakeFunc(
+					r.FuncOf(vtt, []r.Type{rbasictypes[r.Int]}, false),
+					func(v []r.Value) []r.Value {
+						a, b := v[0].String(), v[1].String()
+						ret := cmp_eq
+						if a < b {
+							ret = cmp_less
+						} else if a > b {
+							ret = cmp_gtr
+						}
+						return vvcmp[ret]
+					},
+				)
+			case "Less":
+				(*mvec)[i] = r.MakeFunc(
+					sig_tt_bool,
+					func(v []r.Value) []r.Value {
+						flag := v[0].String() < v[1].String()
+						return vvtruefalse[flag]
+					},
+				)
+			case "Add":
+				(*mvec)[i] = r.MakeFunc(
+					sig_binary,
+					func(v []r.Value) []r.Value {
+						ret := v[1].String() + v[2].String()
+						return []r.Value{r.ValueOf(ret).Convert(v[0].Type())}
+					},
+				)
+			case "Index":
+				(*mvec)[i] = r.MakeFunc(
+					r.FuncOf([]r.Type{rt, rbasictypes[r.Int]}, []r.Type{rbasictypes[r.Uint8]}, false),
+					func(v []r.Value) []r.Value {
+						ret := v[0].String()[v[1].Int()]
+						return []r.Value{r.ValueOf(ret)}
+					},
+				)
+			case "Len":
+				(*mvec)[i] = r.MakeFunc(
+					r.FuncOf(vt, []r.Type{rt, rbasictypes[r.Int]}, false),
+					func(v []r.Value) []r.Value {
+						ret := len(v[0].String())
+						return []r.Value{r.ValueOf(ret)}
+					},
+				)
+			case "Slice":
+				(*mvec)[i] = r.MakeFunc(
+					r.FuncOf([]r.Type{rt, rbasictypes[r.Int], rbasictypes[r.Int]}, []r.Type{r.SliceOf(rbasictypes[r.Uint8])}, false),
+					func(v []r.Value) []r.Value {
+						ret := v[0].String()[v[1].Int():v[2].Int()]
+						return []r.Value{r.ValueOf(ret)}
+					},
+				)
+			}
+		}
+	}
 }
