@@ -102,7 +102,7 @@ func NewUniverse() *Universe {
 	v.TypeOfForward = v.makeForward()
 	v.TypeOfInterface = v.makeInterface()
 	v.TypeOfError = v.makeError()
-	// critical! trying to rebuild "error" type creates a non-indentical copy... lots of conversions would fail
+	// critical! trying to rebuild "error" type creates a non-identical copy... lots of conversions would fail
 	v.cache(v.TypeOfError.ReflectType(), v.TypeOfError)
 	v.cache(v.TypeOfInterface.ReflectType(), v.TypeOfInterface)
 	return v

@@ -35,9 +35,9 @@ import (
 				for i, n := 0, xt.NumMethod(); i < n; i++ {
 					switch xt.Method(i).Name {
 					case "Equal":
-						(*mvec)[i] = r.ValueOf(func(a bool, b bool) bool { return a == b })
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a == b })
 					case "Not":
-						(*mvec)[i] = r.ValueOf(func(a bool) bool { return !a })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ) ~,typ { return !a })
 					}
 				}
 			}
@@ -48,34 +48,36 @@ import (
 					switch xt.Method(i).Name {
 					case "Equal":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a == b })
+					case "Cmp":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) int { if a < b { return -1 }; if a > b { return 1 }; return 0 })
 					case "Less":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a < b })
 					case "Add":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a + b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a + b })
 					case "Sub":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a - b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a - b })
 					case "Mul":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a * b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a * b })
 					case "Quo":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a / b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a / b })
 					case "Neg":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,typ { return -a })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ) ~,typ { return -a })
 					case "Rem":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a % b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a % b })
 					case "And":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a & b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a & b })
 					case "AndNot":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a &^ b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a &^ b })
 					case "Or":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a | b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a | b })
 					case "Xor":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a ^ b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a ^ b })
 					case "Not":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,typ { return ^a })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ) ~,typ { return ^a })
 					case "Lsh":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b uint8) ~,typ { return a << b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b uint8) ~,typ { return a << b })
 					case "Rsh":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b uint8) ~,typ { return a >> b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b uint8) ~,typ { return a >> b })
 					}
 				}
 			}
@@ -85,18 +87,20 @@ import (
 					switch xt.Method(i).Name {
 					case "Equal":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a == b })
+					case "Cmp":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) int { if a < b { return -1 }; if a > b { return 1 }; return 0 })
 					case "Less":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a < b })
 					case "Add":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a + b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a + b })
 					case "Sub":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a - b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a - b })
 					case "Mul":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a * b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a * b })
 					case "Quo":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a / b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a / b })
 					case "Neg":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,typ { return -a })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ) ~,typ { return -a })
 					}
 				}
 			}
@@ -111,15 +115,15 @@ import (
 					case "Equal":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a == b })
 					case "Add":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a + b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a + b })
 					case "Sub":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a - b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a - b })
 					case "Mul":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a * b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a * b })
 					case "Quo":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a / b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a / b })
 					case "Neg":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,typ { return -a })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ) ~,typ { return -a })
 					case "Real":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ) ~,tre { return real(a) })
 					case "Imag":
@@ -133,10 +137,12 @@ import (
 					switch xt.Method(i).Name {
 					case "Equal":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a == b })
+					case "Cmp":
+						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) int { if a < b { return -1 }; if a > b { return 1 }; return 0 })
 					case "Less":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) bool { return a < b })
 					case "Add":
-						(*mvec)[i] = r.ValueOf(func(a ~,typ, b ~,typ) ~,typ { return a + b })
+						(*mvec)[i] = r.ValueOf(func(z ~,typ, a ~,typ, b ~,typ) ~,typ { return a + b })
 					case "Index":
 						(*mvec)[i] = r.ValueOf(func(a ~,typ, b int) uint8 { return a[b] })
 					case "Len":

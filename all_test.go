@@ -1382,14 +1382,19 @@ var testcases = []TestCase{
 		template[] for[0] type Fib [0]int
 		const Fib30 = len((*Fib#[30])(nil)); Fib30`, 832040, nil},
 
-	TestCase{F | G2, "cti_basic_method_1", `1.Add(2)`, 1 + 2, nil},
-	TestCase{F | G2, "cti_basic_method_2", `1.2.Mul(2.3)`, 1.2 * 2.3, nil},
-	TestCase{F | G2, "cti_basic_method_3", `true.Not()`, false, nil},
+	TestCase{F | G2, "cti_basic_method_1", `1.Add(2, 3)`, 2 + 3, nil},
+	TestCase{F | G2, "cti_basic_method_2", `1.2.Mul(2.3, 3.4)`, float64(2.3) * float64(3.4), nil},
+	TestCase{F | G2, "cti_basic_method_3", `false.Not(true)`, false, nil},
 	TestCase{F | G2, "cti_basic_method_4", `uint64(7).Less(7)`, false, nil},
-	TestCase{F | G2, "cti_basic_method_5", `8.Equal(8)`, true, nil},
-	TestCase{F | G2, "cti_basic_method_6", `"abc".Index(2)`, "abc"[2], nil},
-	TestCase{F | G2, "cti_basic_method_7", `"abcdefgh".Len()`, len("abcdefgh"), nil},
-	TestCase{F | G2, "cti_basic_method_8", `"wxyz".Slice(1,2)`, "wxyz"[1:2], nil},
+	TestCase{F | G2, "cti_basic_method_5", `int.Cmp(1, 2)`, -1, nil},
+	TestCase{F | G2, "cti_basic_method_6", `8.Equal(8)`, true, nil},
+	TestCase{F | G2, "cti_basic_method_7", `8.9i.Imag()`, 8.9, nil},
+	TestCase{F | G2, "cti_basic_method_8", `"abc".Index(2)`, "abc"[2], nil},
+	TestCase{F | G2, "cti_basic_method_9", `"abcdefgh".Len()`, len("abcdefgh"), nil},
+	TestCase{F | G2, "cti_basic_method_10", `"wxyz".Slice(1,2)`, "wxyz"[1:2], nil},
+
+	TestCase{F | G2, "cti_method_1", `[]int{1,2}.Len()`, len([]int{1, 2}), nil},
+	TestCase{F | G2, "cti_method_2", `map[int]uint{1:1,-2:2}.Index(-2)`, map[int]uint{1: 1, -2: 2}[-2], nil},
 
 	TestCase{A | G2, "parse_constrained_generic_1", "~quote{Set#[T: Eq]}",
 		&ast.IndexExpr{

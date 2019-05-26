@@ -134,6 +134,7 @@ func (t *xtype) method(i int) Method {
 	rtype := t.rtype
 	var rfunctype r.Type
 	rfunc := t.methodvalues[i]
+	// fmt.Printf("DEBUG xtype.method(%d): t = %v,\tt.methodvalues[%d] = %v\n", i, t, i, rfunc)
 	if rfunc.Kind() == r.Func {
 		// easy, method is cached already
 		rfunctype = rfunc.Type()
@@ -173,6 +174,7 @@ func (t *xtype) method(i int) Method {
 			rfunctype = rmethod.Type
 			t.methodvalues[i] = rfunc
 		}
+		// fmt.Printf("DEBUG xtype.method(%d): t = %v,\trmethod(%q) = %v\n", i, t, gfunc.Name(), rmethod)
 	}
 	return t.makemethod(i, gfunc, &t.methodvalues, rfunctype) // lock already held
 }

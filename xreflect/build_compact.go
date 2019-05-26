@@ -1,5 +1,3 @@
-// +build !gomacro_xreflect_easy,!gomacro_xreflect_strict
-
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -9,7 +7,7 @@
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * build_strict.go
+ * build_compact.go
  *
  *  Created on May 07, 2017
  *      Author Massimiliano Ghilardi

@@ -106,8 +106,10 @@ func (v *Universe) maketype3(kind r.Kind, gtype types.Type, rtype r.Type) Type {
 			debugOnMismatchCache(&v.Types.gmap, gtype, rtype, t)
 		}
 	}
-	t := wrap(&xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v})
+	xt := &xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v}
+	t := wrap(xt)
 	v.add(t)
+	v.addTypeMethodsCTI(xt)
 	return t
 }
 

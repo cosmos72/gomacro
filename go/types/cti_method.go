@@ -97,26 +97,27 @@ func makeBasicMethods(t Type, underlying *Basic) []*Func {
 	}
 	v := newVar(t)
 	vbool := newVar(Typ[Bool])
+	vint := newVar(Typ[Int])
 	tuple_v := NewTuple(v)
+	tuple_vv := NewTuple(v, v)
 	tuple_bool := NewTuple(vbool)
-	sig_vv := NewSignature(v, nil, tuple_v, false)
-	sig_vvv := NewSignature(v, tuple_v, tuple_v, false)
+	tuple_int := NewTuple(vint)
+	sig_unary := NewSignature(v, tuple_v, tuple_v, false)
+	sig_binary := NewSignature(v, tuple_vv, tuple_v, false)
 	if info&IsNumeric != 0 {
 		methods = append(methods,
-			newFunc("Add", sig_vvv),
-			newFunc("Sub", sig_vvv),
-			newFunc("Mul", sig_vvv),
-			newFunc("Quo", sig_vvv),
-			newFunc("Neg", sig_vv),
+			newFunc("Add", sig_binary),
+			newFunc("Sub", sig_binary),
+			newFunc("Mul", sig_binary),
+			newFunc("Quo", sig_binary),
+			newFunc("Neg", sig_unary),
 		)
 	} else if info&IsString != 0 {
-		vint := newVar(Typ[Int])
 		velem := newVar(Typ[Byte])
-		tuple_int := NewTuple(vint)
 		tuple_int_int := NewTuple(vint, vint)
 		tuple_elem := NewTuple(velem)
 		methods = append(methods,
-			newFunc("Add", sig_vvv),
+			newFunc("Add", sig_binary),
 			newFunc("Index", NewSignature(v, tuple_int, tuple_elem, false)),
 			newFunc("Len", NewSignature(v, nil, tuple_int, false)),
 			newFunc("Slice", NewSignature(v, tuple_int_int, tuple_v, false)),
@@ -124,17 +125,17 @@ func makeBasicMethods(t Type, underlying *Basic) []*Func {
 	}
 	if info&IsInteger != 0 {
 		_8 := newVar(Typ[Uint8])
-		tuple_8 := NewTuple(_8)
-		sig_v8v := NewSignature(v, tuple_8, tuple_v, false)
+		tuple_v8 := NewTuple(v, _8)
+		sig_vv8v := NewSignature(v, tuple_v8, tuple_v, false)
 		methods = append(methods,
-			newFunc("Rem", sig_vvv),
-			newFunc("And", sig_vvv),
-			newFunc("AndNot", sig_vvv),
-			newFunc("Or", sig_vvv),
-			newFunc("Xor", sig_vvv),
-			newFunc("Not", sig_vv),  // unary ^
-			newFunc("Lsh", sig_v8v), // left shift <<
-			newFunc("Rsh", sig_v8v), // right shift >>
+			newFunc("Rem", sig_binary),
+			newFunc("And", sig_binary),
+			newFunc("AndNot", sig_binary),
+			newFunc("Or", sig_binary),
+			newFunc("Xor", sig_binary),
+			newFunc("Not", sig_unary), // unary ^
+			newFunc("Lsh", sig_vv8v),  // left shift <<
+			newFunc("Rsh", sig_vv8v),  // right shift >>
 		)
 	} else if info&IsComplex != 0 {
 		var fl *Basic
@@ -152,12 +153,14 @@ func makeBasicMethods(t Type, underlying *Basic) []*Func {
 		)
 	} else if info&IsBoolean != 0 {
 		methods = append(methods,
-			newFunc("Not", sig_vv),
+			newFunc("Not", sig_unary),
 		)
 	}
 	sig_vvbool := NewSignature(v, tuple_v, tuple_bool, false)
 	if info&IsOrdered != 0 {
+		sig_vvint := NewSignature(v, tuple_v, tuple_int, false)
 		methods = append(methods,
+			newFunc("Cmp", sig_vvint),
 			newFunc("Equal", sig_vvbool),
 			newFunc("Less", sig_vvbool),
 		)
@@ -240,16 +243,21 @@ func makeMapMethods(t Type, underlying *Map) []*Func {
 		return methods
 	}
 	v := newVar(t)
+	vbool := newVar(Typ[Bool])
 	vint := newVar(Typ[Int])
+	vkey := newVar(underlying.key)
 	velem := newVar(underlying.elem)
 	tuple_int := NewTuple(vint)
+	tuple_key := NewTuple(vkey)
 	tuple_elem := NewTuple(velem)
-	tuple_int_elem := NewTuple(vint, velem)
+	tuple_elem_bool := NewTuple(velem, vbool)
+	tuple_key_elem := NewTuple(vkey, velem)
 	return []*Func{
-		newFunc("DelIndex", NewSignature(v, tuple_int, nil, false)),
-		newFunc("Index", NewSignature(v, tuple_int, tuple_elem, false)),
+		newFunc("DelIndex", NewSignature(v, tuple_key, nil, false)),
+		newFunc("Index", NewSignature(v, tuple_key, tuple_elem, false)),
 		newFunc("Len", NewSignature(v, nil, tuple_int, false)),
-		newFunc("SetIndex", NewSignature(v, tuple_int_elem, nil, false)),
+		newFunc("SetIndex", NewSignature(v, tuple_key_elem, nil, false)),
+		newFunc("TryIndex", NewSignature(v, tuple_key, tuple_elem_bool, false)),
 	}
 }
 

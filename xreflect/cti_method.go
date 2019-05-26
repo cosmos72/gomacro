@@ -28,13 +28,17 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 	if !etoken.GENERICS_V2_CTI {
 		return
 	}
+	k := xt.kind
+	switch k {
+	case r.Func, r.Interface, r.Ptr, r.Struct, r.UnsafePointer:
+		return
+	}
 	rt := xt.rtype
 	rbool := rbasictypes[r.Bool]
 	rint := rbasictypes[r.Int]
 	rkey := rint
 	var relem r.Type
 
-	k := xt.kind
 	if k == r.Map {
 		rkey = rt.Key()
 	}
@@ -85,7 +89,15 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 		case "Index":
 			sig := r.FuncOf(vtkey, []r.Type{relem}, false)
 			if k == r.Map {
-				m[i] = r.MakeFunc(sig, ctiMapIndex)
+				zero := r.Zero(relem)
+				m[i] = r.MakeFunc(sig,
+					func(v []r.Value) []r.Value {
+						ret := v[0].MapIndex(v[1])
+						if !ret.IsValid() {
+							ret = zero
+						}
+						return []r.Value{ret}
+					})
 			} else {
 				m[i] = r.MakeFunc(sig, ctiIndex)
 			}
@@ -96,6 +108,22 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 			} else {
 				m[i] = r.MakeFunc(sig, ctiSetIndex)
 			}
+		case "TryIndex":
+			sig := r.FuncOf(vtkey, []r.Type{relem, rbool}, false)
+
+			zero := r.Zero(relem)
+			vtrue := r.ValueOf(true)
+			vfalse := r.ValueOf(false)
+			m[i] = r.MakeFunc(sig,
+				func(v []r.Value) []r.Value {
+					elem := v[0].MapIndex(v[1])
+					ok := vtrue
+					if !elem.IsValid() {
+						elem = zero
+						ok = vfalse
+					}
+					return []r.Value{elem, ok}
+				})
 
 			// chan methods
 		case "Recv":
@@ -177,12 +205,6 @@ func ctiAddrIndex(v []r.Value) []r.Value {
 func ctiDelMapIndex(v []r.Value) []r.Value {
 	v[0].SetMapIndex(v[1], r.Value{})
 	return nil
-}
-
-func ctiMapIndex(v []r.Value) []r.Value {
-	return []r.Value{
-		v[0].MapIndex(v[1]),
-	}
 }
 
 func ctiIndex(v []r.Value) []r.Value {

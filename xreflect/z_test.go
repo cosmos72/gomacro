@@ -17,6 +17,7 @@
 package xreflect
 
 import (
+	"go/token"
 	"io"
 	"os"
 	r "reflect"
@@ -203,8 +204,8 @@ func TestMap(t *testing.T) {
 	is(t, typ.ReflectType(), rtype)
 	is(t, rtype.NumMethod(), 0)
 	if etoken.GENERICS_V2_CTI {
-		is(t, typ.NumMethod(), 4)
-		is(t, typ.NumAllMethod(), 4)
+		is(t, typ.NumMethod(), 5)
+		is(t, typ.NumAllMethod(), 5)
 	} else {
 		is(t, typ.NumMethod(), 0)
 		is(t, typ.NumAllMethod(), 0)
@@ -220,8 +221,8 @@ func TestIntMethod(t *testing.T) {
 	is(t, typ.Name(), "MyInt")
 	is(t, typ.ReflectType(), rtype)
 	if etoken.GENERICS_V2_CTI {
-		is(t, typ.NumMethod(), 15)
-		is(t, typ.NumAllMethod(), 30)
+		is(t, typ.NumMethod(), 16)
+		is(t, typ.NumAllMethod(), 32)
 	} else {
 		is(t, typ.NumMethod(), 0)
 		is(t, typ.NumAllMethod(), 0)
@@ -230,8 +231,11 @@ func TestIntMethod(t *testing.T) {
 }
 
 func TestNamed(t *testing.T) {
+	tkey := u.TypeOfInterface
+	tval := u.BasicTypes[r.Bool]
+	underlying := u.MapOf(tkey, tval)
+
 	typ := u.NamedOf("MyMap", "main")
-	underlying := u.MapOf(u.TypeOfInterface, u.BasicTypes[r.Bool])
 	typ.SetUnderlying(underlying)
 	rtype := r.TypeOf(map[interface{}]bool{})
 	is(t, typ.Kind(), r.Map)
@@ -239,8 +243,38 @@ func TestNamed(t *testing.T) {
 	is(t, typ.ReflectType(), rtype)
 	is(t, rtype.NumMethod(), 0)
 	if etoken.GENERICS_V2_CTI {
-		is(t, typ.NumMethod(), 4)
-		is(t, typ.NumAllMethod(), 8)
+		is(t, typ.NumMethod(), 5)
+		is(t, typ.NumAllMethod(), 10)
+
+		m, count := typ.MethodByName("Index", "")
+		is(t, count, 1)
+		is(t, m.Name, "Index")
+		is(t, m.Pkg, (*Package)(nil))
+		is(t, m.Type.ReflectType(), r.TypeOf(func(map[interface{}]bool, interface{}) bool {
+			return false
+		}))
+
+		newvar := func(t Type) *types.Var {
+			return types.NewVar(token.NoPos, nil, "", t.GoType())
+		}
+		isidenticalgotype(t,
+			m.Type.GoType(),
+			types.NewSignature(
+				newvar(typ),
+				types.NewTuple(newvar(tkey)),
+				types.NewTuple(newvar(tval)),
+				false,
+			),
+		)
+
+		m, count = typ.MethodByName("TryIndex", "")
+		is(t, count, 1)
+		is(t, m.Name, "TryIndex")
+		is(t, m.Pkg, (*Package)(nil))
+		is(t, m.Type.ReflectType(), r.TypeOf(func(map[interface{}]bool, interface{}) (bool, bool) {
+			return false, false
+		}))
+
 	} else {
 		is(t, typ.NumMethod(), 0)
 		is(t, typ.NumAllMethod(), 0)
