@@ -76,8 +76,7 @@ func newGenImport(o *Output, out *bytes.Buffer, path string, gpkg *types.Package
 
 	gen := &genimport{output: o, mode: mode, gpkg: gpkg, scope: scope, names: names, out: out, path: path}
 
-	name := paths.FileName(path)
-	name = sanitizeIdentifier(name)
+	name := sanitizePackageName(paths.FileName(path))
 	gen.name = name
 
 	if mode == ImInception {
@@ -88,7 +87,7 @@ func newGenImport(o *Output, out *bytes.Buffer, path string, gpkg *types.Package
 	if mode == ImPlugin {
 		gen.proxyprefix = "P_"
 	} else {
-		gen.proxyprefix = fmt.Sprintf("P_%s_", sanitizeIdentifier(path))
+		gen.proxyprefix = fmt.Sprintf("P_%s_", sanitizePackageName(path))
 	}
 	return gen
 }

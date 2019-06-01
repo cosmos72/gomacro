@@ -1319,7 +1319,7 @@ var testcases = []TestCase{
 		SwapArgs#[float64,float64,float64](func (a float64, b float64) float64 { return a/b })(2.0, 3.0)
 	    `, 1.5, nil,
 	},
-	TestCase{F | G1 | G2, "generic_func_curry",
+	TestCase{F | G1 | G2, "generic_func_curry_1",
 		generic_func("Curry", "A,B,C") + ` (f func(A, B) C) func(A) func(B) C {
 			return func (a A) func (B) C {
 				return func (b B) C {
@@ -1331,6 +1331,12 @@ var testcases = []TestCase{
 		Curry#[int,int,int](add2#[int])(2)(3)
 	`,
 		5, nil},
+
+	TestCase{F | G2, "generic_func_curry_2",
+		generic_func("add2m", "T") + ` (a,b T) T { return T().Add(a,b) }
+		Curry#[uint,uint,uint](add2m#[uint])(5)(6)
+	`,
+		uint(11), nil},
 
 	TestCase{F | G1 | G2, "generic_func_lift_1",
 		generic_func("Lift1", "A,B") + ` (trans func(A) B) func([]A) []B {

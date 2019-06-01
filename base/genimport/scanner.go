@@ -18,6 +18,7 @@ package genimport
 
 import (
 	"fmt"
+	"go/token"
 	"go/types"
 	r "reflect"
 	"sort"
@@ -218,7 +219,7 @@ func collectPackageImportsWithRename(o *Output, pkg *types.Package, requireAllIn
 
 	// prevent renaming the package we are scanning!
 	path := pkg.Path()
-	name := sanitizeIdentifier(paths.FileName(path))
+	name := sanitizePackageName(paths.FileName(path))
 	if name2 := pathtoname[path]; name2 != name {
 		// some *other* path may be associated to name.
 		// in case, swap the names of the two packages
@@ -244,8 +245,8 @@ func renamePackages(in []string) map[string]string {
 // given a package path and a map[name]path, extract the path last name.
 // Change it (if needed) to a value that is NOT in map and return it.
 func renamePackage(path string, out map[string]string) string {
-	name := sanitizeIdentifier(paths.FileName(path))
-	if _, exists := out[name]; !exists {
+	name := sanitizePackageName(paths.FileName(path))
+	if _, exists := out[name]; !exists && !isReservedKeyword(name) {
 		return name
 	}
 	n := len(name)
@@ -261,6 +262,10 @@ func renamePackage(path string, out map[string]string) string {
 	}
 	output.Errorf("failed to find a non-conflicting rename for package %q", path)
 	return "???"
+}
+
+func isReservedKeyword(s string) bool {
+	return len(s) > 1 && token.Lookup(s) != token.ILLEGAL
 }
 
 func isDigit(b byte) bool {
