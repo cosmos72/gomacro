@@ -25,7 +25,7 @@ Gomacro can be used as:
   Line editing follows mostly Emacs: Ctrl+A or Home jumps to start of line,
   Ctrl+E or End jumps to end of line, Ald+D deletes word starting at cursor...
   For the full list of key bindings, see https://github.com/peterh/liner
-  
+
 * a tool to experiment with Go **generics**: see [Generics](#generics)
 
 * a Go source code debugger: see [Debugger](#debugger)
@@ -53,9 +53,9 @@ Gomacro can be used as:
 	)
 	func RunGomacro(toeval string) reflect.Value {
 		interp := fast.New()
-		// for simplicity, only collect the first returned value
-		val, _ := interp.Eval(toeval)
-		return val
+		vals, _ := interp.Eval(toeval)
+		// for simplicity, only use the first returned value
+		return vals[0]
 	}
 	func main() {
 		fmt.Println(RunGomacro("1+1"))
@@ -129,9 +129,9 @@ The main limitations and missing features are:
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
 * goto can only jump backward, not forward
 * out-of-order code is under testing - some corner cases, as for example out-of-order declarations
-  used in keys of composite literals, are not supported.  
+  used in keys of composite literals, are not supported.
   Clearly, at REPL code is still executed as soon as possible, so it makes a difference mostly
-  if you separate multiple declarations with ; on a single line. Example: `var a = b; var b = 42`  
+  if you separate multiple declarations with ; on a single line. Example: `var a = b; var b = 42`\
   Support for "batch mode" is in progress - it reads as much source code as possible before executing it,
   and it's useful mostly to execute whole files or directories.
 
@@ -385,7 +385,7 @@ There are three ways to enter it:
 * type `:debug STATEMENT-OR-FUNCTION-CALL` at the prompt.
 * add a statement (an expression is not enough) `"break"` or `_ = "break"` to your code, then execute it normally.
 
-In all cases, execution will be suspended and you will get a `debug>` prompt, which accepts the following commands:  
+In all cases, execution will be suspended and you will get a `debug>` prompt, which accepts the following commands:\
 `step`, `next`, `finish`, `continue`, `env [NAME]`, `inspect EXPR`, `list`, `print EXPR-OR-STATEMENT`
 
 Also,
