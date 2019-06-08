@@ -298,9 +298,9 @@ gomacro contains two alternative, experimental versions of Go generics:
 
 * the second version is named "contracts are interfaces" - or more briefly "CTI".
   It is modeled after several published proposals for Go generics,
-  most notably Ian Lance Taylors [Type Parameters in Go](https://github.com/golang/proposal/blob/master/design/15292/2013-12-type-params.md)
-  with some additions inspired from [Haskell generics](https://wiki.haskell.org/Generics)
-  and some original contributions from the author, in particular to create a simpler alternative to
+  most notably Ian Lance Taylor's [Type Parameters in Go](https://github.com/golang/proposal/blob/master/design/15292/2013-12-type-params.md)
+  It has some additions inspired from [Haskell generics](https://wiki.haskell.org/Generics)
+  and original contributions from the author - in particular to create a simpler alternative to
   [Go 2 contracts](https://go.googlesource.com/proposal/+/master/design/go2draft-contracts.md)
 
   For their design document and reasoning behind some of the design choices, see [doc/generics-cti.md](doc/generics-cti.md)
@@ -310,14 +310,20 @@ The second version of generics "CTI" is enabled by default in gomacro.
 They are in beta status, and at the moment only generic types and functions are supported.
 Syntax and examples:
 ```go
-type Pair#[T,U] struct { First T; Second U }
+// declare a generic type with two type arguments T and U
+type Pair#[T,U] struct {
+	First T
+	Second U
+}
 
+// instantiate the generic type using explicit types for T and U,
+// and create a variable of such type.
 var pair Pair#[complex64, struct{}]
 
 // equivalent:
 pair := Pair#[complex64, struct{}] {}
 
-
+// declare a generic function with a single type argument T
 func Sum#[T] (args ...T) T {
 	var sum T // exploit zero value of T
 	for _, elem := range args {
@@ -334,6 +340,7 @@ Sum#[complex64] (1.1+2.2i, 3.3) // returns complex64(4.4+2.2i)
 Sum#[string]                         // returns func(...string) string
 Sum#[string]("abc.","def.","xy","z") // returns "abc.def.xyz"
 
+// a more complex example, showing higher-order functions
 func Transform#[T,U](slice []T, trans func(T) U) []U {
 	ret := make([]U, len(slice))
 	for i := range slice {
@@ -350,8 +357,9 @@ Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len
 Partial and full specialization of generics is **not** supported in CTI generics,
 both for simplicity and to avoid accidentally providing Turing completeness at compile-time.
 
+Instantiation of generic types and functions is on-demand.
+
 Current limitations:
-* instantiation is on-demand
 * type inference on generic arguments #[...] is not yet implemented,
   thus generic arguments #[...] must be explicit.
 * generic methods are not yet implemented.
