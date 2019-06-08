@@ -1,17 +1,121 @@
 Generics
 ========
 
-implementing C++-style generics in Go
--------------------------------------
+C++-style generics in Go
+------------------------
 
-gomacro contains an experimental implementation of generics,
-modeled after C++ templates
+gomacro contains two alternative, experimental implementation of Go generics.
 
-This file contains observations, choices, difficulties and solutions found
-during such work.
+* this document describes the first version of Go generics:
+  it is modeled after C++ templates, and is appropriately named "C++ style"
 
-Due to the author's personal taste and his familiarity with C++, generics are
-named 'templates' in this document.
+* for the second version of Go generics, which is named "Contracts are Interfaces" (CTI) and is enabled by default,
+  see the [Generics](../README.md#Generics) section in the main [README.md](../README.md)
+  and, for more details, the design document [generics-cti.md](generics-cti.md).
+
+Getting started
+---------------
+
+C++-style generics are **not** enabled by default in gomacro.
+
+To enable them, edit the file [go/etoken/generics.go](../go/etoken/generics.go)
+and set the constants
+```Go
+// enable C++-style generics?
+const GENERICS_V1_CXX = true
+
+// enable generics "contracts are interfaces" ?
+const GENERICS_V2_CTI = false
+```
+then save the file and recompile gomacro.
+
+Due to historical reasons, plus the fact that this version of generics are modeled after C++ templates,
+Go generics are named 'templates' in this document.
+
+They are in beta status, and at the moment only generic types and functions are supported.
+Syntax and examples:
+```go
+template[T,U] type Pair struct { First T; Second U }
+
+var pair Pair#[complex64, struct{}]
+
+// equivalent:
+pair := Pair#[complex64, struct{}] {}
+
+
+template[T] func Sum(args ...T) T {
+	var sum T // exploit zero value of T
+	for _, elem := range args {
+		sum += elem
+	}
+	return sum
+}
+Sum#[int]         // returns func(...int) int
+Sum#[int] (1,2,3) // returns int(6)
+
+Sum#[complex64]                 // returns func(...complex64) complex64
+Sum#[complex64] (1.1+2.2i, 3.3) // returns complex64(4.4+2.2i)
+
+Sum#[string]                         // returns func(...string) string
+Sum#[string]("abc.","def.","xy","z") // returns "abc.def.xyz"
+
+template[T,U] func Transform(slice []T, trans func(T) U) []U {
+	ret := make([]U, len(slice))
+	for i := range slice {
+		ret[i] = trans(slice[i])
+	}
+	return ret
+}
+Transform#[string,int] // returns func([]string, func(string) int) []int
+
+// returns []int{3, 2, 1} i.e. the len() of each string in input slice:
+
+Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
+
+// Partial and full specialization of templates are supported.
+// Together with recursive templates, they also (incidentally)
+// provide Turing completeness at compile-time:
+
+// The following example uses recursion and full specialization
+// to compute fibonacci sequence at compile time.
+
+// general case: encode Fib#[N] in the length of array type.
+template[N] type Fib [
+	len((*Fib#[N-1])(nil)) +
+	len((*Fib#[N-2])(nil))   ]int
+
+template[] for[2] type Fib [1]int // specialization for Fib#[2]
+template[] for[1] type Fib [1]int // specialization for Fib#[1]
+
+const Fib30 = len((*Fib#[30])(nil)) // compile-time constant
+
+```
+Current limitations:
+* instantiation is on-demand, but template arguments #[...] must be explicit.
+* template methods not supported yet.
+
+Observation: the compile-time Turing completeness provided by these C++-style templates
+is really poorly readable, for three reasons:
+* iteration must be written as recursion
+* `if` must be written as template specialization, outside the main template
+* integers must be encoded inside types, for example in the length of array types
+
+In the author's opinion, compile-time Turing completeness is a very enticing
+feature for several use cases and for a non-trivial percentage of developers.
+
+If the only way to get such feature is with poorly readable (ab)use of templates,
+the result is a lot of poorly readable template code.
+
+If Turing-complete templates are ever added to Go (or any other language)
+it is thus very important to also provide an alternative, more natural syntax
+to perform Turing-complete computation at compile-time. An example
+could be: `const foo(args)` where the function `foo` must respect certain
+constraints (to be defined) in order to be callable at compile time.
+
+## History and details ##
+
+The next sections contain observations, choices, difficulties and solutions
+found while implementing C++ style generics in gomacro.
 
 ### Parser ###
 

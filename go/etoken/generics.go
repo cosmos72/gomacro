@@ -4,11 +4,11 @@
 
 package etoken
 
-// enable C++-style generics?
-const GENERICS_V1_CXX = true
+// enable C++ style generics?
+const GENERICS_V1_CXX = false
 
 // enable generics "contracts are interfaces" ?
-const GENERICS_V2_CTI = false
+const GENERICS_V2_CTI = true
 
 // can only enable one style of generics
 func init() {
