@@ -370,13 +370,17 @@ func (a int) Cmp(b int) int {
 	}
 }
 ```
-By default, generic functions cannot access the fields and methods of a generic type:
-they are treated similarly to `interface{}` i.e. a "black box".
+If you do not specify the contract(s) satisfied by a type, generic functions
+cannot access the fields and methods of a such type, which is then treated
+as a "black box", similarly to `interface{}`
 ```Go
 // declare a generic function with a single type argument T
 func Sum#[T] (args ...T) T {
-	var sum T // exploit zero value of T
+	var sum T // exploit zero value of T. this will be replaced by: sum := T().New()
 	for _, elem := range args {
+        // use operator += on T. this is currently accepted
+		// as a temporary workaround until contracts are fully implemented.
+		// the correct code would be: sum = sum.Add(sum, elem)
 		sum += elem
 	}
 	return sum
