@@ -135,12 +135,12 @@ that Go generics are expected to achieve, are:
   sort#[int](slice)
   ```
 
-* constraints:
+* contracts:
 
-  when writing a generic function or type, it should be possible to specify constraints
+  when writing a generic function or type, it should be possible to specify contracts
   on their type arguments. This is an extensively discussed topic, for many reasons:
 
-  1) constraints are expected to simplify compiler error messages, and make them
+  1) contracts are expected to simplify compiler error messages, and make them
      more understandable. For example, a `sort#[T]` function would specify that values
 	 of `T` must be ordered - the following syntax is just for illustration purposes:
 	 ```Go
@@ -152,7 +152,7 @@ that Go generics are expected to achieve, are:
 	 an error message like `sort: type func() is not Ordered` instead
 	 of some deeply nested error due to `a < b` used on `func()` values.
 
-  2) constraints allow programmers writing generic code to specify explicitly
+  2) contracts allow programmers writing generic code to specify explicitly
      the requirements of their code, i.e. on which types it can be used and why.
 
 	 Without them, it is not always simple to understand if a complicated generic function
@@ -165,19 +165,19 @@ that Go generics are expected to achieve, are:
 	 A machine-readable, compiled information is less likely to become stale/erroneous,
 	 especially if the compiler actually validates it.
 
-  3) if the compiler assumes that constraints specify the **only** operations
+  3) if the compiler assumes that contracts specify the **only** operations
      supported by the constrained types, it could detect immediately if a constrained
 	 type is used improperly in generic code, without having to wait until it gets
 	 instantiated (possibly by someone else) on concrete types - for example if methods
 	 or arithmetic operations are used on a type that is only constrained as `T: Ordered`
 
-	 For reference, Haskell does exactly that: a constraint specifies the only operations
+	 For reference, Haskell does exactly that: a contract specifies the only operations
 	 allowed on a type.\
-	 Actually, Haskell does even more: if a constraint for a type `T` is not specified,
+	 Actually, Haskell does even more: if a contract for a type `T` is not specified,
 	 the compiler infers it from the operations actually performed on `T` values
-	 (it's not obvious whether such constraint inference is appropriate for Go).
+	 (it's not obvious whether such contract inference is appropriate for Go).
 
-  It should also be possible to specify multiple constraints on a type.
+  It should also be possible to specify multiple contracts on a type.
   For example, if a type `T` must be both `Ordered` and `Printable`,
   one could imagine a syntax like:
   ```Go
@@ -186,9 +186,9 @@ that Go generics are expected to achieve, are:
   }
   ```
 
-* constraints implementation:
+* contracts implementation:
 
-  An important question is: what should a constraint tell about a type?
+  An important question is: what should a contract tell about a type?
 
   1) The signature of one or more methods?
 
@@ -198,12 +198,12 @@ that Go generics are expected to achieve, are:
 
   4) A combination of the above?
 
-  It is surely tempting to answer 1. and reuse interfaces as constraints:
+  It is surely tempting to answer 1. and reuse interfaces as contracts:
   this would spare us from inventing yet another language construct, but is it enough?
 
-## Option 1. constraints declare type's methods
+## Option 1. contracts declare type's methods
 
-  Let's check with a relatively simple case: the `Ordered` constraint.\
+  Let's check with a relatively simple case: the `Ordered` contract.\
   It describes types that can be ordered, and there's immediately a difficulty:
   Go operator `<` only works on basic types (integers and floats), and cannot be overloaded
   i.e. cannot be extended to support further types.
@@ -258,18 +258,18 @@ that Go generics are expected to achieve, are:
   something that should be a last resort, not the normal case).
   This cannot be solved reasonably - but it can become an intentional limitation.
 
-## Option 2. constraints declare functions on a type
+## Option 2. contracts declare functions on a type
 
-  Let's continue our thought experiment on the `Ordered` constraint.\
-  This time, constraints declare functions on a type, not its methods.
+  Let's continue our thought experiment on the `Ordered` contract.\
+  This time, contracts declare functions on a type, not its methods.
 
   Again, Go operator `<` cannot be overloaded, so we use a **function** `Less()`:
   ```Go
-    type Ordered#[T] constraint {
+    type Ordered#[T] contract {
 	  func Less(T, T) bool
     }
   ```
-  which means that `Ordered` is a generic constraint (is it still an interface?
+  which means that `Ordered` is a generic contract (is it still an interface?
   we can try to answer later) and has a single type argument `T`.\
   A concrete type `T` satisfies `Ordered` if there is a function `Less(T,T) bool`.\
   Since functions cannot be overloaded either, it's immediately evident that
@@ -281,7 +281,7 @@ that Go generics are expected to achieve, are:
 
   The result would be something like:
   ```Go
-    type Ordered#[T] constraint {
+    type Ordered#[T] contract {
 	  operator<(T, T) bool
     }
   ```
@@ -303,7 +303,7 @@ that Go generics are expected to achieve, are:
   Although the author really likes Haskell generics, and they happen to go down this exact road,
   it still feels like a big language change and a hard sell to Go core team and Go community.
 
-## Option 3. constraints declare type's fields
+## Option 3. contracts declare type's fields
 
   This would be likely frowned upon in many object-oriented languages as C++ or Java,
   where direct access to object's fields is strongly discouraged in favor of setter/getter methods.
@@ -311,7 +311,7 @@ that Go generics are expected to achieve, are:
   Yet Go composite literals are an extremely useful feature, and they rely on initializing
   exported struct fields to work. Thus maybe it could make sense. Let's see if it's also useful.
 
-  One could say that a type `T` satisfies the constraint `Ordered` if `T` has a certain field?\
+  One could say that a type `T` satisfies the contract `Ordered` if `T` has a certain field?\
   It does not seem very useful since fields contain values, they usually do not
   "do something" - that's for methods.
 
@@ -331,7 +331,7 @@ that Go generics are expected to achieve, are:
 ## Option summary
 
 Among the three options analyzed above, the best one appears to be the first:
-constraints declare type's methods.\
+contracts declare type's methods.\
 It allows to use generics in many scenarios, yet requires quite limited changes to the language:
 
 * slightly extending `interface` syntax to optionally specify the receiver type
@@ -340,14 +340,14 @@ It allows to use generics in many scenarios, yet requires quite limited changes 
 
 In exchange it allows:
 
-* declaring constraints with a familiar syntax - the same as method declaration
+* declaring contracts with a familiar syntax - the same as method declaration
   and very similar to interface methods
 * creating generic algorithms as `sort#[T]` and generic types as `sortedmap#[K,V]`
   that work out of the box on both Go basic types and on user-defined types
 
 ## Option 1 deeper analysis
 
-In option 1, constraints are interfaces, i.e. they declare the methods of a type.
+In option 1, contracts are interfaces, i.e. they declare the methods of a type.
 With the small extension of allowing to specify also the receiver type,
 they seem very useful and let programmers create very general generic types
 and generic algorithms, yet they seem to have very few unintended side effects

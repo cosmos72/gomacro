@@ -323,6 +323,53 @@ var pair Pair#[complex64, struct{}]
 // equivalent:
 pair := Pair#[complex64, struct{}] {}
 
+// a more complex example, showing higher-order functions
+func Transform#[T,U](slice []T, trans func(T) U) []U {
+	ret := make([]U, len(slice))
+	for i := range slice {
+		ret[i] = trans(slice[i])
+	}
+	return ret
+}
+Transform#[string,int] // returns func([]string, func(string) int) []int
+
+// returns []int{3, 2, 1} i.e. the len() of each string in input slice:
+Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
+
+// Contracts specify the available methods of a generic type.
+// For simplicity, they do not introduce a new syntax or new language concepts:
+// contracts are just (generic) interfaces.
+// With a tiny addition, actually: the ability to optionally indicate the receiver type.
+
+// For example, the contract specifying that values of type T can be compared with each other
+// to determine if the first is less, equal or greater than the second is:
+type Comparable#[T] interface {
+	// returns -1 if a is less than b
+	// returns  0 if a is equal to b
+	// returns  1 if a is greater than b
+	func (a T) Cmp(b T) int
+}
+// a type T implements Comparable#[T] if it has a method func (T) Cmp(T) int.
+// This interface is carefully chosen to match the existing methods of
+// *math/big.Float, *math/big.Int and *math/big.Rat
+// In other words, *math/big.Float, *math/big.Int and *math/big.Rat already implement it.
+
+// What about basic types as int8, int16, int32, uint... float*, complex* ... ?
+// Gomacro extends them, adding many methods equivalent to the ones declared on *math/big.Int
+// to perform arithmetic and comparison, including Cmp:
+func (a int) Cmp(b int) int {
+	if a < b {
+		return -1
+	} else if a > b {
+		return 1
+	} else {
+		return 0
+	}
+}
+
+// By default, generic functions cannot access the fields and methods of a generic type:
+// they are treated similarly to interface{} i.e. a "black box".
+
 // declare a generic function with a single type argument T
 func Sum#[T] (args ...T) T {
 	var sum T // exploit zero value of T
@@ -339,19 +386,6 @@ Sum#[complex64] (1.1+2.2i, 3.3) // returns complex64(4.4+2.2i)
 
 Sum#[string]                         // returns func(...string) string
 Sum#[string]("abc.","def.","xy","z") // returns "abc.def.xyz"
-
-// a more complex example, showing higher-order functions
-func Transform#[T,U](slice []T, trans func(T) U) []U {
-	ret := make([]U, len(slice))
-	for i := range slice {
-		ret[i] = trans(slice[i])
-	}
-	return ret
-}
-Transform#[string,int] // returns func([]string, func(string) int) []int
-
-// returns []int{3, 2, 1} i.e. the len() of each string in input slice:
-Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
 
 ```
 Partial and full specialization of generics is **not** supported in CTI generics,
