@@ -58,7 +58,9 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 			v.addBasicTypeReflectMethodsCTI(xt)
 		}
 		return
-	case r.Invalid, r.Func, r.Interface, r.Ptr, r.Struct, r.UnsafePointer:
+	case r.Array, r.Chan, r.Map, r.Slice:
+		break
+	default:
 		return
 	}
 	n := xt.NumExplicitMethod()
@@ -96,13 +98,10 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 		m = xt.methodvalues
 	}
 	if v.debug() {
-		v.debugf("addTypeMethodsCTI: %v // %s", xt.rtype, k)
+		v.debugf("addTypeMethodsCTI: %s %v", k, xt.rtype)
 		defer de(bug(v))
 	}
 	for i := 0; i < n; i++ {
-		if v.debug() {
-			v.debugf("addTypeMethodsCTI method %v.%v", rt, xt.method(i).Name)
-		}
 		switch xt.method(i).Name {
 
 		// array, slice, string methods

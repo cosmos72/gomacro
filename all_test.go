@@ -763,7 +763,7 @@ var testcases = []TestCase{
 	TestCase{F, "infer_type_compositelit_5", `map[int]map[int]int{1:{2:3}}`, map[int]map[int]int{1: {2: 3}}, nil},
 	TestCase{F, "infer_type_compositelit_6", `map[int]*map[int]int{1:{2:3}}`, map[int]*map[int]int{1: {2: 3}}, nil},
 
-	TestCase{A, "import", `import ( "errors"; "fmt"; "io"; "math/big"; "math/rand"; "reflect"; "time" )`, nil, none},
+	TestCase{A, "import", `import ( "errors"; "fmt"; "io"; "math/big"; "math/rand"; "net/http"; "reflect"; "time" )`, nil, none},
 	TestCase{A, "import_constant", `const micro = time.Microsecond; micro`, time.Microsecond, nil},
 	TestCase{A, "dot_import_1", `import . "errors"`, nil, none},
 	TestCase{A, "dot_import_2", `reflect.ValueOf(New) == reflect.ValueOf(errors.New)`, true, nil}, // a small but very strict check... good

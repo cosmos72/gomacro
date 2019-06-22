@@ -575,12 +575,10 @@ func TestFromReflectMutualRecursion(t *testing.T) {
 
 // test implementing 'io.Reader' interface
 func TestInterfaceIoReader(t *testing.T) {
-	u.RebuildDepth = 0
-
-	in := []Type{u.SliceOf(u.BasicTypes[r.Uint8])}
-	out := []Type{u.BasicTypes[r.Int], u.TypeOfError}
-	methodtyp := u.FuncOf(in, out, false)
-	typ := u.InterfaceOf(nil, []string{"Read"}, []Type{methodtyp}, nil).Complete()
+	if testing.Verbose() {
+		defer de(bug(u))
+	}
+	typ := makeIoReaderType()
 	gtyp := typ.GoType()
 
 	is(t, typ.Kind(), r.Interface)
@@ -600,10 +598,25 @@ func TestInterfaceIoReader(t *testing.T) {
 	istrue(t, typ.AssignableTo(treader))
 	istrue(t, treader.AssignableTo(typ))
 	istrue(t, types.Identical(gtyp, treader.GoType().Underlying()))
+}
 
+// return the Type equivalent to "type io.Reader interface { Read([]uint8) (int, error) }"
+func makeIoReaderType() Type {
+	u.RebuildDepth = 0
+
+	in := []Type{u.SliceOf(u.BasicTypes[r.Uint8])}
+	out := []Type{u.BasicTypes[r.Int], u.TypeOfError}
+	methodtyp := u.FuncOf(in, out, false)
+	return u.InterfaceOf(nil, []string{"Read"}, []Type{methodtyp}, nil).Complete()
+}
+
+func TestImporter(t *testing.T) {
 	// ---------------------------
 	io, err := u.Importer.Import("io")
-	istrue(t, err == nil)
+	if err != nil {
+		t.Skipf("Go toolchain not detected or not available, skipping Importer test: %v", err)
+		return
+	}
 	istrue(t, io != nil)
 
 	reader := io.Scope().Lookup("Reader").Type().(*types.Named)
@@ -612,6 +625,8 @@ func TestInterfaceIoReader(t *testing.T) {
 	is(t, reader.Obj().Name(), "Reader")
 	is(t, reader.NumMethods(), 0) // method Read() is declared in the interface, not in the named type
 	is(t, ireader.NumMethods(), 1)
+
+	gtyp := makeIoReaderType().GoType()
 
 	istrue(t, types.Implements(gtyp, ireader))
 	istrue(t, types.Identical(gtyp, ireader))
@@ -623,7 +638,10 @@ func TestInterfaceIoReader(t *testing.T) {
 	tfile := t_file.Elem()
 
 	os, err := u.Importer.Import("os")
-	istrue(t, err == nil)
+	if err != nil {
+		t.Skipf("Go toolchain not detected or not available, skipping Importer test: %v", err)
+		return
+	}
 	istrue(t, os != nil)
 
 	file := os.Scope().Lookup("File").Type().(*types.Named)
@@ -659,7 +677,7 @@ func TestInterfaceIoReader(t *testing.T) {
 
 }
 
-// return the Type equivalent to "type io.Reader interface { io.Reader, io.Writer }"
+// return the Type equivalent to "type io.ReadWriter interface { io.Reader, io.Writer }"
 func makeIoReaderWriterType() Type {
 	in := []Type{u.SliceOf(u.BasicTypes[r.Uint8])}
 	out := []Type{u.BasicTypes[r.Int], u.TypeOfError}
