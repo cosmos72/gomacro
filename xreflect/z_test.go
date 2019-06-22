@@ -486,6 +486,8 @@ func TestFromReflect4(t *testing.T) {
 }
 
 func TestFromReflect5(t *testing.T) {
+	defer de(bug(u))
+
 	rtype := r.TypeOf((*r.Type)(nil)).Elem()
 	typ := u.FromReflectType(rtype)
 
