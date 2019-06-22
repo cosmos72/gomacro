@@ -485,9 +485,33 @@ func TestFromReflect4(t *testing.T) {
 	*/
 }
 
-func TestFromReflect5(t *testing.T) {
-	defer de(bug(u))
+type myType interface {
+	Elem() myType
+	Field(int) myStructField
+}
+type myStructField struct {
+	Name  string
+	Type  myType
+	Index []int
+}
 
+func TestFromReflect5(t *testing.T) {
+	if testing.Verbose() {
+		defer de(bug(u))
+	}
+	rtype := r.TypeOf((*myType)(nil)).Elem()
+	typ := u.FromReflectType(rtype)
+
+	is(t, typ.String(), "github.com/cosmos72/gomacro/xreflect.myType")
+
+	is(t, typ.NumExplicitMethod(), rtype.NumMethod())
+	is(t, typ.NumAllMethod(), rtype.NumMethod())
+}
+
+func TestFromReflect6(t *testing.T) {
+	if testing.Verbose() {
+		defer de(bug(u))
+	}
 	rtype := r.TypeOf((*r.Type)(nil)).Elem()
 	typ := u.FromReflectType(rtype)
 
@@ -505,7 +529,7 @@ func TestFromReflect5(t *testing.T) {
 	is(t, typ.NumAllMethod(), rtype.NumMethod())
 }
 
-func TestFromReflect6(t *testing.T) {
+func TestFromReflect7(t *testing.T) {
 	tfunc := u.FuncOf(nil, []Type{u.BasicTypes[r.Int]}, false)
 	rtfunc := r.TypeOf((*func() int)(nil)).Elem()
 	is(t, tfunc.String(), "func() int")
@@ -528,8 +552,9 @@ type Response4Test struct {
 }
 
 func TestFromReflectMutualRecursion(t *testing.T) {
-	defer de(bug(u))
-
+	if testing.Verbose() {
+		defer de(bug(u))
+	}
 	rtype1 := r.TypeOf(Request4Test{})
 	rtype2 := r.TypeOf(Response4Test{})
 
