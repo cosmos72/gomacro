@@ -42,10 +42,14 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 	if !etoken.GENERICS_V2_CTI {
 		return
 	}
+	rt := xt.rtype
+	if rt == nil {
+		return
+	}
 	k := xt.kind
-	if k == r.Invalid && xt.rtype != nil {
+	if k == r.Invalid {
 		// forward-declared type?
-		k = xt.rtype.Kind()
+		k = rt.Kind()
 	}
 	switch k {
 	case r.Bool, r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
@@ -67,7 +71,6 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 	if n == 0 {
 		return
 	}
-	rt := xt.rtype
 	rbool := rbasictypes[r.Bool]
 	rint := rbasictypes[r.Int]
 

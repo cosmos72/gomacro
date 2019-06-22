@@ -748,6 +748,11 @@ var testcases = []TestCase{
 		[]interface{}{1, nil_map_int_string, map[int]string{0: "foo"}}, nil},
 	TestCase{F, "multi_assignment_1", "v7, v8 = func () (complex64, complex128) { return 1.0, 2.0 }(); v7", complex64(1.0), nil},
 	TestCase{F, "multi_assignment_2", "v8 ", complex128(2.0), nil},
+	// gophernotes issue 175
+	TestCase{F, "multi_assignment_3", `
+		arr := [2]struct{X int}{{3},{4}}
+		arr[0], arr[1] = arr[1], arr[0]
+		arr`, [2]struct{ X int }{{4}, {3}}, nil},
 
 	TestCase{A, "field_set_1", `pair.A = 'k'; pair.B = "m"; pair`, Pair{'k', "m"}, nil},
 	TestCase{A, "field_set_2", `pair.A, pair.B = 'x', "y"; pair`, Pair{'x', "y"}, nil},
