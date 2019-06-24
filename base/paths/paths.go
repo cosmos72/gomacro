@@ -72,25 +72,24 @@ func Subdir(dirs ...string) string {
 }
 
 var (
-	// also works for vendored copies of gomacro
-	GoPkg = getGomacroPkgPath()
-
 	GoSrcDir = filepath.Join(filepath.SplitList(build.Default.GOPATH)[0], "src")
 
 	// where to find the Go compiler used to compile gomacro.
 	// needed to build compatible plugins
 	GoRootDir = build.Default.GOROOT
 
-	GomacroDir = findGomacroDir(GoPkg)
+	// also works for vendored or cloned copies of gomacro
+	GomacroDir = findGomacroDir(getGomacroPkg())
 )
 
-func getGomacroPkgPath() string {
+func getGomacroPkg() string {
 	type dummy struct{}
 	path := strings.Split(reflect.TypeOf(dummy{}).PkgPath(), "/")
-	return filepath.Join(path[0 : len(path)-2]...) // skip .../base/paths
+	return strings.Join(path[0:len(path)-2], "/") // skip .../base/paths
 }
 
 func findGomacroDir(pkg string) string {
+	pkg = filepath.Join(strings.Split(pkg, "/")...)
 	gopath := build.Default.GOPATH
 	for _, dir := range filepath.SplitList(gopath) {
 		path := filepath.Join(dir, "src", pkg)
