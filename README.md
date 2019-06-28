@@ -357,8 +357,9 @@ This interface is carefully chosen to match the existing methods of
 In other words, `*math/big.Float`, `*math/big.Int` and `*math/big.Rat` already implement it.
 
 What about basic types as `int8`, `int16`, `int32`, `uint`... `float*`, `complex*` ... ?
-Gomacro extends them, adding many methods equivalent to the ones declared on `*math/big.Int`
-to perform arithmetic and comparison, including `Cmp`:
+Gomacro extends them, automatically adding many methods equivalent to the ones declared
+on `*math/big.Int` to perform arithmetic and comparison, including `Cmp` which is
+internally defined as (no need to define it yourself):
 ```Go
 func (a int) Cmp(b int) int {
 	if a < b {
@@ -370,18 +371,67 @@ func (a int) Cmp(b int) int {
 	}
 }
 ```
-If you do not specify the contract(s) satisfied by a type, generic functions
-cannot access the fields and methods of a such type, which is then treated
-as a "black box", similarly to `interface{}`
+Thus the generic functions `Min` and `Max` can be written as
 ```Go
-// declare a generic function with a single type argument T
-func Sum#[T] (args ...T) T {
-	var sum T // exploit zero value of T. this will be replaced by: sum := T().New()
+func Min#[T: Comparable] (a, b T) T {
+	if a.Cmp(b) < 0 { // also <= would work
+		return a
+	}
+	return b
+}
+func Max#[T: Comparable] (a, b T) T {
+	if a.Cmp(b) > 0 { // also >= would work
+		return a
+	}
+	return b
+}
+```
+Where the syntax `#[T: Comparable]` or equivalently `#[T: Comparable#[T]]`
+indicates that `T` must satisfy the contract (implements the interface) `Comparable#[T]`
+
+Such functions will then work automatically for every type `T` that satisfies
+the contract (implements the interface) `Comparable#[T]`:\
+all basic integers and floats, plus `*math/big.Float`, `*math/big.Int` and `*math/big.Rat`,
+plus every user-defined type `T` that has a method `func (T) Cmp(T) int`
+
+If you do not specify the contract(s) that a type must satisfy, generic functions
+cannot access the fields and methods of a such type, which is then treated
+as a "black box", similarly to `interface{}`.
+
+Two values of type `T` can be added if `T` has an appropriate method.
+But which name and signature should we choose to add values?
+Copying from `math/big`, the method we choose is `func (T) Add(T,T) T`
+If receiver is a pointer, it will be set to the result - in any case,
+the result will also be returned.
+Similarly to `Comparable`, the contract `Addable` is then
+```Go
+type Addable#[T] interface {
+	// if recv is a pointer, it will also be set
+	// to the result of addition
+	func (recv T) Add(a, b T) T
+}
+```
+With such a contract, a generic function `Sum` is quite straightforward:
+```Go
+func Sum#[T: Addable] (args ...T) T {
+	// to create the zero value of T,
+	// one can write 'var sum T' or equivalently 'sum := T()'
+	// Unluckily, that's not enough for math/big numbers, which require
+	// the receiver of method calls to be created with a function `New()`
+	// Once such function is also available as a method, the following
+	// will be fully general - currently it works only on basic types.
+	sum := T().New()
+
 	for _, elem := range args {
-        // use operator += on T. this is currently accepted
-		// as a temporary workaround until contracts are fully implemented.
-		// the correct code would be: sum = sum.Add(sum, elem)
-		sum += elem
+		// use the method T.Add(T, T)
+		//
+		// as an optimization, relevant at least for math/big numbers,
+		// also use sum as the receiver where result of Add will be stored
+		// *if* the method Add has pointer receiver.
+		//
+		// To cover the case where method Add has instead value receiver,
+		// also assign the returned value to sum
+		sum = sum.Add(sum, elem)
 	}
 	return sum
 }
@@ -404,7 +454,7 @@ Current limitations:
 * type inference on generic arguments #[...] is not yet implemented,
   thus generic arguments #[...] must be explicit.
 * generic methods are not yet implemented.
-* Contracts can be declared, but are not used.
+* types are not checked to actually satisfy contracts.
 
 ## Debugger
 
