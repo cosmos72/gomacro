@@ -387,10 +387,10 @@ func Max#[T: Comparable] (a, b T) T {
 }
 ```
 Where the syntax `#[T: Comparable]` or equivalently `#[T: Comparable#[T]]`
-indicates that `T` must satisfy the contract (implements the interface) `Comparable#[T]`
+indicates that `T` must satisfy the contract (implement the interface) `Comparable#[T]`
 
-Such functions will then work automatically for every type `T` that satisfies
-the contract (implements the interface) `Comparable#[T]`:\
+Such functions `Min` and `Max` will then work automatically for every type `T`
+that satisfies the contract (implements the interface) `Comparable#[T]`:\
 all basic integers and floats, plus `*math/big.Float`, `*math/big.Int` and `*math/big.Rat`,
 plus every user-defined type `T` that has a method `func (T) Cmp(T) int`
 
@@ -400,14 +400,15 @@ as a "black box", similarly to `interface{}`.
 
 Two values of type `T` can be added if `T` has an appropriate method.
 But which name and signature should we choose to add values?
-Copying from `math/big`, the method we choose is `func (T) Add(T,T) T`
+Copying again from `math/big`, the method we choose is `func (T) Add(T,T) T`
 If receiver is a pointer, it will be set to the result - in any case,
 the result will also be returned.
 Similarly to `Comparable`, the contract `Addable` is then
 ```Go
 type Addable#[T] interface {
-	// if recv is a pointer, it will also be set
-	// to the result of addition
+	// Add two values a, b and return the result.
+	// If recv is a pointer, it must be non-nil
+	// and it will be set to the result
 	func (recv T) Add(a, b T) T
 }
 ```
@@ -418,7 +419,7 @@ func Sum#[T: Addable] (args ...T) T {
 	// one can write 'var sum T' or equivalently 'sum := T()'
 	// Unluckily, that's not enough for math/big numbers, which require
 	// the receiver of method calls to be created with a function `New()`
-	// Once such function is also available as a method, the following
+	// Once math/big numbers have such method, the following
 	// will be fully general - currently it works only on basic types.
 	sum := T().New()
 
@@ -427,7 +428,7 @@ func Sum#[T: Addable] (args ...T) T {
 		//
 		// as an optimization, relevant at least for math/big numbers,
 		// also use sum as the receiver where result of Add will be stored
-		// *if* the method Add has pointer receiver.
+		// if the method Add has pointer receiver.
 		//
 		// To cover the case where method Add has instead value receiver,
 		// also assign the returned value to sum
