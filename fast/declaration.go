@@ -80,40 +80,76 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 			c.DeclVars(decl)
 		}
 	case token.PACKAGE:
+		for _, decl := range node.Specs {
+			c.packageStub(decl)
+		}
+	default:
+		c.Errorf("unsupported declaration kind, expecting token.IMPORT, token.PACKAGE, token.CONST, token.TYPE or token.VAR, found %v: %v // %T",
+			node.Tok, node, node)
+	}
+}
+
+func (c *Comp) packageStub(spec ast.Spec) {
+	c.Pos = spec.Pos()
+	switch node := spec.(type) {
+	case *ast.ValueSpec:
 		/*
-			modified parser converts 'package foo' to:
+			modified parser converts `package foo` to:
 
 			ast.GenDecl{
 				Tok: token.PACKAGE,
 				Specs: []ast.Spec{
 					&ast.ValueSpec{
+						Names: []*ast.Ident{
+							&ast.Ident{
+								Name: "foo",
+							},
+						},
+					},
+				},
+			}
+
+			and converts `package "path/to/pkg"` to:
+
+			ast.GenDecl{
+				Tok: token.PACKAGE,
+				Specs: []ast.Spec{
+					&ast.ValueSpec{
+						Names: []*ast.Ident{
+							&ast.Ident{
+								Name: "",
+							},
+						},
 						Values: []ast.Expr{
 							&ast.BasicLit{
-								Kind:  token.String,
-								Value: "path/to/package",
+								Kind:     token.STRING,
+								Value:    "path/to/pkg",
 							},
 						},
 					},
 				},
 			}
 		*/
-		if len(node.Specs) == 1 {
-			if decl, ok := node.Specs[0].(*ast.ValueSpec); ok {
-				if len(decl.Values) == 1 {
-					if lit, ok := decl.Values[0].(*ast.BasicLit); ok {
-						if lit.Kind == token.STRING && (lit.Value == c.Name || strings.MaybeUnescapeString(lit.Value) == c.Path) {
-							break
-						}
-					}
-					// c.changePackage(name)
-					c.Debugf("cannot switch package from fast.Comp.Compile(), use Interp.ChangePackage() instead: %v // %T", node, node)
+		if len(node.Names) != 1 {
+			c.Errorf("unsupported package syntax, expecting a single package name, found: package %v // %T", node, node)
+			break
+		}
+		switch len(node.Values) {
+		case 0:
+			c.Debugf("ignoring directive `package %v`, please call Interp.ChangePackage() to change package", node)
+		case 1:
+			if lit, ok := node.Values[0].(*ast.BasicLit); ok {
+				if lit.Kind == token.STRING && (lit.Value == c.Name || strings.MaybeUnescapeString(lit.Value) == c.Path) {
+					break
 				}
 			}
+			fallthrough
+		default:
+			c.Debugf("ignoring directive `package %v`, please call Interp.ChangePackage() to change package", node.Values[0])
 		}
-		c.Errorf("unsupported package syntax, expecting a single package name, found: %v // %T", node, node)
+
 	default:
-		c.Errorf("unsupported declaration kind, expecting token.IMPORT, token.PACKAGE, token.CONST, token.TYPE or token.VAR, found %v: %v // %T",
-			node.Tok, node, node)
+		c.Errorf("unsupported package directive: expecting <*ast.ValueSpec>, found: package %v // %T", node, node)
 	}
 }
 

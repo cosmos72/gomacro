@@ -443,6 +443,10 @@ func (c *Comp) compileNode(node ast.Node, kind dep.Kind) *Expr {
 		for _, decl := range node.Decls {
 			c.Decl(decl)
 		}
+	case *ast.ValueSpec:
+		// dep.Sorter.Some() returns naked *ast.ValueSpec for `package foo`
+		// instead of *ast.GenDecl containing one or more *ast.ValueSpec as parser does
+		c.packageStub(node)
 	default:
 		c.Errorf("unsupported node type, expecting <ast.Decl>, <ast.Expr>, <ast.Stmt> or <*ast.File>, found %v <%v>", node, r.TypeOf(node))
 		return nil

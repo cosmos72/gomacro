@@ -129,13 +129,26 @@ func (p *parser) parsePackage() ast.Node {
 	doc := p.leadComment
 	pos := p.expect(token.PACKAGE)
 	var path string
+	var ident *ast.Ident
+	var values []ast.Expr
 
 	switch p.tok {
 	case token.IDENT:
-		ident := p.parseIdent()
+		ident = p.parseIdent()
 		path = ident.Name
 	case token.STRING:
 		path = p.lit
+		ident = &ast.Ident{
+			NamePos: p.pos,
+			Name:    "",
+		}
+		values = []ast.Expr{
+			&ast.BasicLit{
+				ValuePos: p.pos,
+				Kind:     token.STRING,
+				Value:    path,
+			},
+		}
 		p.next()
 	default:
 		p.expect(token.IDENT)
@@ -143,7 +156,6 @@ func (p *parser) parsePackage() ast.Node {
 	if path == "_" && p.mode&DeclarationErrors != 0 {
 		p.error(p.pos, "invalid package name: _")
 	}
-	npos := p.pos
 	p.expectSemi()
 
 	return &ast.GenDecl{
@@ -152,13 +164,10 @@ func (p *parser) parsePackage() ast.Node {
 		Specs: []ast.Spec{
 			&ast.ValueSpec{
 				Doc: doc,
-				Values: []ast.Expr{
-					&ast.BasicLit{
-						ValuePos: npos,
-						Kind:     token.STRING,
-						Value:    path,
-					},
+				Names: []*ast.Ident{
+					ident,
 				},
+				Values: values,
 			},
 		},
 	}
