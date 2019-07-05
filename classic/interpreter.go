@@ -49,13 +49,13 @@ var historyfile = paths.Subdir(paths.UserHomeDir(), ".gomacro_history")
 func (ir *Interp) ReplStdin() {
 	g := ir.Globals
 	if g.Options&OptShowPrompt != 0 {
-		fmt.Fprintf(ir.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
-// Copyright (C) 2017-2019 Massimiliano Ghilardi
-// License MPL v2.0+: Mozilla Public License version 2.0 or later <http://mozilla.org/MPL/2.0/>
-// This is free software with ABSOLUTELY NO WARRANTY.
-//
-// Type %chelp for help
-`, g.ReplCmdChar)
+		fmt.Fprintf(ir.Stdout, `Go version %s (%s, %s)
+Type %ccopyright or %clicense for more information
+GOMACRO ---- interactive Go interpreter with generics and macros
+
+Type %chelp for help
+
+`, g.GoVersion, g.GoOS, g.GoArch, g.ReplCmdChar, g.ReplCmdChar, g.ReplCmdChar)
 	}
 	tty, _ := MakeTtyReadline(historyfile)
 	defer tty.Close(historyfile) // restore normal tty mode

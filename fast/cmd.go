@@ -266,15 +266,22 @@ func (cmds Cmds) ShowHelp(g *base.Globals) {
 	g.Fprintf(out, "%s", "// abbreviations are allowed if unambiguous.\n")
 }
 
+func (cmds Cmds) ShowMessage(g *base.Globals, msg string) {
+	out := g.Stdout
+	g.Fprintf(out, "%s", msg)
+}
+
 var Commands Cmds
 
 func init() {
 	Commands.m = map[byte][]Cmd{
+		'c': []Cmd{{"copyright", (*Interp).cmdCopyright, `copyright        show copyright`}},
 		'd': []Cmd{{"debug", (*Interp).cmdDebug, `debug EXPR        debug expression or statement interactively`}},
 		'e': []Cmd{{"env", (*Interp).cmdEnv, `env [NAME]        show available functions, variables and constants
                    in current package, or from imported package NAME`}},
 		'h': []Cmd{{"help", (*Interp).cmdHelp, `help              show this help`}},
 		'i': []Cmd{{"inspect", (*Interp).cmdInspect, `inspect EXPR      inspect expression interactively`}},
+		'l': []Cmd{{"license", (*Interp).cmdLicense, `license        show license`}},
 		'o': []Cmd{{"options", (*Interp).cmdOptions, `options [OPTS]    show or toggle interpreter options`}},
 		'p': []Cmd{{"package", (*Interp).cmdPackage, `package "PKGPATH" switch to package PKGPATH, importing it if possible`}},
 		'q': []Cmd{{"quit", (*Interp).cmdQuit, `quit              quit the interpreter`}},
@@ -334,6 +341,18 @@ func (ir *Interp) cmdEnv(arg string, opt base.CmdOpt) (string, base.CmdOpt) {
 
 func (ir *Interp) cmdHelp(arg string, opt base.CmdOpt) (string, base.CmdOpt) {
 	Commands.ShowHelp(&ir.Comp.Globals)
+	return "", opt
+}
+
+func (ir *Interp) cmdCopyright(arg string, opt base.CmdOpt) (string, base.CmdOpt) {
+	copyright := "Copyright (C) 2018-2019 Massimiliano Ghilardi <https://github.com/cosmos72/gomacro>\nThis is free software with ABSOLUTELY NO WARRANTY.\n"
+	Commands.ShowMessage(&ir.Comp.Globals, copyright)
+	return "", opt
+}
+
+func (ir *Interp) cmdLicense(arg string, opt base.CmdOpt) (string, base.CmdOpt) {
+	license := "License MPL v2.0+: Mozilla Public License version 2.0 or later <http://mozilla.org/MPL/2.0/>\n"
+	Commands.ShowMessage(&ir.Comp.Globals, license)
 	return "", opt
 }
 

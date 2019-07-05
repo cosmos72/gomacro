@@ -260,13 +260,13 @@ func (ir *Interp) ReplStdin() {
 	g := ir.Comp.CompGlobals
 
 	if g.Options&OptShowPrompt != 0 {
-		g.Fprintf(g.Stdout, `// GOMACRO, an interactive Go interpreter with generics and macros
-// Copyright (C) 2018-2019 Massimiliano Ghilardi <https://github.com/cosmos72/gomacro>
-// License MPL v2.0+: Mozilla Public License version 2.0 or later <http://mozilla.org/MPL/2.0/>
-// This is free software with ABSOLUTELY NO WARRANTY.
-//
-// Type %chelp for help
-`, g.ReplCmdChar)
+		g.Fprintf(g.Stdout, `Go version %s (%s, %s)
+Type %ccopyright or %clicense for more information
+GOMACRO ---- interactive Go interpreter with generics and macros
+
+Type %chelp for help
+
+`, g.GoVersion, g.GoOS, g.GoArch, g.ReplCmdChar, g.ReplCmdChar, g.ReplCmdChar)
 	}
 	tty, _ := MakeTtyReadline(historyfile)
 	defer tty.Close(historyfile) // restore normal tty mode
