@@ -193,11 +193,11 @@ func (g *Globals) Print(values []r.Value, types []xr.Type) {
 				} else {
 					ti = reflect.Type(vi)
 				}
-				g.Fprintf(g.Stdout, "%v\t// %v\n", vi, ti)
+				g.Fprintf(g.Stdout, "       [Out]: %v\t// %v\n\n", vi, ti)
 			}
 		} else {
 			for _, vi := range values {
-				g.Fprintf(g.Stdout, "%v\n", vi)
+				g.Fprintf(g.Stdout, "       [Out]: %v\n", vi)
 			}
 		}
 	}
