@@ -105,11 +105,10 @@ func FindFirstToken(src []byte) int {
 // suffix is trimmed with strings.TrimSpace() before returning it
 func Split2(s string, separator rune) (string, string) {
 	var prefix, suffix string
+	prefix = s
 	if space := strings.IndexByte(s, ' '); space > 0 {
 		prefix = s[:space]
 		suffix = strings.TrimSpace(s[space+1:])
-	} else {
-		prefix = s
 	}
 	return prefix, suffix
 }
@@ -124,26 +123,28 @@ func TailIdentifier(s string) string {
 	var digit bool
 	for i = n - 1; i >= 0; i-- {
 		ch := chars[i]
-		if ch < 0x80 {
-			if ch >= 'A' && ch <= 'Z' || ch == '_' || ch >= 'a' && ch <= 'z' {
-				digit = false
-			} else if ch >= '0' && ch <= '9' {
-				digit = true
-			} else {
-				break
-			}
-		} else if unicode.IsLetter(ch) {
-			digit = false
-		} else if unicode.IsDigit(ch) {
-			digit = true
-		} else {
+		is_digit, err := CharIsDigit(ch)
+		if err != nil {
 			break
 		}
+		digit = is_digit
 	}
 	if digit {
 		i++
 	}
 	return string(chars[i+1:])
+}
+
+func CharIsDigit(chr rune) (bool, error) {
+	if chr < 0x80 && (chr >= '0' && chr <= '9') {
+		return true, nil
+	}
+
+	if unicode.IsDigit(chr) {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 /*

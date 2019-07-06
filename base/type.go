@@ -110,15 +110,16 @@ func (o Options) String() string {
 func ParseOptions(str string) Options {
 	var opts Options
 	for _, name := range strings.Split(str, " ") {
-		if opt, ok := optValues[name]; ok {
-			opts ^= opt
-		} else if len(name) != 0 {
+		opt, ok := optValues[name]
+		if !ok && len(name) != 0 {
 			for k, v := range optNames {
 				if strings.HasPrefix(v, name) {
 					opts ^= k
 				}
 			}
+			continue
 		}
+		opts ^= opt
 	}
 	return opts
 }

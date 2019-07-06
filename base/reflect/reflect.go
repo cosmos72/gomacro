@@ -126,16 +126,16 @@ func ConvertValue(v r.Value, to r.Type) r.Value {
 		// reflect.Value does not allow conversions from/to complex types
 		k := v.Kind()
 		kto := to.Kind()
-		if IsCategory(kto, r.Complex128) {
-			if IsCategory(k, r.Int, r.Uint, r.Float64) {
-				temp := v.Convert(TypeOfFloat64).Float()
-				v = r.ValueOf(complex(temp, 0.0))
-			}
-		} else if IsCategory(k, r.Complex128) {
-			if IsCategory(k, r.Int, r.Uint, r.Float64) {
-				temp := real(v.Complex())
-				v = r.ValueOf(temp)
-			}
+		if IsCategory(kto, r.Complex128) && IsCategory(k, r.Int, r.Uint, r.Float64) {
+			temp := v.Convert(TypeOfFloat64).Float()
+			v = r.ValueOf(complex(temp, 0.0))
+			return v.Convert(to)
+		}
+
+		if IsCategory(k, r.Complex128) && IsCategory(k, r.Int, r.Uint, r.Float64) {
+			temp := real(v.Complex())
+			v = r.ValueOf(temp)
+			return v.Convert(to)
 		}
 	}
 	return v.Convert(to)
