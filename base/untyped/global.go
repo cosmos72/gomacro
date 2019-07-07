@@ -69,18 +69,25 @@ func MakeLit(kind Kind, val constant.Value, basicTypes *[]xr.Type) Lit {
 // pretty-print untyped constants
 func (untyp Lit) String() string {
 	val := untyp.Val
-	var strobj interface{}
-	if untyp.Kind == Rune && val.Kind() == constant.Int {
-		if i, exact := constant.Int64Val(val); exact {
-			if i >= 0 && i <= 0x10FFFF {
-				strobj = fmt.Sprintf("%q", i)
-			}
-		}
+	if !(untyp.Kind == Rune && val.Kind() == constant.Int) {
+		return MakeString(untyp, val.ExactString())
 	}
-	if strobj == nil {
-		strobj = val.ExactString()
+
+	i, exact := constant.Int64Val(val)
+	if !exact {
+		return MakeString(untyp, val.ExactString())
 	}
-	return fmt.Sprintf("{%v %v}", untyp.Kind, strobj)
+
+	if i >= 0 && i <= 0x10FFFF {
+		strobj := fmt.Sprintf("%q", i)
+		return MakeString(untyp, strobj)
+	}
+
+	return MakeString(untyp, val.ExactString())
+}
+
+func MakeString(untyp Lit, str string) string {
+	return fmt.Sprintf("{%v %v}", untyp.Kind, str)
 }
 
 func MakeKind(ckind constant.Kind) Kind {
