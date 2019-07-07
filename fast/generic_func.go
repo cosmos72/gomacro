@@ -45,21 +45,47 @@ type GenericFunc struct {
 	Master    GenericFuncDecl            // master (i.e. non specialized) declaration
 	Special   map[string]GenericFuncDecl // partially or fully specialized declarations. key is GenericFuncDecl.For converted to string
 	Instances map[I]*GenericFuncInstance // cache of instantiated functions. key is [N]interface{}{T1, T2...}
+	DeclScope *Comp                      // scope where generic function is declared
 }
 
 func (f *GenericFunc) String() string {
 	return f.Signature("")
 }
 
+func (f *GenericFunc) HasParam(name string) bool {
+	if f == nil {
+		return false
+	}
+	return f.Master.HasParam(name)
+}
+
+func (master *GenericFuncDecl) HasParam(name string) bool {
+	if master == nil {
+		return false
+	}
+	for _, param := range master.Params {
+		if name == param {
+			return true
+		}
+	}
+	return false
+}
+
 func (f *GenericFunc) Signature(name string) string {
 	if f == nil {
 		return "<nil>"
 	}
+	return f.Master.Signature(name)
+}
+
+func (master *GenericFuncDecl) Signature(name string) string {
+	if master == nil {
+		return "<nil>"
+	}
 	var buf bytes.Buffer // strings.Builder requires Go >= 1.10
-	decl := f.Master
 	if GENERICS_V1_CXX {
 		buf.WriteString("template[")
-		for i, param := range decl.Params {
+		for i, param := range master.Params {
 			if i != 0 {
 				buf.WriteString(", ")
 			}
@@ -67,11 +93,11 @@ func (f *GenericFunc) Signature(name string) string {
 		}
 		buf.WriteString("] ")
 		if len(name) == 0 {
-			(*output.Stringer).Fprintf(nil, &buf, "%v", decl.Decl.Type)
+			(*output.Stringer).Fprintf(nil, &buf, "%v", master.Decl.Type)
 		} else {
 			(*output.Stringer).Fprintf(nil, &buf, "%v", &ast.FuncDecl{
 				Name: &ast.Ident{Name: name},
-				Type: decl.Decl.Type,
+				Type: master.Decl.Type,
 			})
 		}
 		return buf.String()
@@ -79,7 +105,7 @@ func (f *GenericFunc) Signature(name string) string {
 
 	buf.WriteString(name)
 	buf.WriteString("#[")
-	for i, param := range decl.Params {
+	for i, param := range master.Params {
 		if i != 0 {
 			buf.WriteString(", ")
 		}
@@ -90,7 +116,7 @@ func (f *GenericFunc) Signature(name string) string {
 	buf.Reset()
 	(*output.Stringer).Fprintf(nil, &buf, "%v", &ast.FuncDecl{
 		Name: &ast.Ident{Name: gname},
-		Type: decl.Decl.Type,
+		Type: master.Decl.Type,
 	})
 	return buf.String()
 }
@@ -140,6 +166,7 @@ func (c *Comp) DeclGenericFunc(decl *ast.FuncDecl) {
 			Master:    fdecl,
 			Special:   make(map[string]GenericFuncDecl),
 			Instances: make(map[I]*GenericFuncInstance),
+			DeclScope: c,
 		}
 		return
 	}

@@ -1334,6 +1334,13 @@ var testcases = []TestCase{
 		SwapArgs#[float64,float64,float64](func (a float64, b float64) float64 { return a/b })(2.0, 3.0)
 	    `, 1.5, nil,
 	},
+	TestCase{F | G2, "generic_func_infer_1", `Identity(true)`, true, nil},
+	TestCase{F | G2, "generic_func_infer_2", `Identity(1)`, 1, nil},
+	TestCase{F | G2, "generic_func_infer_3", `Identity('x')`, 'x', nil},
+	TestCase{F | G2, "generic_func_infer_4", `Identity(2.0)`, 2.0, nil},
+	TestCase{F | G2, "generic_func_infer_5", `Identity(3.0i)`, 3.0i, nil},
+	TestCase{F | G2, "generic_func_infer_6", `Identity("abc")`, "abc", nil},
+
 	TestCase{F | G1 | G2, "generic_func_curry_1",
 		generic_func("Curry", "A,B,C") + ` (f func(A, B) C) func(A) func(B) C {
 			return func (a A) func (B) C {

@@ -92,7 +92,8 @@ again:
 	case r.Interface:
 		// this can happen too... for example in "var foo interface{} = 7"
 		// and it requires to convert the untyped constant to its default type.
-		// obviously, untyped constants can only implement empty interfaces
+		// Obviously, untyped constants can only implement empty interfaces
+		// (TODO: unless CTI generics are enabled - they add methods to basic types)
 		if t.NumMethod() == 0 {
 			t = untyp.DefaultType()
 			goto again

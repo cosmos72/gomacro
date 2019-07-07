@@ -66,27 +66,18 @@ func (c *Comp) inferGenericFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *Ex
 	if !ok {
 		c.Errorf("internal error: Comp.inferGenericFunc() invoked on non-generic function %v: %v", fun.Type, call.Fun)
 	}
-	var upc *Comp
-	var funcname string
-	{
-		ident, ok := call.Fun.(*ast.Ident)
-		if !ok {
-			c.Errorf("unimplemented type inference on non-name generic function %v: %v", call.Fun, call)
-		}
-		if fun.Sym == nil {
-			c.Errorf("unimplemented type inference on non-symbol generic function %v %#v: %v", call.Fun, fun, call)
-		}
-		// find the scope where fun is declared
-		funcname = ident.Name
-		fbind := &fun.Sym.Bind
-		for upc = c; upc != nil; upc = upc.Outer {
-			if bind, ok := upc.Binds[funcname]; ok && bind.Name == fbind.Name && bind.Desc == fbind.Desc && bind.Type.IdenticalTo(fbind.Type) {
-				break
-			}
-		}
-	}
+	// get the scope where fun is declared
+	upc := tfun.DeclScope
 	if upc == nil {
 		c.Errorf("internal error: Comp.inferGenericFunc() failed to determine the scope containing generic function declaration: %v", call.Fun)
+	}
+	var funcname string
+	if ident, ok := call.Fun.(*ast.Ident); ok {
+		funcname = ident.Name
+	} else {
+		i := c.GensymN
+		c.GensymN++
+		funcname = fmt.Sprintf("lambda%d", i)
 	}
 
 	master := tfun.Master
@@ -115,7 +106,7 @@ func (c *Comp) inferGenericFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *Ex
 	// collect call arg types
 	nargs := len(args)
 	var targs []inferType
-	if nargs == 1 {
+	if nargs == 1 && args[0].NumOut() != 1 {
 		arg := args[0]
 		nargs = arg.NumOut()
 		targs = make([]inferType, nargs)
@@ -135,11 +126,11 @@ func (c *Comp) inferGenericFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *Ex
 	if nargs != len(patterns) {
 		c.Errorf("generic function %v has %d params, cannot call with %d values: %v", tfun, len(patterns), nargs, call)
 	}
-	inferred := make(map[string]inferType)
-	for _, name := range master.Params {
-		inferred[name] = inferType{}
+	inf := inferFuncType{
+		comp: c, tfun: tfun, funcname: funcname,
+		inferred: make(map[string]inferType),
+		patterns: patterns, targs: targs, call: call,
 	}
-	inf := inferFuncType{comp: c, tfun: tfun, funcname: funcname, inferred: inferred, patterns: patterns, targs: targs, call: call}
 	vals, types := inf.args()
 	maker := &genericMaker{
 		comp: upc, sym: fun.Sym, ifun: fun.Sym.Value,
@@ -171,7 +162,7 @@ func (inf *inferFuncType) args() (vals []I, types []xr.Type) {
 	// second pass: untyped constants
 	for i, targ := range inf.targs {
 		if targ.Type == nil && targ.Untyped != untyped.None {
-			inf.untyped(inf.patterns[i], targ.Untyped, exact)
+			inf.untyped(inf.patterns[i], targ.Untyped)
 		}
 	}
 
@@ -180,8 +171,12 @@ func (inf *inferFuncType) args() (vals []I, types []xr.Type) {
 	vals = make([]I, n)
 	types = make([]xr.Type, n)
 	for i, name := range params {
-		inferred, ok := inf.inferred[name]
-		if !ok || inferred.Type == nil {
+		inferred := inf.inferred[name]
+		// inf.comp.Debugf("inferred  generic function type argument %v: to %v", name, inferred)
+		if inferred.Type == nil && inferred.Untyped != untyped.None {
+			inferred.Type = inf.comp.Universe.BasicTypes[inferred.Untyped.Reflect()]
+		}
+		if inferred.Type == nil {
 			inf.comp.Errorf("failed to infer %v in call to generic function: %v", name, inf.call)
 		}
 		types[i] = inferred.Type
@@ -197,11 +192,10 @@ func (inf *inferFuncType) arg(pattern ast.Expr, targ xr.Type, exact bool) {
 		if targ == nil {
 			inf.fail(pattern, targ)
 		}
-		if node, ok := pattern.(*ast.Ident); ok {
-			inf.ident(node, targ, exact)
-			break
-		}
 		switch node := pattern.(type) {
+		case *ast.Ident:
+			inf.ident(node, targ, exact)
+			return
 		case *ast.ArrayType:
 			pattern, targ, exact = inf.arrayType(node, targ, exact)
 			continue
@@ -299,7 +293,8 @@ func (inf *inferFuncType) ident(node *ast.Ident, targ xr.Type, exact bool) {
 	c := inf.comp
 	name := node.Name
 	inferred, ok := inf.inferred[name]
-	if !ok {
+	// inf.comp.Debugf("inferring generic function type argument %v: currently inferred %+v, must match %v", name, inferred, targ)
+	if !ok && !inf.tfun.Master.HasParam(name) {
 		// name must be an existing type
 		t := c.TryResolveType(name)
 		if t != nil {
@@ -316,14 +311,6 @@ func (inf *inferFuncType) ident(node *ast.Ident, targ xr.Type, exact bool) {
 	inf.combine(node, &inferred, inferType{Type: targ, Exact: exact})
 	inf.inferred[name] = inferred
 
-}
-
-func (inf *inferFuncType) untyped(node ast.Expr, kind untyped.Kind, exact bool) {
-	ident, ok := node.(*ast.Ident)
-	if !ok {
-		inf.fail(node, kind)
-	}
-	inf.unimplemented(ident, kind)
 }
 
 func (inf *inferFuncType) combine(node ast.Expr, inferred *inferType, with inferType) {
@@ -363,6 +350,49 @@ func (inf *inferFuncType) combine(node ast.Expr, inferred *inferType, with infer
 	if exact {
 		inferred.Exact = true
 	}
+}
+
+func (inf *inferFuncType) untyped(node ast.Expr, kind untyped.Kind) {
+	ident, ok := node.(*ast.Ident)
+	if !ok {
+		inf.fail(node, kind)
+	}
+	name := ident.Name
+	inferred := inf.inferred[name]
+	// inf.comp.Debugf("inferring generic function type argument %v: currently inferred {untyped %v}, must match {untyped %v}", name, inferred.Untyped, kind)
+	inf.combineUntyped(node, &inferred, inferType{Untyped: kind})
+	inf.inferred[name] = inferred
+}
+
+func (inf *inferFuncType) combineUntyped(node ast.Expr, inferred *inferType, with inferType) {
+	ikind := inferred.Untyped
+	wkind := with.Untyped
+	if ikind == untyped.None {
+		ikind = wkind
+	} else if wkind != untyped.None && ikind != wkind {
+		switch ikind {
+		case untyped.Bool:
+		case untyped.Int:
+			switch wkind {
+			case untyped.Rune, untyped.Float, untyped.Complex:
+				ikind = wkind
+			}
+		case untyped.Rune:
+			switch wkind {
+			case untyped.Float, untyped.Complex:
+				ikind = wkind
+			}
+		case untyped.Float:
+			switch wkind {
+			case untyped.Complex:
+				ikind = wkind
+			}
+		case untyped.Complex:
+		case untyped.String:
+		}
+	}
+	// if the conversion is unsupported, it will fail later on
+	inferred.Untyped = ikind
 }
 
 // partially infer type of generic function for an interface parameter
