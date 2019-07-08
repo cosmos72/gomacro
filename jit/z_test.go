@@ -44,8 +44,10 @@ func CompareCode(actual Code, expected Code) int {
 }
 
 func TestExpr1(t *testing.T) {
-	var c Comp
-	c.Init()
+	c := New()
+	if c == nil {
+		t.SkipNow()
+	}
 	r := MakeReg(c.RLo, Uint64)
 	e := NewExpr1(
 		NEG, NewExpr1(NOT, r),

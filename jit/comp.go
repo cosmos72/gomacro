@@ -62,7 +62,7 @@ func (c *Comp) InitArchId(archId ArchId) *Comp {
 
 func (c *Comp) InitArch(arch Arch) *Comp {
 	if arch == nil {
-		errorf("unknown arch")
+		return nil
 	}
 	c.code = nil
 	c.toassemble = 0
