@@ -41,6 +41,13 @@ type GenericType struct {
 	Instances map[I]xr.Type              // cache of instantiated types. key is [N]interface{}{T1, T2...}
 }
 
+func (t *GenericType) Pos() token.Pos {
+	if t != nil {
+		return t.Master.Decl.Pos()
+	}
+	return token.NoPos
+}
+
 func (t *GenericType) String() string {
 	if t == nil {
 		return "<nil>"

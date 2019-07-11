@@ -19,6 +19,7 @@ package fast
 import (
 	"bytes"
 	"go/ast"
+	"go/token"
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
@@ -46,6 +47,13 @@ type GenericFunc struct {
 	Special   map[string]GenericFuncDecl // partially or fully specialized declarations. key is GenericFuncDecl.For converted to string
 	Instances map[I]*GenericFuncInstance // cache of instantiated functions. key is [N]interface{}{T1, T2...}
 	DeclScope *Comp                      // scope where generic function is declared
+}
+
+func (f *GenericFunc) Pos() token.Pos {
+	if f != nil {
+		return f.Master.Decl.Pos()
+	}
+	return token.NoPos
 }
 
 func (f *GenericFunc) String() string {

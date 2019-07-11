@@ -61,6 +61,20 @@ func (inf *inferFuncType) String() string {
 	return inf.tfun.Signature(inf.funcname)
 }
 
+func (inf *inferFuncType) CallPos() token.Pos {
+	if inf != nil && inf.call != nil && inf.call.Fun != nil {
+		return inf.call.Pos()
+	}
+	return token.NoPos
+}
+
+func (inf *inferFuncType) DeclPos() token.Pos {
+	if inf != nil && inf.tfun != nil {
+		return inf.tfun.Pos()
+	}
+	return token.NoPos
+}
+
 func (c *Comp) inferGenericFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *Expr {
 	tfun, ok := fun.Value.(*GenericFunc)
 	if !ok {
@@ -280,7 +294,7 @@ func (inf *inferFuncType) chanType(node *ast.ChanType, targ xr.Type, exact bool)
 // partially infer type of generic function for a constant parameter
 func (inf *inferFuncType) constant(node ast.Expr, val I, exact bool) {
 	// TODO
-	inf.comp.ErrorAt(node.Pos(), "unimplemented type inference: function with generic parameter <%v> and argument <%v>: %v",
+	inf.comp.ErrorAt(inf.CallPos(), "unimplemented type inference: function with generic parameter <%v> and argument <%v>: %v",
 		node, val, inf.call)
 }
 
@@ -332,7 +346,7 @@ func (inf *inferFuncType) ident(node *ast.Ident, targ xr.Type, exact bool) {
 		t := c.TryResolveType(name)
 		if t != nil {
 			if !targ.AssignableTo(t) {
-				inf.comp.ErrorAt(node.Pos(),
+				inf.comp.ErrorAt(inf.CallPos(),
 					"type inference: in %v, mismatched types for %v: %v cannot be assigned to %v: %v",
 					inf, name, targ, t, inf.call)
 			}
@@ -456,7 +470,31 @@ func (inf *inferFuncType) structType(node *ast.StructType, targ xr.Type, exact b
 
 // partially infer type of generic function for a generic parameter
 func (inf *inferFuncType) genericType(node *ast.IndexExpr, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
-	// TODO
+
+	var sym *Symbol
+	// node is foo#[T1,T2...] => set name = foo
+	if name, ok := node.X.(*ast.Ident); ok {
+		sym = inf.comp.TryResolve(name.Name)
+	} else {
+		inf.fail(node, targ)
+	}
+	if sym == nil {
+		st := &inf.comp.Stringer
+		st.ErrorAt(inf.DeclPos(), "type inference: instantiating generic %v\n\t%v: required by function call: %v\n\t%v: undefined identifier %v in expression: %v",
+			inf, st.Fileset.Position(inf.CallPos()), inf.call, st.Fileset.Position(node.Pos()), node.X, node)
+	}
+	class := sym.Desc.Class()
+	if class != GenericFuncBind && class != GenericTypeBind {
+		inf.fail(node, targ)
+	}
+	var elts []ast.Expr
+	if complit, ok := node.Index.(*ast.CompositeLit); ok && complit.Type == nil {
+		// node is foo#[T1,T2...] => set elts = {T1,T2...}
+		elts = complit.Elts
+	} else {
+		inf.fail(node, targ)
+	}
+	_ = elts
 	return inf.unimplemented(node, targ)
 }
 
@@ -467,19 +505,19 @@ func (inf *inferFuncType) is(node ast.Expr, targ xr.Type, kind r.Kind) {
 }
 
 func (inf *inferFuncType) fail(node ast.Expr, targ I) {
-	inf.comp.ErrorAt(node.Pos(),
-		"type inference: in %v, generic parameter <%v> cannot match argument type <%v>: %v",
-		inf, node, targ, inf.call)
+	st := &inf.comp.Stringer
+	st.ErrorAt(inf.DeclPos(), "type inference: instantiating generic %v\n\t%v: required by function call: %v\n\t%v: generic parameter <%v> cannot match argument type <%v>",
+		inf, st.Fileset.Position(inf.CallPos()), inf.call, st.Fileset.Position(node.Pos()), node, targ)
 }
 
 func (inf *inferFuncType) fail3(node ast.Expr, tinferred *inferType, targ xr.Type) {
-	inf.comp.ErrorAt(node.Pos(),
+	inf.comp.ErrorAt(inf.CallPos(),
 		"type inference: in %v, generic parameter <%v> cannot match both <%v> and <%v>: %v",
 		inf, node, tinferred, targ, inf.call)
 }
 
 func (inf *inferFuncType) unimplemented(node ast.Expr, targ I) (ast.Expr, xr.Type, bool) {
-	inf.comp.ErrorAt(node.Pos(), "unimplemented type inference: in %v, generic parameter <%v> with argument type <%v>: %v",
+	inf.comp.ErrorAt(inf.CallPos(), "unimplemented type inference: in %v, generic parameter <%v> with argument type <%v>: %v",
 		inf, node, targ, inf.call)
 	return nil, nil, false
 }
