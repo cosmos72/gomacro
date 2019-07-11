@@ -43,7 +43,7 @@ func (inf *inferType) String() string {
 	} else {
 		s = inf.Untyped.String()
 	}
-	return "<" + s + ">"
+	return s
 }
 
 // type inference on generic functions
@@ -192,6 +192,8 @@ func (inf *inferFuncType) arg(pattern ast.Expr, targ xr.Type, exact bool) {
 		if targ == nil {
 			inf.fail(pattern, targ)
 		}
+		// inf.comp.Debugf("type inference: matching generic parameter <%v> with actual type <%v>", pattern, targ)
+
 		switch node := pattern.(type) {
 		case *ast.Ident:
 			inf.ident(node, targ, exact)
@@ -278,14 +280,45 @@ func (inf *inferFuncType) chanType(node *ast.ChanType, targ xr.Type, exact bool)
 // partially infer type of generic function for a constant parameter
 func (inf *inferFuncType) constant(node ast.Expr, val I, exact bool) {
 	// TODO
-	inf.comp.ErrorAt(node.Pos(), "unimplemented type inference: generic function with parameter type %v and argument %v: %v",
+	inf.comp.ErrorAt(node.Pos(), "unimplemented type inference: function with generic parameter <%v> and argument <%v>: %v",
 		node, val, inf.call)
+}
+
+func max(a, b int) int {
+	if a >= b {
+		return a
+	}
+	return b
 }
 
 // partially infer type of generic function for a func parameter
 func (inf *inferFuncType) funcType(node *ast.FuncType, targ xr.Type, exact bool) (ast.Expr, xr.Type, bool) {
-	// TODO
-	return inf.unimplemented(node, targ)
+	inf.is(node, targ, r.Func)
+	if node.Params.NumFields() != targ.NumIn() {
+		inf.fail(node, targ)
+	}
+	if node.Results.NumFields() != targ.NumOut() {
+		inf.fail(node, targ)
+	}
+	if node.Params != nil {
+		i := 0
+		for _, param := range node.Params.List {
+			end := i + max(len(param.Names), 1)
+			for ; i < end; i++ {
+				inf.arg(param.Type, targ.In(i), exact)
+			}
+		}
+	}
+	if node.Results != nil {
+		i := 0
+		for _, param := range node.Results.List {
+			end := i + max(len(param.Names), 1)
+			for ; i < end; i++ {
+				inf.arg(param.Type, targ.Out(i), exact)
+			}
+		}
+	}
+	return nil, nil, exact
 }
 
 // partially infer type of generic function for an identifier parameter
@@ -319,6 +352,7 @@ func (inf *inferFuncType) combine(node ast.Expr, inferred *inferType, with infer
 	if inferred.Type == nil {
 		inferred.Type = targ
 	} else if !inferred.Type.IdenticalTo(targ) {
+		// inf.comp.Debugf("type inference: combining inferred types %+v and %+v for generic parameter %v",	*inferred, with, node)
 		if exact && inferred.Exact {
 			inf.fail3(node, inferred, targ)
 		}
@@ -434,18 +468,18 @@ func (inf *inferFuncType) is(node ast.Expr, targ xr.Type, kind r.Kind) {
 
 func (inf *inferFuncType) fail(node ast.Expr, targ I) {
 	inf.comp.ErrorAt(node.Pos(),
-		"type inference: in %v, parameter %v cannot match argument type %v: %v",
+		"type inference: in %v, generic parameter <%v> cannot match argument type <%v>: %v",
 		inf, node, targ, inf.call)
 }
 
 func (inf *inferFuncType) fail3(node ast.Expr, tinferred *inferType, targ xr.Type) {
 	inf.comp.ErrorAt(node.Pos(),
-		"type inference: in %v, parameter %v cannot match both %v and <%v>: %v",
+		"type inference: in %v, generic parameter <%v> cannot match both <%v> and <%v>: %v",
 		inf, node, tinferred, targ, inf.call)
 }
 
 func (inf *inferFuncType) unimplemented(node ast.Expr, targ I) (ast.Expr, xr.Type, bool) {
-	inf.comp.ErrorAt(node.Pos(), "unimplemented type inference: in %v, parameter type %v with argument type %v: %v",
+	inf.comp.ErrorAt(node.Pos(), "unimplemented type inference: in %v, generic parameter <%v> with argument type <%v>: %v",
 		inf, node, targ, inf.call)
 	return nil, nil, false
 }

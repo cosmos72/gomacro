@@ -1311,7 +1311,7 @@ var testcases = []TestCase{
 	TestCase{F | G1 | G2, "generic_func_9", `Sum#[string]("abc","def","xy","z")`, "abcdefxyz", nil},
 
 	TestCase{F | G1 | G2, "generic_func_10",
-		generic_func("Transform", "T,U") + ` (slice []T, trans func(T) U) []U {
+		generic_func("MapSlice", "T,U") + ` (slice []T, trans func(T) U) []U {
 			ret := make([]U, len(slice))
 			for i := range slice {
 				ret[i] = trans(slice[i])
@@ -1320,7 +1320,7 @@ var testcases = []TestCase{
 		}
 		func stringLen(s string) int { return len(s) }`, nil, none,
 	},
-	TestCase{F | G1 | G2, "generic_func_11", `Transform#[string,int]([]string{"abc","xy","z"}, stringLen)`,
+	TestCase{F | G1 | G2, "generic_func_11", `MapSlice#[string,int]([]string{"abc","xy","z"}, stringLen)`,
 		[]int{3, 2, 1}, nil,
 	},
 	TestCase{F | G1 | G2, "generic_func_12",
@@ -1334,13 +1334,6 @@ var testcases = []TestCase{
 		SwapArgs#[float64,float64,float64](func (a float64, b float64) float64 { return a/b })(2.0, 3.0)
 	    `, 1.5, nil,
 	},
-	TestCase{F | G2, "generic_func_infer_1", `Identity(true)`, true, nil},
-	TestCase{F | G2, "generic_func_infer_2", `Identity(1)`, 1, nil},
-	TestCase{F | G2, "generic_func_infer_3", `Identity('x')`, 'x', nil},
-	TestCase{F | G2, "generic_func_infer_4", `Identity(2.0)`, 2.0, nil},
-	TestCase{F | G2, "generic_func_infer_5", `Identity(3.0i)`, 3.0i, nil},
-	TestCase{F | G2, "generic_func_infer_6", `Identity("abc")`, "abc", nil},
-
 	TestCase{F | G1 | G2, "generic_func_curry_1",
 		generic_func("Curry", "A,B,C") + ` (f func(A, B) C) func(A) func(B) C {
 			return func (a A) func (B) C {
@@ -1378,12 +1371,30 @@ var testcases = []TestCase{
 	TestCase{F | G1 | G2, "generic_func_lift_2",
 		generic_func("Lift2", "A,B") + ` (trans func(A) B) func([]A) []B {
 			return Curry#[func(A)B, []A, []B](
-				SwapArgs#[[]A, func(A)B, []B](Transform#[A,B]),
+				SwapArgs#[[]A, func(A)B, []B](MapSlice#[A,B]),
 			)(trans)
 		}
 		Lift2#[string,int](stringLen)([]string{"xy","z",""})
 	`,
 		[]int{2, 1, 0}, nil},
+
+	TestCase{F | G2, "generic_func_infer_1", `Identity(true)`, true, nil},
+	TestCase{F | G2, "generic_func_infer_2", `Identity(1)`, 1, nil},
+	TestCase{F | G2, "generic_func_infer_3", `Identity('x')`, 'x', nil},
+	TestCase{F | G2, "generic_func_infer_4", `Identity(2.0)`, 2.0, nil},
+	TestCase{F | G2, "generic_func_infer_5", `Identity(3.0i)`, 3.0i, nil},
+	TestCase{F | G2, "generic_func_infer_6", `Identity("abc")`, "abc", nil},
+	TestCase{F | G2, "generic_func_infer_7", `Curry(add2m#[uint32])(7)(10)`, uint32(17), nil},
+	TestCase{F | G2, "generic_func_infer_8", `Lift1(stringLen)([]string{"foo","ba","z"})`, []int{3, 2, 1}, nil},
+	TestCase{F | G2, "generic_func_infer_9",
+		generic_func("Lift3", "A,B") + ` (trans func(A) B) func([]A) []B {
+			return Curry(
+				SwapArgs(MapSlice#[A,B]),
+			)(trans)
+		}
+		Lift3(stringLen)([]string{"qwerty","asdf"})
+	`,
+		[]int{6, 4}, nil},
 
 	TestCase{F | G1 | G2, "recursive_generic_func_1",
 		generic_func("count", "T") + ` (a, b T) T { if a <= 0 { return b }
