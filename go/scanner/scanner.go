@@ -343,11 +343,11 @@ func (s *Scanner) scanNumber(seenDecimalPoint bool) (token.Token, string) {
 fraction:
 	if s.ch == '.' {
 		// allow methods on numbers, i.e. NUMBER.MethodName
-		// by checking whether the first rune after '.' is NOT a digit, 'e', 'E' or 'i'
+		// by checking whether the first rune after '.' is a letter different from 'E', 'e' or 'i'
 		// this means numbers cannot have one-character methods named 'E'
 		if s.rdOffset < len(s.src) {
 			ch := s.src[s.rdOffset]
-			if digitVal(rune(ch)) >= 10 && ch != 'E' && ch != 'e' && ch != 'i' {
+			if isLetter(rune(ch)) && ch != 'E' && ch != 'e' && ch != 'i' {
 				// method name
 				goto exit
 			}
@@ -363,8 +363,8 @@ fraction:
 			}
 		}
 		// parse as float
-		s.next()
 		tok = token.FLOAT
+		s.next()
 		s.scanMantissa(10)
 	}
 

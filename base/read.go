@@ -215,7 +215,8 @@ func ReadMultiline(in Readline, opts ReadOptions, prompt string) (src string, fi
 					continue  // no tokens yet
 				case '~':
 					m = mTilde
-				case '!', '%', '&', '*', ',', '.', '<', '=', '>', '^', '|':
+				case '!', '%', '&', '*', ',', '<', '=', '>', '^', '|':
+					// skip '.' because it could also be decimal point, not only field/method accessor
 					ignorenl = paren == 0
 				case '+':
 					ignorenl = false
