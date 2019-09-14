@@ -87,7 +87,7 @@ func (x SpecSlice) Slice(lo, hi int) AstWithSlice  { x.X = x.X[lo:hi]; return x 
 func (x StmtSlice) Slice(lo, hi int) AstWithSlice  { x.X = x.X[lo:hi]; return x }
 
 func (x AstSlice) Append(child Ast) AstWithSlice   { x.X = append(x.X, child); return x }
-func (x NodeSlice) Append(child Ast) AstWithSlice  { x.X = append(x.X, ToNode(child)); return x }
+func (x NodeSlice) Append(child Ast) AstWithSlice  { x.X = ToNodesAppend(x.X, child); return x }
 func (x ExprSlice) Append(child Ast) AstWithSlice  { x.X = append(x.X, ToExpr(child)); return x }
 func (x FieldSlice) Append(child Ast) AstWithSlice { x.X = append(x.X, ToField(child)); return x }
 func (x DeclSlice) Append(child Ast) AstWithSlice  { x.X = append(x.X, ToDecl(child)); return x }
