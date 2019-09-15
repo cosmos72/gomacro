@@ -251,25 +251,34 @@ func (c *Comp) MacroExpand1(in Ast) (out Ast, expanded bool) {
 		if debug {
 			c.Debugf("MacroExpand1: macro expanded to: %v", results)
 		}
-		var out Ast
-		switch len(results) {
-		default:
-			args = append([]r.Value{r.ValueOf(elt.Interface())}, args...)
-			c.Warnf("macroexpansion returned %d values, using only the first one: %v %v returned %v",
-				len(results), args, results)
-			fallthrough
-		case 1:
-			any := results[0].Interface()
-			if any != nil {
-				out = anyToAst(any, "macroexpansion")
-				break
+		// a macro expansion can return multiple values.
+		// each value can be:
+		// * ast.Node or something that implements ast.Node
+		// * slice of: ast.Node or something that implements ast.Node
+		// * Ast or something that implements Ast
+		for _, result := range results {
+			if !result.IsValid() || !result.CanInterface() {
+				c.Warnf("MacroExpand1: cannot extract interface{} from reflect.Value result: %v", result)
+				continue
 			}
-			fallthrough
-		case 0:
-			// do not insert nil nodes... they would wreak havok, convert them to the identifier nil
-			out = Ident{&ast.Ident{Name: "nil"}}
+			if result == None {
+				continue
+			}
+			res := AnyToAst(result.Interface(), "macroexpansion")
+			switch res := res.(type) {
+			case AstWithSlice:
+				n := res.Size()
+				for i := 0; i < n; i++ {
+					outs = outs.Append(res.Get(i))
+				}
+			case Ast:
+				outs = outs.Append(res)
+			case nil:
+			default:
+				c.Warnf("MacroExpand1: cannot convert result to Ast: %v", result)
+				continue
+			}
 		}
-		outs = outs.Append(out)
 		i += argn
 		expanded = true
 	}
