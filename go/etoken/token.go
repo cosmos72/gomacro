@@ -18,7 +18,6 @@ const (
 	QUASIQUOTE
 	UNQUOTE
 	UNQUOTE_SPLICE
-	SPLICE
 	MACRO
 	FUNCTION
 	LAMBDA
@@ -33,7 +32,6 @@ var keywords map[string]Token
 
 func init() {
 	tokens = map[Token]string{
-		SPLICE:         "~splice",
 		QUOTE:          "~quote",
 		QUASIQUOTE:     "~quasiquote",
 		UNQUOTE:        "~unquote",

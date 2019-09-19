@@ -25,7 +25,6 @@ func init() {
 			"NewFileSet":     r.ValueOf(NewFileSet),
 			"QUASIQUOTE":     r.ValueOf(QUASIQUOTE),
 			"QUOTE":          r.ValueOf(QUOTE),
-			"SPLICE":         r.ValueOf(SPLICE),
 			"String":         r.ValueOf(String),
 			"TYPECASE":       r.ValueOf(TYPECASE),
 			"UNQUOTE":        r.ValueOf(UNQUOTE),

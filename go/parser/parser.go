@@ -2315,7 +2315,7 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 		token.IDENT, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING, token.FUNC, token.LPAREN, // operands
 		token.LBRACK, token.STRUCT, token.MAP, token.CHAN, token.INTERFACE, // composite types
 		token.ADD, token.SUB, token.MUL, token.AND, token.XOR, token.ARROW, token.NOT, // unary operators
-		etoken.MACRO, etoken.SPLICE, etoken.QUOTE, etoken.QUASIQUOTE, etoken.UNQUOTE, etoken.UNQUOTE_SPLICE, // patch: macro, quote and friends
+		etoken.MACRO, etoken.QUOTE, etoken.QUASIQUOTE, etoken.UNQUOTE, etoken.UNQUOTE_SPLICE, // patch: macro, quote and friends
 		etoken.LAMBDA:
 
 		s, _ = p.parseSimpleStmt(labelOk)
