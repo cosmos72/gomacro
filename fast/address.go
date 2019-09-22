@@ -19,7 +19,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package fast
+package main
 
 import (
 	"go/ast"

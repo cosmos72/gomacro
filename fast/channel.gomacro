@@ -16,11 +16,6 @@
 
 package fast
 
-:import (
-	"go/ast"
-	r "reflect"
-)
-
 import (
 	"go/ast"
 	r "reflect"
@@ -30,6 +25,12 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+:package "fast"
+
+:import (
+	"go/ast"
+	r "reflect"
+)
 
 :func upcasefirstbyte(str string) string {
 	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {

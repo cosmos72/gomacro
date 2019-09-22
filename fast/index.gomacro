@@ -16,6 +16,8 @@
 
 package fast
 
+:package "fast"
+
 :import (
 	"go/ast"
 	r "reflect"

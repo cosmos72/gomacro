@@ -25,6 +25,8 @@ import (
 )
 
 
+:package "fast"
+
 :import (
 	"fmt"
 	"go/ast"

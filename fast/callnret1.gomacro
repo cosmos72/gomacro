@@ -20,6 +20,8 @@ import (
 	r "reflect"
 )
 
+:package "fast"
+
 :import (
 	"go/ast"
 	"go/token"

@@ -25,6 +25,8 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+:package "fast"
+
 :import (
 	"fmt"
 	"go/ast"
