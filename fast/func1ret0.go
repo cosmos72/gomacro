@@ -296,8 +296,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
+		}
 	case r.Uintptr:
 		{
 			if funcbody == nil {
@@ -320,8 +320,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
+		}
 	case r.Float32:
 		{
 			if funcbody == nil {
@@ -344,8 +344,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
+		}
 	case r.Float64:
 		{
 			if funcbody == nil {
@@ -368,8 +368,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
+		}
 	case r.Complex64:
 		{
 			if funcbody == nil {
@@ -392,8 +392,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
+		}
 	case r.Complex128:
 		{
 			if funcbody == nil {
@@ -420,8 +420,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
+		}
 	case r.String:
 		{
 			if funcbody == nil {
@@ -448,8 +448,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
+		}
 	default:
 		{
 			rtype := t.ReflectType()
@@ -480,7 +480,6 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					})
 				}
 			}
-
 		}
 	}
 }

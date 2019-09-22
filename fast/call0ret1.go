@@ -45,8 +45,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 	var ret I
 	switch kret {
 	case r.Bool:
-
 		{
+
 			if !tret.IdenticalTo(c.TypeOfBool(),
 			) {
 				ret = func(env *Env) bool {
@@ -93,11 +93,10 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Int:
-
 		{
+
 			if !tret.IdenticalTo(c.TypeOfInt(),
 			) {
 				ret = func(env *Env) int {
@@ -143,11 +142,10 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Int8:
-
 		{
+
 			if !tret.IdenticalTo(c.TypeOfInt8(),
 			) {
 				ret = func(env *Env) int8 {
@@ -193,10 +191,10 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Int16:
 		{
+
 			if !tret.IdenticalTo(c.TypeOfInt16(),
 			) {
 				ret = func(env *Env) int16 {
@@ -242,7 +240,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Int32:
 		{
@@ -291,7 +288,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Int64:
 		{
@@ -341,7 +337,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Uint:
 		{
@@ -390,7 +385,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Uint8:
 		{
@@ -439,7 +433,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Uint16:
 		{
@@ -488,7 +481,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Uint32:
 		{
@@ -537,7 +529,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Uint64:
 		{
@@ -587,7 +578,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Uintptr:
 		{
@@ -636,7 +626,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Float32:
 		{
@@ -685,7 +674,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Float64:
 		{
@@ -735,7 +723,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Complex64:
 		{
@@ -784,7 +771,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.Complex128:
 		{
@@ -833,7 +819,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	case r.String:
 		{
@@ -882,7 +867,6 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	default:
 		ret = func(env *Env) r.Value {

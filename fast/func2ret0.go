@@ -111,8 +111,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
@@ -144,8 +144,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
@@ -177,8 +177,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
@@ -211,6 +211,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
@@ -645,8 +646,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
@@ -678,8 +679,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
@@ -711,8 +712,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
@@ -745,6 +746,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
@@ -1179,8 +1181,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
@@ -1212,8 +1214,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
@@ -1245,8 +1247,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
@@ -1279,6 +1281,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
@@ -1713,8 +1716,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
@@ -1746,8 +1749,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
@@ -1779,8 +1782,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
@@ -1813,6 +1816,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
@@ -2247,8 +2251,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
@@ -2280,8 +2284,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
@@ -2313,8 +2317,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
@@ -2347,6 +2351,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
@@ -2781,8 +2786,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
@@ -2814,8 +2819,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
@@ -2847,8 +2852,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
@@ -2881,6 +2886,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
@@ -3315,8 +3321,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
@@ -3348,8 +3354,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
@@ -3381,8 +3387,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
@@ -3415,6 +3421,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
@@ -3849,8 +3856,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
@@ -3882,8 +3889,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
@@ -3915,8 +3922,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
@@ -3949,6 +3956,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
@@ -4383,8 +4391,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
@@ -4416,8 +4424,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
@@ -4449,8 +4457,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
@@ -4483,6 +4491,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
@@ -4917,8 +4926,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
@@ -4950,8 +4959,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
@@ -4983,8 +4992,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
@@ -5017,6 +5026,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
@@ -5451,8 +5461,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
@@ -5483,8 +5493,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
@@ -5515,8 +5525,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
@@ -5548,6 +5558,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
@@ -5968,8 +5979,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
@@ -6001,8 +6012,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
@@ -6034,8 +6045,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
@@ -6068,6 +6079,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
@@ -6502,8 +6514,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
@@ -6535,8 +6547,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
@@ -6568,8 +6580,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
@@ -6602,6 +6614,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
@@ -7036,8 +7049,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
@@ -7069,8 +7082,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
@@ -7102,8 +7115,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
@@ -7136,6 +7149,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
@@ -7570,8 +7584,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
@@ -7603,8 +7617,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
@@ -7636,8 +7650,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
@@ -7670,6 +7684,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
@@ -8104,8 +8119,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
@@ -8137,8 +8152,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
@@ -8170,8 +8185,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
@@ -8204,6 +8219,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
@@ -8638,8 +8654,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	var ret func(*Env) r.Value
 	switch karg1 {
 	case r.Bool:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
@@ -8675,8 +8691,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			}
 		}
 	case r.Int:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
@@ -8712,8 +8728,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			}
 		}
 	case r.Int8:
-
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
@@ -8750,6 +8766,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 		}
 	case r.Int16:
 		{
+
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 

@@ -1187,7 +1187,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Int:
 			{
@@ -1220,7 +1219,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Int8:
 			{
@@ -1252,7 +1250,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Int16:
 			{
@@ -1285,7 +1282,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Int32:
 			{
@@ -1319,7 +1315,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Int64:
 			{
@@ -1353,7 +1348,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Uint:
 			{
@@ -1387,7 +1381,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Uint8:
 			{
@@ -1421,7 +1414,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Uint16:
 			{
@@ -1455,7 +1447,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Uint32:
 			{
@@ -1489,7 +1480,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Uint64:
 			{
@@ -1523,7 +1513,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Uintptr:
 			{
@@ -1556,7 +1545,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Float32:
 			{
@@ -1588,7 +1576,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Float64:
 			{
@@ -1621,7 +1608,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Complex64:
 			{
@@ -1655,7 +1641,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.Complex128:
 			{
@@ -1689,7 +1674,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		case r.String:
 			{
@@ -1723,7 +1707,6 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 						fun(arg0, arg1)
 					}
 				}
-
 			}
 		}
 	}

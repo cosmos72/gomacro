@@ -6294,8 +6294,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 	case r.Float64:
 		switch karg {
 		case r.Bool:
-
 			{
+
 				argfun := arg.WithFun().(func(env *Env) bool)
 				ret = func(env *Env) float64 {
 					fun := exprfun(env).Interface().(func(bool,
@@ -6306,8 +6306,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 				}
 			}
 		case r.Int:
-
 			{
+
 				argfun := arg.WithFun().(func(env *Env) int)
 				ret = func(env *Env) float64 {
 					fun := exprfun(env).Interface().(func(int,
@@ -6319,6 +6319,7 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 			}
 		case r.Int8:
 			{
+
 				argfun := arg.WithFun().(func(env *Env) int8)
 				ret = func(env *Env) float64 {
 					fun := exprfun(env).Interface().(func(int8,
@@ -6433,8 +6434,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 					arg := argfun(env)
 					return fun(arg)
 				}
-			}
 
+			}
 		case r.Float64:
 			{
 				argfun := arg.WithFun().(func(env *Env) float64)
@@ -6445,8 +6446,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 					arg := argfun(env)
 					return fun(arg)
 				}
-			}
 
+			}
 		case r.Complex64:
 			{
 				argfun := arg.WithFun().(func(env *Env) complex64)
@@ -6457,8 +6458,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 					arg := argfun(env)
 					return fun(arg)
 				}
-			}
 
+			}
 		case r.Complex128:
 			{
 				argfun := arg.WithFun().(func(env *Env) complex128)
@@ -6469,8 +6470,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 					arg := argfun(env)
 					return fun(arg)
 				}
-			}
 
+			}
 		case r.String:
 			{
 				argfun := arg.WithFun().(func(env *Env) string)
@@ -6481,8 +6482,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 					arg := argfun(env)
 					return fun(arg)
 				}
-			}
 
+			}
 		default:
 			ret = func(env *Env) float64 {
 				funv := exprfun(env)
@@ -6576,8 +6577,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 	case r.Complex128:
 		switch karg {
 		case r.Bool:
-
 			{
+
 				argfun := arg.WithFun().(func(env *Env) bool)
 				ret = func(env *Env) complex128 {
 					fun := exprfun(env).Interface().(func(bool,
@@ -6588,8 +6589,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 				}
 			}
 		case r.Int:
-
 			{
+
 				argfun := arg.WithFun().(func(env *Env) int)
 				ret = func(env *Env) complex128 {
 					fun := exprfun(env).Interface().(func(int,
@@ -6601,6 +6602,7 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 			}
 		case r.Int8:
 			{
+
 				argfun := arg.WithFun().(func(env *Env) int8)
 				ret = func(env *Env) complex128 {
 					fun := exprfun(env).Interface().(func(int8,
@@ -6715,8 +6717,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 					arg := argfun(env)
 					return fun(arg)
 				}
-			}
 
+			}
 		case r.Float64:
 			{
 				argfun := arg.WithFun().(func(env *Env) float64)
@@ -6727,8 +6729,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 					arg := argfun(env)
 					return fun(arg)
 				}
-			}
 
+			}
 		case r.Complex64:
 			{
 				argfun := arg.WithFun().(func(env *Env) complex64)
@@ -6739,8 +6741,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 					arg := argfun(env)
 					return fun(arg)
 				}
-			}
 
+			}
 		case r.Complex128:
 			{
 				argfun := arg.WithFun().(func(env *Env) complex128)
@@ -6751,8 +6753,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 					arg := argfun(env)
 					return fun(arg)
 				}
-			}
 
+			}
 		case r.String:
 			{
 				argfun := arg.WithFun().(func(env *Env) string)
@@ -6763,8 +6765,8 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 					arg := argfun(env)
 					return fun(arg)
 				}
-			}
 
+			}
 		default:
 			ret = func(env *Env) complex128 {
 				funv := exprfun(env)

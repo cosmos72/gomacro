@@ -626,16 +626,14 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			}
 
 		default:
-			{
-				zero := xr.Zero(tval)
-				fun = func(env *Env) r.Value {
-					obj := objfun(env)
-					result := obj.MapIndex(key)
-					if result == base.Nil {
-						result = zero
-					}
-					return result
+			zero := xr.Zero(tval)
+			fun = func(env *Env) r.Value {
+				obj := objfun(env)
+				result := obj.MapIndex(key)
+				if result == base.Nil {
+					result = zero
 				}
+				return result
 			}
 
 		}
@@ -869,17 +867,15 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			}
 
 		default:
-			{
-				zero := xr.Zero(tval)
-				fun = func(env *Env) r.Value {
-					obj := objfun(env)
-					key := keyfun(env)
-					result := obj.MapIndex(key)
-					if result == base.Nil {
-						result = zero
-					}
-					return result
+			zero := xr.Zero(tval)
+			fun = func(env *Env) r.Value {
+				obj := objfun(env)
+				key := keyfun(env)
+				result := obj.MapIndex(key)
+				if result == base.Nil {
+					result = zero
 				}
+				return result
 			}
 
 		}
