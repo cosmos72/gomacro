@@ -83,6 +83,8 @@ func (ir *Interp) ChangePackage(name, path string) {
 			c.Debugf("switched to new package %v", path)
 		}
 	}
+	// env is at file/package level => its FileEnv is itself
+	ir.env.FileEnv = ir.env
 	ir.env.Run.Globals.PackagePath = path
 }
 
