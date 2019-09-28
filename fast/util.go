@@ -17,6 +17,7 @@
 package fast
 
 import (
+	"fmt"
 	"go/ast"
 	"go/constant"
 	r "reflect"
@@ -127,6 +128,149 @@ func (c *Comp) badPred(reason string, node ast.Expr, x *Expr) Stmt {
 	return nil
 }
 
+var negativeShiftAmount = fmt.Errorf("runtime error: negative shift amount")
+
+/*
+ * used by Comp.Shl(), Comp.Shr(), Comp.varSh{l,r}Expr() and Comp.placeSh{l,r}Expr().
+ * If e returns a signed integer type, the returned function
+ * panics at runtime when the integer is negative.
+ * This reproduces the behaviour of shift by signed integer introduced in Go 1.13
+ */
+func (e *Expr) AsUint64() func(*Env) uint64 {
+	if e == nil || e.Const() {
+		return nil
+	}
+	if e.NumOut() == 0 {
+		output.Errorf("expression returns no values, cannot convert to func(env *Env) uint64")
+		return nil
+	} else if e.NumOut() > 1 {
+		output.Warnf("expression returns %d values, using only the first one: %v", e.NumOut(), e.Types)
+	}
+	t := e.Type
+	if t == nil {
+		t = e.Types[0]
+	}
+	cat := reflect.Category(t.Kind())
+	if cat != r.Int && cat != r.Uint {
+		output.Errorf("expression returns %v, cannot convert to func(env *Env) uint64", t)
+		return nil
+	}
+	var ret func(*Env) uint64
+	switch fun := e.Fun.(type) {
+	case func(*Env) r.Value:
+		if cat == r.Int {
+			ret = func(env *Env) uint64 {
+				i := fun(env).Int()
+				if i < 0 {
+					panic(negativeShiftAmount)
+				}
+				return uint64(i)
+			}
+		} else {
+			ret = func(env *Env) uint64 {
+				return fun(env).Uint()
+			}
+		}
+	case func(*Env) (r.Value, []r.Value):
+		if cat == r.Int {
+			ret = func(env *Env) uint64 {
+				v, _ := fun(env)
+				i := v.Int()
+				if i < 0 {
+					panic(negativeShiftAmount)
+				}
+				return uint64(i)
+			}
+		} else {
+			ret = func(env *Env) uint64 {
+				v, _ := fun(env)
+				return v.Uint()
+			}
+		}
+	case func(*Env) int:
+		ret = func(env *Env) uint64 {
+			i := fun(env)
+			if i < 0 {
+				panic(negativeShiftAmount)
+			}
+			return uint64(i)
+		}
+	case func(*Env) int8:
+		ret = func(env *Env) uint64 {
+			i := fun(env)
+			if i < 0 {
+				panic(negativeShiftAmount)
+			}
+			return uint64(i)
+		}
+	case func(*Env) int16:
+		ret = func(env *Env) uint64 {
+			i := fun(env)
+			if i < 0 {
+				panic(negativeShiftAmount)
+			}
+			return uint64(i)
+		}
+	case func(*Env) int32:
+		ret = func(env *Env) uint64 {
+			i := fun(env)
+			if i < 0 {
+				panic(negativeShiftAmount)
+			}
+			return uint64(i)
+		}
+	case func(*Env) int64:
+		ret = func(env *Env) uint64 {
+			i := fun(env)
+			if i < 0 {
+				panic(negativeShiftAmount)
+			}
+			return uint64(i)
+		}
+	case func(*Env) uint:
+		ret = func(env *Env) uint64 {
+			return uint64(fun(env))
+		}
+	case func(*Env) uint8:
+		ret = func(env *Env) uint64 {
+			return uint64(fun(env))
+		}
+	case func(*Env) uint16:
+		ret = func(env *Env) uint64 {
+			return uint64(fun(env))
+		}
+	case func(*Env) uint32:
+		ret = func(env *Env) uint64 {
+			return uint64(fun(env))
+		}
+	case func(*Env) uint64:
+		return fun
+	case func(*Env) uintptr:
+		ret = func(env *Env) uint64 {
+			return uint64(fun(env))
+		}
+	default:
+		output.Errorf("unsupported function type, cannot convert to func(*Env) uint64: %v <%T>", fun, fun)
+	}
+	return ret
+}
+
+func constAsUint64(any I) (uint64, bool) {
+	v := r.ValueOf(any)
+	if !v.IsValid() {
+		return 0, false
+	}
+	switch reflect.Category(v.Kind()) {
+	case r.Uint:
+		return v.Uint(), true
+	case r.Int:
+		if i := v.Int(); i >= 0 {
+			return uint64(i), true
+		}
+	}
+	return 0, false
+}
+
 func (e *Expr) AsX() func(*Env) {
 	if e == nil || e.Const() {
 		return nil
@@ -216,7 +360,7 @@ func funAsX(any I) func(*Env) {
 			fun(env)
 		}
 	default:
-		output.Errorf("unsupported function type, cannot convert to func(*Env): %v <%v>", any, r.TypeOf(any))
+		output.Errorf("unsupported function type, cannot convert to func(*Env): %v <%T>", any, any)
 	}
 	return nil
 }
@@ -264,7 +408,7 @@ func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 		if t == nil || t.ReflectType() == rtypeOfUntypedLit {
 			t = untyp.DefaultType()
 		}
-		// Debugf("late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t)
+		// Debugf("late conversion of untyped constant %v <%T> to <%v>", untyp, untyp, t)
 		any = untyp.Convert(t)
 	}
 	v := r.ValueOf(any)
@@ -288,9 +432,9 @@ func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.V
 		if untyped {
 			if t == nil || t.ReflectType() == rtypeOfUntypedLit {
 				t = untyp.DefaultType()
-				// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to its default type <%v>", untyp, r.TypeOf(untyp), t)
+				// Debugf("valueAsXV: late conversion of untyped constant %v <%T> to its default type <%v>", untyp, untyp, t)
 			} else {
-				// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t.ReflectType())
+				// Debugf("valueAsXV: late conversion of untyped constant %v <%T> to <%v>", untyp, untyp, t.ReflectType())
 			}
 			any = untyp.Convert(t)
 		}
@@ -310,7 +454,7 @@ func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.V
 }
 
 func funAsX1(fun I, t xr.Type) func(*Env) r.Value {
-	// output.Debugf("funAsX1() %v -> %v", TypeOf(fun), t)
+	// output.Debugf("funAsX1() %T -> %v", fun, t)
 	var rt r.Type
 	if t != nil {
 		rt = t.ReflectType()
@@ -653,13 +797,13 @@ func funAsX1(fun I, t xr.Type) func(*Env) r.Value {
 			}
 		}
 	default:
-		output.Errorf("unsupported expression type, cannot convert to func(*Env) r.Value: %v <%v>", fun, r.TypeOf(fun))
+		output.Errorf("unsupported expression type, cannot convert to func(*Env) r.Value: %v <%T>", fun, fun)
 	}
 	return nil
 }
 
 func funAsXV(fun I, t xr.Type) func(*Env) (r.Value, []r.Value) {
-	// output.Debugf("funAsXV() %v -> %v", TypeOf(fun), t)
+	// output.Debugf("funAsXV() %T -> %v", fun, t)
 	var rt r.Type
 	if t != nil {
 		rt = t.ReflectType()
@@ -1001,8 +1145,8 @@ func funAsXV(fun I, t xr.Type) func(*Env) (r.Value, []r.Value) {
 			}
 		}
 	default:
-		output.Errorf("unsupported expression, cannot convert to func(*Env) (r.Value, []r.Value) : %v <%v>",
-			fun, r.TypeOf(fun))
+		output.Errorf("unsupported expression, cannot convert to func(*Env) (r.Value, []r.Value) : %v <%T>",
+			fun, fun)
 	}
 	return nil
 }
@@ -1248,8 +1392,8 @@ func funAsStmt(fun I) Stmt {
 		}
 	default:
 
-		output.Errorf("unsupported expression type, cannot convert to Stmt : %v <%v>",
-			fun, r.TypeOf(fun))
+		output.Errorf("unsupported expression type, cannot convert to Stmt : %v <%T>",
+			fun, fun)
 	}
 	return ret
 }

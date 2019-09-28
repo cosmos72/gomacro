@@ -277,7 +277,8 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 		ye.ConstTo(c.TypeOfUint64())
 	} else {
-		if yet == nil || !reflect.IsCategory(yet.Kind(), r.Uint) {
+		// accept shift by signed integer, introduced in Go 1.13
+		if yet == nil || !reflect.IsCategory(yet.Kind(), r.Int, r.Uint) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 	}
