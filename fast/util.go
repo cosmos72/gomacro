@@ -137,8 +137,17 @@ var negativeShiftAmount = fmt.Errorf("runtime error: negative shift amount")
  * This reproduces the behaviour of shift by signed integer introduced in Go 1.13
  */
 func (e *Expr) AsUint64() func(*Env) uint64 {
-	if e == nil || e.Const() {
-		return nil
+	if e == nil {
+		output.Errorf("internal error in Expr.AsUint64: receiver is nil")
+	} else if e.Const() {
+		n, ok := constAsUint64(e.Value)
+		if !ok {
+			output.Errorf("invalid shift amount: %v // %v",
+				e.Value, e.Type)
+		}
+		return func(*Env) uint64 {
+			return n
+		}
 	}
 	if e.NumOut() == 0 {
 		output.Errorf("expression returns no values, cannot convert to func(env *Env) uint64")
