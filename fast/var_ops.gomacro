@@ -286,7 +286,6 @@ import (	"fmt"
 		}
 	}
 	return ~"{
-		t := va.Type
 		upn := va.Upn
 		index := va.Desc.Index()
 		intbinds := va.Desc.Class() == IntBind
@@ -326,6 +325,7 @@ func (c *Comp) varAddConst(va *Var, val I) Stmt {
 	if isLiteralNumber(val, 0) || val == "" {
 		return nil
 	}
+	t := va.Type
 	setplaces_depth_const; token.ADD; {int; uint; float64; complex128; string; nil}
 }
 
@@ -339,6 +339,7 @@ func (c *Comp) varSubConst(va *Var, val I) Stmt {
 	if isLiteralNumber(val, 0) {
 		return nil
 	}
+	t := va.Type
 	setplaces_depth_const; token.SUB; {int; uint; float64; complex128; nil}
 }
 
@@ -355,6 +356,7 @@ func (c *Comp) varMulConst(va *Var, val I) Stmt {
 	} else if isLiteralNumber(val, 1) {
 		return nil
 	}
+	t := va.Type
 	setplaces_depth_const; token.MUL; {int; uint; float64; complex128; nil}
 }
 
@@ -511,6 +513,7 @@ func (c *Comp) varQuoConst(va *Var, val I) Stmt {
 	if stmt := c.varQuoPow2(va, val); stmt != nil {
 		return stmt
 	}
+	t := va.Type
 	setplaces_depth_const; token.QUO; {int; uint; float64; complex128; nil}
 }
 
@@ -619,8 +622,10 @@ func (c *Comp) setVar(va *Var, op token.Token, init *Expr) Stmt {
 		if init.Untyped() {
 			init.ConstTo(c.TypeOfUint64())
 			err = nil
-		} else if init.Type == nil || reflect.Category(init.Type.Kind()) != r.Uint {
-			err = fmt.Sprintf("\n\treason: type %v is %v, expecting unsigned integer", init.Type, init.Type.Kind())
+		} else if init.Type == nil {
+			err = fmt.Sprintf("\n\treason: type is %v, expecting integer", init.Type)
+		} else if c := reflect.Category(init.Type.Kind()); c != r.Int && c != r.Uint {
+			err = fmt.Sprintf("\n\treason: type %v is %v, expecting integer", init.Type, init.Type.Kind())
 		} else {
 			err = nil
 		}
@@ -718,9 +723,9 @@ func (c *Comp) setVar(va *Var, op token.Token, init *Expr) Stmt {
 		case token.XOR, token.XOR_ASSIGN:
 			return c.varXorExpr(va, fun)
 		case token.SHL, token.SHL_ASSIGN:
-			return c.varShlExpr(va, fun)
+			return c.varShlExpr(va, init)
 		case token.SHR, token.SHR_ASSIGN:
-			return c.varShrExpr(va, fun)
+			return c.varShrExpr(va, init)
 		case token.AND_NOT, token.AND_NOT_ASSIGN:
 			return c.varAndnotExpr(va, fun)
 		}

@@ -538,6 +538,8 @@ var testcases = []TestCase{
 	TestCase{A, "var_signed_shift_4", "v3 << int(2)", uint16(12) << 2, nil},
 	TestCase{A, "var_signed_shift_5", "v0 << v0", int(11) << 11, nil},
 	TestCase{A, "var_signed_shift_6", "v0 >> v0", int(11) >> 11, nil},
+	TestCase{A, "var_signed_shift_7", "v0 >>= int(1); v0", int(11) >> 1, nil},
+	TestCase{A, "var_signed_shift_8", "v0 <<= int(1); v0", int(11) >> 1 << 1, nil},
 	TestCase{A, "var_shift_overflow", "v3 << 13", uint16(32768), nil},
 	// test division by constant power-of-two
 	TestCase{C, "var_div_1", "v3 = 11; v3 / 2", uint64(11) / 2, nil}, // classic interpreter is not type-accurate here
