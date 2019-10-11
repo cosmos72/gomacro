@@ -189,7 +189,14 @@ import (`, alias, gen.path, filepkg)
 			fmt.Fprintf(out, "\n\t%s %q", name, path)
 		}
 	}
-	fmt.Fprintf(out, "\n)\n")
+	fmt.Fprintf(out, `
+)
+
+import "unsafe"
+
+var _ = unsafe.Pointer(nil)
+
+`)
 
 	if mode == ImInception {
 		gen.pkgrenames[gen.path] = "" // writing inside the package: remove the package prefix
