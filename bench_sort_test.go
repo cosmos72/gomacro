@@ -17,6 +17,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"sort"
 	"testing"
 
@@ -223,7 +224,16 @@ func BenchmarkShellSortClassicInts(b *testing.B) {
 	benchmark_sort(b, sort)
 }
 
-var sort_data = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
+var sort_data = make_sort_data()
+
+func make_sort_data() []int {
+	const n = 1500
+	v := make([]int, n)
+	for i := 0; i < n; i++ {
+		v[i] = rand.Int()
+	}
+	return v
+}
 
 func benchmark_sort(b *testing.B, sort func([]int)) {
 	// call sort once for warm-up
