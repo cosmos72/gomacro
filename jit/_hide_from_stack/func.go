@@ -8,25 +8,26 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * statement.go
+ * func.go
  *
- *  Created on Feb 16, 2019
+ *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package hide_from_stack
 
-// go:nosplit
-func Nop(env *Env) (Stmt, *Env) {
-	ip := env.IP + 1
-	env.IP = ip
-	return env.Code[ip], env
+import (
+	"unsafe"
+)
+
+func func_to_uintptr(closure interface{}) uintptr {
+	type interfaceHeader struct {
+		typ uintptr
+		val uintptr
+	}
+	return (*interfaceHeader)(unsafe.Pointer(&closure)).val
 }
 
-// go:nosplit
-func Leave(env *Env) (Stmt, *Env) {
-	env = env.Outer
-	ip := env.IP + 1
-	env.IP = ip
-	return env.Code[ip], env
+func empty_func_to_uintptr(closure func()) uintptr {
+	return *(*uintptr)(unsafe.Pointer(&closure))
 }

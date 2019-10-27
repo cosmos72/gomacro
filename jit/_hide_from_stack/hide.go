@@ -8,25 +8,19 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * statement.go
+ * hide.go
  *
- *  Created on Feb 16, 2019
+ *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi
  */
+package hide_from_stack
 
-package main
-
-// go:nosplit
-func Nop(env *Env) (Stmt, *Env) {
-	ip := env.IP + 1
-	env.IP = ip
-	return env.Code[ip], env
+type Env struct {
+	tocall func()
 }
 
-// go:nosplit
-func Leave(env *Env) (Stmt, *Env) {
-	env = env.Outer
-	ip := env.IP + 1
-	env.IP = ip
-	return env.Code[ip], env
+func hideme(env *Env)
+
+func hidden_func(env *Env) {
+	panic("hidden_func called! this should not happen")
 }

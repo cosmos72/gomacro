@@ -8,25 +8,23 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * statement.go
+ * call_arm64.go
  *
- *  Created on Feb 16, 2019
+ *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+// +build gc
 
-// go:nosplit
-func Nop(env *Env) (Stmt, *Env) {
-	ip := env.IP + 1
-	env.IP = ip
-	return env.Code[ip], env
-}
+#include "go_asm.h"
+#include "textflag.h" // for NOSPLIT
 
-// go:nosplit
-func Leave(env *Env) (Stmt, *Env) {
-	env = env.Outer
-	ip := env.IP + 1
-	env.IP = ip
-	return env.Code[ip], env
-}
+TEXT ·call_0b(SB),NOSPLIT,$0-8
+	POP   R1
+	MOVD  target_ip+0(FP), R0
+	MOVD  R1, target_ip+0(FP)
+	CALL  R0
+	MOVD  target_ip+0(FP), R1
+	PUSH  R1
+	RET
+
