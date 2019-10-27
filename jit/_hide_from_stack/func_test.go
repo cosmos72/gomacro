@@ -23,6 +23,13 @@ import (
 	"unsafe"
 )
 
+/*
+func TestAsmLoop(t *testing.T) {
+	go asm_loop() // causes runtime.GC() to wait indefinitely
+	runtime.GC()
+}
+*/
+
 func TestAddressOfCanary(t *testing.T) {
 	if os.Stdout == nil {
 		fmt.Printf("address_of_canary                = %p\n\n", address_of_canary)

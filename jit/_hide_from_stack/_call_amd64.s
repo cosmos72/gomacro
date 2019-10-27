@@ -14,3 +14,13 @@ call_0b:
 	ret
 	.cfi_endproc
 
+	.text
+	.p2align 4,,15
+	.globl	asm_loop
+	.type	asm_loop, @function
+asm_loop:
+	.cfi_startproc
+	jmp		asm_loop
+	ret
+	.cfi_endproc
+

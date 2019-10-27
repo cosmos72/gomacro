@@ -20,6 +20,11 @@
 #include "textflag.h" // for NOSPLIT
 #include "funcdata.h" // for NO_LOCAL_POINTERS
 
+TEXT ·asm_loop(SB),NOSPLIT,$8-0
+label_asm_loop:
+    JMP  label_asm_loop
+	RET
+
 
 TEXT ·asm_address_of_canary(SB),NOSPLIT,$0-8
     MOVQ ·var_canary(SB), AX // closure. actual function is LEAQ ·canary(SB), AX
