@@ -22,14 +22,25 @@ import (
 	"runtime/debug"
 )
 
-var canary_print_stacktrace = false
+var debug_print_stacktrace = false
 
 func canary(arg uintptr) {
 	fmt.Printf("canary(%d) called\n", arg)
-	if canary_print_stacktrace {
+	if debug_print_stacktrace {
 		debug.PrintStack()
 	}
 	runtime.GC()
+}
+
+// return a closure
+func make_parrot(arg0 uintptr) func(uintptr) {
+	return func(arg1 uintptr) {
+		fmt.Printf("parrot(%d) called, closure data = %d\n", arg1, arg0)
+		if debug_print_stacktrace {
+			debug.PrintStack()
+		}
+		runtime.GC()
+	}
 }
 
 // used by asm_address_of_canary()

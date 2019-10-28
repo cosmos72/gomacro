@@ -49,3 +49,9 @@ func TestCallCanary(t *testing.T) {
 	growStack()
 	hideme(&Env{canary, 3})
 }
+
+func TestCallParrot(t *testing.T) {
+	parrot := make_parrot(123456)
+	asm_call_closure(parrot, 0)
+	hideme(&Env{parrot, 1})
+}
