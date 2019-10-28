@@ -24,8 +24,8 @@ import (
 
 var canary_print_stacktrace = false
 
-func canary() {
-	fmt.Println("canary called")
+func canary(arg uintptr) {
+	fmt.Printf("canary(%d) called\n", arg)
 	if canary_print_stacktrace {
 		debug.PrintStack()
 	}
@@ -35,12 +35,12 @@ func canary() {
 // used by asm_address_of_canary()
 var var_canary = canary
 
-func address_of_canary() func() {
+func address_of_canary() func(uintptr) {
 	return canary
 }
 
-func asm_address_of_canary() func()
-func asm_call_canary()
-func asm_call_func(tocall uintptr)
-func asm_call_closure(tocall func())
+func asm_address_of_canary() func(uintptr)
+func asm_call_canary(arg uintptr)
+func asm_call_func(func_address uintptr, arg uintptr)
+func asm_call_closure(tocall func(uintptr), arg uintptr)
 func asm_loop()

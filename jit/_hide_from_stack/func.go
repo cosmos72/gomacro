@@ -20,14 +20,19 @@ import (
 	"unsafe"
 )
 
-func func_to_uintptr(closure interface{}) uintptr {
-	type interfaceHeader struct {
-		typ uintptr
-		val uintptr
-	}
-	return (*interfaceHeader)(unsafe.Pointer(&closure)).val
+type closureHeader struct {
+	funcAddress uintptr
+	closureData [0]uintptr
 }
 
-func empty_func_to_uintptr(closure func()) uintptr {
-	return *(*uintptr)(unsafe.Pointer(&closure))
+func deconstruct_any_func(fun interface{}) *closureHeader {
+	type interfaceHeader struct {
+		typ uintptr
+		val *closureHeader
+	}
+	return (*interfaceHeader)(unsafe.Pointer(&fun)).val
+}
+
+func deconstruct_func8(fun func(uintptr)) *closureHeader {
+	return *(**closureHeader)(unsafe.Pointer(&fun))
 }

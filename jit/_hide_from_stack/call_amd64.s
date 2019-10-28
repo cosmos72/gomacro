@@ -31,37 +31,62 @@ TEXT ·asm_address_of_canary(SB),NOSPLIT,$0-8
 	MOVQ AX, ret+0(FP)
 	RET
 
-TEXT ·asm_call_canary(SB),NOSPLIT,$0-0
+TEXT ·asm_call_canary(SB),NOSPLIT,$8-8
+	NO_LOCAL_POINTERS
+	MOVQ received_arg+0(FP), AX
+	MOVQ AX, local_arg-8(SP)
     CALL ·canary(SB)
 	RET
 
-TEXT ·asm_call_func(SB),NOSPLIT,$0-8
-	MOVQ tocall+0(FP), AX
+TEXT ·asm_call_func(SB),NOSPLIT,$8-16
+	NO_LOCAL_POINTERS
+	MOVQ func_address+0(FP), AX
+	MOVQ received_arg+8(FP), DX
+	MOVQ DX, local_arg-8(SP)
 	CALL AX
 	RET
 
-TEXT ·asm_call_closure(SB),NOSPLIT,$0-8
-	MOVQ tocall+0(FP), BX
+TEXT ·asm_call_closure(SB),NOSPLIT,$8-16
+	NO_LOCAL_POINTERS
+	MOVQ closure+0(FP), BX
+	MOVQ received_arg+8(FP), DX
+	MOVQ DX, local_arg-8(SP)
 	CALL 0(BX)
 	RET
 
-TEXT ·hideme(SB),NOSPLIT,$0-8
-	MOVQ env+0(FP), BX
-	MOVQ 0(BX), BX
-	CALL ·call_0b(SB)
+TEXT ·growStack(SB),0,$1152-0
+	NO_LOCAL_POINTERS
+	RET
+
+/*
+TEXT ·hideme(SB),NOSPLIT,$0-8 // must not have local variables
+	MOVQ env+0(FP), AX
+	MOVQ 0(AX), BX            // closure, must be in BX
+	MOVQ 8(AX), DX            // closure arg
+	MOVQ DX, local_arg-32(SP) // write into callee stack
+	CALL ·call8(SB)
+	RET
+*/
+
+TEXT ·hideme(SB),NOSPLIT,$0-8 // must not have local variables
+	MOVQ env+0(FP), AX
+	MOVQ 0(AX), BX            // closure, must be in BX
+	MOVQ 8(AX), DX            // closure arg
+	MOVQ DX, local_arg-536(SP) // write into callee stack
+	CALL ·call512(SB)
 	RET
 
 /**
- * call the closure stored in BX,
- * hiding the caller from runtime stack:
+ * call the closure stored in BX (which expects exactly 0 bytes of arguments
+ * + return values), hiding the caller from runtime stack:
  * caller is replaced with a fake entry hidden_func()
  */
-TEXT ·call_0b(SB),NOSPLIT,$8-0
+TEXT ·call0(SB),NOSPLIT,$8-0
 	NO_LOCAL_POINTERS
 	LEAQ ·hidden_func(SB), DX
 	MOVQ caller_ip+8(SP), AX
 	MOVQ DX, caller_ip+8(SP)
-	MOVQ AX, localvar-8(SP)
+	MOVQ AX, save_caller_ip-8(SP)
 	/*
 	 * Go call abi: closures are pointers to
 	 * struct {
@@ -71,62 +96,110 @@ TEXT ·call_0b(SB),NOSPLIT,$8-0
 	 * and struct address must be passed in BX
 	 */
 	CALL 0(BX)
-	MOVQ localvar-8(SP), AX
+	MOVQ save_caller_ip-8(SP), AX
 	MOVQ AX, caller_ip+8(SP)
 	RET
 
-/*
-TEXT ·call_8b(SB),NOSPLIT,$0-16
-	POPQ  AX
-	MOVQ  target_func+8(FP), BX
-	MOVQ  AX, target_func+8(FP)
-	CALL  0(BX)
-	MOVQ  target_func+8(FP), AX
-	PUSHQ AX
+/**
+ * call the closure stored in BX (which expects up to 8 bytes of arguments
+ * + return values), hiding the caller from runtime stack:
+ * caller is replaced with a fake entry hidden_func()
+ *
+ * writing arguments in our stack and retrieving return values from it
+ * are caller's responsibility
+ * (possible only in assembly: caller has to access our stack)
+ */
+TEXT ·call8(SB),NOSPLIT,$16-0
+	NO_LOCAL_POINTERS
+	LEAQ ·hidden_func(SB), DX
+	MOVQ caller_ip+8(SP), AX
+	MOVQ DX, caller_ip+8(SP)
+	MOVQ AX, save_caller_ip-8(SP)
+	CALL 0(BX)
+	MOVQ save_caller_ip-8(SP), AX
+	MOVQ AX, caller_ip+8(SP)
 	RET
 
-TEXT ·call_16b(SB),NOSPLIT,$0-24
-	POPQ  AX
-	MOVQ  target_func+16(FP), BX
-	MOVQ  AX, target_func+16(FP)
-	CALL  0(BX)
-	MOVQ  target_func+16(FP), DX
-	PUSHQ AX
+// as above, but closure can expect up to 16 bytes of arguments return values
+TEXT ·call16(SB),NOSPLIT,$24-0
+	NO_LOCAL_POINTERS
+	LEAQ ·hidden_func(SB), DX
+	MOVQ caller_ip+8(SP), AX
+	MOVQ DX, caller_ip+8(SP)
+	MOVQ AX, save_caller_ip-8(SP)
+	CALL 0(BX)
+	MOVQ save_caller_ip-8(SP), AX
+	MOVQ AX, caller_ip+8(SP)
 	RET
 
-TEXT ·call_32b(SB),NOSPLIT,$0-40
-	POPQ  AX
-	MOVQ  target_func+32(FP), BX
-	MOVQ  AX, target_func+32(FP)
-	CALL  0(BX)
-	MOVQ  target_func+32(FP), DX
-	PUSHQ AX
+// as above, but closure can expect up to 32 bytes of arguments return values
+TEXT ·call32(SB),NOSPLIT,$40-0
+	NO_LOCAL_POINTERS
+	LEAQ ·hidden_func(SB), DX
+	MOVQ caller_ip+8(SP), AX
+	MOVQ DX, caller_ip+8(SP)
+	MOVQ AX, save_caller_ip-8(SP)
+	CALL 0(BX)
+	MOVQ save_caller_ip-8(SP), AX
+	MOVQ AX, caller_ip+8(SP)
 	RET
 
-TEXT ·call_64b(SB),NOSPLIT,$0-72
-	POPQ  AX
-	MOVQ  target_func+64(FP), BX
-	MOVQ  AX, target_func+64(FP)
-	CALL  0(BX)
-	MOVQ  target_func+64(FP), DX
-	PUSHQ AX
+// as above, but closure can expect up to 64 bytes of arguments return values
+TEXT ·call64(SB),NOSPLIT,$72-0
+	NO_LOCAL_POINTERS
+	LEAQ ·hidden_func(SB), DX
+	MOVQ caller_ip+8(SP), AX
+	MOVQ DX, caller_ip+8(SP)
+	MOVQ AX, save_caller_ip-8(SP)
+	CALL 0(BX)
+	MOVQ save_caller_ip-8(SP), AX
+	MOVQ AX, caller_ip+8(SP)
 	RET
 
-TEXT ·call_128b(SB),NOSPLIT,$0-136
-	POPQ  AX
-	MOVQ  target_func+128(FP), BX
-	MOVQ  AX, target_func+128(FP)
-	CALL  0(BX)
-	MOVQ  target_func+128(FP), DX
-	PUSHQ AX
+// as above, but closure can expect up to 128 bytes of arguments return values
+TEXT ·call128(SB),NOSPLIT,$136-0
+	NO_LOCAL_POINTERS
+	LEAQ ·hidden_func(SB), DX
+	MOVQ caller_ip+8(SP), AX
+	MOVQ DX, caller_ip+8(SP)
+	MOVQ AX, save_caller_ip-8(SP)
+	CALL 0(BX)
+	MOVQ save_caller_ip-8(SP), AX
+	MOVQ AX, caller_ip+8(SP)
 	RET
 
-TEXT ·call_256b(SB),NOSPLIT,$0-264
-	POPQ  AX
-	MOVQ  target_func+256(FP), BX
-	MOVQ  AX, target_func+256(FP)
-	CALL  0(BX)
-	MOVQ  target_func+256(FP), DX
-	PUSHQ AX
+// as above, but closure can expect up to 256 bytes of arguments return values
+TEXT ·call256(SB),NOSPLIT,$264-0
+	NO_LOCAL_POINTERS
+	LEAQ ·hidden_func(SB), DX
+	MOVQ caller_ip+8(SP), AX
+	MOVQ DX, caller_ip+8(SP)
+	MOVQ AX, save_caller_ip-8(SP)
+	CALL 0(BX)
+	MOVQ save_caller_ip-8(SP), AX
+	MOVQ AX, caller_ip+8(SP)
 	RET
-*/
+
+// as above, but closure can expect up to 512 bytes of arguments return values
+TEXT ·call512(SB),NOSPLIT,$520-0
+	NO_LOCAL_POINTERS
+	LEAQ ·hidden_func(SB), DX
+	MOVQ caller_ip+8(SP), AX
+	MOVQ DX, caller_ip+8(SP)
+	MOVQ AX, save_caller_ip-8(SP)
+	CALL 0(BX)
+	MOVQ save_caller_ip-8(SP), AX
+	MOVQ AX, caller_ip+8(SP)
+	RET
+
+// as above, but closure can expect up to 1024 bytes of arguments return values
+TEXT ·call1024(SB),NOSPLIT,$1032-0
+	NO_LOCAL_POINTERS
+	LEAQ ·hidden_func(SB), DX
+	MOVQ caller_ip+8(SP), AX
+	MOVQ DX, caller_ip+8(SP)
+	MOVQ AX, save_caller_ip-8(SP)
+	CALL 0(BX)
+	MOVQ save_caller_ip-8(SP), AX
+	MOVQ AX, caller_ip+8(SP)
+	RET

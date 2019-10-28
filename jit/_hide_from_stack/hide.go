@@ -16,11 +16,17 @@
 package hide_from_stack
 
 type Env struct {
-	tocall func()
+	closure func(uintptr)
+	arg     uintptr
 }
 
 func hideme(env *Env)
 
 func hidden_func(env *Env) {
+	hidden_func_unexpected_call()
+}
+
+// go:noinline
+func hidden_func_unexpected_call() {
 	panic("hidden_func called! this should not happen")
 }
