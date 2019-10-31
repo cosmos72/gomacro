@@ -15,12 +15,5 @@
  */
 package hide_from_stack
 
-// go:nosplit
-func some_hidden_func(uintptr) {
-	some_hidden_func_unexpected_call()
-}
-
-// go:noinline
-func some_hidden_func_unexpected_call() {
-	panic("some_hidden_func called! this should not happen")
+func hidden_jit_func(uintptr) {
 }

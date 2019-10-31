@@ -21,13 +21,13 @@ package hide_from_stack
 /**
  * call the closure stored in BX (which expects exactly 0 bytes of arguments
  * + return values), hiding the caller from runtime stack:
- * caller is replaced with a fake entry some_hidden_func()
+ * caller is replaced with a fake entry hidden_jit_func()
  */
 func call0()
 
 /**
  * call the closure stored in DX, hiding the caller from runtime stack:
- * caller is replaced with a fake entry some_hidden_func()
+ * caller is replaced with a fake entry hidden_jit_func()
 
  * the closure can expect up to 8 bytes of arguments + return values
  *

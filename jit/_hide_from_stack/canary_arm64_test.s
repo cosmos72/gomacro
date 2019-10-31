@@ -24,8 +24,11 @@ label_asm_loop:
     JMP  label_asm_loop
 	RET
 
+DATA  ·const_canary+0(SB)/8,$·canary(SB)
+GLOBL ·const_canary+0(SB),RODATA,$8
+
 TEXT ·asm_address_of_canary(SB),NOSPLIT|NOFRAME,$0-8
-    MOVD ·var_canary(SB), R0 // closure. actual function is LEAQ ·canary(SB), R0
+    MOVD $·const_canary(SB), R0 // closure. actual function is MOVD $·canary(SB), R0
 	MOVD R0, ret+0(FP)
 	RET
 
@@ -57,10 +60,12 @@ TEXT ·asm_call_closure(SB),NOSPLIT,$8-16
 // NOFRAME works only for leaf functions
 TEXT ·asm_hideme(SB),NOSPLIT,$0-8 // must not have local variables
 	MOVD env+0(FP), R0
-	MOVD 0(R0), R26           // closure, must be in R26
-	MOVD 8(R0), R1            // closure arg
-	MOVD R1, local_arg-32(SP) // write into callee stack
-	CALL ·call8(SB)
+	MOVD 0(R0),  R26           // closure, must be in R26
+	MOVD 8(R0),  R1            // closure arg
+	MOVD 16(R0), R2            // helper function
+	MOVD R1, local_arg-32(SP)  // write into callee stack
+	// CALL ·call8(SB)
+	CALL R2
 	RET
 
 /*

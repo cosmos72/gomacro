@@ -30,19 +30,6 @@ TEXT ·growStack(SB),0,$1152-0
  */
 TEXT ·call0(SB),NOSPLIT,$8-0
 	NO_LOCAL_POINTERS
-	MOVD 0(R26), R0
-	MOVD LR, save_caller_ip-8(SP)
-	MOVD ·some_hidden_func(SB), LR
-	/*
-	 * Go call abi: closures are pointers to
-	 * struct {
-	 *   func_address uintptr
-	 *   closure_data [...]uint8
-	 * }
-	 * and struct address must be passed in R26
-	 */
-	CALL R0
-	MOVD save_caller_ip-8(SP), LR
 	RET
 
 /**
@@ -56,63 +43,54 @@ TEXT ·call0(SB),NOSPLIT,$8-0
  */
 TEXT ·call8(SB),NOSPLIT,$16-0
 	NO_LOCAL_POINTERS
-	MOVD 0(R26), R0
-	CALL R0
-	MOVD save_caller_ip-8(SP), R30
+	MOVD R30, save_caller_ip-8(SP)
+	MOVD $·hidden_jit_func(SB), R0
+	MOVD R0, caller_ip-24(SP)
+	/*
+	 * Go call abi: closures are pointers to
+	 * struct {
+	 *   func_address uintptr
+	 *   closure_data [...]uint8
+	 * }
+	 * and struct address must be passed in R26
+	 */
+	MOVD 0(R26), R1
+	CALL R1
+	MOVD save_caller_ip-8(SP), R0
+	MOVD R0, caller_ip-24(SP)
 	RET
 
 // as above, but closure can expect up to 16 bytes of arguments return values
 TEXT ·call16(SB),NOSPLIT,$24-0
 	NO_LOCAL_POINTERS
-	MOVD 0(R26), R0
-	CALL R0
-	MOVD save_caller_ip-8(SP), LR
 	RET
 
 // as above, but closure can expect up to 32 bytes of arguments return values
 TEXT ·call32(SB),NOSPLIT,$40-0
 	NO_LOCAL_POINTERS
-	MOVD 0(R26), R0
-	CALL R0
-	MOVD save_caller_ip-8(SP), LR
 	RET
 
 // as above, but closure can expect up to 64 bytes of arguments return values
 TEXT ·call64(SB),NOSPLIT,$72-0
 	NO_LOCAL_POINTERS
-	MOVD 0(R26), R0
-	CALL R0
-	MOVD save_caller_ip-8(SP), LR
 	RET
 
 // as above, but closure can expect up to 128 bytes of arguments return values
 TEXT ·call128(SB),NOSPLIT,$136-0
 	NO_LOCAL_POINTERS
-	MOVD 0(R26), R0
-	CALL R0
-	MOVD save_caller_ip-8(SP), LR
 	RET
 
 // as above, but closure can expect up to 256 bytes of arguments return values
 TEXT ·call256(SB),NOSPLIT,$264-0
 	NO_LOCAL_POINTERS
-	MOVD 0(R26), R0
-	CALL R0
-	MOVD save_caller_ip-8(SP), LR
 	RET
 
 // as above, but closure can expect up to 512 bytes of arguments return values
 TEXT ·call512(SB),NOSPLIT,$520-0
 	NO_LOCAL_POINTERS
-	MOVD 0(R26), R0
-	CALL R0
-	MOVD save_caller_ip-8(SP), LR
 	RET
 
 // as above, but closure can expect up to 1024 bytes of arguments return values
 TEXT ·call1024(SB),NOSPLIT,$1032-0
 	NO_LOCAL_POINTERS
-	MOVD 0(R26), R0
-	CALL R0
-	MOVD save_caller_ip-8(SP), LR
 	RET

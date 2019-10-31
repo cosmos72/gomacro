@@ -60,7 +60,7 @@ TEXT ·asm_hideme(SB),NOSPLIT|NOFRAME,$0-8 // must not have local variables
 	MOVQ env+0(FP), AX
 	MOVQ 0(AX),  DX            // closure, must be in DX
 	MOVQ 8(AX),  BX            // closure arg
-	MOVQ 16(AX), CX            // call helper
+	MOVQ 16(AX), CX            // helper function
 	MOVQ BX, local_arg-32(SP)  // write into callee stack
 	// CALL ·call8(SB)
 	CALL CX

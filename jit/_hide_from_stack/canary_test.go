@@ -19,13 +19,14 @@ package hide_from_stack
 import (
 	"fmt"
 	"runtime"
-	"runtime/debug"
+
+	// "runtime/debug"
 	"strings"
 )
 
-var debug_print_stacktrace = false
-
 func canary(arg uintptr) {
+	// debug.PrintStack()
+
 	pc := make([]uintptr, 1)
 	n := runtime.Callers(3, pc)
 	if n > 0 {
@@ -33,15 +34,12 @@ func canary(arg uintptr) {
 		if frame.PC != 0 {
 			file := frame.File[1+strings.LastIndexByte(frame.File, '/'):]
 			function := frame.Function[1+strings.LastIndexByte(frame.Function, '.'):]
-			fmt.Printf("canary(%d) called by 0x%08x\t%s\t%s:%d\n", arg, pc[0], function, file, frame.Line)
+			fmt.Printf("canary(%d) called by 0x%08x\t%s()\t%s:%d\n", arg, pc[0], function, file, frame.Line)
 		} else {
 			fmt.Printf("canary(%d) called by 0x%08x\n", arg, pc[0])
 		}
 	} else {
 		fmt.Printf("canary(%d) called\n", arg)
-	}
-	if debug_print_stacktrace {
-		debug.PrintStack()
 	}
 	runtime.GC()
 }
@@ -50,9 +48,7 @@ func canary(arg uintptr) {
 func make_parrot(arg0 uintptr) func(uintptr) {
 	return func(arg1 uintptr) {
 		fmt.Printf("parrot(%d) called, closure data = %d\n", arg1, arg0)
-		if debug_print_stacktrace {
-			debug.PrintStack()
-		}
+		// debug.PrintStack()
 		runtime.GC()
 	}
 }

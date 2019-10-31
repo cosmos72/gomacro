@@ -18,7 +18,6 @@ package hide_from_stack
 
 import (
 	"fmt"
-	"os"
 	"testing"
 )
 
@@ -30,9 +29,6 @@ func TestAsmLoop(t *testing.T) {
 */
 
 func TestAddressOfCanary(t *testing.T) {
-	if os.Stdout == nil {
-		fmt.Printf("address_of_canary            = %p\n\n", address_of_canary)
-	}
 	fmt.Printf("canary                       = %p\n", canary)
 	fmt.Printf("address_of_canary()          = %p\n", address_of_canary())
 	fmt.Printf("asm_address_of_canary()      = %p\n", asm_address_of_canary())
@@ -42,9 +38,15 @@ func TestAddressOfCanary(t *testing.T) {
 	fmt.Printf("deconstruct_any_func(canary) = %#x\n", *header)
 }
 
-func TestCallCanary(t *testing.T) {
-	debug_print_stacktrace = false
+func add(a, b int) int {
+	return a + b
+}
 
+func TestAddressOfAdd(t *testing.T) {
+	fmt.Printf("add                       = %p\n", add)
+}
+
+func TestCallCanary(t *testing.T) {
 	asm_call_canary(0)
 	asm_call_func(deconstruct_any_func(canary).funcAddress, 1)
 	asm_call_closure(asm_address_of_canary(), 2)
@@ -53,21 +55,17 @@ func TestCallCanary(t *testing.T) {
 	asm_hideme(env)
 	if jit_hideme != nil {
 		env.arg++
-		// debug_print_stacktrace = true
 		jit_hideme(env)
 	}
 }
 
-func TestCallParrot(t *testing.T) {
-	debug_print_stacktrace = false
-
+func _TestCallParrot(t *testing.T) {
 	parrot := make_parrot(123456)
 	asm_call_closure(parrot, 0)
 	env := &Env{parrot, 1, deconstruct_any_func(call8).funcAddress}
 	asm_hideme(env)
 	if jit_hideme != nil {
 		env.arg++
-		// debug_print_stacktrace = true
 		jit_hideme(env)
 	}
 }
