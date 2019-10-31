@@ -15,18 +15,12 @@
  */
 package hide_from_stack
 
-type Env struct {
-	closure func(uintptr)
-	arg     uintptr
-}
-
-func hideme(env *Env)
-
-func hidden_func(env *Env) {
-	hidden_func_unexpected_call()
+// go:nosplit
+func some_hidden_func(uintptr) {
+	some_hidden_func_unexpected_call()
 }
 
 // go:noinline
-func hidden_func_unexpected_call() {
-	panic("hidden_func called! this should not happen")
+func some_hidden_func_unexpected_call() {
+	panic("some_hidden_func called! this should not happen")
 }

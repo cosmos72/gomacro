@@ -32,7 +32,7 @@ TEXT ·call0(SB),NOSPLIT,$8-0
 	NO_LOCAL_POINTERS
 	MOVD 0(R26), R0
 	MOVD LR, save_caller_ip-8(SP)
-	MOVD ·hidden_func(SB), LR
+	MOVD ·some_hidden_func(SB), LR
 	/*
 	 * Go call abi: closures are pointers to
 	 * struct {
@@ -57,21 +57,14 @@ TEXT ·call0(SB),NOSPLIT,$8-0
 TEXT ·call8(SB),NOSPLIT,$16-0
 	NO_LOCAL_POINTERS
 	MOVD 0(R26), R0
-	// MOVD LR, save_caller_ip-8(SP)
-	// MOVD ·hidden_func(SB), LR
-	// MOVD LR, caller_ip-8(FP)
-	MOVD ZR, R30
 	CALL R0
-	// MOVD save_caller_ip-8(SP), LR
-	// MOVD LR, caller_ip-8(FP)
+	MOVD save_caller_ip-8(SP), R30
 	RET
 
 // as above, but closure can expect up to 16 bytes of arguments return values
 TEXT ·call16(SB),NOSPLIT,$24-0
 	NO_LOCAL_POINTERS
 	MOVD 0(R26), R0
-	MOVD LR, save_caller_ip-8(SP)
-	MOVD ·hidden_func(SB), LR
 	CALL R0
 	MOVD save_caller_ip-8(SP), LR
 	RET
@@ -80,8 +73,6 @@ TEXT ·call16(SB),NOSPLIT,$24-0
 TEXT ·call32(SB),NOSPLIT,$40-0
 	NO_LOCAL_POINTERS
 	MOVD 0(R26), R0
-	MOVD LR, save_caller_ip-8(SP)
-	MOVD ·hidden_func(SB), LR
 	CALL R0
 	MOVD save_caller_ip-8(SP), LR
 	RET
@@ -90,8 +81,6 @@ TEXT ·call32(SB),NOSPLIT,$40-0
 TEXT ·call64(SB),NOSPLIT,$72-0
 	NO_LOCAL_POINTERS
 	MOVD 0(R26), R0
-	MOVD LR, save_caller_ip-8(SP)
-	MOVD ·hidden_func(SB), LR
 	CALL R0
 	MOVD save_caller_ip-8(SP), LR
 	RET
@@ -100,8 +89,6 @@ TEXT ·call64(SB),NOSPLIT,$72-0
 TEXT ·call128(SB),NOSPLIT,$136-0
 	NO_LOCAL_POINTERS
 	MOVD 0(R26), R0
-	MOVD LR, save_caller_ip-8(SP)
-	MOVD ·hidden_func(SB), LR
 	CALL R0
 	MOVD save_caller_ip-8(SP), LR
 	RET
@@ -110,8 +97,6 @@ TEXT ·call128(SB),NOSPLIT,$136-0
 TEXT ·call256(SB),NOSPLIT,$264-0
 	NO_LOCAL_POINTERS
 	MOVD 0(R26), R0
-	MOVD LR, save_caller_ip-8(SP)
-	MOVD ·hidden_func(SB), LR
 	CALL R0
 	MOVD save_caller_ip-8(SP), LR
 	RET
@@ -120,8 +105,6 @@ TEXT ·call256(SB),NOSPLIT,$264-0
 TEXT ·call512(SB),NOSPLIT,$520-0
 	NO_LOCAL_POINTERS
 	MOVD 0(R26), R0
-	MOVD LR, save_caller_ip-8(SP)
-	MOVD ·hidden_func(SB), LR
 	CALL R0
 	MOVD save_caller_ip-8(SP), LR
 	RET
@@ -130,8 +113,6 @@ TEXT ·call512(SB),NOSPLIT,$520-0
 TEXT ·call1024(SB),NOSPLIT,$1032-0
 	NO_LOCAL_POINTERS
 	MOVD 0(R26), R0
-	MOVD LR, save_caller_ip-8(SP)
-	MOVD ·hidden_func(SB), LR
 	CALL R0
 	MOVD save_caller_ip-8(SP), LR
 	RET

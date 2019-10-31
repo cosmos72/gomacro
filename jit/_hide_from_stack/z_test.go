@@ -43,15 +43,31 @@ func TestAddressOfCanary(t *testing.T) {
 }
 
 func TestCallCanary(t *testing.T) {
+	debug_print_stacktrace = false
+
 	asm_call_canary(0)
 	asm_call_func(deconstruct_any_func(canary).funcAddress, 1)
 	asm_call_closure(asm_address_of_canary(), 2)
 	growStack()
-	hideme(&Env{canary, 3})
+	env := &Env{canary, 3, deconstruct_any_func(call8).funcAddress}
+	asm_hideme(env)
+	if jit_hideme != nil {
+		env.arg++
+		// debug_print_stacktrace = true
+		jit_hideme(env)
+	}
 }
 
 func TestCallParrot(t *testing.T) {
+	debug_print_stacktrace = false
+
 	parrot := make_parrot(123456)
 	asm_call_closure(parrot, 0)
-	hideme(&Env{parrot, 1})
+	env := &Env{parrot, 1, deconstruct_any_func(call8).funcAddress}
+	asm_hideme(env)
+	if jit_hideme != nil {
+		env.arg++
+		// debug_print_stacktrace = true
+		jit_hideme(env)
+	}
 }

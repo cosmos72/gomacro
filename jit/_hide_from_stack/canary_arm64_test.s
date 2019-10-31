@@ -55,7 +55,7 @@ TEXT ·asm_call_closure(SB),NOSPLIT,$8-16
 	RET
 
 // NOFRAME works only for leaf functions
-TEXT ·hideme(SB),NOSPLIT,$0-8 // must not have local variables
+TEXT ·asm_hideme(SB),NOSPLIT,$0-8 // must not have local variables
 	MOVD env+0(FP), R0
 	MOVD 0(R0), R26           // closure, must be in R26
 	MOVD 8(R0), R1            // closure arg
@@ -64,7 +64,7 @@ TEXT ·hideme(SB),NOSPLIT,$0-8 // must not have local variables
 	RET
 
 /*
-TEXT ·hideme(SB),NOSPLIT,$0-8 // must not have local variables
+TEXT ·asm_hideme(SB),NOSPLIT,$0-8 // must not have local variables
 	MOVD env+0(FP), R0
 	MOVD 0(R0), R26           // closure, must be in R26
 	MOVD 8(R0), R1            // closure arg
