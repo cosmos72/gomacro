@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * func_test_amd64.go
+ * misc_amd64_test.s
  *
  *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi
@@ -56,12 +56,3 @@ TEXT ·asm_call_closure(SB),NOSPLIT,$8-16
 	CALL 0(DX)
 	RET
 
-// emulate a JIT function: no frame, no data on stack
-TEXT ·asm_hideme(SB),NOSPLIT|NOFRAME,$0-8 // must not have local variables
-	MOVQ env+0(FP), AX
-	MOVQ 0(AX),  DX            // closure, must be in DX
-	MOVQ 8(AX),  BX            // closure arg
-	MOVQ 24(AX), CX            // helper function: use call[1] == call16
-	MOVQ BX, local_arg-40(SP)  // write into callee stack
-	CALL CX
-	RET

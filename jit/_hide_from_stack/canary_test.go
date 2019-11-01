@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * canary.go
+ * canary_test.go
  *
  *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi
@@ -57,26 +57,3 @@ func make_parrot(arg0 uintptr) func(uintptr) {
 func address_of_canary() func(uintptr) {
 	return canary
 }
-
-type Env struct {
-	closure func(uintptr)
-	arg     uintptr
-	call    [7]uintptr // call0, call16 ... call512
-}
-
-func MakeCallArray() [7]uintptr {
-	var ret [7]uintptr
-	for i, call := range [...]func(){
-		call0, call16, call32, call64, call128, call256, call512,
-	} {
-		ret[i] = deconstruct_func0(call).funcAddress
-	}
-	return ret
-}
-
-func asm_address_of_canary() func(uintptr)
-func asm_call_canary(arg uintptr)
-func asm_call_func(func_address uintptr, arg uintptr)
-func asm_call_closure(tocall func(uintptr), arg uintptr)
-func asm_loop()
-func asm_hideme(env *Env)

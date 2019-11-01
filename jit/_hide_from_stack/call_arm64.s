@@ -1,4 +1,4 @@
-// +build gc
+// +build gc,arm64
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros
@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * call_amd64.go
+ * call_arm64.s
  *
  *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi
@@ -19,7 +19,12 @@
 #include "textflag.h" // for NOSPLIT
 #include "funcdata.h" // for NO_LOCAL_POINTERS
 
-TEXT ·grow_stack(SB),0,$640-0
+TEXT ·GrowStack(SB),0,$640-0
+	NO_LOCAL_POINTERS
+	RET
+
+// unused on arm64
+TEXT ·hidden_jit_func(SB),NOSPLIT|NOFRAME,$0-8
 	NO_LOCAL_POINTERS
 	RET
 

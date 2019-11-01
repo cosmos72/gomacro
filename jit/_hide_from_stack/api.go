@@ -10,13 +10,25 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * api_gc.go
+ * api.go
  *
  *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi
  */
 
 package hide_from_stack
+
+// Return an array of function addresses {call0, call16 ... call512}
+// If unsupported on this CPU or compiler, all values will be zero.
+func MakeCallArray() [7]uintptr {
+	var ret [7]uintptr
+	for i, call := range [...]func(){
+		call0, call16, call32, call64, call128, call256, call512,
+	} {
+		ret[i] = deconstruct_func0(call).funcAddress
+	}
+	return ret
+}
 
 /**
  * call the closure stored in DX (which expects exactly 0 bytes of arguments
@@ -55,7 +67,7 @@ func call256()
 func call512()
 
 // ensure stack has > 512 free bytes
-func grow_stack()
+func GrowStack()
 
 // on AMD64, hidden JIT functions will be replaced by this function in the stack trace
 func hidden_jit_func(uintptr)

@@ -1,3 +1,5 @@
+// +build gc
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -8,25 +10,9 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * call_closure.go
+ * call_stub.s
  *
- *  Created on Oct 27, 2019
+ *  Created on Nov 01, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package hide_from_stack
-
-// go:nosplit
-func call00_closure(f func()) {
-	f()
-}
-
-// go:nosplit
-func call10_closure(f func(uintptr)) {
-	f(0)
-}
-
-// go:nosplit
-func call01_closure(f func() uintptr) uintptr {
-	return f()
-}

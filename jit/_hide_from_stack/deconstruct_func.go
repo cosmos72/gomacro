@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * func.go
+ * deconstruct_func.go
  *
  *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi

@@ -1,3 +1,5 @@
+// +build gc,amd64 gc,arm64
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -8,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * func_test.go
+ * all_test.go
  *
  *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi
@@ -20,6 +22,13 @@ import (
 	"fmt"
 	"testing"
 )
+
+func asm_address_of_canary() func(uintptr)
+func asm_call_canary(arg uintptr)
+func asm_call_func(func_address uintptr, arg uintptr)
+func asm_call_closure(tocall func(uintptr), arg uintptr)
+func asm_loop()
+func asm_hideme(env *Env)
 
 /*
 func TestAsmLoop(t *testing.T) {
@@ -44,7 +53,7 @@ func TestCallCanary(t *testing.T) {
 	asm_call_canary(0)
 	asm_call_func(deconstruct_any_func(canary).funcAddress, 1)
 	asm_call_closure(asm_address_of_canary(), 2)
-	grow_stack()
+	GrowStack()
 	env := &Env{canary, 3, MakeCallArray()}
 	asm_hideme(env)
 	if jit_hideme != nil {
@@ -53,7 +62,7 @@ func TestCallCanary(t *testing.T) {
 	}
 }
 
-func _TestCallParrot(t *testing.T) {
+func TestCallParrot(t *testing.T) {
 	parrot := make_parrot(123456)
 	asm_call_closure(parrot, 0)
 	env := &Env{parrot, 1, MakeCallArray()}
