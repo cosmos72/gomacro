@@ -21,14 +21,14 @@
 
 TEXT ·asm_loop(SB),NOSPLIT|NOFRAME,$0-0
 label_asm_loop:
-    JMP  label_asm_loop
+	JMP  label_asm_loop
 	RET
 
 DATA  ·const_canary+0(SB)/8,$·canary(SB)
 GLOBL ·const_canary+0(SB),RODATA,$8
 
 TEXT ·asm_address_of_canary(SB),NOSPLIT|NOFRAME,$0-8
-    MOVD $·const_canary(SB), R0 // closure. actual function is MOVD $·canary(SB), R0
+	MOVD $·const_canary(SB), R0 // closure. actual function is MOVD $·canary(SB), R0
 	MOVD R0, ret+0(FP)
 	RET
 
@@ -36,7 +36,7 @@ TEXT ·asm_call_canary(SB),NOSPLIT,$8-8
 	NO_LOCAL_POINTERS
 	MOVD received_arg+0(FP), R0
 	MOVD R0, local_arg-8(SP)
-    CALL ·canary(SB)
+	CALL ·canary(SB)
 	RET
 
 TEXT ·asm_call_func(SB),NOSPLIT,$8-16
@@ -57,28 +57,18 @@ TEXT ·asm_call_closure(SB),NOSPLIT,$8-16
 	CALL R1
 	RET
 
-TEXT ·asm_hideme_frame(SB),NOSPLIT,$8-8
-	NO_LOCAL_POINTERS
-	MOVD env+0(FP), R0           // received argument *Env
-	MOVD 0(R0),  R26             // closure, must be in R26
-	MOVD 0(R26), R2              // extract func address from closure
-	MOVD 8(R0),  R1              // closure arg
-	MOVD R1, arg-8(SP)           // store closure arg on stack
-	CALL R2
-	RET
-
 // emulate a JIT function: cannot have stack map, frame, local variables
 TEXT ·asm_hideme(SB),NOSPLIT|NOFRAME,$0-8
-    // manually save return_reg R30 in callee's stack
-    MOVD LR, return_reg-16(SP)
+	// manually save return_addr R30 in callee's stack
+	MOVD LR, return_addr-24(SP)
 
 	MOVD env+0(FP), R0           // received argument *Env
 	MOVD 0(R0),  R26             // closure, must be in R26
 	MOVD 8(R0),  R1              // closure arg
-	MOVD 16(R0), R2              // helper function: call0, call8...
-	MOVD R1, arg-24(SP)          // store closure arg on callee's stack
+	MOVD 24(R0), R2              // helper function: call[1] == call16
+	MOVD R1, arg-40(SP)          // store closure arg on callee's stack
 	CALL R2
 
-	// manually load return_reg R30 from callee's stack
-	MOVD return_reg-16(SP), LR
+	// manually load return_addr R30 from callee's stack
+	MOVD return_addr-24(SP), LR
 	RET

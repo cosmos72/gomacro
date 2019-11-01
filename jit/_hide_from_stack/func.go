@@ -33,6 +33,10 @@ func deconstruct_any_func(fun interface{}) *closureHeader {
 	return (*interfaceHeader)(unsafe.Pointer(&fun)).val
 }
 
+func deconstruct_func0(fun func()) *closureHeader {
+	return *(**closureHeader)(unsafe.Pointer(&fun))
+}
+
 func deconstruct_func8(fun func(uintptr)) *closureHeader {
 	return *(**closureHeader)(unsafe.Pointer(&fun))
 }

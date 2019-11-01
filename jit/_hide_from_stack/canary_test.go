@@ -19,28 +19,29 @@ package hide_from_stack
 import (
 	"fmt"
 	"runtime"
-
-	// "runtime/debug"
 	"strings"
 )
 
 func canary(arg uintptr) {
-	// debug.PrintStack()
-
-	pc := make([]uintptr, 1)
-	n := runtime.Callers(2, pc)
+	fmt.Printf("canary(%d) called", arg)
+	pcs := make([]uintptr, 3)
+	n := runtime.Callers(2, pcs)
 	if n > 0 {
-		frame, _ := runtime.CallersFrames(pc).Next()
-		if frame.PC != 0 {
-			file := frame.File[1+strings.LastIndexByte(frame.File, '/'):]
-			function := frame.Function[1+strings.LastIndexByte(frame.Function, '.'):]
-			fmt.Printf("canary(%d) called by 0x%08x\t%s()\t%s:%d\n", arg, pc[0], function, file, frame.Line)
-		} else {
-			fmt.Printf("canary(%d) called by 0x%08x\n", arg, pc[0])
+		frames := runtime.CallersFrames(pcs)
+		for _, pc := range pcs {
+			frame, more := frames.Next()
+			if frame.PC != 0 {
+				function := frame.Function[1+strings.LastIndexByte(frame.Function, '.'):]
+				fmt.Printf(" by %s()%s", function, "               "[(len(function)+15)&15:])
+			} else {
+				fmt.Printf(" by 0x%08x\t", pc)
+			}
+			if !more {
+				break
+			}
 		}
-	} else {
-		fmt.Printf("canary(%d) called\n", arg)
 	}
+	fmt.Println()
 	runtime.GC()
 }
 
@@ -58,9 +59,19 @@ func address_of_canary() func(uintptr) {
 }
 
 type Env struct {
-	closure     func(uintptr)
-	arg         uintptr
-	call_helper uintptr
+	closure func(uintptr)
+	arg     uintptr
+	call    [7]uintptr // call0, call16 ... call512
+}
+
+func MakeCallArray() [7]uintptr {
+	var ret [7]uintptr
+	for i, call := range [...]func(){
+		call0, call16, call32, call64, call128, call256, call512,
+	} {
+		ret[i] = deconstruct_func0(call).funcAddress
+	}
+	return ret
 }
 
 func asm_address_of_canary() func(uintptr)

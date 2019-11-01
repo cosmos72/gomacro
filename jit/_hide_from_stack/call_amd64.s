@@ -19,7 +19,7 @@
 #include "textflag.h" // for NOSPLIT
 #include "funcdata.h" // for NO_LOCAL_POINTERS
 
-TEXT ·grow_stack(SB),0,$1152-0
+TEXT ·grow_stack(SB),0,$640-0
 	NO_LOCAL_POINTERS
 	RET
 
@@ -53,7 +53,7 @@ TEXT ·call0(SB),NOSPLIT,$8-0
 	RET
 
 /**
- * call the closure stored in DX (which expects up to 8 bytes of arguments
+ * call the closure stored in DX (which expects up to 16 bytes of arguments
  * + return values), hiding the caller from runtime stack:
  * caller is replaced with a fake entry hidden_jit_func()
  *
@@ -61,18 +61,6 @@ TEXT ·call0(SB),NOSPLIT,$8-0
  * are caller's responsibility
  * (possible only in assembly: caller has to access our stack)
  */
-TEXT ·call8(SB),NOSPLIT,$16-0
-	NO_LOCAL_POINTERS
-	LEAQ ·hidden_jit_func(SB), BX
-	MOVQ caller_ip+8(SP), AX
-	MOVQ BX, caller_ip+8(SP)
-	MOVQ AX, save_caller_ip-8(SP)
-	CALL 0(DX)
-	MOVQ save_caller_ip-8(SP), AX
-	MOVQ AX, caller_ip+8(SP)
-	RET
-
-// as above, but closure can expect up to 16 bytes of arguments return values
 TEXT ·call16(SB),NOSPLIT,$24-0
 	NO_LOCAL_POINTERS
 	LEAQ ·hidden_jit_func(SB), BX
@@ -144,14 +132,3 @@ TEXT ·call512(SB),NOSPLIT,$520-0
 	MOVQ AX, caller_ip+8(SP)
 	RET
 
-// as above, but closure can expect up to 1024 bytes of arguments return values
-TEXT ·call1024(SB),NOSPLIT,$1032-0
-	NO_LOCAL_POINTERS
-	LEAQ ·hidden_jit_func(SB), BX
-	MOVQ caller_ip+8(SP), AX
-	MOVQ BX, caller_ip+8(SP)
-	MOVQ AX, save_caller_ip-8(SP)
-	CALL 0(DX)
-	MOVQ save_caller_ip-8(SP), AX
-	MOVQ AX, caller_ip+8(SP)
-	RET

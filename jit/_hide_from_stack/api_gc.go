@@ -19,25 +19,24 @@
 package hide_from_stack
 
 /**
- * call the closure stored in BX (which expects exactly 0 bytes of arguments
+ * call the closure stored in DX (which expects exactly 0 bytes of arguments
  * + return values), hiding the caller from runtime stack:
- * caller is replaced with a fake entry hidden_jit_func()
+ * on AMD64, caller is replaced with a fake entry hidden_jit_func()
+ * on ARM64, caller completely disappears from stack trace
  */
 func call0()
 
 /**
  * call the closure stored in DX, hiding the caller from runtime stack:
- * caller is replaced with a fake entry hidden_jit_func()
+ * on AMD64, caller is replaced with a fake entry hidden_jit_func()
+ * on ARM64, caller completely disappears from stack trace
 
- * the closure can expect up to 8 bytes of arguments + return values
+ * the closure can expect up to 16 bytes of arguments + return values
  *
- * writing arguments in call8() stack and retrieving return values from it
+ * writing arguments in call16() stack and retrieving return values from it
  * are caller's responsibility
- * (possible only in assembly: caller has to access call8() stack)
+ * (possible only in assembly: caller has to access call16() stack)
  */
-func call8()
-
-// as above, but closure can expect up to 16 bytes of arguments return values
 func call16()
 
 // as above, but closure can expect up to 32 bytes of arguments return values
@@ -55,11 +54,8 @@ func call256()
 // as above, but closure can expect up to 512 bytes of arguments return values
 func call512()
 
-// as above, but closure can expect up to 1024 bytes of arguments return values
-func call1024()
-
-// ensure stack has > 1024 free bytes
+// ensure stack has > 512 free bytes
 func grow_stack()
 
-// hidden JIT functions will be replaced by this function in the stacktrace
+// on AMD64, hidden JIT functions will be replaced by this function in the stack trace
 func hidden_jit_func(uintptr)

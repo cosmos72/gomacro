@@ -1,5 +1,4 @@
 /gomacro
-/gomacro.test
 a.out
 *~
 *.o
@@ -9,7 +8,6 @@ a.out
 _gen_*.s
 /example/example
 /jit/**/test
-/jit/amd64/_template/_template
-/jit/arm64/_template/_template
+/jit/**/_template/_template
 /jit/arm64/_template/_bitwise_immediate/_bitwise_immediate
 /jit/arm64/_template/_go/_go
