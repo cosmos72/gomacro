@@ -28,7 +28,6 @@ func asm_call_canary(arg uintptr)
 func asm_call_func(func_address uintptr, arg uintptr)
 func asm_call_closure(tocall func(uintptr), arg uintptr)
 func asm_loop()
-func asm_hideme(env *Env)
 
 /*
 func TestAsmLoop(t *testing.T) {

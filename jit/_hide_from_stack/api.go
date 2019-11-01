@@ -71,3 +71,8 @@ func GrowStack()
 
 // on AMD64, hidden JIT functions will be replaced by this function in the stack trace
 func hidden_jit_func(uintptr)
+
+// Reference implementation of JIT function, showing how write
+// a function without stack map, frame, local variables on stack;
+// yet it can invoke arbitrary Go functions through the env.call[] trampolines
+func asm_hideme(env *Env)
