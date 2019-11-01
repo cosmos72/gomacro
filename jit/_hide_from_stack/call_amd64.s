@@ -19,7 +19,12 @@
 #include "textflag.h" // for NOSPLIT
 #include "funcdata.h" // for NO_LOCAL_POINTERS
 
-TEXT ·growStack(SB),0,$1152-0
+TEXT ·grow_stack(SB),0,$1152-0
+	NO_LOCAL_POINTERS
+	RET
+
+// hidden JIT functions will be replaced by this function in the stacktrace
+TEXT ·hidden_jit_func(SB),NOSPLIT|NOFRAME,$0-8 // same signature as asm_hideme
 	NO_LOCAL_POINTERS
 	RET
 

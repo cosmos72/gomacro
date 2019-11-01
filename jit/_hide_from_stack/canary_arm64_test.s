@@ -57,24 +57,28 @@ TEXT ·asm_call_closure(SB),NOSPLIT,$8-16
 	CALL R1
 	RET
 
-// NOFRAME works only for leaf functions
-TEXT ·asm_hideme(SB),NOSPLIT,$0-8 // must not have local variables
-	MOVD env+0(FP), R0
-	MOVD 0(R0),  R26           // closure, must be in R26
-	MOVD 8(R0),  R1            // closure arg
-	MOVD 16(R0), R2            // helper function
-	MOVD R1, local_arg-32(SP)  // write into callee stack
-	// CALL ·call8(SB)
+TEXT ·asm_hideme_frame(SB),NOSPLIT,$8-8
+	NO_LOCAL_POINTERS
+	MOVD env+0(FP), R0           // received argument *Env
+	MOVD 0(R0),  R26             // closure, must be in R26
+	MOVD 0(R26), R2              // extract func address from closure
+	MOVD 8(R0),  R1              // closure arg
+	MOVD R1, arg-8(SP)           // store closure arg on stack
 	CALL R2
 	RET
 
-/*
-TEXT ·asm_hideme(SB),NOSPLIT,$0-8 // must not have local variables
-	MOVD env+0(FP), R0
-	MOVD 0(R0), R26           // closure, must be in R26
-	MOVD 8(R0), R1            // closure arg
-	MOVD R1, local_arg-536(SP) // write into callee stack
-	CALL ·call512(SB)
-	RET
-*/
+// emulate a JIT function: cannot have stack map, frame, local variables
+TEXT ·asm_hideme(SB),NOSPLIT|NOFRAME,$0-8
+    // manually save return_reg R30 in callee's stack
+    MOVD LR, return_reg-16(SP)
 
+	MOVD env+0(FP), R0           // received argument *Env
+	MOVD 0(R0),  R26             // closure, must be in R26
+	MOVD 8(R0),  R1              // closure arg
+	MOVD 16(R0), R2              // helper function: call0, call8...
+	MOVD R1, arg-24(SP)          // store closure arg on callee's stack
+	CALL R2
+
+	// manually load return_reg R30 from callee's stack
+	MOVD return_reg-16(SP), LR
+	RET

@@ -38,19 +38,11 @@ func TestAddressOfCanary(t *testing.T) {
 	fmt.Printf("deconstruct_any_func(canary) = %#x\n", *header)
 }
 
-func add(a, b int) int {
-	return a + b
-}
-
-func TestAddressOfAdd(t *testing.T) {
-	fmt.Printf("add                       = %p\n", add)
-}
-
 func TestCallCanary(t *testing.T) {
 	asm_call_canary(0)
 	asm_call_func(deconstruct_any_func(canary).funcAddress, 1)
 	asm_call_closure(asm_address_of_canary(), 2)
-	growStack()
+	grow_stack()
 	env := &Env{canary, 3, deconstruct_any_func(call8).funcAddress}
 	asm_hideme(env)
 	if jit_hideme != nil {

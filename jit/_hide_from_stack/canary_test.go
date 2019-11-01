@@ -28,7 +28,7 @@ func canary(arg uintptr) {
 	// debug.PrintStack()
 
 	pc := make([]uintptr, 1)
-	n := runtime.Callers(3, pc)
+	n := runtime.Callers(2, pc)
 	if n > 0 {
 		frame, _ := runtime.CallersFrames(pc).Next()
 		if frame.PC != 0 {

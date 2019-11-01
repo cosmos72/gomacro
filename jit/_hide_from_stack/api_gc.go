@@ -59,4 +59,7 @@ func call512()
 func call1024()
 
 // ensure stack has > 1024 free bytes
-func growStack()
+func grow_stack()
+
+// hidden JIT functions will be replaced by this function in the stacktrace
+func hidden_jit_func(uintptr)
