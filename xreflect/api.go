@@ -7,7 +7,7 @@
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * build_compact.go
+ * api.go
  *
  *  Created on May 07, 2017
  *      Author Massimiliano Ghilardi
@@ -25,6 +25,7 @@ type z struct{}
 
 // Type:s must be compared with IdenticalTo, not with ==
 // produce compile-time error on == between Type:s
+// but allow comparison with nil
 type Type func(z) *xtype
 
 // Align returns the alignment in bytes of a value of
