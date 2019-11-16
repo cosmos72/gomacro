@@ -22,12 +22,6 @@ import (
 	"testing"
 
 	"github.com/cosmos72/gomacro/classic"
-	"github.com/cosmos72/gomacro/experiments/bytecode_interfaces"
-	"github.com/cosmos72/gomacro/experiments/bytecode_values"
-	"github.com/cosmos72/gomacro/experiments/closure_interfaces"
-	"github.com/cosmos72/gomacro/experiments/closure_ints"
-	"github.com/cosmos72/gomacro/experiments/closure_maps"
-	"github.com/cosmos72/gomacro/experiments/closure_values"
 	"github.com/cosmos72/gomacro/fast"
 )
 
@@ -167,64 +161,6 @@ func BenchmarkFibonacciClassic2(b *testing.B) {
 	var total int
 	for i := 0; i < b.N; i++ {
 		total += fun(fib_arg)
-	}
-}
-
-func off_TestFibonacciClosureInts(t *testing.T) {
-	env := closure_ints.NewEnv(nil)
-	f := closure_ints.DeclFibonacci(env)
-
-	expected := fibonacci(fib_arg)
-	actual := f(fib_arg)
-	if actual != expected {
-		t.Errorf("expecting %v, found %v\n", expected, actual)
-	}
-}
-
-func BenchmarkFibonacciClosureInts(b *testing.B) {
-	env := closure_ints.NewEnv(nil)
-	fib := closure_ints.DeclFibonacci(env)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += fib(fib_arg)
-	}
-}
-
-func BenchmarkFibonacciClosureValues(b *testing.B) {
-	env := closure_values.NewEnv(nil)
-	fib := closure_values.DeclFibonacci(env, 0)
-	n := r.ValueOf(fib_arg)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += fib(n)
-	}
-}
-
-func BenchmarkFibonacciClosureInterfaces(b *testing.B) {
-	env := closure_interfaces.NewEnv(nil)
-	fib := closure_interfaces.DeclFibonacci(env, 0)
-	var n interface{} = fib_arg
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += fib(n)
-	}
-}
-
-func BenchmarkFibonacciClosureMaps(b *testing.B) {
-	env := closure_maps.NewEnv(nil)
-	fib := closure_maps.DeclFibonacci(env, "fib")
-	n := r.ValueOf(fib_arg)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += fib(n)
 	}
 }
 
@@ -530,50 +466,6 @@ func BenchmarkCollatzClassic(b *testing.B) {
 	}
 }
 
-func BenchmarkCollatzBytecodeInterfaces(b *testing.B) {
-	coll := bytecode_interfaces.BytecodeCollatz()
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		coll.Vars[0] = collatz_arg_int
-		coll.Exec(0)
-	}
-}
-
-func off_TestCollatzClosureInts(t *testing.T) {
-	env := closure_ints.NewEnv(nil)
-	f := closure_ints.DeclCollatz(env)
-
-	expected := int(collatz(collatz_arg))
-	actual := f(collatz_arg_int)
-	if actual != expected {
-		t.Errorf("expecting %v, found %v\n", expected, actual)
-	}
-}
-
-func BenchmarkCollatzClosureInts(b *testing.B) {
-	env := closure_ints.NewEnv(nil)
-	coll := closure_ints.DeclCollatz(env)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += coll(collatz_arg_int)
-	}
-}
-
-func BenchmarkCollatzClosureValues(b *testing.B) {
-	env := closure_values.NewEnv(nil)
-	coll := closure_values.DeclCollatz(env, 0)
-	n := r.ValueOf(collatz_arg_int)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += coll(n)
-	}
-}
-
 // ------------- looping: sum the integers from 1 to N -------------------
 
 func sum(n int) int {
@@ -644,81 +536,5 @@ func BenchmarkSumClassic(b *testing.B) {
 	var total int
 	for i := 0; i < b.N; i++ {
 		total += int(ir.EvalAst1(form).Int())
-	}
-}
-
-func BenchmarkSumBytecodeValues(b *testing.B) {
-	sum := bytecode_values.BytecodeSum(sum_arg)
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += int(sum.Exec(0)[0].Int())
-	}
-}
-
-func BenchmarkSumBytecodeInterfaces(b *testing.B) {
-	p := bytecode_interfaces.BytecodeSum(sum_arg)
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += p.Exec(0)[0].(int)
-	}
-}
-
-func off_TestSumClosureInts(t *testing.T) {
-	env := closure_ints.NewEnv(nil)
-	f := closure_ints.DeclSum(env)
-
-	expected := sum(sum_arg)
-	actual := f(sum_arg)
-	if actual != expected {
-		t.Errorf("expecting %v, found %v\n", expected, actual)
-	}
-}
-
-func BenchmarkSumClosureInts(b *testing.B) {
-	env := closure_ints.NewEnv(nil)
-	sum := closure_ints.DeclSum(env)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += sum(sum_arg)
-	}
-}
-
-func BenchmarkSumClosureValues(b *testing.B) {
-	env := closure_values.NewEnv(nil)
-	sum := closure_values.DeclSum(env, 0)
-	n := r.ValueOf(sum_arg)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += sum(n)
-	}
-}
-
-func BenchmarkSumClosureInterfaces(b *testing.B) {
-	env := closure_interfaces.NewEnv(nil)
-	sum := closure_interfaces.DeclSum(env, 0)
-	var n interface{} = sum_arg
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += sum(n)
-	}
-}
-
-func BenchmarkSumClosureMaps(b *testing.B) {
-	env := closure_maps.NewEnv(nil)
-	sum := closure_maps.DeclSum(env, "sum")
-	n := r.ValueOf(sum_arg)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += sum(n)
 	}
 }

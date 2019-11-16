@@ -85,7 +85,7 @@ func (arch Amd64) movConstReg32(asm *Asm, c Const, dst Reg) Amd64 {
 		if dhi == 0 {
 			asm.Byte(0xB8 | dlo)
 		} else {
-			asm.Bytes(40|dhi, 0xB8|dlo)
+			asm.Bytes(0x40|dhi, 0xB8|dlo)
 		}
 		asm.Int32(int32(cval))
 	} else {
