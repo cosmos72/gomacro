@@ -4,7 +4,10 @@ gomacro is an almost complete Go interpreter, implemented in pure Go. It offers 
 an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
 (except in one very specific case: import of a 3<sup>rd</sup> party package at runtime).
 
-It has two dependencies beyond the Go standard library: github.com/peterh/liner and golang.org/x/tools/go/packages
+It has two dependencies beyond the Go standard library:
+<a href="https://github.com/peterh/liner">github.com/peterh/liner</a>
+and
+<a href="https://golang.org/x/tools/go/packages">golang.org/x/tools/go/packages</a>
 
 Gomacro can be used as:
 * a standalone executable with interactive Go REPL, line editing and code completion:
