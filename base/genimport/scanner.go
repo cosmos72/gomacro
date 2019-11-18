@@ -168,7 +168,7 @@ func (ie *importExtractor) visitType(name string, t types.Type) bool {
 	}
 }
 
-func extractInterface(obj types.Object, requireAllMethodsExported bool) *types.Interface {
+func extractInterface(obj types.Object, requireAllMethodsAndTypesExported bool) *types.Interface {
 	if obj == nil || !obj.Exported() {
 		return nil
 	}
@@ -178,7 +178,7 @@ func extractInterface(obj types.Object, requireAllMethodsExported bool) *types.I
 		if u, ok := u.(*types.Interface); ok {
 			// do not export proxies for empty interfaces:
 			// using reflect.Value.Convert() at runtime is enough
-			if u.NumMethods() != 0 && (!requireAllMethodsExported || allMethodsExported(u)) {
+			if u.NumMethods() != 0 && (!requireAllMethodsAndTypesExported || interfaceExported(u)) {
 				return u
 			}
 		}
@@ -186,11 +186,102 @@ func extractInterface(obj types.Object, requireAllMethodsExported bool) *types.I
 	return nil
 }
 
-func allMethodsExported(intf *types.Interface) bool {
-	n := intf.NumMethods()
-	for i := 0; i < n; i++ {
-		if !intf.Method(i).Exported() {
-			return false
+// return true if Object is nil, or type of Object is exported.
+func objectExported(obj types.Object) bool {
+	if obj == nil {
+		return true
+	}
+	return typeExported(obj.Type())
+}
+
+// return true if tuple's elements types are exported, or tuple is nil
+func tupleExported(tuple *types.Tuple) bool {
+	if tuple != nil {
+		n := tuple.Len()
+		for i := 0; i < n; i++ {
+			if !objectExported(tuple.At(i)) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// return true if Type is exported or nil
+func typeExported(typ types.Type) bool {
+	for typ != nil {
+		switch t := typ.(type) {
+		case *types.Array:
+			typ = t.Elem()
+		case *types.Basic:
+			return true
+		case *types.Chan:
+			typ = t.Elem()
+		case *types.Interface:
+			return interfaceExported(t)
+		case *types.Map:
+			if !typeExported(t.Key()) {
+				return false
+			}
+			typ = t.Elem()
+		case *types.Named:
+			return t.Obj().Pkg() == nil || t.Obj().Exported()
+		case *types.Pointer:
+			typ = t.Elem()
+		case *types.Signature:
+			return signatureExported(t)
+		case *types.Slice:
+			typ = t.Elem()
+		case *types.Struct:
+			return structExported(t)
+		default:
+			output.Errorf("unexpected type %v", typ)
+		}
+	}
+	return true
+}
+
+// return true if an interface type is exported. This means:
+// 1. all its methods are exported,
+// 2. and all the argument types and return types of its methods are exported too
+func interfaceExported(intf *types.Interface) bool {
+	if intf != nil {
+		n := intf.NumMethods()
+		for i := 0; i < n; i++ {
+			m := intf.Method(i)
+			if !m.Exported() {
+				return false
+			}
+			if !signatureExported(m.Type().(*types.Signature)) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// return true if all the argument types and return types of given function signature are exported
+// Note: receiver is ignored because only interface methods can be part of an exported type
+func signatureExported(sig *types.Signature) bool {
+	return sig == nil ||
+		tupleExported(sig.Params()) &&
+			tupleExported(sig.Results())
+}
+
+// return true if a struct type is exported. This means:
+// 1. all its fields are exported,
+// 2. and all the types of its fields are exported too
+func structExported(s *types.Struct) bool {
+	if s != nil {
+		n := s.NumFields()
+		for i := 0; i < n; i++ {
+			f := s.Field(i)
+			if !f.Exported() {
+				return false
+			}
+			if !typeExported(f.Type()) {
+				return false
+			}
 		}
 	}
 	return true
