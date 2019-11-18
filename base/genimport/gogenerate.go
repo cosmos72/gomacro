@@ -52,6 +52,6 @@ func GoGenerateMain(arg []string, imp *Importer) error {
 	default:
 		pkgpath = arg[0]
 	}
-	_, err := imp.ImportPackageOrError("_i", pkgpath)
+	_, err := imp.ImportPackageOrError("_i", pkgpath, true /*enableModule*/)
 	return err
 }

@@ -353,7 +353,10 @@ func (ir *Interp) cmdOptions(arg string, opt base.CmdOpt) (string, base.CmdOpt) 
 
 	if len(arg) != 0 {
 		g.Options ^= base.ParseOptions(arg)
-
+		if g.Options&base.OptModuleImport != 0 && !base.GoModuleSupported {
+			g.Warnf("cannot enable module support: gomacro compiled with go < 1.11")
+			g.Options &^= base.OptModuleImport
+		}
 		debugdepth := 0
 		if g.Options&base.OptDebugFromReflect != 0 {
 			debugdepth = 1

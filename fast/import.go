@@ -147,7 +147,7 @@ func (c *Comp) ImportPackageOrError(name, path string) (*Import, error) {
 	g := c.CompGlobals
 	imp := g.KnownImports[path]
 	if imp == nil {
-		pkgref, err := g.Importer.ImportPackageOrError(name, path)
+		pkgref, err := g.Importer.ImportPackageOrError(name, path, g.Options&OptModuleImport != 0)
 		if err != nil {
 			return nil, err
 		}

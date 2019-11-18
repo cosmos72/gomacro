@@ -26,7 +26,7 @@ import (
 	"github.com/cosmos72/gomacro/base/paths"
 )
 
-func compilePlugin(o *Output, filePath string, stdout io.Writer, stderr io.Writer) string {
+func compilePlugin(o *Output, filePath string, enableModule bool, stdout io.Writer, stderr io.Writer) string {
 	gosrcdir := paths.GoSrcDir
 	gosrclen := len(gosrcdir)
 	filelen := len(filePath)
@@ -46,6 +46,7 @@ func compilePlugin(o *Output, filePath string, stdout io.Writer, stderr io.Write
 	}
 	cmd := exec.Command(gocmd, "build", "-buildmode=plugin")
 	cmd.Dir = paths.DirName(filePath)
+	cmd.Env = environForCompiler(enableModule)
 	cmd.Stdin = nil
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr

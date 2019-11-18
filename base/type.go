@@ -31,6 +31,7 @@ const (
 	OptDebugger           // enable debugger support. "break" and _ = "break" are breakpoints and enter the debugger
 	OptKeepUntyped
 	OptMacroExpandOnly // do not compile or execute code, only parse and macroexpand it
+	OptModuleImport    // if built with Go >= 1.11, import "foo" will use modules
 	OptPanicStackTrace
 	OptTrapPanic
 	OptDebugCallStack
@@ -66,6 +67,7 @@ var optNames = map[Options]string{
 	OptDebugger:            "Debugger",
 	OptKeepUntyped:         "Untyped.Keep",
 	OptMacroExpandOnly:     "MacroExpandOnly",
+	OptModuleImport:        "Import.Uses.Module",
 	OptPanicStackTrace:     "StackTrace.OnPanic",
 	OptTrapPanic:           "Trap.Panic",
 	OptDebugCallStack:      "?CallStack.Debug",

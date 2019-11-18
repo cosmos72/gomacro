@@ -25,11 +25,10 @@ import (
 	r "reflect"
 	"strings"
 
-	"github.com/cosmos72/gomacro/base/reflect"
-
 	. "github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/output"
+	"github.com/cosmos72/gomacro/base/reflect"
 	bstrings "github.com/cosmos72/gomacro/base/strings"
 	etoken "github.com/cosmos72/gomacro/go/etoken"
 	mp "github.com/cosmos72/gomacro/go/parser"
@@ -69,6 +68,11 @@ type Globals struct {
 }
 
 func NewGlobals() *Globals {
+	var options Options = OptTrapPanic // set by default
+	if GoModuleSupported {
+		options |= OptModuleImport
+	}
+
 	g := &Globals{
 		Output: Output{
 			Stringer: output.Stringer{
@@ -80,7 +84,7 @@ func NewGlobals() *Globals {
 			Stdout: os.Stdout,
 			Stderr: os.Stdout,
 		},
-		Options:      OptTrapPanic, // set by default
+		Options:      options,
 		PackagePath:  "main",
 		Filepath:     "repl.go",
 		Imports:      nil,
