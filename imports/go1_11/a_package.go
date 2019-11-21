@@ -21,6 +21,7 @@ import (
 )
 
 type Package = struct { // unnamed
+	Name    string
 	Binds   map[string]Value
 	Types   map[string]Type
 	Proxies map[string]Type

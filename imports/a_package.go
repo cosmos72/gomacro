@@ -25,6 +25,7 @@ import (
 )
 
 type PackageUnderlying = struct { // unnamed
+	Name    string
 	Binds   map[string]Value
 	Types   map[string]Type
 	Proxies map[string]Type
@@ -98,6 +99,9 @@ func (pkg *Package) LazyInit() {
 }
 
 func (dst *Package) Merge(src PackageUnderlying) {
+	if len(src.Name) != 0 {
+		dst.Name = src.Name
+	}
 	for k, v := range src.Binds {
 		dst.Binds[k] = v
 	}

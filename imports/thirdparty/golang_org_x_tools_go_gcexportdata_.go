@@ -5,18 +5,20 @@ package thirdparty
 
 import (
 	. "reflect"
+
 	gcexportdata_ "golang.org/x/tools/go/gcexportdata"
 )
 
 // reflection: allow interpreted code to import "golang.org/x/tools/go/gcexportdata"
 func init() {
 	Packages["golang.org/x/tools/go/gcexportdata"] = Package{
-	Binds: map[string]Value{
-		"Find":	ValueOf(gcexportdata_.Find),
-		"NewImporter":	ValueOf(gcexportdata_.NewImporter),
-		"NewReader":	ValueOf(gcexportdata_.NewReader),
-		"Read":	ValueOf(gcexportdata_.Read),
-		"Write":	ValueOf(gcexportdata_.Write),
-	}, 
+		Name: "gcexportdata",
+		Binds: map[string]Value{
+			"Find":        ValueOf(gcexportdata_.Find),
+			"NewImporter": ValueOf(gcexportdata_.NewImporter),
+			"NewReader":   ValueOf(gcexportdata_.NewReader),
+			"Read":        ValueOf(gcexportdata_.Read),
+			"Write":       ValueOf(gcexportdata_.Write),
+		},
 	}
 }

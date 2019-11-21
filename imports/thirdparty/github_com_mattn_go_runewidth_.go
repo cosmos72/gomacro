@@ -12,6 +12,7 @@ import (
 // reflection: allow interpreted code to import "github.com/mattn/go-runewidth"
 func init() {
 	Packages["github.com/mattn/go-runewidth"] = Package{
+		Name: "runewidth",
 		Binds: map[string]Value{
 			"DefaultCondition": ValueOf(&go_runewidth_.DefaultCondition).Elem(),
 			"EastAsianWidth":   ValueOf(&go_runewidth_.EastAsianWidth).Elem(),

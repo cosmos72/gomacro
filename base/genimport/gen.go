@@ -198,6 +198,7 @@ import (`, alias, gen.path, filepkg)
 	if mode == ImPlugin {
 		fmt.Fprint(out, `
 type Package = struct {
+	Name     string
 	Binds    map[string]Value
 	Types    map[string]Type
 	Proxies  map[string]Type
@@ -217,7 +218,8 @@ func main() {
 // reflection: allow interpreted code to import %q
 func init() {
 	%sPackages[%q] = %sPackage{
-	`, gen.path, imports, gen.path, imports)
+	Name: %q,
+	`, gen.path, imports, gen.path, imports, gen.gpkg.Name())
 }
 
 func (gen *genimport) writeBinds() {

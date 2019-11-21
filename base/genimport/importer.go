@@ -97,7 +97,11 @@ func LookupPackage(name, path string) *PackageRef {
 		return nil
 	}
 	if len(name) == 0 {
-		name = strings.TailIdentifier(paths.FileName(path))
+		// import "foo" => get name from package
+		if name = pkg.Name; len(name) == 0 {
+			// no package name, use default
+			name = strings.TailIdentifier(paths.FileName(path))
+		}
 	}
 	return &PackageRef{Package: pkg, Name: name, Path: path}
 }
