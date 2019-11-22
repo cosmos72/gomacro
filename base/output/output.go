@@ -325,17 +325,19 @@ func (st *Stringer) nodeToPrintable(node ast.Node) interface{} {
 }
 
 func (st *Stringer) rvalueToPrintable(format string, value r.Value) interface{} {
-	var i interface{}
 	if !value.IsValid() {
-		i = nil
-	} else if value == reflect.None {
-		i = "/*no value*/"
-	} else if value.CanInterface() {
-		i = st.toPrintable(format, value.Interface())
-	} else {
-		i = value
+		return nil
 	}
-	return i
+
+	if value == reflect.None {
+		return "/*no value*/"
+	}
+
+	if value.CanInterface() {
+		return st.toPrintable(format, value.Interface())
+	}
+
+	return value
 }
 
 func (st *Stringer) typeToPrintable(t r.Type) interface{} {

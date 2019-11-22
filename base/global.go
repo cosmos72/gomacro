@@ -181,22 +181,25 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 // print phase
 func (g *Globals) Print(values []r.Value, types []xr.Type) {
 	opts := g.Options
-	if opts&OptShowEval != 0 {
-		if opts&OptShowEvalType != 0 {
-			for i, vi := range values {
-				var ti interface{}
-				if types != nil && i < len(types) {
-					ti = types[i]
-				} else {
-					ti = reflect.Type(vi)
-				}
-				g.Fprintf(g.Stdout, "%v\t// %v\n", vi, ti)
-			}
-		} else {
-			for _, vi := range values {
-				g.Fprintf(g.Stdout, "%v\n", vi)
-			}
+	if !(opts&OptShowEval != 0) {
+		return
+	}
+
+	if !(opts&OptShowEvalType != 0) {
+		for _, vi := range values {
+			g.Fprintf(g.Stdout, "%v\n", vi)
 		}
+		return
+	}
+
+	for i, vi := range values {
+		var ti interface{}
+		if types != nil && i < len(types) {
+			ti = types[i]
+		} else {
+			ti = reflect.Type(vi)
+		}
+		g.Fprintf(g.Stdout, "%v\t// %v\n", vi, ti)
 	}
 }
 
@@ -269,72 +272,83 @@ func (g *Globals) CollectNode(node ast.Node) {
 						},
 					}
 				*/
-				if len(node.Specs) == 1 {
-					if decl, ok := node.Specs[0].(*ast.ValueSpec); ok {
-						if len(decl.Values) == 1 {
-							if lit, ok := decl.Values[0].(*ast.BasicLit); ok {
-								if lit.Kind == token.STRING {
-									path := bstrings.MaybeUnescapeString(lit.Value)
-									g.PackagePath = path
-								}
-							}
-						}
-					}
+				if len(node.Specs) != 1 {
+					break
 				}
+
+				decl, ok := node.Specs[0].(*ast.ValueSpec)
+				if !ok || (len(decl.Values) != 1) {
+					break
+				}
+
+				lit, ok := decl.Values[0].(*ast.BasicLit)
+				if !ok || (lit.Kind != token.STRING) {
+					break
+				}
+				path := bstrings.MaybeUnescapeString(lit.Value)
+				g.PackagePath = path
+
 			default:
 				g.Declarations = append(g.Declarations, node)
 			}
 		}
 	case *ast.FuncDecl:
-		if collectDecl {
-			if node.Recv == nil || len(node.Recv.List) != 0 {
-				// function or method declaration.
-				// skip macro declarations, Go compilers would choke on them
-				g.Declarations = append(g.Declarations, node)
-			}
+		if !collectDecl {
+			break
+		}
+		if node.Recv == nil || len(node.Recv.List) != 0 {
+			// function or method declaration.
+			// skip macro declarations, Go compilers would choke on them
+			g.Declarations = append(g.Declarations, node)
 		}
 	case ast.Decl:
 		if collectDecl {
 			g.Declarations = append(g.Declarations, node)
 		}
 	case *ast.AssignStmt:
-		if node.Tok == token.DEFINE {
-			if collectDecl {
-				idents := make([]*ast.Ident, len(node.Lhs))
-				for i, lhs := range node.Lhs {
-					idents[i] = lhs.(*ast.Ident)
-				}
-				decl := &ast.GenDecl{
-					TokPos: node.Pos(),
-					Tok:    token.VAR,
-					Specs: []ast.Spec{
-						&ast.ValueSpec{
-							Names:  idents,
-							Type:   nil,
-							Values: node.Rhs,
-						},
-					},
-				}
-				g.Declarations = append(g.Declarations, decl)
-			}
-		} else {
+		if node.Tok != token.DEFINE {
 			if collectStmt {
 				g.Statements = append(g.Statements, node)
+				break
 			}
+		}
+		if collectDecl {
+			idents := make([]*ast.Ident, len(node.Lhs))
+			for i, lhs := range node.Lhs {
+				idents[i] = lhs.(*ast.Ident)
+			}
+			decl := &ast.GenDecl{
+				TokPos: node.Pos(),
+				Tok:    token.VAR,
+				Specs: []ast.Spec{
+					&ast.ValueSpec{
+						Names:  idents,
+						Type:   nil,
+						Values: node.Rhs,
+					},
+				},
+			}
+			g.Declarations = append(g.Declarations, decl)
 		}
 	case ast.Stmt:
 		if collectStmt {
 			g.Statements = append(g.Statements, node)
 		}
 	case ast.Expr:
-		if unary, ok := node.(*ast.UnaryExpr); ok && collectDecl {
-			if unary.Op == token.PACKAGE && unary.X != nil {
-				if ident, ok := unary.X.(*ast.Ident); ok {
-					g.PackagePath = ident.Name
-					break
-				}
-			}
+		unary, ok := node.(*ast.UnaryExpr)
+		if !(ok && collectDecl) {
+			break
 		}
+
+		if !(unary.Op == token.PACKAGE && unary.X != nil) {
+			break
+		}
+
+		if ident, ok := unary.X.(*ast.Ident); ok {
+			g.PackagePath = ident.Name
+			break
+		}
+
 		if collectStmt {
 			stmt := &ast.ExprStmt{X: node}
 			g.Statements = append(g.Statements, stmt)

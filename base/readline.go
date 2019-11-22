@@ -106,9 +106,8 @@ func (tty TtyReadline) Close(historyfile string) (err error) {
 		return tty.Term.Close()
 	}
 	f, err1 := os.OpenFile(historyfile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
-	if err1 != nil {
-		err = fmt.Errorf("could not open %q to append history: %v", historyfile, err1)
-	} else {
+	err = fmt.Errorf("could not open %q to append history: %v", historyfile, err1)
+	if err1 == nil {
 		defer f.Close()
 		_, err2 := tty.Term.WriteHistory(f)
 		if err2 != nil {
