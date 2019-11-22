@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * gen.go
+ * genimport.go
  *
  *  Created on May 26, 2017
  *      Author Massimiliano Ghilardi
@@ -26,7 +26,6 @@ import (
 	"strings"
 
 	"github.com/cosmos72/gomacro/base/output"
-	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/base/untyped"
 )
 
@@ -76,18 +75,13 @@ func newGenImport(o *Output, out *bytes.Buffer, path string, gpkg *types.Package
 
 	gen := &genimport{output: o, mode: mode, gpkg: gpkg, scope: scope, names: names, out: out, path: path}
 
-	name := sanitizePackageName(paths.FileName(path))
-	gen.name = name
-
 	if mode == ImInception {
 		gen.reflect = "r."
-	} else {
-		gen.name_ = name + "."
 	}
 	if mode == ImPlugin {
 		gen.proxyprefix = "P_"
 	} else {
-		gen.proxyprefix = fmt.Sprintf("P_%s_", sanitizePackageName(path))
+		gen.proxyprefix = fmt.Sprintf("P_%s_", sanitizeIdent(path))
 	}
 	return gen
 }
@@ -146,6 +140,13 @@ func (d *mapdecl) footer1(comma bool) {
 
 func (gen *genimport) collectPackageImportsWithRename(requireAllInterfaceMethodsExported bool) {
 	gen.pkgrenames = collectPackageImportsWithRename(gen.output, gen.gpkg, requireAllInterfaceMethodsExported)
+	gen.name = gen.pkgrenames[gen.path]
+	if gen.name == "" {
+		gen.name = packageSanitizedName(gen.path)
+	}
+	if gen.mode != ImInception {
+		gen.name_ = gen.name + "."
+	}
 }
 
 func (gen *genimport) writePreamble() {

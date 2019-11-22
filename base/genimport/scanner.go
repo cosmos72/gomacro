@@ -24,10 +24,9 @@ import (
 	"sort"
 
 	"github.com/cosmos72/gomacro/base/output"
-	"github.com/cosmos72/gomacro/base/paths"
 )
 
-type TypeVisitor func(name string, t types.Type) bool
+type TypeVisitor func(t types.Type) bool
 
 // implemented by *types.Pointer, *types.Array, *types.Slice, *types.Chan
 type typeWithElem interface {
@@ -64,7 +63,7 @@ func traverseType(o *Output, name string, in types.Type, visitor TypeVisitor) {
 	for {
 		// defer un(trace(o, "traverseType", name, in))
 
-		if !visitor(name, in) {
+		if !visitor(in) {
 			return
 		}
 		switch t := in.(type) {
@@ -150,15 +149,23 @@ func (ie *importExtractor) visitPackage(pkg *types.Package, requireAllInterfaceM
 	}
 }
 
-func (ie *importExtractor) visitType(name string, t types.Type) bool {
+func (ie *importExtractor) visitType(t types.Type) bool {
 	if ie.seen[t] {
 		return false
 	}
 	switch t := t.(type) {
+	case *types.Basic:
+		if t.Kind() == types.UnsafePointer {
+			ie.imports["unsafe"] = true
+			// output.Debugf("will import %q. reason: found type %v", "unsafe", t)
+		}
+		// no need to visit the definition of a basic type
+		return false
 	case *types.Named:
 		if obj := t.Obj(); obj != nil {
 			if pkg := obj.Pkg(); pkg != nil {
 				ie.imports[pkg.Path()] = true
+				// output.Debugf("will import %q. reason: found type %v", pkg.Path(), t)
 			}
 		}
 		// no need to visit the definition of a named type
@@ -299,7 +306,9 @@ func collectPackageImportsWithRename(o *Output, pkg *types.Package, requireAllIn
 		imports: map[string]bool{pkg.Path(): true},
 		o:       o,
 	}
+	// output.Debugf("before visitPackage: imports = %v", ie.imports)
 	ie.visitPackage(pkg, requireAllInterfaceMethodsExported)
+	// output.Debugf("after  visitPackage: imports = %v", ie.imports)
 
 	// for deterministic renaming, use a sorted []string instead of a map[string]bool
 	pathlist := getKeys(ie.imports)
@@ -308,18 +317,32 @@ func collectPackageImportsWithRename(o *Output, pkg *types.Package, requireAllIn
 	nametopath := renamePackages(pathlist)
 	pathtoname := transposeKeyValue(nametopath)
 
-	// prevent renaming the package we are scanning!
-	path := pkg.Path()
-	name := sanitizePackageName(paths.FileName(path))
-	if name2 := pathtoname[path]; name2 != name {
-		// some *other* path may be associated to name.
-		// in case, swap the names of the two packages
-		if path2, ok := nametopath[name]; ok {
-			pathtoname[path2] = name2
-		}
-		pathtoname[path] = name
-	}
+	// prevent renaming the package we are scanning
+	// unless it's named unsafe - see below
+	preventRenamingIfPresent(pkg.Path(), nametopath, pathtoname)
+
+	// also prevent renaming "unsafe" - easier than
+	// intercepting type unsafe.Pointer and renaming it
+	preventRenamingIfPresent("unsafe", nametopath, pathtoname)
+
 	return pathtoname
+}
+
+func preventRenamingIfPresent(path string, nametopath map[string]string, pathtoname map[string]string) {
+	name := packageSanitizedName(path)
+	name2, ok := pathtoname[path]
+	if !ok || name == name2 {
+		return
+	}
+	// some *other* path is associated to name: swap their names
+	path2, ok := nametopath[name]
+	if ok {
+		nametopath[name2] = path2
+		pathtoname[path2] = name2
+	}
+	nametopath[path] = name
+	pathtoname[path] = name
+	// output.Debugf("swapped import aliases: will import\n\t%s %q\n\t%s %q", name, path, name2, path2)
 }
 
 // given a slice []path, return a map[name]path where all paths
@@ -336,8 +359,9 @@ func renamePackages(in []string) map[string]string {
 // given a package path and a map[name]path, extract the path last name.
 // Change it (if needed) to a value that is NOT in map and return it.
 func renamePackage(path string, out map[string]string) string {
-	name := sanitizePackageName(paths.FileName(path))
-	if _, exists := out[name]; !exists && !isReservedKeyword(name) {
+	name := packageSanitizedName(path)
+	if _, exists := out[name]; !exists {
+		// output.Debugf("package %q will be imported as %s", path, name)
 		return name
 	}
 	n := len(name)
@@ -348,6 +372,7 @@ func renamePackage(path string, out map[string]string) string {
 	for i := uint64(0); i < ^uint64(0); i++ {
 		namei := fmt.Sprintf("%s%d", name, i)
 		if _, exists := out[namei]; !exists {
+			// output.Debugf("package %q will be imported as %s because the alias %s is already used", path, namei, name)
 			return namei
 		}
 	}
@@ -356,7 +381,7 @@ func renamePackage(path string, out map[string]string) string {
 }
 
 func isReservedKeyword(s string) bool {
-	return len(s) > 1 && token.Lookup(s) != token.ILLEGAL
+	return len(s) > 1 && token.Lookup(s) != token.IDENT
 }
 
 func isDigit(b byte) bool {

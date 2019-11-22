@@ -212,15 +212,27 @@ func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode Import
 	return file
 }
 
-func sanitizePackageName(str string) string {
-	return sanitizePackageName2(str, '_')
+func packageSanitizedName(path string) string {
+	return sanitizeIdent(paths.FileName(path))
 }
 
-func sanitizePackageName2(str string, replacement rune) string {
+func sanitizeIdent(str string) string {
+	return sanitizeIdent2(str, '_')
+}
+
+func sanitizeIdent2(str string, replacement rune) string {
 	runes := []rune(str)
 	for i, ch := range runes {
-		if (ch >= 'a' && ch <= 'z') || (i != 0 &&
-			(ch == '_' || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9'))) {
+		if ch >= 'a' && ch <= 'z' {
+			continue
+		} else if ch >= 'A' && ch <= 'Z' {
+			if i == 0 {
+				// first rune must be lowercase to avoid conflict
+				// with Packages, ValueOf, TypeOf
+				runes[i] = ch - 'A' + 'a'
+			}
+			continue
+		} else if i > 0 && (ch == '_' || (ch >= '0' && ch <= '9')) {
 			continue
 		}
 		runes[i] = replacement
@@ -237,14 +249,14 @@ func computeImportFilename(path string, mode ImportMode) string {
 	switch mode {
 	case ImBuiltin:
 		// user will need to recompile gomacro
-		return paths.Subdir(paths.GomacroDir, "imports", sanitizePackageName(path)+".go")
+		return paths.Subdir(paths.GomacroDir, "imports", sanitizeIdent(path)+".go")
 	case ImInception:
 		// user will need to recompile gosrcdir / path
 		return paths.Subdir(paths.GoSrcDir, path, "x_package.go")
 	case ImThirdParty:
 		// either plugin.Open is not available, or user explicitly requested import _3 "package".
 		// In both cases, user will need to recompile gomacro
-		return paths.Subdir(paths.GomacroDir, "imports", "thirdparty", sanitizePackageName(path)+".go")
+		return paths.Subdir(paths.GomacroDir, "imports", "thirdparty", sanitizeIdent(path)+".go")
 	}
 
 	file := paths.FileName(path) + ".go"
