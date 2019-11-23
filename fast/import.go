@@ -115,25 +115,25 @@ func (imp *Import) asInterpreter(outer *Interp) Interp {
 // =========================== import package =================================
 
 // ImportPackage imports a package. Panics if the import fails.
-// If name is the empty string, it defaults to the identifier
+// If alias is the empty string, it defaults to the identifier
 // specified in the package clause of the imported package
-func (ir *Interp) ImportPackage(name, path string) *Import {
-	return ir.Comp.ImportPackage(name, path)
+func (ir *Interp) ImportPackage(alias, path string) *Import {
+	return ir.Comp.ImportPackage(alias, path)
 }
 
 // ImportPackageOrError imports a package.
-// If name is the empty string, it defaults to the identifier
+// If alias is the empty string, it defaults to the identifier
 // specified in the package clause of the imported package
-func (ir *Interp) ImportPackageOrError(name, path string) (*Import, error) {
-	return ir.Comp.ImportPackageOrError(name, path)
+func (ir *Interp) ImportPackageOrError(alias, path string) (*Import, error) {
+	return ir.Comp.ImportPackageOrError(alias, path)
 }
 
 // ImportPackage imports a package. Panics if the import fails.
-// Usually invoked as Comp.FileComp().ImportPackage(name, path)
+// Usually invoked as Comp.FileComp().ImportPackage(alias, path)
 // because imports are usually top-level statements in a source file.
 // But we also support local imports, i.e. import statements inside a function or block.
-func (c *Comp) ImportPackage(name, path string) *Import {
-	imp, err := c.ImportPackageOrError(name, path)
+func (c *Comp) ImportPackage(alias, path string) *Import {
+	imp, err := c.ImportPackageOrError(alias, path)
 	if err != nil {
 		panic(err)
 	}
@@ -143,26 +143,26 @@ func (c *Comp) ImportPackage(name, path string) *Import {
 // ImportPackageOrError imports a package.
 // If name is the empty string, it defaults to the identifier
 // specified in the package clause of the imported package
-func (c *Comp) ImportPackageOrError(name, path string) (*Import, error) {
+func (c *Comp) ImportPackageOrError(alias, path string) (*Import, error) {
 	g := c.CompGlobals
 	imp := g.KnownImports[path]
 	if imp == nil {
-		pkgref, err := g.Importer.ImportPackageOrError(name, path, g.Options&OptModuleImport != 0)
+		pkgref, err := g.Importer.ImportPackageOrError(alias, path, g.Options&OptModuleImport != 0)
 		if err != nil {
 			return nil, err
 		}
 		imp = g.NewImport(pkgref)
 	}
-	if name == "." {
+	if alias == "." {
 		c.declDotImport0(imp)
-	} else if name != "_" {
+	} else if alias != "_" {
 		// https://golang.org/ref/spec#Package_clause states:
 		// If the PackageName is omitted, it defaults to the identifier
 		// specified in the package clause of the imported package
-		if len(name) == 0 {
-			name = imp.Name
+		if len(alias) == 0 {
+			alias = imp.Name
 		}
-		c.declImport0(name, imp)
+		c.declImport0(alias, imp)
 	}
 	g.KnownImports[path] = imp
 	return imp, nil

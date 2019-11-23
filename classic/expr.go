@@ -259,7 +259,7 @@ func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 			if bind, ok := pkg.Binds[name]; ok {
 				return bind, nil
 			}
-			return env.Errorf("package %v %#v has no symbol %s", pkg.Name, pkg.Path, name)
+			return env.Errorf("package %v %#v has no binding %s", pkg.Name, pkg.Path, name)
 		}
 		elem := obj.Elem()
 		if elem.Kind() == r.Struct {

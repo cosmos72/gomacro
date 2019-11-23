@@ -19,7 +19,8 @@ package strings
 import (
 	"strconv"
 	"strings"
-	"unicode"
+
+	"github.com/cosmos72/gomacro/imports/util"
 )
 
 func UnescapeChar(str string) (rune, error) {
@@ -115,35 +116,7 @@ func Split2(s string, separator rune) (string, string) {
 }
 
 func TailIdentifier(s string) string {
-	if len(s) == 0 {
-		return s
-	}
-	// work on unicode runes, not on bytes
-	chars := []rune(s)
-	var i, n = 0, len(chars)
-	var digit bool
-	for i = n - 1; i >= 0; i-- {
-		ch := chars[i]
-		if ch < 0x80 {
-			if ch >= 'A' && ch <= 'Z' || ch == '_' || ch >= 'a' && ch <= 'z' {
-				digit = false
-			} else if ch >= '0' && ch <= '9' {
-				digit = true
-			} else {
-				break
-			}
-		} else if unicode.IsLetter(ch) {
-			digit = false
-		} else if unicode.IsDigit(ch) {
-			digit = true
-		} else {
-			break
-		}
-	}
-	if digit {
-		i++
-	}
-	return string(chars[i+1:])
+	return util.TailIdentifier(s)
 }
 
 /*

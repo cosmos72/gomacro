@@ -7,7 +7,7 @@ package imports
 
 import (
 	. "reflect"
-	"debug/pe"
+	pe "debug/pe"
 )
 
 // reflection: allow interpreted code to import "debug/pe"

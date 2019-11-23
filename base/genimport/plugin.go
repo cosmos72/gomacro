@@ -74,7 +74,7 @@ func (imp *Importer) loadPluginSymbol(soname string, symbolName string) interfac
 	//   or in Globals.Importer.PluginOpen
 
 	o := imp.output
-	if !imp.setPluginOpen() {
+	if !imp.havePluginOpen() {
 		o.Errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
 	}
 	if len(soname) == 0 || len(symbolName) == 0 {

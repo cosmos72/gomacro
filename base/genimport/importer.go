@@ -27,7 +27,6 @@ import (
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/base/reflect"
-	"github.com/cosmos72/gomacro/base/strings"
 	"github.com/cosmos72/gomacro/imports"
 )
 
@@ -62,11 +61,15 @@ const (
 
 type PackageRef struct {
 	imports.Package
-	Name, Path string
+	Path string
+}
+
+func (ref *PackageRef) DefaultName() string {
+	return ref.Package.DefaultName(ref.Path)
 }
 
 func (ref *PackageRef) String() string {
-	return fmt.Sprintf("{%s %q, %d binds, %d types}", ref.Name, ref.Path, len(ref.Binds), len(ref.Types))
+	return fmt.Sprintf("{%s %q, %d binds, %d types}", ref.DefaultName(), ref.Path, len(ref.Binds), len(ref.Types))
 }
 
 type Importer struct {
@@ -80,7 +83,7 @@ func DefaultImporter(o *Output) *Importer {
 	return &Importer{output: o}
 }
 
-func (imp *Importer) setPluginOpen() bool {
+func (imp *Importer) havePluginOpen() bool {
 	if !imp.PluginOpen.IsValid() {
 		imp.PluginOpen = imports.Packages["plugin"].Binds["Open"]
 		if !imp.PluginOpen.IsValid() {
@@ -91,19 +94,21 @@ func (imp *Importer) setPluginOpen() bool {
 }
 
 // LookupPackage returns a package if already present in cache
-func LookupPackage(name, path string) *PackageRef {
+func LookupPackage(alias, path string) *PackageRef {
 	pkg, found := imports.Packages[path]
 	if !found {
 		return nil
 	}
-	if len(name) == 0 {
-		// import "foo" => get name from package
-		if name = pkg.Name; len(name) == 0 {
-			// no package name, use default
-			name = strings.TailIdentifier(paths.FileName(path))
-		}
+	if len(pkg.Name) == 0 {
+		// missing pkg.Name, initialize it
+		pkg.DefaultName(path)
+		imports.Packages[path] = pkg
 	}
-	return &PackageRef{Package: pkg, Name: name, Path: path}
+	if len(alias) == 0 {
+		// import "foo" => get alias from package name
+		alias = pkg.DefaultName(path)
+	}
+	return &PackageRef{Package: pkg, Path: path}
 }
 
 func (imp *Importer) wrapImportError(path string, enableModule bool, err error) output.RuntimeError {
@@ -118,16 +123,16 @@ func (imp *Importer) wrapImportError(path string, enableModule bool, err error) 
 		path, err)
 }
 
-func (imp *Importer) ImportPackage(name, path string, enableModule bool) *PackageRef {
-	ref, err := imp.ImportPackageOrError(name, path, enableModule)
+func (imp *Importer) ImportPackage(alias, path string, enableModule bool) *PackageRef {
+	ref, err := imp.ImportPackageOrError(alias, path, enableModule)
 	if err != nil {
 		panic(err)
 	}
 	return ref
 }
 
-func (imp *Importer) ImportPackageOrError(name, pkgpath string, enableModule bool) (*PackageRef, error) {
-	ref := LookupPackage(name, pkgpath)
+func (imp *Importer) ImportPackageOrError(alias, pkgpath string, enableModule bool) (*PackageRef, error) {
+	ref := LookupPackage(alias, pkgpath)
 	if ref != nil {
 		return ref, nil
 	}
@@ -137,7 +142,7 @@ func (imp *Importer) ImportPackageOrError(name, pkgpath string, enableModule boo
 		return nil, imp.wrapImportError(pkgpath, enableModule, err)
 	}
 	var mode ImportMode
-	switch name {
+	switch alias {
 	case "_b":
 		mode = ImBuiltin
 	case "_i":
@@ -145,18 +150,17 @@ func (imp *Importer) ImportPackageOrError(name, pkgpath string, enableModule boo
 	case "_3":
 		mode = ImThirdParty
 	default:
-		if len(name) == 0 {
-			name = gpkg.Name()
+		if len(alias) == 0 {
+			alias = gpkg.Name()
 		}
-		havePluginOpen := imp.setPluginOpen()
-		if havePluginOpen {
+		if imp.havePluginOpen() {
 			mode = ImPlugin
 		} else {
 			mode = ImThirdParty
 		}
 	}
 	file := createImportFile(imp.output, pkgpath, gpkg, mode)
-	ref = &PackageRef{Name: name, Path: pkgpath}
+	ref = &PackageRef{Path: pkgpath}
 	if len(file) == 0 || mode != ImPlugin {
 		// either the package exports nothing, or user must rebuild gomacro.
 		// in both cases, still cache it to avoid recreating the file.
@@ -167,7 +171,7 @@ func (imp *Importer) ImportPackageOrError(name, pkgpath string, enableModule boo
 	ipkgs := imp.loadPluginSymbol(soname, "Packages")
 	pkgs := *ipkgs.(*map[string]imports.PackageUnderlying)
 
-	// cache *all* found packages for future use
+	// cache *all* packages found for future use
 	imports.Packages.Merge(pkgs)
 
 	// but return only requested one

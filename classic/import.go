@@ -54,7 +54,7 @@ func (env *Env) evalImport(imp *ast.ImportSpec) (r.Value, []r.Value) {
 			// If the PackageName is omitted, it defaults to the identifier
 			// specified in the package clause of the imported package
 			if len(name) == 0 {
-				name = pkg.Name
+				name = pkg.DefaultName()
 			}
 			env.DefineConst(name, r.TypeOf(pkg), r.ValueOf(pkg))
 		}

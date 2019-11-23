@@ -50,7 +50,7 @@ func (cmd *Cmd) Init() {
 	ir.SetInspector(&inspect.Inspector{})
 
 	g := &ir.Comp.Globals
-	g.ParserMode = 0
+	g.ParserMode = 0 // defaults
 	g.Options |= OptDebugger | OptCtrlCEnterDebugger | OptKeepUntyped | OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType
 	cmd.Interp = ir
 	cmd.WriteDeclsAndStmts = false

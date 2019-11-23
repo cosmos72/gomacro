@@ -23,11 +23,13 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/cosmos72/gomacro/imports/util"
 )
 
 // return the string after last '/' in path
 func FileName(path string) string {
-	return path[1+strings.LastIndexByte(path, '/'):]
+	return util.FileName(path)
 }
 
 // return the string up to (and including) last '/' in path
