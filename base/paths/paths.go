@@ -81,24 +81,28 @@ var (
 	// needed to build compatible plugins
 	GoRootDir = build.Default.GOROOT
 
-	// the directory where to write imports.
-	// computed lazily, packages that depend on gomacro can override it.
-	// also works for vendored or cloned copies of gomacro
-	ImportsSrcDir string
+	// a value whose type is defined in the imports package.
+	// used to locate the source directory where to write imports.
+	SymbolFromImportsPackage = imports.Packages
+
+	// the directory where to write imports. computed lazily.
+	// also works for vendored or cloned copies of gomacro.
+	// to change it, set the variable SymbolFromImportsPackage.
+	importsSrcDir string
 )
 
 // lazily compute the directory where to write imports
 func GetImportsSrcDir() string {
-	if ImportsSrcDir == "" {
-		ImportsSrcDir = FindPkgSrcDir(imports.Packages)
+	if importsSrcDir == "" {
+		importsSrcDir = findPkgSrcDir(SymbolFromImportsPackage)
 	}
-	return ImportsSrcDir
+	return importsSrcDir
 }
 
 // return the source directory inside GOPATH
 // where the package containing the declaration of x's type
 // should be located.
-func FindPkgSrcDir(x interface{}) string {
+func findPkgSrcDir(x interface{}) string {
 	pkg := reflect.TypeOf(x).PkgPath()
 	pkg = filepath.Join(strings.Split(pkg, "/")...)
 	gopath := build.Default.GOPATH
