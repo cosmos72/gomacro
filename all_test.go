@@ -77,10 +77,10 @@ func (tc *TestCase) shouldRun(interp TestFor) bool {
 	if tc.testfor&Go1_13 != 0 && !canRunGo1_13 {
 		return false
 	}
-	if tc.testfor&G1 != 0 && etoken.GENERICS_V1_CXX {
+	if tc.testfor&G1 != 0 && etoken.GENERICS.V1_CXX() {
 		return true
 	}
-	if tc.testfor&G2 != 0 && etoken.GENERICS_V2_CTI {
+	if tc.testfor&G2 != 0 && etoken.GENERICS.V2_CTI() {
 		return true
 	}
 	return tc.testfor&(G1|G2) == 0
@@ -388,9 +388,9 @@ func init() {
 }
 
 func decl_generic_type_pair_str() string {
-	if etoken.GENERICS_V1_CXX {
+	if etoken.GENERICS.V1_CXX() {
 		return "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}"
-	} else if etoken.GENERICS_V2_CTI {
+	} else if etoken.GENERICS.V2_CTI() {
 		return "~quote{type Pair#[T1,T2] struct { First T1; Second T2 }}"
 	} else {
 		return ""
@@ -398,9 +398,9 @@ func decl_generic_type_pair_str() string {
 }
 
 func decl_generic_func_sum_str() string {
-	if etoken.GENERICS_V1_CXX {
+	if etoken.GENERICS.V1_CXX() {
 		return "~quote{template [T] func Sum([]T) T { }}"
-	} else if etoken.GENERICS_V2_CTI {
+	} else if etoken.GENERICS.V2_CTI() {
 		return "~quote{~func Sum#[T] ([]T) T { }}"
 	} else {
 		return ""
@@ -408,9 +408,9 @@ func decl_generic_func_sum_str() string {
 }
 
 func decl_generic_method_rest_str() string {
-	if etoken.GENERICS_V1_CXX {
+	if etoken.GENERICS.V1_CXX() {
 		return "~quote{template [T] func (x Pair) Rest() T { }}"
-	} else if etoken.GENERICS_V2_CTI {
+	} else if etoken.GENERICS.V2_CTI() {
 		return "~quote{~func (x Pair) Rest#[T] () T { }}"
 	} else {
 		return ""
@@ -418,9 +418,9 @@ func decl_generic_method_rest_str() string {
 }
 
 func generic_func(name string, generic_args string) string {
-	if etoken.GENERICS_V1_CXX {
+	if etoken.GENERICS.V1_CXX() {
 		return "template[" + generic_args + "] func " + name + " "
-	} else if etoken.GENERICS_V2_CTI {
+	} else if etoken.GENERICS.V2_CTI() {
 		return "func " + name + "#[" + generic_args + "]"
 	} else {
 		return ""
@@ -428,9 +428,9 @@ func generic_func(name string, generic_args string) string {
 }
 
 func generic_type(name string, generic_args string) string {
-	if etoken.GENERICS_V1_CXX {
+	if etoken.GENERICS.V1_CXX() {
 		return "template[" + generic_args + "] type " + name + " "
-	} else if etoken.GENERICS_V2_CTI {
+	} else if etoken.GENERICS.V2_CTI() {
 		return "type " + name + "#[" + generic_args + "]"
 	} else {
 		return ""

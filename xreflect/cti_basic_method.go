@@ -28,7 +28,7 @@ import (
 )
 
 func (v *Universe) addBasicTypesMethodsCTI() {
-	if !etoken.GENERICS_V2_CTI {
+	if !etoken.GENERICS.V2_CTI() {
 		return
 	}
 
@@ -40,7 +40,7 @@ func (v *Universe) addBasicTypesMethodsCTI() {
 
 }
 func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
-	if !etoken.GENERICS_V2_CTI {
+	if !etoken.GENERICS.V2_CTI() {
 		return
 	}
 
@@ -52,7 +52,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 			case "Equal":
 				(*mvec)[i] = r.ValueOf(func(a bool,
 					b bool,
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Not":
 				(*mvec)[i] = r.ValueOf(func(z bool,
 
@@ -72,7 +74,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b int,
 
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Cmp":
 				(*mvec)[i] = r.ValueOf(func(a int,
 
@@ -92,7 +96,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b int,
 
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z int,
 
@@ -226,7 +232,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b int8,
 
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Cmp":
 				(*mvec)[i] = r.ValueOf(func(a int8,
 
@@ -246,7 +254,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b int8,
 
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z int8,
 
@@ -380,7 +390,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b int16,
 
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Cmp":
 				(*mvec)[i] = r.ValueOf(func(a int16,
 
@@ -400,7 +412,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b int16,
 
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z int16,
 
@@ -534,7 +548,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b int32,
 
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Cmp":
 				(*mvec)[i] = r.ValueOf(func(a int32,
 
@@ -554,7 +570,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b int32,
 
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z int32,
 
@@ -687,7 +705,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b int64,
 
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Cmp":
 				(*mvec)[i] = r.ValueOf(func(a int64,
 
@@ -707,7 +727,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b int64,
 
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z int64,
 
@@ -838,7 +860,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 			case "Equal":
 				(*mvec)[i] = r.ValueOf(func(a uint,
 					b uint,
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Cmp":
 				(*mvec)[i] = r.ValueOf(func(a uint,
 
@@ -858,7 +882,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b uint,
 
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z uint,
 
@@ -1005,7 +1031,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b uint8,
 
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z uint8,
 
@@ -1148,7 +1176,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 			case "Less":
 				(*mvec)[i] = r.ValueOf(func(a uint16,
 					b uint16,
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z uint16,
 
@@ -1678,7 +1708,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b float32,
 
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Cmp":
 				(*mvec)[i] = r.ValueOf(func(a float32,
 
@@ -1698,7 +1730,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b float32,
 
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z float32,
 
@@ -1758,7 +1792,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b float64,
 
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Cmp":
 				(*mvec)[i] = r.ValueOf(func(a float64,
 
@@ -1778,7 +1814,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b float64,
 
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z float64,
 
@@ -1838,7 +1876,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b complex64,
 
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z complex64,
 
@@ -1910,7 +1950,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b complex128,
 
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z complex128,
 
@@ -1982,7 +2024,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b string,
 
-				) bool { return a == b })
+				) bool {
+					return a == b
+				})
 			case "Cmp":
 				(*mvec)[i] = r.ValueOf(func(a string,
 
@@ -2002,7 +2046,9 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 
 					b string,
 
-				) bool { return a < b })
+				) bool {
+					return a < b
+				})
 			case "Add":
 				(*mvec)[i] = r.ValueOf(func(z string,
 
@@ -2016,11 +2062,15 @@ func (v *Universe) addBasicTypeMethodsCTI(xt *xtype) {
 			case "Index":
 				(*mvec)[i] = r.ValueOf(func(a string,
 
-					b int) uint8 { return a[b] })
+					b int) uint8 {
+					return a[b]
+				})
 			case "Len":
 				(*mvec)[i] = r.ValueOf(func(a string,
 
-				) int { return len(a) })
+				) int {
+					return len(a)
+				})
 			case "Slice":
 				(*mvec)[i] = r.ValueOf(func(a string,
 

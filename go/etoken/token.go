@@ -56,7 +56,7 @@ func Lookup(lit string) Token {
 		// allow the spelling "macro" because "~macro" is really ugly in source code...
 		// especially when writing :~macro
 		return MACRO
-	} else if GENERICS_V1_CXX && lit == "template" {
+	} else if GENERICS == GENERICS_V1_CXX && lit == "template" {
 		return TEMPLATE
 	} else if lit == "#" {
 		return HASH

@@ -91,7 +91,7 @@ func (master *GenericFuncDecl) Signature(name string) string {
 		return "<nil>"
 	}
 	var buf bytes.Buffer // strings.Builder requires Go >= 1.10
-	if GENERICS_V1_CXX {
+	if GENERICS_V1_CXX() {
 		buf.WriteString("template[")
 		for i, param := range master.Params {
 			if i != 0 {
@@ -179,7 +179,7 @@ func (c *Comp) DeclGenericFunc(decl *ast.FuncDecl) {
 		return
 	}
 
-	if !GENERICS_V1_CXX {
+	if !GENERICS_V1_CXX() {
 		c.Errorf("generic function partial/full specializations are only supported by C++-style generics: %v", decl)
 	}
 	// partially or fully specialized declaration

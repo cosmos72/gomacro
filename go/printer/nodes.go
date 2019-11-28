@@ -1575,7 +1575,7 @@ func (p *printer) spec(spec ast.Spec, n int, doIndent bool) {
 			typ = c.Type
 		}
 		p.expr(s.Name)
-		if etoken.GENERICS_V2_CTI && c != nil {
+		if etoken.GENERICS.V2_CTI() && c != nil {
 			p.genericInfix(c)
 		}
 		if n == 1 {
@@ -1600,7 +1600,7 @@ func (p *printer) genDecl(d *ast.GenDecl) {
 	// generic types
 	var c *ast.CompositeLit
 
-	if etoken.GENERICS_V1_CXX && len(d.Specs) != 0 {
+	if etoken.GENERICS.V1_CXX() && len(d.Specs) != 0 {
 		if typ, ok := d.Specs[0].(*ast.TypeSpec); ok {
 			if c, ok = typ.Type.(*ast.CompositeLit); ok {
 				// print template arguments.
@@ -1779,7 +1779,7 @@ func (p *printer) funcDecl(d *ast.FuncDecl) {
 	p.print(d.Pos())
 
 	c := funcGenericArgs(d.Recv)
-	if c != nil && etoken.GENERICS_V1_CXX {
+	if c != nil && etoken.GENERICS.V1_CXX() {
 		// generic function or generic method
 		p.templatePrefix(c)
 	}
@@ -1789,7 +1789,7 @@ func (p *printer) funcDecl(d *ast.FuncDecl) {
 		p.receiver(d.Recv) // method: print receiver
 	}
 	p.expr(d.Name)
-	if c != nil && etoken.GENERICS_V2_CTI {
+	if c != nil && etoken.GENERICS.V2_CTI() {
 		// generic function or generic method
 		p.genericInfix(c)
 	}

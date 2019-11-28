@@ -206,7 +206,7 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 
 	// only named types and interfaces can have methods,
 	// unless generics v2 are enabled: they add a few methods to most types
-	if name == "_" || (!etoken.GENERICS_V2_CTI && !t.Named() && t.kind != r.Interface) {
+	if name == "_" || (!etoken.GENERICS.V2_CTI() && !t.Named() && t.kind != r.Interface) {
 		return
 	}
 	v := t.universe
@@ -219,7 +219,7 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 func (t *xtype) methodByName(name, pkgpath string) (method Method, count int) {
 	// only named types and interfaces can have methods,
 	// unless generics v2 are enabled: they add a few methods to most types
-	if name == "_" || (!etoken.GENERICS_V2_CTI && !t.Named() && t.kind != r.Interface) {
+	if name == "_" || (!etoken.GENERICS.V2_CTI() && !t.Named() && t.kind != r.Interface) {
 		return
 	}
 	qname := QName2(name, pkgpath)

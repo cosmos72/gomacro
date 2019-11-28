@@ -55,7 +55,7 @@ func (t *GenericType) String() string {
 	var buf bytes.Buffer // strings.Builder requires Go >= 1.10
 
 	decl := t.Master
-	if GENERICS_V1_CXX {
+	if GENERICS_V1_CXX() {
 		buf.WriteString("template[")
 		for i, param := range decl.Params {
 			if i != 0 {

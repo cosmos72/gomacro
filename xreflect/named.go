@@ -86,7 +86,7 @@ func (t *xtype) SetUnderlying(underlying Type) {
 			t.methodvalues = xunderlying.methodvalues
 			t.methodcache = nil
 			t.fieldcache = nil
-		} else if etoken.GENERICS_V2_CTI {
+		} else if etoken.GENERICS.V2_CTI() {
 			v.addTypeMethodsCTI(t)
 		}
 	default:
@@ -210,7 +210,7 @@ func unsafeRemoveMethods(gtype *types.Named, names []string, pkgpath string) {
 // GetMethods returns the pointer to the method values.
 // It panics if the type is unnamed
 func (t *xtype) GetMethods() *[]r.Value {
-	if !etoken.GENERICS_V2_CTI && !t.Named() {
+	if !etoken.GENERICS.V2_CTI() && !t.Named() {
 		xerrorf(t, "GetMethods on unnamed type %v", t)
 	}
 	resizemethodvalues(t)

@@ -120,7 +120,7 @@ func checkMethod(t *xtype, i int) {
 	if t.kind == r.Ptr {
 		xerrorf(t, "Method of %s type %v. Invoke Method() on type's Elem() instead", t.kind, t)
 	}
-	if !etoken.GENERICS_V2_CTI && !t.Named() && t.kind != r.Interface {
+	if !etoken.GENERICS.V2_CTI() && !t.Named() && t.kind != r.Interface {
 		xerrorf(t, "Method of type %v that cannot have methods", t.kind, t)
 	}
 }

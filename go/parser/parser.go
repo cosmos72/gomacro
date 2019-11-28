@@ -983,7 +983,7 @@ func (p *parser) parseMethodSpec(scope *ast.Scope) *ast.Field {
 	var funcPos token.Pos
 	var genericParams *ast.CompositeLit
 
-	if GENERICS_V2_CTI && p.tok == token.FUNC {
+	if GENERICS_V2_CTI() && p.tok == token.FUNC {
 		isMethod = true
 		funcPos = p.pos
 		p.next()
@@ -1007,7 +1007,7 @@ func (p *parser) parseMethodSpec(scope *ast.Scope) *ast.Field {
 	if ident != nil {
 		idents = []*ast.Ident{ident}
 	}
-	if GENERICS_V2_CTI && p.tok == etoken.HASH {
+	if GENERICS_V2_CTI() && p.tok == etoken.HASH {
 		genericParams = p.parseGenericParams()
 	}
 
@@ -1048,7 +1048,7 @@ func (p *parser) parseInterfaceType() *ast.InterfaceType {
 	lbrace := p.expect(token.LBRACE)
 	scope := ast.NewScope(nil) // interface scope
 	var list []*ast.Field
-	for p.tok == token.IDENT || (GENERICS_V2_CTI && p.tok == token.FUNC) {
+	for p.tok == token.IDENT || (GENERICS_V2_CTI() && p.tok == token.FUNC) {
 		list = append(list, p.parseMethodSpec(scope))
 	}
 	rbrace := p.expect(token.RBRACE)
@@ -1107,7 +1107,7 @@ func (p *parser) tryIdentOrType() ast.Expr {
 	switch p.tok {
 	case token.IDENT:
 		ident := p.parseTypeName()
-		if _GENERICS_HASH && p.tok == etoken.HASH {
+		if _GENERICS_HASH() && p.tok == etoken.HASH {
 			// parse Foo#[T1,T2...]
 			return p.parseHash(ident)
 		}
@@ -1228,7 +1228,7 @@ func (p *parser) parseOperand(lhs bool) ast.Expr {
 	switch p.tok {
 	case token.IDENT:
 		var x ast.Expr = p.parseIdent()
-		if _GENERICS_HASH && p.tok == etoken.HASH {
+		if _GENERICS_HASH() && p.tok == etoken.HASH {
 			// parse Foo#[T1,T2...]
 			x = p.parseHash(x)
 		} else if !lhs {
@@ -1318,7 +1318,7 @@ func (p *parser) parseIndexOrSlice(x ast.Expr) ast.Expr {
 	var index0 ast.Expr
 	if p.tok != token.COLON {
 		index0 = p.parseRhsOrType()
-		if _GENERICS_HASH && p.tok == token.COMMA {
+		if _GENERICS_HASH() && p.tok == token.COMMA {
 			// parse [A, B...] used in generics
 			var list = []ast.Expr{index0}
 			for p.tok == token.COMMA {
@@ -1520,7 +1520,7 @@ func isTypeName(x ast.Expr) bool {
 	case *ast.Ident:
 	case *ast.IndexExpr:
 		// generic type, for example Pair#[T1,T2]
-		return _GENERICS_HASH
+		return _GENERICS_HASH()
 	case *ast.SelectorExpr:
 		_, isIdent := t.X.(*ast.Ident)
 		return isIdent
@@ -1537,7 +1537,7 @@ func isLiteralType(x ast.Expr) bool {
 	case *ast.Ident:
 	case *ast.IndexExpr:
 		// generic type, for example Pair#[T1,T2]
-		return _GENERICS_HASH
+		return _GENERICS_HASH()
 	case *ast.SelectorExpr:
 		_, isIdent := t.X.(*ast.Ident)
 		return isIdent
@@ -2356,7 +2356,7 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 		// a semicolon may be omitted before a closing "}"
 		s = &ast.EmptyStmt{Semicolon: p.pos, Implicit: true}
 	case etoken.TEMPLATE:
-		if GENERICS_V1_CXX {
+		if GENERICS_V1_CXX() {
 			s = &ast.DeclStmt{Decl: p.parseDecl(syncStmt)}
 			break
 		}
@@ -2492,7 +2492,7 @@ func (p *parser) parseTypeSpec(doc *ast.CommentGroup, _ token.Token, _ int) ast.
 	// i.e. `type Map#[K,V] struct { ... }`
 	var params *ast.CompositeLit
 
-	if GENERICS_V2_CTI && p.tok == etoken.HASH {
+	if GENERICS_V2_CTI() && p.tok == etoken.HASH {
 		p.next()
 		params = p.parseGenericParams()
 	}
@@ -2585,7 +2585,7 @@ func (p *parser) parseFuncOrMacroDecl(tok token.Token) *ast.FuncDecl {
 
 	// patch: generic v2 type params
 	var c *ast.CompositeLit
-	if tok != etoken.MACRO && etoken.GENERICS_V2_CTI && p.tok == etoken.HASH {
+	if tok != etoken.MACRO && GENERICS_V2_CTI() && p.tok == etoken.HASH {
 		p.next()
 		c = p.parseGenericParams()
 	}
@@ -2646,7 +2646,7 @@ func (p *parser) parseDecl(sync func(*parser)) ast.Decl {
 		return p.parseMacroDecl()
 
 	case etoken.TEMPLATE: // patch: parse a C++ template style generics declaration
-		if GENERICS_V1_CXX {
+		if GENERICS_V1_CXX() {
 			return p.parseTemplateDecl(sync)
 		}
 		fallthrough

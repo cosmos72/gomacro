@@ -4,15 +4,24 @@
 
 package etoken
 
-// enable C++ style generics?
-const GENERICS_V1_CXX = false
+type Generics int
 
-// enable generics "contracts are interfaces" ?
-const GENERICS_V2_CTI = true
+const (
+	GENERICS_NONE Generics = iota
+	// enables C++ style generics
+	GENERICS_V1_CXX
+	// enables generics "contracts are interfaces"
+	GENERICS_V2_CTI
+)
 
-// can only enable one style of generics
-func init() {
-	if GENERICS_V1_CXX && GENERICS_V2_CTI {
-		panic("github.com/cosmos72/gomacro/go/etoken: cannot enable both GENERICS_V1_CXX and GENERICS_V2_CTI. Please disable at least one of them.")
-	}
+// can be changed at runtime. useful to enable them by in gomacro,
+// without affecting packages that depend on gomacro, as Gophernotes
+var GENERICS = GENERICS_NONE
+
+func (g Generics) V1_CXX() bool {
+	return g == GENERICS_V1_CXX
+}
+
+func (g Generics) V2_CTI() bool {
+	return g == GENERICS_V2_CTI
 }

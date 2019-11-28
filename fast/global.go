@@ -328,7 +328,7 @@ func (bind *Bind) RuntimeValue(g *CompGlobals, env *Env) r.Value {
 	case VarBind, FuncBind:
 		v = env.Vals[bind.Desc.Index()]
 	case GenericFuncBind, GenericTypeBind:
-		if GENERICS_V1_CXX || GENERICS_V2_CTI {
+		if GENERICS_V1_CXX() || GENERICS_V2_CTI() {
 			v = bind.Lit.ConstValue()
 			break
 		}

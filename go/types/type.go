@@ -449,7 +449,7 @@ func NewNamed(obj *TypeName, underlying Type, methods []*Func) *Named {
 	if obj.typ == nil {
 		obj.typ = typ
 	}
-	if etoken.GENERICS_V2_CTI {
+	if etoken.GENERICS.V2_CTI() {
 		typ.initMethods()
 		for _, m := range methods {
 			typ.ReplaceMethod(m)

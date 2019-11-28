@@ -24,13 +24,19 @@ import (
 )
 
 // enable C++-style generics?
-const GENERICS_V1_CXX = etoken.GENERICS_V1_CXX
+func GENERICS_V1_CXX() bool {
+	return etoken.GENERICS.V1_CXX()
+}
 
 // enable generics "contracts are interfaces" ?
-const GENERICS_V2_CTI = etoken.GENERICS_V2_CTI
+func GENERICS_V2_CTI() bool {
+	return etoken.GENERICS.V2_CTI()
+}
 
 // do generics use Foo#[T1,T2...] syntax?
-const _GENERICS_HASH = GENERICS_V1_CXX || GENERICS_V2_CTI
+func _GENERICS_HASH() bool {
+	return GENERICS_V1_CXX() || GENERICS_V2_CTI()
+}
 
 /*
  * used by GENERICS_V1_CXX and GENERICS_V2_CTI:
@@ -99,13 +105,13 @@ func (p *parser) parseGenericParams() *ast.CompositeLit {
 
 	lbrack := p.expect(token.LBRACK)
 	if p.tok != token.RBRACK {
-		if GENERICS_V1_CXX {
+		if GENERICS_V1_CXX() {
 			list = append(list, p.parseRhsOrType())
 			for p.tok == token.COMMA {
 				p.next()
 				list = append(list, p.parseRhsOrType())
 			}
-		} else if GENERICS_V2_CTI {
+		} else if GENERICS_V2_CTI() {
 			for {
 				x := p.parseRhsOrType()
 				if p.tok == token.COLON {

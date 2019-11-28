@@ -107,7 +107,7 @@ func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 	switch t.Kind() {
 	case r.Func:
 	case r.Ptr:
-		if (GENERICS_V1_CXX || GENERICS_V2_CTI) && t.ReflectType() == rtypeOfPtrGenericFunc {
+		if (GENERICS_V1_CXX() || GENERICS_V2_CTI()) && t.ReflectType() == rtypeOfPtrGenericFunc {
 			fun = c.inferGenericFunc(node, fun, args)
 			t = fun.Type
 			break

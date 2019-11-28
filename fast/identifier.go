@@ -102,7 +102,7 @@ func (sym *Symbol) Expr(depth int, g *CompGlobals) *Expr {
 	case IntBind:
 		return sym.intExpr(depth, g)
 	case GenericFuncBind, GenericTypeBind:
-		if GENERICS_V1_CXX || GENERICS_V2_CTI {
+		if GENERICS_V1_CXX() || GENERICS_V2_CTI() {
 			// dirty... allows var x = generic_func_name
 			return &Expr{Lit: Lit{Type: sym.Type, Value: sym.Value}, Sym: sym}
 			// g.Errorf("%s name must be followed by #[...] generic arguments: %v", class, sym.Name)

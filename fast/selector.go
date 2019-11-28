@@ -39,7 +39,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 		imp := e.Value.(*Import)
 		return imp.selector(name, &c.Stringer)
 	}
-	if GENERICS_V2_CTI && e.Untyped() {
+	if GENERICS_V2_CTI() && e.Untyped() {
 		// convert untyped expression to its default type,
 		// which may have methods
 		e.ConstTo(e.DefaultType())

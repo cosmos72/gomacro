@@ -32,10 +32,14 @@ import (
 )
 
 // enable C++-style generics?
-const GENERICS_V1_CXX = etoken.GENERICS_V1_CXX
+func GENERICS_V1_CXX() bool {
+	return etoken.GENERICS.V1_CXX()
+}
 
 // enable "contracts are interfaces" generics?
-const GENERICS_V2_CTI = etoken.GENERICS_V2_CTI
+func GENERICS_V2_CTI() bool {
+	return etoken.GENERICS.V2_CTI()
+}
 
 type genericMaker struct {
 	comp  *Comp

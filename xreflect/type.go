@@ -292,7 +292,7 @@ func matchReceiverType(t, u *xtype) bool {
 }
 
 func getConstrainedReceiverType(t *xtype, lhs bool) *xtype {
-	if etoken.GENERICS_V2_CTI {
+	if etoken.GENERICS.V2_CTI() {
 		if lhs && t.kind != r.Interface {
 			return t
 		}

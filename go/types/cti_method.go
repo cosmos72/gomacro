@@ -37,33 +37,33 @@ func (s *Struct) Method(i int) *Func    { return ([]*Func)(nil)[i] }
 func (t *Tuple) Method(i int) *Func     { return ([]*Func)(nil)[i] }
 
 func (b *Basic) initMethods() {
-	if etoken.GENERICS_V2_CTI && len(b.methods) == 0 {
+	if etoken.GENERICS.V2_CTI() && len(b.methods) == 0 {
 		b.methods = makeBasicMethods(b, b)
 	}
 }
 func (a *Array) initMethods() {
-	if etoken.GENERICS_V2_CTI && len(a.methods) == 0 {
+	if etoken.GENERICS.V2_CTI() && len(a.methods) == 0 {
 		a.methods = makeArrayMethods(a, a)
 	}
 }
 func (c *Chan) initMethods() {
-	if etoken.GENERICS_V2_CTI && len(c.methods) == 0 {
+	if etoken.GENERICS.V2_CTI() && len(c.methods) == 0 {
 		c.methods = makeChanMethods(c, c)
 	}
 }
 func (m *Map) initMethods() {
-	if etoken.GENERICS_V2_CTI && len(m.methods) == 0 {
+	if etoken.GENERICS.V2_CTI() && len(m.methods) == 0 {
 		m.methods = makeMapMethods(m, m)
 	}
 }
 func (s *Slice) initMethods() {
-	if etoken.GENERICS_V2_CTI && len(s.methods) == 0 {
+	if etoken.GENERICS.V2_CTI() && len(s.methods) == 0 {
 		s.methods = makeSliceMethods(s, s)
 	}
 }
 
 func (t *Named) initMethods() {
-	if etoken.GENERICS_V2_CTI && len(t.methods) == 0 {
+	if etoken.GENERICS.V2_CTI() && len(t.methods) == 0 {
 		var methods []*Func
 		switch u := t.underlying.(type) {
 		case *Basic:
@@ -92,7 +92,7 @@ func newFunc(name string, sig *Signature) *Func {
 func makeBasicMethods(t Type, underlying *Basic) []*Func {
 	var methods []*Func
 	info := underlying.info
-	if !etoken.GENERICS_V2_CTI || info&IsUntyped != 0 {
+	if !etoken.GENERICS.V2_CTI() || info&IsUntyped != 0 {
 		return methods
 	}
 	v := newVar(t)
@@ -175,7 +175,7 @@ func makeBasicMethods(t Type, underlying *Basic) []*Func {
 
 func makeArrayMethods(t Type, underlying *Array) []*Func {
 	var methods []*Func
-	if !etoken.GENERICS_V2_CTI {
+	if !etoken.GENERICS.V2_CTI() {
 		return methods
 	}
 	vptr := newVar(NewPointer(t))
@@ -205,7 +205,7 @@ func makeArrayMethods(t Type, underlying *Array) []*Func {
 
 func makeChanMethods(t Type, underlying *Chan) []*Func {
 	var methods []*Func
-	if !etoken.GENERICS_V2_CTI {
+	if !etoken.GENERICS.V2_CTI() {
 		return methods
 	}
 	v := newVar(t)
@@ -239,7 +239,7 @@ func makeChanMethods(t Type, underlying *Chan) []*Func {
 
 func makeMapMethods(t Type, underlying *Map) []*Func {
 	var methods []*Func
-	if !etoken.GENERICS_V2_CTI {
+	if !etoken.GENERICS.V2_CTI() {
 		return methods
 	}
 	v := newVar(t)
@@ -263,7 +263,7 @@ func makeMapMethods(t Type, underlying *Map) []*Func {
 
 func makeSliceMethods(t Type, underlying *Slice) []*Func {
 	var methods []*Func
-	if !etoken.GENERICS_V2_CTI {
+	if !etoken.GENERICS.V2_CTI() {
 		return methods
 	}
 	elem := underlying.elem

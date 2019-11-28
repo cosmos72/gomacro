@@ -62,7 +62,7 @@ func EmulatedInterfaceGetMethod(obj r.Value, index int) r.Value {
 func toGoFuncs(pkg *Package, names []string, methods []Type) (gfuns []*types.Func, recv Type) {
 	gfuns = make([]*types.Func, len(methods))
 	for i, t := range methods {
-		if etoken.GENERICS_V2_CTI && t.Kind() == r.Map {
+		if etoken.GENERICS.V2_CTI() && t.Kind() == r.Map {
 			tkey := t.Key()
 			if recv != nil && !recv.IdenticalTo(tkey) {
 				errorf(t, "generic interface has two incompatible constraints on method receiver type: %v and %v",
@@ -166,7 +166,7 @@ func (v *Universe) InterfaceOf(pkg *Package, methodnames []string, methodtypes [
 
 	for i, methodtype := range methodtypes {
 		name := methodnames[i]
-		if etoken.GENERICS_V2_CTI && methodtype.Kind() == r.Map {
+		if etoken.GENERICS.V2_CTI() && methodtype.Kind() == r.Map {
 			methodtype = methodtype.Elem()
 		}
 		if methodtype.Kind() != r.Func {
