@@ -83,7 +83,7 @@ var (
 
 	// a value whose type is defined in the imports package.
 	// used to locate the source directory where to write imports.
-	SymbolFromImportsPackage = imports.Packages
+	SymbolFromImportsPackage interface{} = imports.Packages
 
 	// the directory where to write imports. computed lazily.
 	// also works for vendored or cloned copies of gomacro.
