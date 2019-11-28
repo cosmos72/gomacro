@@ -107,7 +107,7 @@ func mkcase(typ Type, interfaces ...*Interface) tcase {
 }
 
 func TestCTIMethods(t *testing.T) {
-	if !etoken.GENERICS_V2_CTI {
+	if !etoken.GENERICS.V2_CTI() {
 		t.SkipNow()
 		return
 	}

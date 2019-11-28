@@ -203,7 +203,7 @@ func TestMap(t *testing.T) {
 	is(t, typ.Name(), "")
 	is(t, typ.ReflectType(), rtype)
 	is(t, rtype.NumMethod(), 0)
-	if etoken.GENERICS_V2_CTI {
+	if etoken.GENERICS.V2_CTI() {
 		is(t, typ.NumMethod(), 5)
 		is(t, typ.NumAllMethod(), 5)
 	} else {
@@ -220,7 +220,7 @@ func TestIntMethod(t *testing.T) {
 	is(t, typ.Kind(), r.Int)
 	is(t, typ.Name(), "MyInt")
 	is(t, typ.ReflectType(), rtype)
-	if etoken.GENERICS_V2_CTI {
+	if etoken.GENERICS.V2_CTI() {
 		is(t, typ.NumMethod(), 16)
 		is(t, typ.NumAllMethod(), 32)
 	} else {
@@ -242,7 +242,7 @@ func TestNamed(t *testing.T) {
 	is(t, typ.Name(), "MyMap")
 	is(t, typ.ReflectType(), rtype)
 	is(t, rtype.NumMethod(), 0)
-	if etoken.GENERICS_V2_CTI {
+	if etoken.GENERICS.V2_CTI() {
 		is(t, typ.NumMethod(), 5)
 		is(t, typ.NumAllMethod(), 10)
 

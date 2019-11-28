@@ -208,7 +208,7 @@ func newTuple(t *testing.T, x ...*types.Var) *types.Tuple {
 func newNamed(t *testing.T, namestr string, underlying types.Type) *types.Named {
 	name := types.NewTypeName(token.NoPos, nil, "MyInt", nil)
 	named := types.NewNamed(name, types.Typ[types.Int], nil)
-	if !etoken.GENERICS_V2_CTI {
+	if !etoken.GENERICS.V2_CTI() {
 		is(t, named.NumMethods(), 0)
 	}
 	is(t, named.Obj(), name)
