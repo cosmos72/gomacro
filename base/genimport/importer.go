@@ -253,14 +253,14 @@ func computeImportFilename(path string, mode ImportMode) string {
 	switch mode {
 	case ImBuiltin:
 		// user will need to recompile gomacro
-		return paths.Subdir(paths.GomacroDir, "imports", sanitizeIdent(path)+".go")
+		return paths.Subdir(paths.ImportsSrcDir, sanitizeIdent(path)+".go")
 	case ImInception:
 		// user will need to recompile gosrcdir / path
 		return paths.Subdir(paths.GoSrcDir, path, "x_package.go")
 	case ImThirdParty:
 		// either plugin.Open is not available, or user explicitly requested import _3 "package".
 		// In both cases, user will need to recompile gomacro
-		return paths.Subdir(paths.GomacroDir, "imports", "thirdparty", sanitizeIdent(path)+".go")
+		return paths.Subdir(paths.ImportsSrcDir, "thirdparty", sanitizeIdent(path)+".go")
 	}
 
 	file := paths.FileName(path) + ".go"

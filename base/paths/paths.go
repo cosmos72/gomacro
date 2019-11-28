@@ -24,6 +24,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/cosmos72/gomacro/imports"
 	"github.com/cosmos72/gomacro/imports/util"
 )
 
@@ -80,17 +81,16 @@ var (
 	// needed to build compatible plugins
 	GoRootDir = build.Default.GOROOT
 
+	// the directory where to write imports.
 	// also works for vendored or cloned copies of gomacro
-	GomacroDir = findGomacroDir(getGomacroPkg())
+	ImportsSrcDir = FindPkgSrcDir(imports.Packages)
 )
 
-func getGomacroPkg() string {
-	type dummy struct{}
-	path := strings.Split(reflect.TypeOf(dummy{}).PkgPath(), "/")
-	return strings.Join(path[0:len(path)-2], "/") // skip .../base/paths
-}
-
-func findGomacroDir(pkg string) string {
+// return the source directory inside GOPATH
+// where the package containing the declaration of x's type
+// should be located.
+func FindPkgSrcDir(x interface{}) string {
+	pkg := reflect.TypeOf(x).PkgPath()
 	pkg = filepath.Join(strings.Split(pkg, "/")...)
 	gopath := build.Default.GOPATH
 	for _, dir := range filepath.SplitList(gopath) {
@@ -100,6 +100,6 @@ func findGomacroDir(pkg string) string {
 		}
 	}
 	defaultDir := filepath.Join(GoSrcDir, pkg)
-	fmt.Printf("// warning: could not find package %q in $GOPATH = %q, assuming package is located in %q\n", pkg, gopath, defaultDir)
+	fmt.Printf("// warning: could not find package %q in $GOPATH = %q, command 'import _b \"path/to/som/package\"' may not work correctly", pkg, gopath)
 	return defaultDir
 }
