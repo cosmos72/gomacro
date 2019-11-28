@@ -13,14 +13,15 @@ import (
 func init() {
 	imports.Packages["github.com/cosmos72/gomacro/base/paths"] = imports.Package{
 		Binds: map[string]r.Value{
-			"DirName":        r.ValueOf(DirName),
-			"FileName":       r.ValueOf(FileName),
-			"FindPkgSrcDir":  r.ValueOf(FindPkgSrcDir),
-			"GoSrcDir":       r.ValueOf(&GoSrcDir).Elem(),
-			"ImportsSrcDir":  r.ValueOf(&ImportsSrcDir).Elem(),
-			"RemoveLastByte": r.ValueOf(RemoveLastByte),
-			"Subdir":         r.ValueOf(Subdir),
-			"UserHomeDir":    r.ValueOf(UserHomeDir),
+			"DirName":          r.ValueOf(DirName),
+			"FileName":         r.ValueOf(FileName),
+			"FindPkgSrcDir":    r.ValueOf(FindPkgSrcDir),
+			"GetImportsSrcDir": r.ValueOf(GetImportsSrcDir),
+			"GoSrcDir":         r.ValueOf(&GoSrcDir).Elem(),
+			"ImportsSrcDir":    r.ValueOf(&ImportsSrcDir).Elem(),
+			"RemoveLastByte":   r.ValueOf(RemoveLastByte),
+			"Subdir":           r.ValueOf(Subdir),
+			"UserHomeDir":      r.ValueOf(UserHomeDir),
 		},
 	}
 }

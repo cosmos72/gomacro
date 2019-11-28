@@ -136,6 +136,8 @@ func (imp *Importer) ImportPackageOrError(alias, pkgpath string, enableModule bo
 	if ref != nil {
 		return ref, nil
 	}
+	paths.GetImportsSrcDir() // warns if GOPATH or paths.ImportsDir may be wrong
+
 	o := imp.output
 	gpkg, err := imp.Load(pkgpath, enableModule) // loads names and types, not the values!
 	if err != nil {
@@ -253,14 +255,14 @@ func computeImportFilename(path string, mode ImportMode) string {
 	switch mode {
 	case ImBuiltin:
 		// user will need to recompile gomacro
-		return paths.Subdir(paths.ImportsSrcDir, sanitizeIdent(path)+".go")
+		return paths.Subdir(paths.GetImportsSrcDir(), sanitizeIdent(path)+".go")
 	case ImInception:
 		// user will need to recompile gosrcdir / path
 		return paths.Subdir(paths.GoSrcDir, path, "x_package.go")
 	case ImThirdParty:
 		// either plugin.Open is not available, or user explicitly requested import _3 "package".
 		// In both cases, user will need to recompile gomacro
-		return paths.Subdir(paths.ImportsSrcDir, "thirdparty", sanitizeIdent(path)+".go")
+		return paths.Subdir(paths.GetImportsSrcDir(), "thirdparty", sanitizeIdent(path)+".go")
 	}
 
 	file := paths.FileName(path) + ".go"

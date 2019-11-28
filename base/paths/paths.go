@@ -82,9 +82,18 @@ var (
 	GoRootDir = build.Default.GOROOT
 
 	// the directory where to write imports.
+	// computed lazily, packages that depend on gomacro can override it.
 	// also works for vendored or cloned copies of gomacro
-	ImportsSrcDir = FindPkgSrcDir(imports.Packages)
+	ImportsSrcDir string
 )
+
+// lazily compute the directory where to write imports
+func GetImportsSrcDir() string {
+	if ImportsSrcDir == "" {
+		ImportsSrcDir = FindPkgSrcDir(imports.Packages)
+	}
+	return ImportsSrcDir
+}
 
 // return the source directory inside GOPATH
 // where the package containing the declaration of x's type
@@ -100,6 +109,9 @@ func FindPkgSrcDir(x interface{}) string {
 		}
 	}
 	defaultDir := filepath.Join(GoSrcDir, pkg)
-	fmt.Printf("// warning: could not find package %q in $GOPATH = %q, command 'import _b \"path/to/som/package\"' may not work correctly", pkg, gopath)
+	fmt.Printf(`// warning: could not find package %q in $GOPATH = %q
+//          command 'import _b "path/to/some/package"' may not work correctly.
+
+`, pkg, gopath)
 	return defaultDir
 }
