@@ -122,7 +122,7 @@ func (p *parser) parseAny() ast.Node {
 	return node
 }
 
-func (p *parser) parsePackage() ast.Node {
+func (p *parser) parsePackage() *ast.GenDecl {
 	if p.trace {
 		defer un(trace(p, "Package"))
 	}
