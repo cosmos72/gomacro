@@ -23,7 +23,7 @@ import (
 	// . "github.com/cosmos72/gomacro/base"
 )
 
-:package "fast"
+:package fast
 
 :import (
 	"fmt"

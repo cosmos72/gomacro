@@ -2,7 +2,7 @@
 // run "gomacro -m -w make_fibonacci.gomacro"
 // to preprocess this file and generate make_fibonacci.go
 
-package main
+package foo
 
 :import (
 	"go/ast"
@@ -26,10 +26,10 @@ package main
 	return ret
 }
 
-makefib; int
-makefib; int32
-makefib; int64
+makefib; fib_int;    int
+makefib; fib_int32;  int32
+makefib; fib_int64;  int64
 
-makefib; uint
-makefib; uint32
-makefib; uint64
+makefib; fib_uint;   uint
+makefib; fib_uint32; uint32
+makefib; fib_uint64; uint64

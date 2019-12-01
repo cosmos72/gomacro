@@ -24,7 +24,7 @@ import (
 )
 
 
-:package "fast"
+:package fast
 
 :import (
 	"fmt"

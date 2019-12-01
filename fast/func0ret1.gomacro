@@ -22,7 +22,7 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-:package "fast"
+:package fast
 
 :import (
 	r "reflect"

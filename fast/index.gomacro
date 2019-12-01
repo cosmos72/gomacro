@@ -16,7 +16,7 @@
 
 package fast
 
-:package "fast"
+:package fast
 
 :import (
 	"go/ast"

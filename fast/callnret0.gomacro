@@ -21,7 +21,7 @@ import (
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
-:package "fast"
+:package fast
 
 :import (
 	"go/ast"

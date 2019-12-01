@@ -20,7 +20,7 @@ import (
 	r "reflect"
 )
 
-:package "fast"
+:package fast
 
 :import (
 	"go/ast"
