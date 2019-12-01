@@ -29,7 +29,6 @@ import (
 	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/reflect"
-	bstrings "github.com/cosmos72/gomacro/base/strings"
 	etoken "github.com/cosmos72/gomacro/go/etoken"
 	mp "github.com/cosmos72/gomacro/go/parser"
 	"github.com/cosmos72/gomacro/imports"
@@ -253,16 +252,15 @@ func (g *Globals) CollectNode(node ast.Node) {
 				g.Imports = append(g.Imports, node)
 			case token.PACKAGE:
 				/*
-					exception: modified parser converts 'package foo' to:
+					modified parser converts 'package foo' to:
 
 					ast.GenDecl{
 						Tok: token.PACKAGE,
 						Specs: []ast.Spec{
 							&ast.ValueSpec{
-								Values: []ast.Expr{
-									&ast.BasicLit{
-										Kind:  token.String,
-										Value: "path/to/package",
+								Names: []ast.Ident{
+									&ast.Ident{
+										Name:  "foo",
 									},
 								},
 							},
@@ -271,13 +269,8 @@ func (g *Globals) CollectNode(node ast.Node) {
 				*/
 				if len(node.Specs) == 1 {
 					if decl, ok := node.Specs[0].(*ast.ValueSpec); ok {
-						if len(decl.Values) == 1 {
-							if lit, ok := decl.Values[0].(*ast.BasicLit); ok {
-								if lit.Kind == token.STRING {
-									path := bstrings.MaybeUnescapeString(lit.Value)
-									g.PackagePath = path
-								}
-							}
+						if len(decl.Names) == 1 {
+							g.PackagePath = decl.Names[0].Name
 						}
 					}
 				}
