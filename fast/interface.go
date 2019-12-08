@@ -84,6 +84,7 @@ func (c *Comp) converterToProxy(tin xr.Type, tout xr.Type) func(val r.Value) r.V
 				tin, count, mtdout.PkgPath, mtdout.Name, len(mtdin.FieldIndex), tout)
 		}
 		e := c.compileMethodAsFunc(tin, mtdin)
+		// c.Debugf("type %v proxy %v method %s = %v // %v", tin.Name(), tout.Name(), mtdin.Name, e.Value, e.Type)
 		setProxyField(vtable.Field(i+1), r.ValueOf(e.Value))
 	}
 	extractor := c.extractor(tin)
@@ -116,9 +117,13 @@ func setProxyField(place r.Value, mtd r.Value) {
 	} else if rtin.ConvertibleTo(rtout) {
 		place.Set(mtd.Convert(rtout))
 	} else {
+		call := r.Value.Call
+		if rtout.IsVariadic() {
+			call = r.Value.CallSlice
+		}
 		place.Set(r.MakeFunc(rtout, func(args []r.Value) []r.Value {
 			args[0] = args[0].Interface().(xr.InterfaceHeader).Value()
-			return mtd.Call(args)
+			return call(mtd, args)
 		}))
 	}
 }

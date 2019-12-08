@@ -560,7 +560,10 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 		// such variable would be evaluated only once at compile-time,
 		// not once per method extraction!
 		funs := mtd.Funs
-		variadic := tfunc.IsVariadic()
+		call := r.Value.Call
+		if tfunc.IsVariadic() {
+			call = r.Value.CallSlice
+		}
 
 		if funs == nil {
 			c.Errorf("method declared but not yet implemented: %s.%s", tname, methodname)
@@ -595,11 +598,7 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 						args = append([]r.Value{obj}, args...)
 						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs
-						if variadic {
-							return fun.CallSlice(args)
-						} else {
-							return fun.Call(args)
-						}
+						return call(fun, args)
 					})
 				}
 			case 1:
@@ -619,11 +618,7 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 						args = append([]r.Value{obj}, args...)
 						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-						if variadic {
-							return fun.CallSlice(args)
-						} else {
-							return fun.Call(args)
-						}
+						return call(fun, args)
 					})
 				}
 			default:
@@ -641,11 +636,7 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 						args = append([]r.Value{obj}, args...)
 						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-						if variadic {
-							return fun.CallSlice(args)
-						} else {
-							return fun.Call(args)
-						}
+						return call(fun, args)
 					})
 				}
 			}
@@ -840,6 +831,10 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 		t = t.Elem()
 	}
 	rtype := t.ReflectType()
+	call := r.Value.Call
+	if tfunc.IsVariadic() {
+		call = r.Value.CallSlice
+	}
 
 	var ret r.Value
 
@@ -863,18 +858,18 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 			switch len(fieldindex) {
 			case 0:
 				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
-					return args[0].Method(rindex).Call(args[1:])
+					return call(args[0].Method(rindex), args[1:])
 				})
 			case 1:
 				fieldindex := fieldindex[0]
 				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
 					args[0] = field0(args[0], fieldindex)
-					return args[0].Method(rindex).Call(args[1:])
+					return call(args[0].Method(rindex), args[1:])
 				})
 			default:
 				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
 					args[0] = fieldByIndex(args[0], fieldindex)
-					return args[0].Method(rindex).Call(args[1:])
+					return call(args[0].Method(rindex), args[1:])
 				})
 			}
 		} else {
@@ -886,12 +881,12 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 				fieldindex := fieldindex[0]
 				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
 					args[0] = field0(args[0], fieldindex)
-					return rfunc.Call(args)
+					return call(rfunc, args)
 				})
 			default:
 				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
 					args[0] = fieldByIndex(args[0], fieldindex)
-					return rfunc.Call(args)
+					return call(rfunc, args)
 				})
 			}
 		}
@@ -919,7 +914,7 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 				if fun == Nil {
 					c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
-				return fun.Call(args)
+				return call(fun, args)
 			})
 		case 1:
 			fieldindex := fieldindex[0]
@@ -935,7 +930,7 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 				if fun == Nil {
 					c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
-				return fun.Call(args)
+				return call(fun, args)
 			})
 		default:
 			ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
@@ -949,7 +944,7 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 				if fun == Nil {
 					c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
-				return fun.Call(args)
+				return call(fun, args)
 			})
 		}
 	}
