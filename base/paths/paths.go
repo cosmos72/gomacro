@@ -82,12 +82,12 @@ var (
 	GoRootDir = build.Default.GOROOT
 
 	// a value whose type is defined in the imports package.
-	// used to locate the source directory where to write imports.
+	// used to locate the source directory where to write import files.
 	SymbolFromImportsPackage interface{} = imports.Packages
 
-	// the directory where to write imports. computed lazily.
-	// also works for vendored or cloned copies of gomacro.
-	// to change it, set the variable SymbolFromImportsPackage.
+	// directory where to write import files - computed lazily.
+	// Current autodetection mechanism already supports vendored or cloned copies of gomacro.
+	// To change it, set the variable SymbolFromImportsPackage.
 	importsSrcDir string
 )
 
