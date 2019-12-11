@@ -294,6 +294,8 @@ func ReadMultiline(in Readline, opts ReadOptions, prompt string) (src string, fi
 					line[i-1] = '/'
 					line[i] = '/'
 					continue // no tokens
+				case '(', '[', '{':
+					paren++
 				default:
 					m = mNormal
 					foundtoken(i - 1)

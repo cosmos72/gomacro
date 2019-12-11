@@ -87,10 +87,10 @@ const (
 
 // A Basic represents a basic type.
 type Basic struct {
-	kind    BasicKind
-	info    BasicInfo
-	name    string
-	methods []*Func // pre-declared methods Add, Sub, Mul, Div... lazily initialized.
+	kind        BasicKind
+	info        BasicInfo
+	name        string
+	lazymethods []*Func // pre-declared methods Add, Sub, Mul, Div... lazily initialized.
 }
 
 // Kind returns the kind of basic type b.
@@ -104,9 +104,9 @@ func (b *Basic) Name() string { return b.name }
 
 // An Array represents an array type.
 type Array struct {
-	len     int64
-	elem    Type
-	methods []*Func // pre-declared methods Cap, GetAddr, Get, Len, Set. lazily initialized.
+	len         int64
+	elem        Type
+	lazymethods []*Func // pre-declared methods Cap, GetAddr, Get, Len, Set. lazily initialized.
 }
 
 // NewArray returns a new array type for the given element type and length.
@@ -123,7 +123,7 @@ func (a *Array) Elem() Type { return a.elem }
 // A Slice represents a slice type.
 type Slice struct {
 	elem    Type
-	methods []*Func // pre-declared methods Append, Cap, Copy, Get, GetAddr, Len, Set. lazily initialized.
+	lazymethods []*Func // pre-declared methods Append, Cap, Copy, Get, GetAddr, Len, Set. lazily initialized.
 }
 
 // NewSlice returns a new slice type for the given element type.
@@ -389,7 +389,7 @@ func (t *Interface) Complete() *Interface {
 // A Map represents a map type.
 type Map struct {
 	key, elem Type
-	methods   []*Func // pre-declared methods Delete, Get, Len, Set. lazily initialized.
+	lazymethods   []*Func // pre-declared methods Delete, Get, Len, Set. lazily initialized.
 }
 
 // NewMap returns a new map for the given key and element types.
@@ -405,9 +405,9 @@ func (m *Map) Elem() Type { return m.elem }
 
 // A Chan represents a channel type.
 type Chan struct {
-	dir     ChanDir
-	elem    Type
-	methods []*Func // pre-declared methods Cap, Close, Len, Recv, Send. lazily initialized.
+	dir         ChanDir
+	elem        Type
+	lazymethods []*Func // pre-declared methods Cap, Close, Len, Recv, Send. lazily initialized.
 }
 
 // A ChanDir value indicates a channel direction.

@@ -16,50 +16,65 @@ import (
 // declare CTI methods on basic types, Array, Chan, Map, Slice
 // and named types wrapping them
 
-func (b *Basic) NumMethods() int     { return len(b.methods) }
-func (a *Array) NumMethods() int     { a.initMethods(); return len(a.methods) }
-func (c *Chan) NumMethods() int      { c.initMethods(); return len(c.methods) }
-func (m *Map) NumMethods() int       { m.initMethods(); return len(m.methods) }
+func (b *Basic) NumMethods() int     { return len(b.methods()) }
+func (a *Array) NumMethods() int     { return len(a.methods()) }
+func (c *Chan) NumMethods() int      { return len(c.methods()) }
+func (m *Map) NumMethods() int       { return len(m.methods()) }
 func (p *Pointer) NumMethods() int   { return 0 }
 func (s *Signature) NumMethods() int { return 0 }
-func (s *Slice) NumMethods() int     { s.initMethods(); return len(s.methods) }
+func (s *Slice) NumMethods() int     { return len(s.methods()) }
 func (s *Struct) NumMethods() int    { return 0 }
 func (t *Tuple) NumMethods() int     { return 0 }
 
-func (b *Basic) Method(i int) *Func     { return b.methods[i] }
-func (a *Array) Method(i int) *Func     { a.initMethods(); return a.methods[i] }
-func (c *Chan) Method(i int) *Func      { c.initMethods(); return c.methods[i] }
-func (m *Map) Method(i int) *Func       { m.initMethods(); return m.methods[i] }
+func (b *Basic) Method(i int) *Func     { return b.methods()[i] }
+func (a *Array) Method(i int) *Func     { return a.methods()[i] }
+func (c *Chan) Method(i int) *Func      { return c.methods()[i] }
+func (m *Map) Method(i int) *Func       { return m.methods()[i] }
 func (p *Pointer) Method(i int) *Func   { return ([]*Func)(nil)[i] }
 func (s *Signature) Method(i int) *Func { return ([]*Func)(nil)[i] }
-func (s *Slice) Method(i int) *Func     { s.initMethods(); return s.methods[i] }
+func (s *Slice) Method(i int) *Func     { return s.methods()[i] }
 func (s *Struct) Method(i int) *Func    { return ([]*Func)(nil)[i] }
 func (t *Tuple) Method(i int) *Func     { return ([]*Func)(nil)[i] }
 
-func (b *Basic) initMethods() {
-	if etoken.GENERICS.V2_CTI() && len(b.methods) == 0 {
-		b.methods = makeBasicMethods(b, b)
+func (b *Basic) methods() []*Func {
+	if !etoken.GENERICS.V2_CTI() {
+		b.lazymethods = nil
+	} else if len(b.lazymethods) == 0 {
+		b.lazymethods = makeBasicMethods(b, b)
 	}
+	return b.lazymethods
 }
-func (a *Array) initMethods() {
-	if etoken.GENERICS.V2_CTI() && len(a.methods) == 0 {
-		a.methods = makeArrayMethods(a, a)
+func (a *Array) methods() []*Func {
+	if !etoken.GENERICS.V2_CTI() {
+		a.lazymethods = nil
+	} else if len(a.lazymethods) == 0 {
+		a.lazymethods = makeArrayMethods(a, a)
 	}
+	return a.lazymethods
 }
-func (c *Chan) initMethods() {
-	if etoken.GENERICS.V2_CTI() && len(c.methods) == 0 {
-		c.methods = makeChanMethods(c, c)
+func (c *Chan) methods() []*Func {
+	if !etoken.GENERICS.V2_CTI() {
+		c.lazymethods = nil
+	} else if len(c.lazymethods) == 0 {
+		c.lazymethods = makeChanMethods(c, c)
 	}
+	return c.lazymethods
 }
-func (m *Map) initMethods() {
-	if etoken.GENERICS.V2_CTI() && len(m.methods) == 0 {
-		m.methods = makeMapMethods(m, m)
+func (m *Map) methods() []*Func {
+	if !etoken.GENERICS.V2_CTI() {
+		m.lazymethods = nil
+	} else if len(m.lazymethods) == 0 {
+		m.lazymethods = makeMapMethods(m, m)
 	}
+	return m.lazymethods
 }
-func (s *Slice) initMethods() {
-	if etoken.GENERICS.V2_CTI() && len(s.methods) == 0 {
-		s.methods = makeSliceMethods(s, s)
+func (s *Slice) methods() []*Func {
+	if !etoken.GENERICS.V2_CTI() {
+		s.lazymethods = nil
+	} else if len(s.lazymethods) == 0 {
+		s.lazymethods = makeSliceMethods(s, s)
 	}
+	return s.lazymethods
 }
 
 func (t *Named) initMethods() {
@@ -336,19 +351,15 @@ func declaredMethods(t Type) []*Func {
 	case *Named:
 		return t.methods
 	case *Basic:
-		return t.methods
+		return t.methods()
 	case *Array:
-		t.initMethods()
-		return t.methods
+		return t.methods()
 	case *Slice:
-		t.initMethods()
-		return t.methods
+		return t.methods()
 	case *Map:
-		t.initMethods()
-		return t.methods
+		return t.methods()
 	case *Chan:
-		t.initMethods()
-		return t.methods
+		return t.methods()
 	default:
 		return nil
 	}

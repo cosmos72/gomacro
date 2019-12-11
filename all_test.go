@@ -38,6 +38,12 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+var enable_generics_v2_cti = func() bool {
+	// enable generics v2 CTI before creating test cases
+	etoken.GENERICS = etoken.GENERICS_V2_CTI
+	return true
+}()
+
 type TestFor int
 
 const (

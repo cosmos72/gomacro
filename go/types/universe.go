@@ -71,11 +71,9 @@ var aliases = [...]*Basic{
 func defPredeclaredTypes() {
 	for _, t := range Typ {
 		def(NewTypeName(token.NoPos, nil, t.name, t))
-		t.initMethods()
 	}
 	for _, t := range aliases {
 		def(NewTypeName(token.NoPos, nil, t.name, t))
-		t.initMethods()
 	}
 
 	// Error has a nil package in its qualified name since it is in no package
