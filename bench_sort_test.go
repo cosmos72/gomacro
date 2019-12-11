@@ -21,8 +21,6 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/cosmos72/gomacro/go/etoken"
-
 	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/fast"
 )
