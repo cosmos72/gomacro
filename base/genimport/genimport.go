@@ -77,6 +77,7 @@ func newGenImport(o *Output, out *bytes.Buffer, path string, gpkg *types.Package
 
 	if mode == ImInception {
 		gen.reflect = "r."
+		gen.name = packageSanitizedName(gen.path)
 	}
 	if mode == ImPlugin {
 		gen.proxyprefix = "P_"
