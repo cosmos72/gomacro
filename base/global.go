@@ -238,7 +238,7 @@ func (g *Globals) CollectAst(form Ast) {
 			g.CollectAst(form.Get(i))
 		}
 	default:
-		panic(fmt.Errorf("unable to collect AST form %T", form))
+		g.Errorf("unable to collect AST type: %T", form)
 	}
 }
 
@@ -279,7 +279,7 @@ func (g *Globals) CollectNode(node ast.Node) {
 			case token.TYPE, token.VAR, token.CONST:
 				g.Declarations = append(g.Declarations, node)
 			default:
-				panic(fmt.Errorf("unable to collect AST %s declaration", node.Tok))
+				g.Errorf("unable to collect AST declaration: %s", node.Tok)
 			}
 		}
 	case *ast.FuncDecl:
@@ -303,7 +303,7 @@ func (g *Globals) CollectNode(node ast.Node) {
 		case *ast.ValueSpec:
 			decl.Tok = token.VAR
 		default:
-			panic(fmt.Errorf("unable to collect AST spec %T", node))
+			g.Errorf("unable to collect AST spec type: %T", node)
 		}
 		g.CollectNode(decl)
 		return
@@ -354,7 +354,7 @@ func (g *Globals) CollectNode(node ast.Node) {
 			g.Statements = append(g.Statements, stmt)
 		}
 	default:
-		panic(fmt.Errorf("unable to collect AST node %T", node))
+		g.Errorf("unable to collect AST node type: %T", node)
 	}
 }
 
