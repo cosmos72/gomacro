@@ -1,0 +1,7 @@
+:macro make() interface{} {
+	return ~"{
+		type Name struct{}
+	}
+}
+
+make
