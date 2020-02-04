@@ -237,6 +237,8 @@ func (g *Globals) CollectAst(form Ast) {
 		for i := 0; i < n; i++ {
 			g.CollectAst(form.Get(i))
 		}
+	default:
+		g.Errorf("unable to collect AST type: %T", form)
 	}
 }
 
@@ -274,8 +276,10 @@ func (g *Globals) CollectNode(node ast.Node) {
 						}
 					}
 				}
-			default:
+			case token.TYPE, token.VAR, token.CONST:
 				g.Declarations = append(g.Declarations, node)
+			default:
+				g.Errorf("unable to collect AST declaration: %s", node.Tok)
 			}
 		}
 	case *ast.FuncDecl:
@@ -286,6 +290,23 @@ func (g *Globals) CollectNode(node ast.Node) {
 				g.Declarations = append(g.Declarations, node)
 			}
 		}
+	case ast.Spec:
+		decl := &ast.GenDecl{
+			TokPos: node.Pos(),
+			Specs:  []ast.Spec{node},
+		}
+		switch node.(type) {
+		case *ast.ImportSpec:
+			decl.Tok = token.IMPORT
+		case *ast.TypeSpec:
+			decl.Tok = token.TYPE
+		case *ast.ValueSpec:
+			decl.Tok = token.VAR
+		default:
+			g.Errorf("unable to collect AST spec type: %T", node)
+		}
+		g.CollectNode(decl)
+		return
 	case ast.Decl:
 		if collectDecl {
 			g.Declarations = append(g.Declarations, node)
@@ -332,6 +353,8 @@ func (g *Globals) CollectNode(node ast.Node) {
 			stmt := &ast.ExprStmt{X: node}
 			g.Statements = append(g.Statements, stmt)
 		}
+	default:
+		g.Errorf("unable to collect AST node type: %T", node)
 	}
 }
 
