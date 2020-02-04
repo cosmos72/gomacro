@@ -68,7 +68,7 @@ func SimplifyAstForQuote(in Ast, unwrapTrivialBlocks bool) Ast {
 			if unwrapTrivialBlocks {
 				switch form.Size() {
 				case 0:
-					return EmptyStmt{&ast.EmptyStmt{Semicolon: form.X.List[0].End(), Implicit: false}}
+					return EmptyStmt{X: &ast.EmptyStmt{Semicolon: form.X.List[0].End(), Implicit: false}}
 				case 1:
 					in = form.Get(0)
 					unwrapTrivialBlocks = false
@@ -139,7 +139,7 @@ func unwrapTrivialAst2(in Ast, unwrapTrivialBlockStmt bool) Ast {
 // which represents quote{<form>}, into an Ast struct
 func MakeQuote(form UnaryExpr) (UnaryExpr, BlockStmt) {
 	expr, block := mp.MakeQuote(nil, form.X.Op, form.X.OpPos, nil)
-	return UnaryExpr{expr}, BlockStmt{block}
+	return UnaryExpr{X: expr}, BlockStmt{X: block}
 }
 
 // MakeQuote2 invokes parser.MakeQuote() and wraps the resulting ast.Node,
@@ -153,14 +153,14 @@ func MakeQuote2(form UnaryExpr, toQuote AstWithNode) UnaryExpr {
 	// Debugf("form   = %#v\n", form)
 	// Debugf("form.X = %#v\n", form.X)
 	expr, _ := mp.MakeQuote(nil, form.X.Op, form.X.OpPos, node)
-	return UnaryExpr{expr}
+	return UnaryExpr{X: expr}
 }
 
 // MakeNestedQuote invokes parser.MakeQuote() multiple times, passing op=toks[i] at each call
 func MakeNestedQuote(form AstWithNode, toks []token.Token, pos []token.Pos) AstWithNode {
 	for i := len(toks) - 1; i >= 0; i-- {
 		expr, _ := mp.MakeQuote(nil, toks[i], pos[i], form.Node())
-		form = UnaryExpr{expr}
+		form = UnaryExpr{X: expr}
 	}
 	return form
 }
