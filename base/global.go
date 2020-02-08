@@ -23,6 +23,7 @@ import (
 	"io"
 	"os"
 	r "reflect"
+	"runtime"
 	"strings"
 
 	. "github.com/cosmos72/gomacro/ast2"
@@ -64,6 +65,9 @@ type Globals struct {
 	MacroChar    rune // prefix for macro-related keywords macro, quote, quasiquote, splice... The default is '~'
 	ReplCmdChar  byte // prefix for special REPL commands env, help, inspect, quit, unload... The default is ':'
 	Inspector    Inspector
+	GoVersion    string
+	GoOS         string
+	GoArch       string
 }
 
 func NewGlobals() *Globals {
@@ -89,11 +93,14 @@ func NewGlobals() *Globals {
 		Imports:      nil,
 		Declarations: nil,
 		Statements:   nil,
-		Prompt:       "gomacro> ",
+		Prompt:       "gomacro [In]: ",
 		GensymN:      0,
 		ParserMode:   0,
 		MacroChar:    '~',
 		ReplCmdChar:  ':', // Jupyter and gophernotes would probably set this to '%'
+		GoVersion:    runtime.Version(),
+		GoOS:         runtime.GOOS,
+		GoArch:       runtime.GOARCH,
 	}
 	g.Importer = genimport.DefaultImporter(&g.Output)
 	return g
@@ -189,11 +196,11 @@ func (g *Globals) Print(values []r.Value, types []xr.Type) {
 				} else {
 					ti = reflect.Type(vi)
 				}
-				g.Fprintf(g.Stdout, "%v\t// %v\n", vi, ti)
+				g.Fprintf(g.Stdout, "       [Out]: %v\t// %v\n\n", vi, ti)
 			}
 		} else {
 			for _, vi := range values {
-				g.Fprintf(g.Stdout, "%v\n", vi)
+				g.Fprintf(g.Stdout, "       [Out]: %v\n", vi)
 			}
 		}
 	}

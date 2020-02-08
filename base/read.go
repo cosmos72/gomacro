@@ -353,7 +353,7 @@ func ReadMultiline(in Readline, opts ReadOptions, prompt string) (src string, fi
 			m = mNormal
 		}
 		if optPrompt {
-			currPrompt = makeDots(9 + 2*paren)
+			currPrompt = makeDots(14 + 2*paren)
 		}
 	}
 	if err != nil {
@@ -416,7 +416,7 @@ func lastIsKeywordIgnoresNl(line []byte, first, last int) bool {
 
 func makeDots(count int) string {
 	const (
-		dots    = ". . . .                                                                                             "
+		dots    = "        ....:                                                                              "
 		spaces  = "                                                                                                    "
 		ndots   = len(dots)
 		nspaces = len(spaces)
