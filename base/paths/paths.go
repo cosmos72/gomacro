@@ -75,7 +75,8 @@ func Subdir(dirs ...string) string {
 }
 
 var (
-	GoSrcDir = goSrcDir()
+	GoSrcDir  = goSrcDir()
+	GoSrcDirs = goSrcDirs()
 
 	// where to find the Go compiler used to compile gomacro.
 	// needed to build compatible plugins
@@ -98,6 +99,18 @@ func goSrcDir() string {
 		return "src"
 	}
 	return filepath.Join(filepath.SplitList(gopath)[0], "src")
+}
+
+func goSrcDirs() []string {
+	if len(build.Default.GOPATH) == 0 {
+		// GOARCH=wasm reports empty GOPATH
+		return []string{"src"}
+	}
+	var srcdirs []string
+	for _, gopath := range filepath.SplitList(build.Default.GOPATH) {
+		srcdirs = append(srcdirs, filepath.Join(gopath, "src"))
+	}
+	return srcdirs
 }
 
 // lazily compute the directory where to write imports
