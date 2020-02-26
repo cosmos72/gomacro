@@ -189,7 +189,7 @@ func (imp *Importer) ImportPackageOrError(alias, pkgpath string, enableModule bo
 }
 
 func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode ImportMode) string {
-	file := computeImportFilename(pkgpath, mode)
+	file := computeImportFilename(o, pkgpath, mode)
 
 	buf := bytes.Buffer{}
 	isEmpty := writeImportFile(o, &buf, pkgpath, pkg, mode)
@@ -209,14 +209,20 @@ func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode Import
 		o.Warnf("created file %q, recompile %s to use it", file, pkgpath)
 	case ImPlugin:
 		if GoModuleSupported {
-			gomod := paths.Subdir(paths.DirName(file), "go.mod")
-			err := ioutil.WriteFile(gomod, []byte("module gomacro.imports/"+pkgpath+"\n"), os.FileMode(0644))
-			if err != nil {
-				o.Errorf("error writing file %q: %v", gomod, err)
-			}
+			createPluginGoModFile(o, pkgpath)
 		}
 	}
 	return file
+}
+
+func createPluginGoModFile(o *Output, pkgpath string) string {
+	file := computeImportFilename(o, pkgpath, ImPlugin)
+	gomod := paths.Subdir(paths.DirName(file), "go.mod")
+	err := ioutil.WriteFile(gomod, []byte("module gomacro.imports/"+pkgpath+"\n"), os.FileMode(0644))
+	if err != nil {
+		o.Errorf("error writing file %q: %v", gomod, err)
+	}
+	return gomod
 }
 
 func packageSanitizedName(path string) string {
@@ -252,7 +258,7 @@ func sanitizeIdent2(str string, replacement rune) string {
 	return str
 }
 
-func computeImportFilename(path string, mode ImportMode) string {
+func computeImportFilename(o *Output, path string, mode ImportMode) string {
 	switch mode {
 	case ImBuiltin:
 		// user will need to recompile gomacro
@@ -265,7 +271,7 @@ func computeImportFilename(path string, mode ImportMode) string {
 				return paths.Subdir(srcdir, path, "x_package.go")
 			}
 		}
-		output.Errorf("unable to locate package %q in $GOPATH/src ($GOPATH=%s)",
+		o.Errorf("unable to locate package %q in $GOPATH/src ($GOPATH=%s)",
 			path, build.Default.GOPATH)
 	case ImThirdParty:
 		// either plugin.Open is not available, or user explicitly requested import _3 "package".
@@ -278,7 +284,7 @@ func computeImportFilename(path string, mode ImportMode) string {
 	dir := paths.DirName(file)
 	err := os.MkdirAll(dir, 0700)
 	if err != nil {
-		output.Errorf("error creating directory %q: %v", dir, err)
+		o.Errorf("error creating directory %q: %v", dir, err)
 	}
 	return file
 }

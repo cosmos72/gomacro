@@ -26,6 +26,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/cosmos72/gomacro/base/paths"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -36,13 +37,8 @@ func (imp *Importer) Load(path string, enableModule bool) (p *types.Package, err
 		return importer.Default().Import(path)
 	}
 
-	cfg := packages.Config{
-		Mode: packages.NeedName | packages.NeedTypes | packages.NeedImports,
-		Env:  environForCompiler(enableModule),
-		Dir:  string(os.PathSeparator),
-		Logf: nil, // imp.output.Debugf,
-	}
 	imp.output.Debugf("looking for package %q ...", path)
+
 	defer func() {
 		if p == nil && err == nil {
 			r := recover()
@@ -53,6 +49,17 @@ func (imp *Importer) Load(path string, enableModule bool) (p *types.Package, err
 			}
 		}
 	}()
+
+	// Go >= 1.14 requires a valid go.mod file in the directory used for packages.Config.Dir
+	gomod := createPluginGoModFile(imp.output, path)
+
+	cfg := packages.Config{
+		Mode: packages.NeedName | packages.NeedTypes | packages.NeedImports,
+		Env:  environForCompiler(enableModule),
+		Dir:  paths.DirName(gomod),
+		Logf: nil, // imp.output.Debugf,
+	}
+
 	list, err := packages.Load(&cfg, "pattern="+path)
 	if err != nil {
 		return nil, err
