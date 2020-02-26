@@ -19,6 +19,7 @@ package genimport
 import (
 	"bytes"
 	"fmt"
+	"go/build"
 	"go/types"
 	"io/ioutil"
 	"os"
@@ -258,7 +259,14 @@ func computeImportFilename(path string, mode ImportMode) string {
 		return paths.Subdir(paths.GetImportsSrcDir(), sanitizeIdent(path)+".go")
 	case ImInception:
 		// user will need to recompile gosrcdir / path
-		return paths.Subdir(paths.GoSrcDir, path, "x_package.go")
+		for _, srcdir := range paths.GoSrcDirs {
+			dir := paths.Subdir(srcdir, path)
+			if _, err := os.Stat(dir); err == nil {
+				return paths.Subdir(srcdir, path, "x_package.go")
+			}
+		}
+		output.Errorf("unable to locate package %q in $GOPATH/src ($GOPATH=%s)",
+			path, build.Default.GOPATH)
 	case ImThirdParty:
 		// either plugin.Open is not available, or user explicitly requested import _3 "package".
 		// In both cases, user will need to recompile gomacro
