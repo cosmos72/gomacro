@@ -238,15 +238,18 @@ The next steps depend on the system you are running gomacro on:
 
 ### Linux and Mac OS X
 
-If you are running gomacro on Linux or Mac OS X, `import` will then just work. Example:
+If you are running gomacro on Linux or Mac OS X, `import` will then just work:
+it will automatically download, compile and import a package. Example:
 ```
-$ go get gonum.org/v1/plot
 $ gomacro
 [greeting message...]
 
 gomacro> import "gonum.org/v1/plot"
-// debug: created file "/home/max/src/gomacro_imports/gonum.org/v1/plot/plot.go"...
-// debug: compiling "/home/max/go/src/gomacro_imports/gonum.org/v1/plot/plot.go" ...
+// debug: looking for package "gonum.org/v1/plot" ...
+// debug: compiling "/home/max/go/src/gomacro.imports/gonum.org/v1/plot/plot.go" ...
+go: finding module for package gonum.org/v1/plot/vg/draw
+go: finding module for package gonum.org/v1/plot
+go: found gonum.org/v1/plot in gonum.org/v1/plot v0.0.0-20200226011204-b25252b0d522
 gomacro> plot.New()
 &{...} // *plot.Plot
 <nil>  // error
@@ -261,7 +264,9 @@ Go plugins require Go 1.8+ on Linux and Go 1.10.2+ on Mac OS X.
 
 ### Other systems
 
-On all other systems as Windows, Android and *BSD you can still use `import`, but there are some more steps.
+On all other systems as Windows, Android and *BSD you can still use `import`,
+but there are more steps: you need to manually download the package,
+and you also need to recompile gomacro after the `import` (it will tell you).
 Example:
 ```
 $ go get gonum.org/v1/plot
