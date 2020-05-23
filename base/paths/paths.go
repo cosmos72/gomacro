@@ -127,9 +127,12 @@ func findPkgSrcDir(x interface{}) string {
 		}
 	}
 	defaultDir := filepath.Join(GoSrcDir, pkg)
-	fmt.Printf(`// warning: could not find package %q in $GOPATH = %q
+	if false {
+		// disable this warning, it unnecessarily worries users
+		fmt.Printf(`// warning: could not find package %q in $GOPATH = %q
 //          command 'import _b "path/to/some/package"' may not work correctly.
 
 `, pkg, gopath)
+	}
 	return defaultDir
 }

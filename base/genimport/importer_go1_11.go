@@ -26,18 +26,17 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cosmos72/gomacro/base/paths"
 	"golang.org/x/tools/go/packages"
 )
 
 const GoModuleSupported bool = true
 
-func (imp *Importer) Load(path string, enableModule bool) (p *types.Package, err error) {
+func (imp *Importer) Load(pkgpath string, enableModule bool) (p *types.Package, err error) {
 	if !enableModule {
-		return importer.Default().Import(path)
+		return importer.Default().Import(pkgpath)
 	}
 
-	imp.output.Debugf("looking for package %q ...", path)
+	imp.output.Debugf("looking for package %q ...", pkgpath)
 
 	defer func() {
 		if p == nil && err == nil {
@@ -50,22 +49,25 @@ func (imp *Importer) Load(path string, enableModule bool) (p *types.Package, err
 		}
 	}()
 
+	o := imp.output
 	// Go >= 1.14 requires a valid go.mod file in the directory used for packages.Config.Dir
-	gomod := createPluginGoModFile(imp.output, path)
+	dir := computeImportDir(o, pkgpath, ImPlugin)
+	createDir(o, dir)
+	createPluginGoModFile(o, pkgpath, dir)
 
 	cfg := packages.Config{
 		Mode: packages.NeedName | packages.NeedTypes | packages.NeedImports,
 		Env:  environForCompiler(enableModule),
-		Dir:  paths.DirName(gomod),
+		Dir:  dir,
 		Logf: nil, // imp.output.Debugf,
 	}
 
-	list, err := packages.Load(&cfg, "pattern="+path)
+	list, err := packages.Load(&cfg, "pattern="+pkgpath)
 	if err != nil {
 		return nil, err
 	}
 	for _, pkg := range list {
-		if pkg.PkgPath == path {
+		if pkg.PkgPath == pkgpath {
 			if len(pkg.Errors) != 0 {
 				err = errorList{pkg.Errors, mergeErrorMessages(pkg.Errors)}
 				return nil, err
@@ -73,7 +75,7 @@ func (imp *Importer) Load(path string, enableModule bool) (p *types.Package, err
 			return pkg.Types, nil
 		}
 	}
-	return nil, fmt.Errorf("packages.Load() could not find package %q", path)
+	return nil, fmt.Errorf("packages.Load() could not find package %q", pkgpath)
 }
 
 type errorList struct {

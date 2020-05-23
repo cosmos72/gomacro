@@ -57,12 +57,31 @@ func compilePlugin(o *Output, filePath string, enableModule bool, stdout io.Writ
 		o.Errorf("error executing \"%s build -buildmode=plugin\" in directory %q: %v", gocmd, cmd.Dir, err)
 	}
 
-	dirname := paths.RemoveLastByte(paths.DirName(filePath))
-	// go build uses innermost directory name as shared object name,
-	// i.e.	foo/bar/main.go is compiled to foo/bar/bar.so
-	filename := paths.FileName(dirname)
+	dir := paths.RemoveLastByte(paths.DirName(filePath))
 
-	return paths.Subdir(dirname, filename+".so")
+	return findSharedObject(o, dir)
+}
+
+func findSharedObject(o *Output, dir string) string {
+	var ret string
+	for _, info := range listDir(o, dir) {
+		if !info.Mode().IsRegular() {
+			continue
+		}
+		name := info.Name()
+		n := len(name)
+		if n <= 3 || name[n-3:n] != ".so" {
+			continue
+		}
+		if ret != "" {
+			o.Errorf("multiple shared objects found in directory %q - do not know which one to load: %q or %q ?", dir, ret, name)
+		}
+		ret = name
+	}
+	if ret == "" {
+		o.Errorf("no shared objects found in directory %q - compiler error?", dir)
+	}
+	return paths.Subdir(dir, ret)
 }
 
 func (imp *Importer) loadPluginSymbol(soname string, symbolName string) interface{} {
@@ -75,7 +94,7 @@ func (imp *Importer) loadPluginSymbol(soname string, symbolName string) interfac
 
 	o := imp.output
 	if !imp.havePluginOpen() {
-		o.Errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
+		o.Errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux or Mac OS X - cannot import packages at runtime")
 	}
 	if len(soname) == 0 || len(symbolName) == 0 {
 		// caller is just checking whether PluginOpen() is available

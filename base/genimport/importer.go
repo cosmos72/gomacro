@@ -189,7 +189,13 @@ func (imp *Importer) ImportPackageOrError(alias, pkgpath string, enableModule bo
 }
 
 func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode ImportMode) string {
-	file := computeImportFilename(o, pkgpath, mode)
+	dir := computeImportDir(o, pkgpath, mode)
+	if mode == ImPlugin {
+		createDir(o, dir)
+		removeAllFilesInDir(o, dir)
+	}
+	filepath := computeImportFilename(o, pkgpath, mode)
+	filepath = paths.Subdir(dir, filepath)
 
 	buf := bytes.Buffer{}
 	isEmpty := writeImportFile(o, &buf, pkgpath, pkg, mode)
@@ -198,26 +204,57 @@ func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode Import
 		return ""
 	}
 
-	err := ioutil.WriteFile(file, buf.Bytes(), os.FileMode(0644))
+	err := ioutil.WriteFile(filepath, buf.Bytes(), os.FileMode(0644))
 	if err != nil {
-		o.Errorf("error writing file %q: %v", file, err)
+		o.Errorf("error writing file %q: %v", filepath, err)
 	}
 	switch mode {
 	case ImBuiltin, ImThirdParty:
-		o.Warnf("created file %q, recompile gomacro to use it", file)
+		o.Warnf("created file %q, recompile gomacro to use it", filepath)
 	case ImInception:
-		o.Warnf("created file %q, recompile %s to use it", file, pkgpath)
+		o.Warnf("created file %q, recompile %s to use it", filepath, pkgpath)
 	case ImPlugin:
 		if GoModuleSupported {
-			createPluginGoModFile(o, pkgpath)
+			createPluginGoModFile(o, pkgpath, dir)
 		}
 	}
-	return file
+	return filepath
 }
 
-func createPluginGoModFile(o *Output, pkgpath string) string {
-	file := computeImportFilename(o, pkgpath, ImPlugin)
-	gomod := paths.Subdir(paths.DirName(file), "go.mod")
+func createDir(o *Output, dir string) {
+	err := os.MkdirAll(dir, 0700)
+	if err != nil {
+		o.Errorf("error creating directory %q: %v", dir, err)
+	}
+}
+
+func listDir(o *Output, dir string) []os.FileInfo {
+	d, err := os.Open(dir)
+	if err != nil {
+		o.Errorf("error opening directory %q: %v", dir, err)
+	}
+	defer d.Close()
+	infos, err := d.Readdir(0)
+	if err != nil {
+		o.Errorf("error listing directory %q: %v", dir, err)
+	}
+	return infos
+}
+
+func removeAllFilesInDir(o *Output, dir string) {
+	for _, info := range listDir(o, dir) {
+		if info.IsDir() {
+			continue
+		}
+		filepath := paths.Subdir(dir, info.Name())
+		if err := os.Remove(filepath); err != nil {
+			o.Errorf("error removing file %q: %v", filepath, err)
+		}
+	}
+}
+
+func createPluginGoModFile(o *Output, pkgpath string, dir string) string {
+	gomod := paths.Subdir(dir, "go.mod")
 	err := ioutil.WriteFile(gomod, []byte("module gomacro.imports/"+pkgpath+"\n"), os.FileMode(0644))
 	if err != nil {
 		o.Errorf("error writing file %q: %v", gomod, err)
@@ -258,33 +295,49 @@ func sanitizeIdent2(str string, replacement rune) string {
 	return str
 }
 
-func computeImportFilename(o *Output, path string, mode ImportMode) string {
+func computeImportDir(o *Output, pkgpath string, mode ImportMode) string {
 	switch mode {
 	case ImBuiltin:
 		// user will need to recompile gomacro
-		return paths.Subdir(paths.GetImportsSrcDir(), sanitizeIdent(path)+".go")
-	case ImInception:
-		// user will need to recompile gosrcdir / path
-		for _, srcdir := range paths.GoSrcDirs {
-			dir := paths.Subdir(srcdir, path)
-			if _, err := os.Stat(dir); err == nil {
-				return paths.Subdir(srcdir, path, "x_package.go")
-			}
-		}
-		o.Errorf("unable to locate package %q in $GOPATH/src ($GOPATH=%s)",
-			path, build.Default.GOPATH)
+		return paths.GetImportsSrcDir()
 	case ImThirdParty:
 		// either plugin.Open is not available, or user explicitly requested import _3 "package".
 		// In both cases, user will need to recompile gomacro
-		return paths.Subdir(paths.GetImportsSrcDir(), "thirdparty", sanitizeIdent(path)+".go")
+		return paths.Subdir(paths.GetImportsSrcDir(), "thirdparty")
+	case ImInception:
+		// user will need to recompile the package being imported
+		for _, srcdir := range paths.GoSrcDirs {
+			dir := paths.Subdir(srcdir, pkgpath)
+			if _, err := os.Stat(dir); err == nil {
+				return paths.Subdir(srcdir, pkgpath)
+			}
+		}
+		o.Errorf("unable to locate package %q in $GOPATH/src ($GOPATH=%s)",
+			pkgpath, build.Default.GOPATH)
+	case ImPlugin:
+		return paths.Subdir(paths.GoSrcDir, "gomacro.imports", pkgpath)
+	default:
+		o.Errorf("unknown import mode: %v", mode)
 	}
+	return ""
+}
 
-	file := paths.FileName(path) + ".go"
-	file = paths.Subdir(paths.GoSrcDir, "gomacro.imports", path, file)
-	dir := paths.DirName(file)
-	err := os.MkdirAll(dir, 0700)
-	if err != nil {
-		o.Errorf("error creating directory %q: %v", dir, err)
+func computeImportFilename(o *Output, pkgpath string, mode ImportMode) string {
+	switch mode {
+	case ImBuiltin:
+		// user will need to recompile gomacro
+		return sanitizeIdent(pkgpath) + ".go"
+	case ImThirdParty:
+		// either plugin.Open is not available, or user explicitly requested import _3 "package".
+		// In both cases, user will need to recompile gomacro
+		return sanitizeIdent(pkgpath) + ".go"
+	case ImInception:
+		// user will need to recompile package being imported
+		return "x_package.go"
+	case ImPlugin:
+		return sanitizeIdent(paths.FileName(pkgpath)) + ".go"
+	default:
+		o.Errorf("unknown import mode: %v", mode)
+		return ""
 	}
-	return file
 }

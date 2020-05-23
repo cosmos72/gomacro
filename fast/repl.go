@@ -260,7 +260,7 @@ func (ir *Interp) ReplStdin() {
 	g := ir.Comp.CompGlobals
 
 	if g.Options&OptShowPrompt != 0 {
-		g.Fprintf(g.Stdout, `// Welcome to gomacro. Type %chelp for help, %ccopyright for copyright and license.
+		g.Fprintf(g.Stdout, `// Welcome to gomacro. Type %chelp for help, %ccopy for copyright and license.
 // This is free software with ABSOLUTELY NO WARRANTY.
 `, g.ReplCmdChar, g.ReplCmdChar)
 	}
