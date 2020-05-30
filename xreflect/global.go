@@ -81,15 +81,24 @@ const (
 )
 
 type xtype struct {
-	kind         r.Kind
-	gtype        types.Type
-	rtype        r.Type
-	universe     *Universe
-	methodvalues []r.Value
-	fieldcache   map[QName]StructField
-	methodcache  map[QName]Method
-	userdata     map[interface{}]interface{}
-	addmethods   addmethods
+	kind     r.Kind
+	gtype    types.Type
+	rtype    r.Type
+	universe *Universe
+	// lazily computed information
+	lazy struct {
+		underlying Type           // underlying type,
+		elem       Type           // chan, pointer, slice, array, map: element type
+		key        Type           // map: key type
+		fields     *[]StructField // struct: fields
+	}
+	cache struct {
+		field  map[QName]StructField
+		method map[QName]Method
+	}
+	methodvalue []r.Value
+	userdata    map[interface{}]interface{}
+	addmethods  addmethods
 }
 
 // QName is a replacement for go/types.Id and implements accurate comparison

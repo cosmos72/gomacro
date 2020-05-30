@@ -133,11 +133,11 @@ func (t *xtype) method(i int) Method {
 
 	rtype := t.rtype
 	var rfunctype r.Type
-	rfunc := t.methodvalues[i]
-	// fmt.Printf("DEBUG xtype.method(%d): t = %v,\tt.methodvalues[%d] = %v // %v\n", i, t, i, rfunc, rValueType(rfunc))
+	rfunc := t.methodvalue[i]
+	// fmt.Printf("DEBUG xtype.method(%d): t = %v,\tt.methodvalue[%d] = %v // %v\n", i, t, i, rfunc, rValueType(rfunc))
 	if rfunc.Kind() == r.Func {
 		// easy, method is cached already
-		// fmt.Printf("DEBUG xtype.method(%d): t = %v,\tt.methodvalues[%d] = %v // %v\n", i, t, i, rfunc, rValueType(rfunc))
+		// fmt.Printf("DEBUG xtype.method(%d): t = %v,\tt.methodvalue[%d] = %v // %v\n", i, t, i, rfunc, rValueType(rfunc))
 		rfunctype = rfunc.Type()
 	} else if _, ok := t.gtype.Underlying().(*types.Interface); ok {
 		if rtype.Kind() == r.Ptr && isReflectInterfaceStruct(rtype.Elem()) {
@@ -173,14 +173,14 @@ func (t *xtype) method(i int) Method {
 		}
 		if rfunc.Kind() == r.Func {
 			rfunctype = rmethod.Type
-			t.methodvalues[i] = rfunc
+			t.methodvalue[i] = rfunc
 		}
 		// fmt.Printf("DEBUG xtype.method(%d): t = %v,\trmethod(%q) = %v\n", i, t, gfunc.Name(), rmethod)
 
 		// rfunc and rfunctype will be invalid when bootstrapping Universe
 		// and when adding CTI methods to a type
 	}
-	return t.makemethod(i, gfunc, &t.methodvalues, rfunctype) // lock already held
+	return t.makemethod(i, gfunc, &t.methodvalue, rfunctype) // lock already held
 }
 
 func rValueType(v r.Value) r.Type {
@@ -290,12 +290,12 @@ func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]r.Value, rfunct
 
 func resizemethodvalues(t *xtype) {
 	n := t.NumMethod()
-	if cap(t.methodvalues) < n {
+	if cap(t.methodvalue) < n {
 		slice := make([]r.Value, n, n+n/2+4)
-		copy(slice, t.methodvalues)
-		t.methodvalues = slice
-	} else if len(t.methodvalues) < n {
-		t.methodvalues = t.methodvalues[0:n]
+		copy(slice, t.methodvalue)
+		t.methodvalue = slice
+	} else if len(t.methodvalue) < n {
+		t.methodvalue = t.methodvalue[0:n]
 	}
 }
 

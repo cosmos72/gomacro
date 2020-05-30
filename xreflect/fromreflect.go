@@ -35,7 +35,7 @@ func (v *Universe) TypeOf(rvalue interface{}) Type {
 
 // FromReflectType creates a Type corresponding to given reflect.Type
 // Note: conversions from Type to reflect.Type and back are not exact,
-// because of the reasons listed in Type.ReflectType()
+// for the reasons listed in Type.ReflectType()
 // Conversions from reflect.Type to Type and back are not exact for the same reasons.
 func (v *Universe) FromReflectType(rtype r.Type) Type {
 	if rtype == nil {
@@ -122,7 +122,7 @@ func (v *Universe) fromReflectType(rtype r.Type) Type {
 		}
 		// t.gunderlying() will often be interface{}. ugly and dangerous, but no solution
 		t = v.reflectNamedOf(name, rtype.PkgPath(), rtype)
-		v.cache(rtype, t) // support self-referencing types
+		v.cacheType(rtype, t) // support self-referencing types
 	}
 	if debug {
 		v.debugf("%s %v", rtype.Kind(), rtype)
@@ -161,7 +161,7 @@ func (v *Universe) fromReflectType(rtype r.Type) Type {
 		t = u
 		// cache before adding methods - otherwise we get an infinite recursion
 		// if u is a pointer to named type with methods that reference the named type
-		v.cache(rtype, t)
+		v.cacheType(rtype, t)
 	} else {
 		t.SetUnderlying(u)
 		// t.ReflectType() is now u.ReflectType(). overwrite with the exact rtype instead
@@ -235,8 +235,8 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 		v.debugf("adding methods to: %v", xt)
 		defer de(bug(v))
 	}
-	if xt.methodvalues == nil {
-		xt.methodvalues = make([]r.Value, ntotal)
+	if xt.methodvalue == nil {
+		xt.methodvalue = make([]r.Value, ntotal)
 	}
 	nilv := r.Value{}
 	if v.rebuild() {
@@ -270,10 +270,10 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 				}
 				xi = n2 - 1
 			}
-			for len(xt.methodvalues) <= xi {
-				xt.methodvalues = append(xt.methodvalues, nilv)
+			for len(xt.methodvalue) <= xi {
+				xt.methodvalue = append(xt.methodvalue, nilv)
 			}
-			xt.methodvalues[xi] = rmethod.Func
+			xt.methodvalue[xi] = rmethod.Func
 			cache[qname] = xi
 			if debug {
 				m := xt.method(xi)

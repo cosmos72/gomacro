@@ -231,17 +231,17 @@ func approxInterfaceMethodAsField(name string, rtype r.Type) r.StructField {
 	}
 }
 
-// fill t.methodvalues[] with wrappers that forward the call to closures stored in the emulated interface struct
+// fill t.methodvalue[] with wrappers that forward the call to closures stored in the emulated interface struct
 func setInterfaceMethods(t Type) {
 	xt := unwrap(t)
 	n := xt.NumMethod()
-	if n == 0 || xt.Named() || xt.kind != r.Interface || xt.methodvalues != nil {
+	if n == 0 || xt.Named() || xt.kind != r.Interface || xt.methodvalue != nil {
 		return
 	}
-	xt.methodvalues = make([]r.Value, n)
+	xt.methodvalue = make([]r.Value, n)
 	rtype := xt.rtype
 	for i := 0; i < n; i++ {
-		xt.methodvalues[i] = interfaceMethod(t, rtype, i)
+		xt.methodvalue[i] = interfaceMethod(t, rtype, i)
 	}
 }
 

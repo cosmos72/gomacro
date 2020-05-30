@@ -46,14 +46,14 @@ func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int)
 	if name == "_" || t.kind != r.Struct {
 		return
 	}
-	// debugf("field cache for %v <%v> = %v", unsafe.Pointer(t), t, t.fieldcache)
+	// debugf("field cache for %v <%v> = %v", unsafe.Pointer(t), t, t.cache.field)
 	qname := QName2(name, pkgpath)
 
 	v := t.universe
 	if v.ThreadSafe {
 		defer un(lock(v))
 	}
-	field, found := t.fieldcache[qname]
+	field, found := t.cache.field[qname]
 	if found {
 		if field.Index == nil { // marker for ambiguous field names
 			count = int(field.Offset) // reuse Offset as "number of ambiguous fields"
@@ -164,17 +164,17 @@ func matchFieldByName(qname QName, gfield *types.Var) bool {
 	return false
 }
 
-// add field to type's fieldcache. used by Type.FieldByName after a successful lookup
+// add field to type's cache.field. used by Type.FieldByName after a successful lookup
 func cacheFieldByName(t *xtype, qname QName, field *StructField, count int) {
-	if t.fieldcache == nil {
-		t.fieldcache = make(map[QName]StructField)
+	if t.cache.field == nil {
+		t.cache.field = make(map[QName]StructField)
 	}
 	if count > 1 {
 		field.Index = nil             // marker for ambiguous field names
 		field.Offset = uintptr(count) // reuse Offset as "number of ambiguous fields"
 	}
-	t.fieldcache[qname] = *field
-	t.universe.fieldcache = true
+	t.cache.field[qname] = *field
+	t.universe.cache.field = true
 }
 
 // anonymousFields returns the anonymous fields of a struct type (either named or unnamed)
@@ -202,7 +202,7 @@ func anonymousFields(t *xtype, offset uintptr, index []int, m *depthMap) []Struc
 // and the number of methods found at the same (shallowest) depth: 0 if not found.
 // Private methods are returned only if they were declared in pkgpath.
 func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
-	// debugf("method cache for %v <%v> = %v", unsafe.Pointer(t), t, t.methodcache)
+	// debugf("method cache for %v <%v> = %v", unsafe.Pointer(t), t, t.cache.method)
 
 	// only named types and interfaces can have methods,
 	// unless generics v2 are enabled: they add a few methods to most types
@@ -223,7 +223,7 @@ func (t *xtype) methodByName(name, pkgpath string) (method Method, count int) {
 		return
 	}
 	qname := QName2(name, pkgpath)
-	method, found := t.methodcache[qname]
+	method, found := t.cache.method[qname]
 	if found {
 		index := method.Index
 		if index < 0 { // marker for ambiguous method names
@@ -301,16 +301,16 @@ func matchMethodByName(qname QName, gmethod *types.Func) bool {
 	return qname == QNameGo(gmethod)
 }
 
-// add method to type's methodcache. used by Type.MethodByName after a successful lookup
+// add method to type's cache.method. used by Type.MethodByName after a successful lookup
 func cacheMethodByName(t *xtype, qname QName, method *Method, count int) {
-	if t.methodcache == nil {
-		t.methodcache = make(map[QName]Method)
+	if t.cache.method == nil {
+		t.cache.method = make(map[QName]Method)
 	}
 	if count > 1 {
 		method.Index = -count // marker for ambiguous method names
 	}
-	t.methodcache[qname] = *method
-	t.universe.methodcache = true
+	t.cache.method[qname] = *method
+	t.universe.cache.method = true
 }
 
 // visit type's direct and embedded fields in breadth-first order
@@ -348,33 +348,33 @@ func (v *Universe) VisitFields(t Type, visitor func(StructField)) {
 func invalidateCache(gtype types.Type, t interface{}) {
 	if t, ok := t.(Type); ok {
 		t := unwrap(t)
-		t.fieldcache = nil
-		t.methodcache = nil
+		t.cache.field = nil
+		t.cache.method = nil
 	}
 }
 
 func invalidateMethodCache(gtype types.Type, t interface{}) {
 	if t, ok := t.(Type); ok {
 		t := unwrap(t)
-		t.methodcache = nil
+		t.cache.method = nil
 	}
 }
 
-// clears all xtype.fieldcache and xtype.methodcache.
+// clears all xtype.cache.field and xtype.cache.method.
 // invoked by NamedOf() when a type is redefined.
 func (v *Universe) InvalidateCache() {
-	if v.fieldcache || v.methodcache {
+	if v.cache.field || v.cache.method {
 		v.gmap.Iterate(invalidateCache)
-		v.fieldcache = false
-		v.methodcache = false
+		v.cache.field = false
+		v.cache.method = false
 	}
 }
 
-// clears all xtype.methodcache.
+// clears all xtype.cache.method.
 // invoked by AddMethod() when a method is redefined.
 func (v *Universe) InvalidateMethodCache() {
-	if v.methodcache {
+	if v.cache.method {
 		v.gmap.Iterate(invalidateMethodCache)
-		v.methodcache = false
+		v.cache.method = false
 	}
 }

@@ -46,8 +46,10 @@ type Universe struct {
 	mutex           sync.Mutex
 	debugmutex      int
 	ThreadSafe      bool
-	methodcache     bool
-	fieldcache      bool
+	cache           struct {
+		method bool
+		field  bool
+	}
 }
 
 func lock(v *Universe) *Universe {
@@ -69,7 +71,7 @@ func (v *Universe) rebuild() bool {
 	return v.RebuildDepth > 0
 }
 
-func (v *Universe) cache(rt r.Type, t Type) Type {
+func (v *Universe) cacheType(rt r.Type, t Type) Type {
 	if v.ReflectTypes == nil {
 		v.ReflectTypes = make(map[r.Type]Type)
 	}

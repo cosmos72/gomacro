@@ -103,8 +103,8 @@ func NewUniverse() *Universe {
 	v.TypeOfInterface = v.makeInterface()
 	v.TypeOfError = v.makeError()
 	// critical! trying to rebuild "error" type creates a non-identical copy... lots of conversions would fail
-	v.cache(v.TypeOfError.ReflectType(), v.TypeOfError)
-	v.cache(v.TypeOfInterface.ReflectType(), v.TypeOfInterface)
+	v.cacheType(v.TypeOfError.ReflectType(), v.TypeOfError)
+	v.cacheType(v.TypeOfInterface.ReflectType(), v.TypeOfInterface)
 	return v
 }
 

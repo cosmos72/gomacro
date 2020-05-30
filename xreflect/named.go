@@ -82,10 +82,10 @@ func (t *xtype) SetUnderlying(underlying Type) {
 		// debugf("SetUnderlying: updated <%v> reflect Type from <%v> to <%v>", gtype, t.rtype, underlying.ReflectType())
 		t.rtype = underlying.ReflectType()
 		if t.kind == r.Interface {
-			// propagate methodvalues from underlying interface to named type
-			t.methodvalues = xunderlying.methodvalues
-			t.methodcache = nil
-			t.fieldcache = nil
+			// propagate methodvalue from underlying interface to named type
+			t.methodvalue = xunderlying.methodvalue
+			t.cache.method = nil
+			t.cache.field = nil
 		} else if etoken.GENERICS.V2_CTI() {
 			v.addTypeMethodsCTI(t)
 		}
@@ -137,14 +137,14 @@ func (t *xtype) AddMethod(name string, signature Type) int {
 	n2 := gtype.NumMethods()
 
 	nilv := r.Value{}
-	for len(t.methodvalues) < n2 {
-		t.methodvalues = append(t.methodvalues, nilv)
+	for len(t.methodvalue) < n2 {
+		t.methodvalue = append(t.methodvalue, nilv)
 	}
-	// store in t.methodvalues[index] a nil function with the correct reflect.Type:
+	// store in t.methodvalue[index] a nil function with the correct reflect.Type:
 	// needed by Type.GetMethod(int) to retrieve the method's reflect.Type
 	//
 	// fixes gophernotes issue 174
-	t.methodvalues[index] = r.Zero(signature.ReflectType())
+	t.methodvalue[index] = r.Zero(signature.ReflectType())
 	if n1 == n2 {
 		// an existing method was overwritten.
 		// it may be cached in some other type's method cache.
@@ -214,5 +214,5 @@ func (t *xtype) GetMethods() *[]r.Value {
 		xerrorf(t, "GetMethods on unnamed type %v", t)
 	}
 	resizemethodvalues(t)
-	return &t.methodvalues
+	return &t.methodvalue
 }
