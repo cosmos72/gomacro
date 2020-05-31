@@ -39,7 +39,7 @@ var vvcmp = [...][]r.Value{cmp_less: {r.ValueOf(-1)}, cmp_eq: {r.ValueOf(0)}, cm
 // declare CTI methods on Array, Chan, Map, Slice
 
 func (v *Universe) addTypeMethodsCTI(xt *xtype) {
-	if !etoken.GENERICS.V2_CTI() {
+	if !etoken.GENERICS.V2_CTI() || xt.option != OptDefault {
 		return
 	}
 	rt := xt.rtype

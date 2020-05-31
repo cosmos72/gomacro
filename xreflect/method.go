@@ -276,7 +276,7 @@ func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]r.Value, rfunct
 	var tmethod Type
 	if rfunctype != nil {
 		rsig := ReflectUnderlying(rfunctype)
-		tmethod = t.universe.maketype(gsig, rsig) // lock already held
+		tmethod = t.universe.maketype(gsig, rsig, OptDefault) // lock already held
 	}
 	return Method{
 		Name:  name,

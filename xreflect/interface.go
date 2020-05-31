@@ -134,6 +134,8 @@ var ConstrainedInterfaceReceiverType genericV2InterfaceReceiverType
 // Once you know that methods and embedded interfaces are complete,
 // call Complete() to compute the method set and mark this Type as complete.
 func (v *Universe) InterfaceOf(pkg *Package, methodnames []string, methodtypes []Type, embeddeds []Type) Type {
+	opt := combineOpt(methodtypes) | combineOpt(embeddeds)
+
 	methodnames = append(([]string)(nil), methodnames...) // dup before modifying
 	methodtypes = append(([]Type)(nil), methodtypes...)   // dup before modifying
 	embeddeds = append(([]Type)(nil), embeddeds...)       // dup before modifying
@@ -185,7 +187,7 @@ func (v *Universe) InterfaceOf(pkg *Package, methodnames []string, methodtypes [
 	// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
 	// Use a pointer to the proxy struct
 	rtype := r.PtrTo(r.StructOf(rfields))
-	t := v.maketype3(r.Interface, gtype, rtype)
+	t := v.maketype4(r.Interface, gtype, rtype, opt)
 	setInterfaceMethods(t)
 	if recv != nil {
 		t.SetUserData(ConstrainedInterfaceReceiverType, recv)

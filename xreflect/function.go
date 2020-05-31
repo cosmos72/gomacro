@@ -71,7 +71,7 @@ func (t *xtype) In(i int) Type {
 	if rt != rTypeOfForward {
 		rt = rt.In(i)
 	}
-	return t.universe.MakeType(va.Type(), rt)
+	return t.universe.MakeType(va.Type(), rt, t.option)
 }
 
 // NumIn returns a function type's input parameter count.
@@ -126,7 +126,7 @@ func (t *xtype) Out(i int) Type {
 	if rt != rTypeOfForward {
 		rt = rt.Out(i)
 	}
-	return t.universe.MakeType(va.Type(), rt)
+	return t.universe.MakeType(va.Type(), rt, t.option)
 }
 
 func (v *Universe) FuncOf(in []Type, out []Type, variadic bool) Type {
@@ -157,9 +157,11 @@ func (v *Universe) MethodOf(recv Type, in []Type, out []Type, variadic bool) Typ
 	rin := toReflectTypes(in)
 	rout := toReflectTypes(out)
 	var grecv *types.Var
-	if unwrap(recv) != nil {
-		rin = append([]r.Type{recv.ReflectType()}, rin...)
+	opt := combineOpt(in) | combineOpt(out)
+	if xrecv := unwrap(recv); xrecv != nil {
+		rin = append([]r.Type{xrecv.approxReflectType()}, rin...)
 		grecv = toGoParam(recv)
+		opt |= xrecv.option
 	}
 	// contagion: if one or more in/out reflect.Type is Forward,
 	// set the whole func reflect.Type to Forward
@@ -184,5 +186,6 @@ loop:
 	return v.MakeType(
 		types.NewSignature(grecv, gin, gout, variadic),
 		rfunc,
+		opt,
 	)
 }

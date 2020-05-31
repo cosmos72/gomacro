@@ -287,75 +287,75 @@ func (c *Comp) derefUnwrap(t xr.Type, x1 func(*Env) r.Value) I {
 	switch t.Kind() {
 	case r.Bool:
 		fun = func(env *Env) bool {
-			return x1(env).Elem().Bool()
+			return elem(x1(env)).Bool()
 		}
 	case r.Int:
 		fun = func(env *Env) int {
-			return int(x1(env).Elem().Int())
+			return int(elem(x1(env)).Int())
 		}
 	case r.Int8:
 		fun = func(env *Env) int8 {
-			return int8(x1(env).Elem().Int())
+			return int8(elem(x1(env)).Int())
 		}
 	case r.Int16:
 		fun = func(env *Env) int16 {
-			return int16(x1(env).Elem().Int())
+			return int16(elem(x1(env)).Int())
 		}
 	case r.Int32:
 		fun = func(env *Env) int32 {
-			return int32(x1(env).Elem().Int())
+			return int32(elem(x1(env)).Int())
 		}
 	case r.Int64:
 		fun = func(env *Env) int64 {
-			return x1(env).Elem().Int()
+			return elem(x1(env)).Int()
 		}
 	case r.Uint:
 		fun = func(env *Env) uint {
-			return uint(x1(env).Elem().Uint())
+			return uint(elem(x1(env)).Uint())
 		}
 	case r.Uint8:
 		fun = func(env *Env) uint8 {
-			return uint8(x1(env).Elem().Uint())
+			return uint8(elem(x1(env)).Uint())
 		}
 	case r.Uint16:
 		fun = func(env *Env) uint16 {
-			return uint16(x1(env).Elem().Uint())
+			return uint16(elem(x1(env)).Uint())
 		}
 	case r.Uint32:
 		fun = func(env *Env) uint32 {
-			return uint32(x1(env).Elem().Uint())
+			return uint32(elem(x1(env)).Uint())
 		}
 	case r.Uint64:
 		fun = func(env *Env) uint64 {
-			return x1(env).Elem().Uint()
+			return elem(x1(env)).Uint()
 		}
 	case r.Uintptr:
 		fun = func(env *Env) uintptr {
-			return uintptr(x1(env).Elem().Uint())
+			return uintptr(elem(x1(env)).Uint())
 		}
 	case r.Float32:
 		fun = func(env *Env) float32 {
-			return float32(x1(env).Elem().Float())
+			return float32(elem(x1(env)).Float())
 		}
 	case r.Float64:
 		fun = func(env *Env) float64 {
-			return x1(env).Elem().Float()
+			return elem(x1(env)).Float()
 		}
 	case r.Complex64:
 		fun = func(env *Env) complex64 {
-			return complex64(x1(env).Elem().Complex())
+			return complex64(elem(x1(env)).Complex())
 		}
 	case r.Complex128:
 		fun = func(env *Env) complex128 {
-			return x1(env).Elem().Complex()
+			return elem(x1(env)).Complex()
 		}
 	case r.String:
 		fun = func(env *Env) string {
-			return x1(env).Elem().String()
+			return elem(x1(env)).String()
 		}
 	default:
 		fun = func(env *Env) r.Value {
-			return x1(env).Elem()
+			return elem(x1(env))
 		}
 	}
 	return fun

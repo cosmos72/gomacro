@@ -72,7 +72,7 @@ func (t *xtype) field(i int) StructField {
 	return StructField{
 		Name:      va.Name(),
 		Pkg:       (*Package)(va.Pkg()),
-		Type:      t.universe.maketype(va.Type(), rf.Type), // lock already held
+		Type:      t.universe.maketype(va.Type(), rf.Type, t.option), // lock already held
 		Tag:       rf.Tag,
 		Offset:    rf.Offset,
 		Index:     rf.Index,
@@ -181,8 +181,13 @@ func (v *Universe) StructOf(fields []StructField) Type {
 	vars := toGoFields(fields)
 	tags := toTags(fields)
 	rfields := toReflectFields(fields, true)
+	opt := OptDefault
+	for i := range fields {
+		opt |= unwrap(fields[i].Type).option
+	}
 	return v.MakeType(
 		types.NewStruct(vars, tags),
 		r.StructOf(rfields),
+		opt,
 	)
 }

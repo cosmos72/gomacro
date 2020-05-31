@@ -199,9 +199,8 @@ func field0(v r.Value, index int) r.Value {
 // also accepts pointer values and dereferences any pointer
 func fieldByIndex(v r.Value, index []int) r.Value {
 	for _, x := range index {
-		switch v.Kind() {
 		// also accept interface xr.Forward and extract concrete type from it
-		case r.Ptr, r.Interface:
+		for v.Kind() == r.Ptr || v.Kind() == r.Interface {
 			v = v.Elem()
 		}
 		v = v.Field(x)

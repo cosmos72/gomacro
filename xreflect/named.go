@@ -39,18 +39,21 @@ func (v *Universe) NamedOf(name, pkgpath string) Type {
 }
 
 func (v *Universe) namedOf(name, pkgpath string) Type {
-	return v.reflectNamedOf(name, pkgpath, v.TypeOfForward.ReflectType())
+	return v.reflectNamedOf(name, pkgpath, rTypeOfForward)
 }
 
 // alternate version of namedOf(), to be used when reflect.Type is known
 func (v *Universe) reflectNamedOf(name, pkgpath string, rtype r.Type) Type {
+	opt := OptDefault
 	underlying := v.BasicTypes[rtype.Kind()]
 	if underlying == nil {
 		underlying = v.TypeOfForward
+		opt = OptIncomplete
 	}
+	// debugf("namedof: %s/%s rtype = %v option = %v", pkgpath, name, rtype, opt)
 	pkg := v.loadPackage(pkgpath)
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, nil)
-	return v.maketype3(
+	return v.maketype4(
 		// kind is reflect.Invalid;
 		// underlying.GoType() will often be inaccurate and equal to interface{};
 		// rtype will often be inaccurate and equal to TypeOfForward.
@@ -60,6 +63,7 @@ func (v *Universe) reflectNamedOf(name, pkgpath string, rtype r.Type) Type {
 		// wrapping the actual basic type
 		types.NewNamed(typename, underlying.GoType().Underlying(), nil),
 		rtype,
+		opt,
 	)
 }
 
@@ -67,30 +71,32 @@ func (v *Universe) reflectNamedOf(name, pkgpath string, rtype r.Type) Type {
 // It panics if the type is unnamed, or if the underlying type is named,
 // or if SetUnderlying() was already invoked on the named type.
 func (t *xtype) SetUnderlying(underlying Type) {
-	switch gtype := t.gtype.(type) {
-	case *types.Named:
-		v := t.universe
-		if t.kind != r.Invalid || gtype.Underlying() != v.TypeOfForward.GoType() || t.rtype != v.TypeOfForward.ReflectType() {
-			// redefined type. try really hard to support it.
-			v.InvalidateCache()
-			// xerrorf(t, "SetUnderlying invoked multiple times on named type %v", t)
-		}
-		xunderlying := unwrap(underlying)
-		gunderlying := xunderlying.gtype.Underlying() // in case underlying is named
-		t.kind = gtypeToKind(xunderlying, gunderlying)
-		gtype.SetUnderlying(gunderlying)
-		// debugf("SetUnderlying: updated <%v> reflect Type from <%v> to <%v>", gtype, t.rtype, underlying.ReflectType())
-		t.rtype = underlying.ReflectType()
-		if t.kind == r.Interface {
-			// propagate methodvalue from underlying interface to named type
-			t.methodvalue = xunderlying.methodvalue
-			t.cache.method = nil
-			t.cache.field = nil
-		} else if etoken.GENERICS.V2_CTI() {
-			v.addTypeMethodsCTI(t)
-		}
-	default:
+	gtype, ok := t.gtype.(*types.Named)
+	if !ok {
 		xerrorf(t, "SetUnderlying of unnamed type %v", t)
+	}
+	v := t.universe
+	if t.kind != r.Invalid || gtype.Underlying() != v.TypeOfForward.GoType() || t.rtype != v.TypeOfForward.ReflectType() {
+		// redefined type. try really hard to support it.
+		v.InvalidateCache()
+		// xerrorf(t, "SetUnderlying invoked multiple times on named type %v", t)
+	}
+	xunderlying := unwrap(underlying)
+	gunderlying := xunderlying.gtype.Underlying() // in case underlying is named
+	t.kind = gtypeToKind(xunderlying, gunderlying)
+	gtype.SetUnderlying(gunderlying)
+	// debugf("SetUnderlying: updated <%v> reflect Type from <%v> to <%v> (option = %v)", gtype, t.rtype, underlying.ReflectType(), t.option)
+	t.rtype = underlying.ReflectType()
+	if t.kind == r.Interface {
+		// propagate methodvalue from underlying interface to named type
+		t.methodvalue = xunderlying.methodvalue
+		t.cache.method = nil
+		t.cache.field = nil
+	} else if etoken.GENERICS.V2_CTI() {
+		v.addTypeMethodsCTI(t)
+	}
+	if t.option == OptIncomplete {
+		t.option = OptDefault
 	}
 }
 

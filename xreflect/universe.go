@@ -184,7 +184,7 @@ func (v *Universe) namedTypeFromPackage(rtype r.Type, pkg *types.Package) Type {
 			if gtype := obj.Type(); gtype != nil {
 				// debugf("imported named type %v for %v", gtype, rtype)
 				// not v.MakeType, because we already hold the lock
-				return v.maketype3(gtypeToKind(nil, gtype), gtype, rtype)
+				return v.maketype4(gtypeToKind(nil, gtype), gtype, rtype, OptDefault)
 			}
 		}
 	}

@@ -50,17 +50,30 @@ func xerrorf(t *xtype, format string, args ...interface{}) {
 	panic(&Error{wrap(t), format, args})
 }
 
+func gdirTodir(dir types.ChanDir) r.ChanDir {
+	var ret r.ChanDir
+	switch dir {
+	case types.RecvOnly:
+		ret = r.RecvDir
+	case types.SendOnly:
+		ret = r.SendDir
+	case types.SendRecv:
+		ret = r.BothDir
+	}
+	return ret
+}
+
 func dirToGdir(dir r.ChanDir) types.ChanDir {
-	var gdir types.ChanDir
+	var ret types.ChanDir
 	switch dir {
 	case r.RecvDir:
-		gdir = types.RecvOnly
+		ret = types.RecvOnly
 	case r.SendDir:
-		gdir = types.SendOnly
+		ret = types.SendOnly
 	case r.BothDir:
-		gdir = types.SendRecv
+		ret = types.SendRecv
 	}
-	return gdir
+	return ret
 }
 
 func gtypeToKind(t *xtype, gtype types.Type) r.Kind {

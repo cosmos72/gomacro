@@ -134,6 +134,10 @@ func (t Type) ReflectType() r.Type {
 	return t(z{}).ReflectType()
 }
 
+func (t Type) approxReflectType() r.Type {
+	return t(z{}).approxReflectType()
+}
+
 func (t Type) UnsafeForceReflectType(rtype r.Type) {
 	t(z{}).UnsafeForceReflectType(rtype)
 }

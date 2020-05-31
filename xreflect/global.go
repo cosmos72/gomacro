@@ -80,18 +80,31 @@ const (
 	addmethodsDone
 )
 
+type Option uint8
+
+const (
+	OptDefault Option = iota
+	// type is approximate because it's self-recursive
+	// or part of a recursive cycle
+	OptRecursive
+	// type is still being defined
+	OptIncomplete
+)
+
 type xtype struct {
 	kind     r.Kind
 	gtype    types.Type
 	rtype    r.Type
 	universe *Universe
-	// lazily computed information
-	lazy struct {
-		underlying Type           // underlying type,
-		elem       Type           // chan, pointer, slice, array, map: element type
-		key        Type           // map: key type
-		fields     *[]StructField // struct: fields
-	}
+	/*
+		// lazily computed information
+		lazy struct {
+			underlying Type           // underlying type,
+			elem       Type           // chan, pointer, slice, array, map: element type
+			key        Type           // map: key type
+			fields     *[]StructField // struct: fields
+		}
+	*/
 	cache struct {
 		field  map[QName]StructField
 		method map[QName]Method
@@ -99,6 +112,7 @@ type xtype struct {
 	methodvalue []r.Value
 	userdata    map[interface{}]interface{}
 	addmethods  addmethods
+	option      Option
 }
 
 // QName is a replacement for go/types.Id and implements accurate comparison
