@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2019 Massimiliano Ghilardi
+ * Copyright (C) 2017-2020 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -20,6 +20,12 @@ import (
 	r "reflect"
 )
 
+// re-export reflect.Kind from this package
+type Kind = r.Kind
+
+// re-export reflect.SelectDir from this package
+type SelectDir = r.SelectDir
+
 // xreflect.Value is a replacement for reflect.Value
 // that hides the presence of xreflect.Forward
 // due to emulated recursive types
@@ -27,7 +33,43 @@ type Value struct {
 	rv r.Value
 }
 
-func fromReflectValues(rv []r.Value) []Value {
+const (
+	Invalid       Kind = r.Invalid
+	Bool          Kind = r.Bool
+	Int           Kind = r.Int
+	Int8          Kind = r.Int8
+	Int16         Kind = r.Int16
+	Int32         Kind = r.Int32
+	Int64         Kind = r.Int64
+	Uint          Kind = r.Uint
+	Uint8         Kind = r.Uint8
+	Uint16        Kind = r.Uint16
+	Uint32        Kind = r.Uint32
+	Uint64        Kind = r.Uint64
+	Uintptr       Kind = r.Uintptr
+	Float32       Kind = r.Float32
+	Float64       Kind = r.Float64
+	Complex64     Kind = r.Complex64
+	Complex128    Kind = r.Complex128
+	Array         Kind = r.Array
+	Chan          Kind = r.Chan
+	Func          Kind = r.Func
+	Interface     Kind = r.Interface
+	Map           Kind = r.Map
+	Ptr           Kind = r.Ptr
+	Slice         Kind = r.Slice
+	String        Kind = r.String
+	Struct        Kind = r.Struct
+	UnsafePointer Kind = r.UnsafePointer
+)
+
+const (
+	SelectSend    SelectDir = r.SelectSend
+	SelectRecv    SelectDir = r.SelectRecv
+	SelectDefault SelectDir = r.SelectDefault
+)
+
+func FromReflectValues(rv []r.Value) []Value {
 	v := make([]Value, len(rv))
 	for i := range rv {
 		v[i] = Value{rv[i]}
@@ -35,7 +77,7 @@ func fromReflectValues(rv []r.Value) []Value {
 	return v
 }
 
-func toReflectValues(v []Value) []r.Value {
+func ToReflectValues(v []Value) []r.Value {
 	rv := make([]r.Value, len(v))
 	for i := range v {
 		rv[i] = v[i].fwd()
@@ -70,15 +112,15 @@ func (v Value) Bytes() []byte {
 }
 
 func (v Value) Call(in []Value) []Value {
-	rv := toReflectValues(in)
+	rv := ToReflectValues(in)
 	rv = v.fwd().Call(rv)
-	return fromReflectValues(rv)
+	return FromReflectValues(rv)
 }
 
 func (v Value) CallSlice(in []Value) []Value {
-	rv := toReflectValues(in)
+	rv := ToReflectValues(in)
 	rv = v.fwd().CallSlice(rv)
-	return fromReflectValues(rv)
+	return FromReflectValues(rv)
 }
 
 func (v Value) CanAddr() bool {
@@ -174,7 +216,7 @@ func (v Value) MapIndex(key Value) Value {
 }
 
 func (v Value) MapKeys() []Value {
-	return fromReflectValues(v.fwd().MapKeys())
+	return FromReflectValues(v.fwd().MapKeys())
 }
 
 // requires Go 1.12

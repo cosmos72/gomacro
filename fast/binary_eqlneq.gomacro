@@ -22,7 +22,6 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base/reflect"
-	. "github.com/cosmos72/gomacro/base"
 )
 
 :package fast
@@ -78,7 +77,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -163,11 +162,11 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			return c.invalidBinaryExpr(node, xe, ye)
 		} else {
 			// nil == expr
-			return c.eqlneqNil(node, xe, ye)
+			return c.eqlneqNilR(node, xe, ye)
 		}
 	} else if ye.IsNil() {
 		// expr == nil
-		return c.eqlneqNil(node, xe, ye)
+		return c.eqlneqNilR(node, xe, ye)
 	}
 	if !xe.Type.Comparable() || !xe.Type.Comparable() {
 		return c.invalidBinaryExpr(node, xe, ye)
@@ -190,14 +189,14 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{eqlneqs; token.EQL; false; false; { bool; int; uint; float32; float64; complex64; complex128; string } }
 	} else if yc {
 		x := xe.Fun
-		yv := r.ValueOf(ye.Value)
+		yv := xr.ValueOf(ye.Value)
 		if k == r.Bool && yv.Bool() {
 		    // xe == true is the same as xe
 			return xe
 		}
 		{eqlneqs; token.EQL; false; true; { bool; int; uint; float32; float64; complex64; complex128; string } }
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.Fun
 		if k == r.Bool && xv.Bool() {
 		    // true == ye is the same as ye
@@ -217,11 +216,11 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			return c.invalidBinaryExpr(node, xe, ye)
 		} else {
 			// nil == expr
-			return c.eqlneqNil(node, xe, ye)
+			return c.eqlneqNilR(node, xe, ye)
 		}
 	} else if ye.IsNil() {
 		// expr == nil
-		return c.eqlneqNil(node, xe, ye)
+		return c.eqlneqNilR(node, xe, ye)
 	}
 	if !xe.Type.Comparable() || !xe.Type.Comparable() {
 		return c.invalidBinaryExpr(node, xe, ye)
@@ -244,14 +243,14 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{eqlneqs; token.NEQ; false; false; { int; uint; float32; float64; complex64; complex128; string } }
 	} else if yc {
 		x := xe.Fun
-		yv := r.ValueOf(ye.Value)
+		yv := xr.ValueOf(ye.Value)
 		if k == r.Bool && !yv.Bool() {
 		    // xe != false is the same as xe
 			return xe
 		}
 		{eqlneqs; token.NEQ; false; true; { int; uint; float32; float64; complex64; complex128; string } }
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.Fun
 		if k == r.Bool && !xv.Bool() {
 		    // false != ye is the same as ye
@@ -280,7 +279,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		fun = func(env *Env) bool {
 			v1 := x(env)
 			v2 := y(env)
-			if v1 == Nil || v2 == Nil {
+			if !v1.IsValid() || !v2.IsValid() {
 				return v1 == v2
 			}
 			t1, t2 := t1, t2
@@ -290,7 +289,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			if extractor2 != nil {
 				v2, t2 = extractor2(v2)
 			}
-			if v1 == Nil || v2 == Nil {
+			if !v1.IsValid() || !v2.IsValid() {
 				return v1 == v2
 			}
 			return v1.Interface() == v2.Interface() &&
@@ -300,7 +299,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		fun = func(env *Env) bool {
 			v1 := x(env)
 			v2 := y(env)
-			if v1 == Nil || v2 == Nil {
+			if !v1.IsValid() || !v2.IsValid() {
 				return v1 != v2
 			}
 			t1, t2 := t1, t2
@@ -310,7 +309,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			if extractor2 != nil {
 				v2, t2 = extractor2(v2)
 			}
-			if v1 == Nil || v2 == Nil {
+			if !v1.IsValid() || !v2.IsValid() {
 				return v1 != v2
 			}
 			return v1.Interface() != v2.Interface() ||
@@ -320,7 +319,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	return c.exprBool(fun)
 }
 
-func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+func (c *Comp) eqlneqNilR(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var e *Expr
 	if ye.IsNil() {
 		e = xe
@@ -333,18 +332,18 @@ func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 
 	var fun func(env *Env) bool
-	if f, ok := e.Fun.(func(env *Env) (r.Value, []r.Value)); ok {
+	if f, ok := e.Fun.(func(env *Env) (xr.Value, []xr.Value)); ok {
 		e.CheckX1() // to warn or error as appropriate
 		if node.Op == token.EQL {
 			fun = func(env *Env) bool {
 				v, _ := f(env)
-				vnil := v == Nil || reflect.IsNillableKind(v.Kind()) && v.IsNil()
+				vnil := !v.IsValid() || reflect.IsNillableKind(v.Kind()) && v.IsNil()
 				return vnil
 			}
 		} else {
 			fun = func(env *Env) bool {
 				v, _ := f(env)
-				vnil := v == Nil || reflect.IsNillableKind(v.Kind()) && v.IsNil()
+				vnil := !v.IsValid() || reflect.IsNillableKind(v.Kind()) && v.IsNil()
 				return !vnil
 			}
 		}
@@ -353,13 +352,13 @@ func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if node.Op == token.EQL {
 			fun = func(env *Env) bool {
 				v := f(env)
-				vnil := v == Nil || reflect.IsNillableKind(v.Kind()) && v.IsNil()
+				vnil := !v.IsValid() || reflect.IsNillableKind(v.Kind()) && v.IsNil()
 				return vnil
 			}
 		} else {
 			fun = func(env *Env) bool {
 				v := f(env)
-				vnil := v == Nil || reflect.IsNillableKind(v.Kind()) && v.IsNil()
+				vnil := !v.IsValid() || reflect.IsNillableKind(v.Kind()) && v.IsNil()
 				return !vnil
 			}
 		}

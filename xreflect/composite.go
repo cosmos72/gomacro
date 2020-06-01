@@ -123,7 +123,7 @@ func (v *Universe) PtrTo(elem Type) Type {
 	e := unwrap(elem)
 	rtype := e.rtype
 	if e.option != OptDefault || rtype == rTypeOfForward {
-		e.option = OptIncomplete
+		e.option = OptRecursive
 		rtype = rTypeOfForward
 	} else {
 		rtype = r.PtrTo(rtype)

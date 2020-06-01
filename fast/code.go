@@ -19,7 +19,7 @@ package fast
 import (
 	"go/token"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 )
 
 func (code *Code) Clear() {
@@ -62,22 +62,22 @@ func (code *Code) AsExpr() *Expr {
 func spinInterrupt(env *Env) (Stmt, *Env) {
 	run := env.Run
 	if run.Signals.IsEmpty() {
-		run.Signals.Sync = SigReturn
-	} else if sig := run.Signals.Async; sig != SigNone {
+		run.Signals.Sync = base.SigReturn
+	} else if sig := run.Signals.Async; sig != base.SigNone {
 		run.applyAsyncSignal(sig)
 	}
 	return run.Interrupt, env
 }
 
-func (run *Run) applyAsyncSignal(sig Signal) {
-	run.Signals.Async = SigNone
+func (run *Run) applyAsyncSignal(sig base.Signal) {
+	run.Signals.Async = base.SigNone
 	switch sig {
-	case SigNone:
+	case base.SigNone:
 		break
-	case SigDebug:
+	case base.SigDebug:
 		run.applyDebugOp(DebugOpStep)
 	default:
-		panic(SigInterrupt)
+		panic(base.SigInterrupt)
 	}
 }
 
@@ -101,8 +101,8 @@ func restore(run *Run, isDefer bool, interrupt Stmt, caller *Env) {
 	run.ExecFlags.SetDefer(isDefer)
 	run.Interrupt = interrupt
 	run.CurrEnv = caller
-	run.Signals.Sync = SigNone
-	if sig := run.Signals.Async; sig == SigInterrupt {
+	run.Signals.Sync = base.SigNone
+	if sig := run.Signals.Async; sig == base.SigInterrupt {
 		// do NOT handle async SigDebug here
 		run.applyAsyncSignal(sig)
 	}
@@ -117,12 +117,12 @@ func maybeRepanic(run *Run) bool {
 }
 
 func (run *Run) interrupt() {
-	const CtrlCDebug = OptDebugger | OptCtrlCEnterDebugger
-	var sig Signal
+	const CtrlCDebug = base.OptDebugger | base.OptCtrlCEnterDebugger
+	var sig base.Signal
 	if run.Options&CtrlCDebug == CtrlCDebug {
-		sig = SigDebug
+		sig = base.SigDebug
 	} else {
-		sig = SigInterrupt
+		sig = base.SigInterrupt
 	}
 	run.Signals.Async = sig
 }
@@ -149,13 +149,13 @@ func (code *Code) Exec() func(*Env) {
 func exec(all []Stmt, pos []token.Pos) func(*Env) {
 	return func(env *Env) {
 		run := env.Run
-		run.Signals.Sync = SigNone
+		run.Signals.Sync = base.SigNone
 		if run.ExecFlags != 0 {
 			// code to support defer and debugger is slower... isolate it in a separate function
 			reExecWithFlags(env, all, pos, all[0], 0)
 			return
 		}
-		if sig := run.Signals.Async; sig != SigNone {
+		if sig := run.Signals.Async; sig != base.SigNone {
 			run.applyAsyncSignal(sig)
 		}
 		saveInterrupt := run.Interrupt
@@ -226,11 +226,11 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 	finish:
 		// restore env.ThreadGlobals.Interrupt and Signal before returning
 		run.Interrupt = saveInterrupt
-		if sig := run.Signals.Async; sig != SigNone {
+		if sig := run.Signals.Async; sig != base.SigNone {
 			run.applyAsyncSignal(sig) // may set run.Signals.Debug if OptCtrlCEnterDebugger is set
 		}
-		if run.Signals.Debug == SigNone {
-			run.Signals.Sync = SigNone
+		if run.Signals.Debug == base.SigNone {
+			run.Signals.Sync = base.SigNone
 		} else {
 			reExecWithFlags(env, all, pos, stmt, env.IP)
 		}
@@ -240,7 +240,7 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 // execWithFlags returns a function that will execute the given compiled code, including support for defer() and debugger
 func execWithFlags(all []Stmt, pos []token.Pos) func(*Env) {
 	return func(env *Env) {
-		env.Run.Signals.Sync = SigNone
+		env.Run.Signals.Sync = base.SigNone
 		reExecWithFlags(env, all, pos, all[0], 0)
 	}
 }
@@ -249,11 +249,11 @@ func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 	run := env.Run
 
 	ef := &run.ExecFlags
-	trace := run.Options&OptDebugDebugger != 0
+	trace := run.Options&base.OptDebugDebugger != 0
 	if trace {
 		run.Debugf("reExecWithFlags:  executing function   stmt = %p, env = %p, IP = %v, execFlags = %v, signals = %#v", stmt, env, ip, *ef, run.Signals)
 	}
-	if sig := run.Signals.Async; sig != SigNone {
+	if sig := run.Signals.Async; sig != base.SigNone {
 		run.applyAsyncSignal(sig)
 	}
 	caller := run.CurrEnv
@@ -261,7 +261,7 @@ func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 	defer restore(run, run.ExecFlags.IsDefer(), run.Interrupt, caller)
 	ef.SetDefer(ef.StartDefer())
 	ef.SetStartDefer(false)
-	ef.SetDebug(run.Signals.Debug != SigNone)
+	ef.SetDebug(run.Signals.Debug != base.SigNone)
 
 	funenv := env
 	env.IP = ip
@@ -321,8 +321,8 @@ again:
 				}
 			}
 		}
-		for run.Signals.Sync == SigDefer {
-			run.Signals.Sync = SigNone
+		for run.Signals.Sync == base.SigDefer {
+			run.Signals.Sync = base.SigNone
 			fun := run.InstallDefer
 			run.InstallDefer = nil
 			defer rundefer(fun)
@@ -355,8 +355,8 @@ again:
 		stmt, env = stmt(env)
 		stmt, env = stmt(env)
 
-		for run.Signals.Sync == SigDefer {
-			run.Signals.Sync = SigNone
+		for run.Signals.Sync == base.SigDefer {
+			run.Signals.Sync = base.SigNone
 			fun := run.InstallDefer
 			run.InstallDefer = nil
 			defer rundefer(fun)
@@ -369,13 +369,13 @@ again:
 		}
 	}
 signal:
-	if sig := run.Signals.Async; sig != SigNone {
+	if sig := run.Signals.Async; sig != base.SigNone {
 		// if OptCtrlCEnterDebugger is set, convert early
 		// Signals.Async = SigDebug to Signals.Debug = SigDebug
 		run.applyAsyncSignal(sig)
 	}
 
-	for run.Signals.Debug != SigNone {
+	for run.Signals.Debug != base.SigNone {
 		run.Interrupt = spinInterrupt
 		stmt, env = singleStep(env)
 		if trace {
@@ -383,11 +383,11 @@ signal:
 		}
 		// a Sync or Async signal may be pending.
 		sig := run.Signals.Sync
-		if run.Signals.IsEmpty() || sig == SigDefer {
+		if run.Signals.IsEmpty() || sig == base.SigDefer {
 			goto again
-		} else if sig == SigReturn {
+		} else if sig == base.SigReturn {
 			break
-		} else if sig = run.Signals.Async; sig != SigNone {
+		} else if sig = run.Signals.Async; sig != base.SigNone {
 			run.applyAsyncSignal(sig)
 		}
 	}

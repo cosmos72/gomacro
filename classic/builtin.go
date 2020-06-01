@@ -89,7 +89,7 @@ func callDelete(m interface{}, key interface{}) {
 	if key != nil && vkey.Type() != tkey {
 		vkey = vkey.Convert(tkey)
 	}
-	vmap.SetMapIndex(vkey, Nil)
+	vmap.SetMapIndex(vkey, NilR)
 }
 
 func funcEnv(env *Env, args []r.Value) (r.Value, []r.Value) {
@@ -98,7 +98,7 @@ func funcEnv(env *Env, args []r.Value) (r.Value, []r.Value) {
 
 func funcEval(env *Env, args []r.Value) (r.Value, []r.Value) {
 	arg := args[0]
-	if arg == Nil || arg == None {
+	if arg == NilR || arg == NoneR {
 		return arg, nil
 	}
 	x := toInterface(arg)
@@ -108,7 +108,7 @@ func funcEval(env *Env, args []r.Value) (r.Value, []r.Value) {
 
 func funcEvalType(env *Env, args []r.Value) (r.Value, []r.Value) {
 	arg := args[0]
-	if arg == Nil || arg == None {
+	if arg == NilR || arg == NoneR {
 		return arg, nil
 	}
 	x := toInterface(arg)
@@ -117,9 +117,9 @@ func funcEvalType(env *Env, args []r.Value) (r.Value, []r.Value) {
 	switch node := ToNode(form).(type) {
 	case ast.Expr:
 		// return nil for *ast.Ident{Name: "nil"}
-		t := env.evalTypeOrNil(node)
+		t := env.evalTypeOrNilR(node)
 		if t == nil {
-			return Nil, nil
+			return NilR, nil
 		}
 		// return as reflect.Type, not as the concrete struct *reflect.type
 		return r.ValueOf(&t).Elem(), nil
@@ -175,13 +175,13 @@ func callMacroExpand(env *Env, args []r.Value, which WhichMacroExpand) (r.Value,
 		return env.Errorf("builtin %v() expects one or two arguments, found %d: %v", which, n, args)
 	}
 	val := args[0]
-	if val == Nil || val == None {
+	if val == NilR || val == NoneR {
 		return val, nil
 	}
 	form := AnyToAst(val.Interface(), which.String())
 	if n == 2 {
 		e := args[1]
-		if e != Nil && e != None {
+		if e != NilR && e != NoneR {
 			env = e.Interface().(*Env)
 		}
 	}
@@ -203,7 +203,7 @@ func funcMake(env *Env, t r.Type, args []r.Value) (r.Value, []r.Value) {
 	if n > 2 {
 		return env.Errorf("builtin make() expects one, two or three arguments, found %d", n+1)
 	}
-	ret := Nil
+	ret := NilR
 	switch t.Kind() {
 	case r.Chan:
 		buffer := 0
@@ -233,14 +233,14 @@ func funcNew(env *Env, t r.Type, args []r.Value) (r.Value, []r.Value) {
 
 func funcParse(env *Env, args []r.Value) (r.Value, []r.Value) {
 	var in interface{}
-	if arg := args[0]; arg != Nil && arg != None {
+	if arg := args[0]; arg != NilR && arg != NoneR {
 		in = arg.Interface()
 	}
 	out := env.Parse(in)
 	if out != nil {
 		return r.ValueOf(out.Interface()), nil
 	}
-	return Nil, nil
+	return NilR, nil
 }
 
 func callPanic(arg interface{}) {
@@ -294,7 +294,7 @@ func funcRecover(env *Env, args []r.Value) (r.Value, []r.Value) {
 	// by restoring normal execution and retrieves the error value passed to the call of panic"
 	//
 	// thus recover() is invoked inside deferred functions: find their caller's env
-	ret := Nil
+	ret := NilR
 
 	trace := env.Options&OptDebugRecover != 0
 	caller := env.CallerFrame()
@@ -337,7 +337,7 @@ func callSlice(args ...interface{}) []interface{} {
 
 func funcValues(env *Env, args []r.Value) (r.Value, []r.Value) {
 	for i, arg := range args {
-		if arg != None && arg != Nil {
+		if arg != NoneR && arg != NilR {
 			if arg.Kind() == r.Interface {
 				arg = arg.Elem() // extract concrete type
 			}
@@ -392,7 +392,7 @@ func (env *Env) addBuiltins() {
 	binds.Set("len", r.ValueOf(callLen))
 	binds.Set("make", r.ValueOf(Constructor{funcMake, -1}))
 	binds.Set("new", r.ValueOf(Constructor{funcNew, 1}))
-	binds.Set("nil", Nil)
+	binds.Set("nil", NilR)
 	binds.Set("panic", r.ValueOf(callPanic))
 	binds.Set("print", r.ValueOf(func(args ...interface{}) {
 		fmt.Fprint(env.Stdout, args...)

@@ -88,10 +88,10 @@ func (imp *Importer) havePluginOpen() bool {
 	if !imp.PluginOpen.IsValid() {
 		imp.PluginOpen = imports.Packages["plugin"].Binds["Open"]
 		if !imp.PluginOpen.IsValid() {
-			imp.PluginOpen = reflect.None // cache the failure
+			imp.PluginOpen = reflect.NoneR // cache the failure
 		}
 	}
-	return imp.PluginOpen != reflect.None
+	return imp.PluginOpen != reflect.NoneR
 }
 
 // LookupPackage returns a package if already present in cache

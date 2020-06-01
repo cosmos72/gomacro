@@ -21,7 +21,6 @@ import (
 	"go/ast"
 	"go/token"
 	"os"
-	r "reflect"
 	"runtime/debug"
 	"sort"
 	"strings"
@@ -104,7 +103,7 @@ func (ir *Interp) CompileAst(form ast2.Ast) *Expr {
 }
 
 // run without debugging. to execute with single-step debugging, use Interp.DebugExpr() instead
-func (ir *Interp) RunExpr1(e *Expr) (r.Value, xr.Type) {
+func (ir *Interp) RunExpr1(e *Expr) (xr.Value, xr.Type) {
 	if e == nil {
 		return None, nil
 	}
@@ -115,7 +114,7 @@ func (ir *Interp) RunExpr1(e *Expr) (r.Value, xr.Type) {
 }
 
 // run without debugging. to execute with single-step debugging, use Interp.DebugExpr() instead
-func (ir *Interp) RunExpr(e *Expr) ([]r.Value, []xr.Type) {
+func (ir *Interp) RunExpr(e *Expr) ([]xr.Value, []xr.Type) {
 	if e == nil {
 		return nil, nil
 	}
@@ -135,7 +134,7 @@ func (ir *Interp) RunExpr(e *Expr) ([]r.Value, []xr.Type) {
 }
 
 // execute with single-step debugging. to run without debugging, use Interp.RunExpr() instead
-func (ir *Interp) DebugExpr1(e *Expr) (r.Value, xr.Type) {
+func (ir *Interp) DebugExpr1(e *Expr) (xr.Value, xr.Type) {
 	if e == nil {
 		return None, nil
 	}
@@ -146,7 +145,7 @@ func (ir *Interp) DebugExpr1(e *Expr) (r.Value, xr.Type) {
 }
 
 // execute with single-step debugging. to run without debugging, use Interp.RunExpr() instead
-func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
+func (ir *Interp) DebugExpr(e *Expr) ([]xr.Value, []xr.Type) {
 	if e == nil {
 		return nil, nil
 	}
@@ -165,7 +164,7 @@ func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
 }
 
 // combined Parse + Compile + DebugExpr
-func (ir *Interp) Debug(src string) ([]r.Value, []xr.Type) {
+func (ir *Interp) Debug(src string) ([]xr.Value, []xr.Type) {
 	return ir.DebugExpr(ir.Compile(src))
 }
 
@@ -206,7 +205,7 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 		if capacity-cap(env.Vals) < minValDelta {
 			capacity = cap(env.Vals) + minValDelta
 		}
-		binds := make([]r.Value, min, capacity)
+		binds := make([]xr.Value, min, capacity)
 		copy(binds, env.Vals)
 		env.Vals = binds
 	}

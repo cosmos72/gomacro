@@ -17,7 +17,7 @@
 package fast
 
 import (
-	r "reflect"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) call2ret1(call *Call, maxdepth int) I {
@@ -32,177 +32,177 @@ func (c *Comp) call2ret1(call *Call, maxdepth int) I {
 
 	exprfun := expr.AsX1()
 	argfunsX1 := call.MakeArgfunsX1()
-	argfuns := [2]func(*Env) r.Value{
+	argfuns := [2]func(*Env) xr.Value{
 		argfunsX1[0],
 		argfunsX1[1],
 	}
 
 	var ret I
 	switch kout {
-	case r.Bool:
+	case xr.Bool:
 		ret = func(env *Env) bool {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return ret0.Bool()
 		}
-	case r.Int:
+	case xr.Int:
 		ret = func(env *Env) int {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return int(ret0.Int())
 		}
-	case r.Int8:
+	case xr.Int8:
 		ret = func(env *Env) int8 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return int8(ret0.Int())
 		}
-	case r.Int16:
+	case xr.Int16:
 		ret = func(env *Env) int16 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return int16(ret0.Int())
 		}
-	case r.Int32:
+	case xr.Int32:
 		ret = func(env *Env) int32 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return int32(ret0.Int())
 		}
-	case r.Int64:
+	case xr.Int64:
 		ret = func(env *Env) int64 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return ret0.Int()
 		}
-	case r.Uint:
+	case xr.Uint:
 		ret = func(env *Env) uint {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return uint(ret0.Uint())
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		ret = func(env *Env) uint8 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return uint8(ret0.Uint())
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		ret = func(env *Env) uint16 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return uint16(ret0.Uint())
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		ret = func(env *Env) uint32 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return uint32(ret0.Uint())
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		ret = func(env *Env) uint64 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return ret0.Uint()
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		ret = func(env *Env) uintptr {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return uintptr(ret0.Uint())
 		}
-	case r.Float32:
+	case xr.Float32:
 		ret = func(env *Env) float32 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return float32(ret0.Float())
 		}
-	case r.Float64:
+	case xr.Float64:
 		ret = func(env *Env) float64 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return ret0.Float()
 		}
-	case r.Complex64:
+	case xr.Complex64:
 		ret = func(env *Env) complex64 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return complex64(ret0.Complex())
 		}
-	case r.Complex128:
+	case xr.Complex128:
 		ret = func(env *Env) complex128 {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			ret0 := callxr(funv, argv)[0]
 			return ret0.Complex()
 		}
-	case r.String:
+	case xr.String:
 		ret = func(env *Env) string {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
@@ -210,9 +210,9 @@ func (c *Comp) call2ret1(call *Call, maxdepth int) I {
 			return ret0.String()
 		}
 	default:
-		ret = func(env *Env) r.Value {
+		ret = func(env *Env) xr.Value {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}

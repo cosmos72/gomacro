@@ -48,7 +48,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 	switch op {
 	case token.AND:
 		place := env.evalExpr1(node.X)
-		if place == Nil || !place.CanAddr() {
+		if place == NilR || !place.CanAddr() {
 			return env.Errorf("cannot take the address of: %v = %v <%v>", node.X, place, typeOf(place))
 		}
 		return place.Addr(), nil

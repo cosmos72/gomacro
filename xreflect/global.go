@@ -30,18 +30,18 @@ type Forward interface{}
 // InterfaceHeader is the internal header of interpreted interfaces
 type InterfaceHeader struct {
 	// val and typ must be private! otherwise interpreted code may mess with them and break type safety
-	val r.Value
+	val Value
 	typ Type
 }
 
-func MakeInterfaceHeader(val r.Value, typ Type) InterfaceHeader {
+func MakeInterfaceHeader(val Value, typ Type) InterfaceHeader {
 	if val.IsValid() && val.CanSet() {
 		val = val.Convert(val.Type()) // make a copy
 	}
 	return InterfaceHeader{val, typ}
 }
 
-func (h InterfaceHeader) Value() r.Value {
+func (h InterfaceHeader) Value() Value {
 	return h.val
 }
 

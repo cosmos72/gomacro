@@ -28,7 +28,7 @@ import (
 )
 
 func typeOf(value r.Value) r.Type {
-	if value == None || value == Nil {
+	if value == NoneR || value == NilR {
 		return TypeOfInterface
 	}
 	return value.Type()
@@ -70,8 +70,8 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 	return t
 }
 
-// evalTypeOrNil evaluates a type. as a special case used by type switch, evaluates *ast.Ident{Name:"nil"} to nil
-func (env *Env) evalTypeOrNil(node ast.Expr) r.Type {
+// evalTypeOrNilR evaluates a type. as a special case used by type switch, evaluates *ast.Ident{Name:"nil"} to nil
+func (env *Env) evalTypeOrNilR(node ast.Expr) r.Type {
 	for {
 		switch expr := node.(type) {
 		case *ast.ParenExpr:
@@ -80,7 +80,7 @@ func (env *Env) evalTypeOrNil(node ast.Expr) r.Type {
 		case *ast.Ident:
 			if expr.Name == "nil" {
 				val, found := env.resolveIdentifier(expr)
-				if found && val == Nil {
+				if found && val == NilR {
 					return nil
 				}
 			}
@@ -297,13 +297,13 @@ func toExportedName(name string) string {
 }
 
 func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
-	if value == None || value == Nil {
+	if value == NoneR || value == NilR {
 		switch t.Kind() {
 		case r.Chan, r.Func, r.Interface, r.Map, r.Ptr, r.Slice:
 			return r.Zero(t)
 		}
 	}
-	newValue := reflect.ConvertValue(value, t)
+	newValue := reflect.ConvertValueR(value, t)
 	if differentIntegerValues(value, newValue) {
 		env.Warnf("value %d overflows <%v>, truncated to %d", value, t, newValue)
 	}
@@ -358,7 +358,7 @@ func toInterfaces(values []r.Value) []interface{} {
 }
 
 func toInterface(value r.Value) interface{} {
-	if value != Nil && value != None {
+	if value != NilR && value != NoneR {
 		return value.Interface()
 	}
 	return nil

@@ -110,7 +110,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 	if t == nil {
 		env.Errorf("unimplemented type inference in composite literal: %v", node)
 	}
-	obj := Nil
+	obj := NilR
 	switch t.Kind() {
 	case r.Map:
 		obj = r.MakeMap(t)
@@ -133,8 +133,8 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 	case r.Array, r.Slice:
 		vt := t.Elem()
 		idx := -1
-		val := Nil
-		zero := Nil
+		val := NilR
+		zero := NilR
 		if t.Kind() == r.Array {
 			obj = r.New(t).Elem()
 		} else {
@@ -153,7 +153,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 				idx++
 				val = env.valueToType(env.evalExpr1(elt), vt)
 			}
-			if zero != Nil { // is slice, or array with unknown size [...]T{}
+			if zero != NilR { // is slice, or array with unknown size [...]T{}
 				for obj.Len() <= idx {
 					obj = r.Append(obj, zero)
 				}

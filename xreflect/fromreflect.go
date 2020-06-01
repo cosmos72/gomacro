@@ -238,7 +238,6 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 	if xt.methodvalue == nil {
 		xt.methodvalue = make([]r.Value, ntotal)
 	}
-	nilv := r.Value{}
 	if v.rebuild() {
 		v.RebuildDepth--
 	}
@@ -271,7 +270,7 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 				xi = n2 - 1
 			}
 			for len(xt.methodvalue) <= xi {
-				xt.methodvalue = append(xt.methodvalue, nilv)
+				xt.methodvalue = append(xt.methodvalue, r.Value{})
 			}
 			xt.methodvalue[xi] = rmethod.Func
 			cache[qname] = xi

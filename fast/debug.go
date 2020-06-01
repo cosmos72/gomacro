@@ -20,7 +20,7 @@ import (
 	"go/ast"
 	"go/token"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 )
 
 type stubDebugger struct{}
@@ -68,10 +68,10 @@ func (c *Comp) breakpoint() Stmt {
 		sig := ir.debug(true)
 		env.IP++
 		stmt := env.Code[env.IP]
-		if sig != SigNone {
+		if sig != base.SigNone {
 			run := env.Run
 			stmt = run.Interrupt
-			if run.Options&OptDebugDebugger != 0 {
+			if run.Options&base.OptDebugDebugger != 0 {
 				run.Debugf("after breakpoint: single-stepping with stmt = %p, env = %p, IP = %v, execFlags = %v, signals = %#v", stmt, env, env.IP, run.ExecFlags, run.Signals)
 			}
 		}
@@ -82,19 +82,19 @@ func (c *Comp) breakpoint() Stmt {
 func singleStep(env *Env) (Stmt, *Env) {
 	stmt := env.Code[env.IP]
 	run := env.Run
-	if run.Signals.Debug == SigNone {
+	if run.Signals.Debug == base.SigNone {
 		return stmt, env // resume normal execution
 	}
 
 	if env.CallDepth < run.DebugDepth {
-		if run.Options&OptDebugDebugger != 0 {
+		if run.Options&base.OptDebugDebugger != 0 {
 			run.Debugf("single-stepping: stmt = %p, env = %p, IP = %v, env.CallDepth = %d, g.DebugDepth = %d", stmt, env, env.IP, env.CallDepth, run.DebugDepth)
 		}
 		c := env.DebugComp
 		if c != nil {
 			ir := Interp{c, env}
 			sig := ir.debug(false) // not a breakpoint
-			if sig != SigNone {
+			if sig != base.SigNone {
 				run := env.Run
 				run.Signals.Debug = sig
 			}
@@ -103,13 +103,13 @@ func singleStep(env *Env) (Stmt, *Env) {
 
 	// single step
 	stmt, env = stmt(env)
-	if run.Signals.Debug != SigNone {
+	if run.Signals.Debug != base.SigNone {
 		stmt = run.Interrupt
 	}
 	return stmt, env
 }
 
-func (ir *Interp) debug(breakpoint bool) Signal {
+func (ir *Interp) debug(breakpoint bool) base.Signal {
 	run := ir.env.Run
 	if run.Debugger == nil {
 		ir.Comp.Warnf("// breakpoint: no debugger set with Interp.SetDebugger(), resuming execution (warned only once)")
@@ -121,28 +121,28 @@ func (ir *Interp) debug(breakpoint bool) Signal {
 	} else {
 		op = run.Debugger.At(ir, ir.env)
 	}
-	if run.Options&OptDebugDebugger != 0 {
+	if run.Options&base.OptDebugDebugger != 0 {
 		run.Debugf("Debugger returned op = %v", op)
 	}
 	return run.applyDebugOp(op)
 }
 
-func (run *Run) applyDebugOp(op DebugOp) Signal {
+func (run *Run) applyDebugOp(op DebugOp) base.Signal {
 	if op.Panic != nil {
-		if run.Options&OptDebugDebugger != 0 {
+		if run.Options&base.OptDebugDebugger != 0 {
 			run.Debugf("applyDebugOp: op = %v, signaling panic(%v)", op, *op.Panic)
 		}
 		panic(*op.Panic)
 	}
 	saveOp := op
-	var sig Signal
+	var sig base.Signal
 	if op.Depth > 0 {
-		sig = SigDebug
+		sig = base.SigDebug
 	} else {
-		sig = SigNone
+		sig = base.SigNone
 		op.Depth = 0
 	}
-	if run.Options&OptDebugDebugger != 0 {
+	if run.Options&base.OptDebugDebugger != 0 {
 		if op == saveOp {
 			run.Debugf("applyDebugOp: op = %v, updated run.DebugDepth from %v to %v", op, run.DebugDepth, op.Depth)
 		} else {
@@ -150,7 +150,7 @@ func (run *Run) applyDebugOp(op DebugOp) Signal {
 		}
 	}
 	run.DebugDepth = op.Depth
-	run.ExecFlags.SetDebug(sig != SigNone)
+	run.ExecFlags.SetDebug(sig != base.SigNone)
 	run.Signals.Debug = sig
 	return sig
 }

@@ -105,7 +105,7 @@ func (check *Checker) ident(x *operand, e *ast.Ident, def *Named, wantType bool)
 		x.id = obj.id
 		x.mode = builtin
 
-	case *Nil:
+	case *NilR:
 		x.mode = value
 
 	default:
@@ -352,11 +352,11 @@ func (check *Checker) typInternal(e ast.Expr, def *Named) Type {
 	return typ
 }
 
-// typeOrNil type-checks the type expression (or nil value) e
+// typeOrNilR type-checks the type expression (or nil value) e
 // and returns the typ of e, or nil.
-// If e is neither a type nor nil, typOrNil returns Typ[Invalid].
+// If e is neither a type nor nil, typOrNilR returns Typ[Invalid].
 //
-func (check *Checker) typOrNil(e ast.Expr) Type {
+func (check *Checker) typOrNilR(e ast.Expr) Type {
 	var x operand
 	check.rawExpr(&x, e, nil)
 	switch x.mode {
@@ -367,7 +367,7 @@ func (check *Checker) typOrNil(e ast.Expr) Type {
 	case typexpr:
 		return x.typ
 	case value:
-		if x.isNil() {
+		if x.isNilR() {
 			return nil
 		}
 		fallthrough

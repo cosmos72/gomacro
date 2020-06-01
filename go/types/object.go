@@ -344,8 +344,8 @@ func newBuiltin(id builtinId) *Builtin {
 	return &Builtin{object{name: predeclaredFuncs[id].name, typ: Typ[Invalid], color_: black}, id}
 }
 
-// Nil represents the predeclared value nil.
-type Nil struct {
+// NilR represents the predeclared value nil.
+type NilR struct {
 	object
 }
 
@@ -391,7 +391,7 @@ func writeObject(buf *bytes.Buffer, obj Object, qf Qualifier) {
 		buf.WriteString("builtin")
 		typ = nil
 
-	case *Nil:
+	case *NilR:
 		buf.WriteString("nil")
 		return
 
@@ -461,7 +461,7 @@ func (obj *Var) String() string      { return ObjectString(obj, nil) }
 func (obj *Func) String() string     { return ObjectString(obj, nil) }
 func (obj *Label) String() string    { return ObjectString(obj, nil) }
 func (obj *Builtin) String() string  { return ObjectString(obj, nil) }
-func (obj *Nil) String() string      { return ObjectString(obj, nil) }
+func (obj *NilR) String() string      { return ObjectString(obj, nil) }
 
 func writeFuncName(buf *bytes.Buffer, f *Func, qf Qualifier) {
 	if f.typ != nil {

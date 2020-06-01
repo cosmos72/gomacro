@@ -83,7 +83,7 @@ func Comparable(T Type) bool {
 	case *Basic:
 		// assume invalid types to be comparable
 		// to avoid follow-up errors
-		return t.kind != UntypedNil
+		return t.kind != UntypedNilR
 	case *Pointer, *Interface, *Chan:
 		return true
 	case *Struct:
@@ -99,8 +99,8 @@ func Comparable(T Type) bool {
 	return false
 }
 
-// hasNil reports whether a type includes the nil value.
-func hasNil(typ Type) bool {
+// hasNilR reports whether a type includes the nil value.
+func hasNilR(typ Type) bool {
 	switch t := typ.Underlying().(type) {
 	case *Basic:
 		return t.kind == UnsafePointer

@@ -36,7 +36,7 @@ func (check *Checker) assignment(x *operand, T Type, context string) {
 		// on whether the value is a boolean, rune, integer, floating-point, complex,
 		// or string constant."
 		if T == nil || IsInterface(T) {
-			if T == nil && x.typ == Typ[UntypedNil] {
+			if T == nil && x.typ == Typ[UntypedNilR] {
 				check.errorf(x.pos(), "use of untyped nil in %s", context)
 				x.mode = invalid
 				return
@@ -111,7 +111,7 @@ func (check *Checker) initVar(lhs *Var, x *operand, context string) Type {
 		typ := x.typ
 		if isUntyped(typ) {
 			// convert untyped types to default types
-			if typ == Typ[UntypedNil] {
+			if typ == Typ[UntypedNilR] {
 				check.errorf(x.pos(), "use of untyped nil in %s", context)
 				lhs.typ = Typ[Invalid]
 				return nil

@@ -75,7 +75,7 @@ var (
 			}
 		case *ast.Ident:
 			if x.Name == "nil" {
-				want = Typ[UntypedNil]
+				want = Typ[UntypedNilR]
 			}
 		}
 		if want != nil && !Identical(tv.Type, want) {

@@ -24,10 +24,9 @@ package fast
 import (
 	"go/ast"
 	"go/token"
-	r "reflect"
 
 	"github.com/cosmos72/gomacro/base/reflect"
-	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -35,10 +34,10 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if ye.IsNil() {
 			return c.invalidBinaryExpr(node, xe, ye)
 		} else {
-			return c.eqlneqNil(node, xe, ye)
+			return c.eqlneqNilR(node, xe, ye)
 		}
 	} else if ye.IsNil() {
-		return c.eqlneqNil(node, xe, ye)
+		return c.eqlneqNilR(node, xe, ye)
 	}
 
 	if !xe.Type.Comparable() || !xe.Type.Comparable() {
@@ -46,7 +45,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 
 	xc, yc := xe.Const(), ye.Const()
-	if xe.Type.Kind() != r.Interface && ye.Type.Kind() != r.Interface {
+	if xe.Type.Kind() != xr.Interface && ye.Type.Kind() != xr.Interface {
 		c.toSameFuncType(node, xe, ye)
 	}
 
@@ -59,92 +58,92 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	} else if xc == yc {
 		x, y := xe.Fun, ye.Fun
 		switch k {
-		case r.Bool:
+		case xr.Bool:
 			x := x.(func(*Env) bool)
 			y := y.(func(*Env) bool)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Int:
+		case xr.Int:
 
 			x := x.(func(*Env) int)
 			y := y.(func(*Env) int)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Int8:
+		case xr.Int8:
 
 			x := x.(func(*Env) int8)
 			y := y.(func(*Env) int8)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Int16:
+		case xr.Int16:
 
 			x := x.(func(*Env) int16)
 			y := y.(func(*Env) int16)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Int32:
+		case xr.Int32:
 
 			x := x.(func(*Env) int32)
 			y := y.(func(*Env) int32)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Int64:
+		case xr.Int64:
 
 			x := x.(func(*Env) int64)
 			y := y.(func(*Env) int64)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Uint:
+		case xr.Uint:
 			x := x.(func(*Env) uint)
 			y := y.(func(*Env) uint)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Uint8:
+		case xr.Uint8:
 			x := x.(func(*Env) uint8)
 			y := y.(func(*Env) uint8)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Uint16:
+		case xr.Uint16:
 			x := x.(func(*Env) uint16)
 			y := y.(func(*Env) uint16)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Uint32:
+		case xr.Uint32:
 			x := x.(func(*Env) uint32)
 			y := y.(func(*Env) uint32)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Uint64:
+		case xr.Uint64:
 			x := x.(func(*Env) uint64)
 			y := y.(func(*Env) uint64)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			x := x.(func(*Env) uintptr)
 			y := y.(func(*Env) uintptr)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Float32:
+		case xr.Float32:
 			x := x.(func(*Env) float32)
 			y := y.(func(*Env) float32)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Float64:
+		case xr.Float64:
 			x := x.(func(*Env) float64)
 			y := y.(func(*Env) float64)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Complex64:
+		case xr.Complex64:
 			x := x.(func(*Env) complex64)
 			y := y.(func(*Env) complex64)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.Complex128:
+		case xr.Complex128:
 			x := x.(func(*Env) complex128)
 			y := y.(func(*Env) complex128)
 			fun = func(env *Env) bool { return x(env) == y(env) }
 
-		case r.String:
+		case xr.String:
 			x := x.(func(*Env) string)
 			y := y.(func(*Env) string)
 			fun = func(env *Env) bool { return x(env) == y(env) }
@@ -153,96 +152,96 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 	} else if yc {
 		x := xe.Fun
-		yv := r.ValueOf(ye.Value)
-		if k == r.Bool && yv.Bool() {
+		yv := xr.ValueOf(ye.Value)
+		if k == xr.Bool && yv.Bool() {
 			return xe
 		}
 		switch k {
-		case r.Bool:
+		case xr.Bool:
 
 			x := x.(func(*Env) bool)
 			y := yv.Bool()
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Int:
+		case xr.Int:
 
 			x := x.(func(*Env) int)
 			y := int(yv.Int())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Int8:
+		case xr.Int8:
 
 			x := x.(func(*Env) int8)
 			y := int8(yv.Int())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Int16:
+		case xr.Int16:
 
 			x := x.(func(*Env) int16)
 			y := int16(yv.Int())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Int32:
+		case xr.Int32:
 
 			x := x.(func(*Env) int32)
 			y := int32(yv.Int())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Int64:
+		case xr.Int64:
 
 			x := x.(func(*Env) int64)
 			y := yv.Int()
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Uint:
+		case xr.Uint:
 
 			x := x.(func(*Env) uint)
 			y := uint(yv.Uint())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Uint8:
+		case xr.Uint8:
 
 			x := x.(func(*Env) uint8)
 			y := uint8(yv.Uint())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Uint16:
+		case xr.Uint16:
 
 			x := x.(func(*Env) uint16)
 			y := uint16(yv.Uint())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Uint32:
+		case xr.Uint32:
 
 			x := x.(func(*Env) uint32)
 			y := uint32(yv.Uint())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Uint64:
+		case xr.Uint64:
 
 			x := x.(func(*Env) uint64)
 			y := yv.Uint()
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Uintptr:
+		case xr.Uintptr:
 
 			x := x.(func(*Env) uintptr)
 			y := uintptr(yv.Uint())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Float32:
+		case xr.Float32:
 
 			x := x.(func(*Env) float32)
 			y :=
 
 				float32(yv.Float())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Float64:
+		case xr.Float64:
 
 			x := x.(func(*Env) float64)
 			y := yv.Float()
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Complex64:
+		case xr.Complex64:
 
 			x := x.(func(*Env) complex64)
 			y :=
 
 				complex64(yv.Complex())
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.Complex128:
+		case xr.Complex128:
 
 			x := x.(func(*Env) complex128)
 			y := yv.Complex()
 			fun = func(env *Env) bool { return x(env) == y }
-		case r.String:
+		case xr.String:
 
 			x := x.(func(*Env) string)
 			y := yv.String()
@@ -251,19 +250,19 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.Fun
-		if k == r.Bool && xv.Bool() {
+		if k == xr.Bool && xv.Bool() {
 			return ye
 		}
 		switch k {
-		case r.Bool:
+		case xr.Bool:
 
 			x := xv.Bool()
 
 			y := y.(func(*Env) bool)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Int:
+		case xr.Int:
 
 			x := int(
 
@@ -271,7 +270,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) int)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Int8:
+		case xr.Int8:
 
 			x := int8(
 
@@ -279,7 +278,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) int8)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Int16:
+		case xr.Int16:
 
 			x := int16(
 
@@ -287,7 +286,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) int16)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Int32:
+		case xr.Int32:
 
 			x := int32(
 
@@ -295,13 +294,13 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) int32)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Int64:
+		case xr.Int64:
 
 			x := xv.Int()
 
 			y := y.(func(*Env) int64)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Uint:
+		case xr.Uint:
 
 			x := uint(
 
@@ -309,7 +308,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) uint)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Uint8:
+		case xr.Uint8:
 
 			x := uint8(
 
@@ -317,7 +316,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) uint8)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Uint16:
+		case xr.Uint16:
 
 			x := uint16(
 
@@ -325,7 +324,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) uint16)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Uint32:
+		case xr.Uint32:
 
 			x := uint32(
 
@@ -333,13 +332,13 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) uint32)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Uint64:
+		case xr.Uint64:
 
 			x := xv.Uint()
 
 			y := y.(func(*Env) uint64)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Uintptr:
+		case xr.Uintptr:
 
 			x := uintptr(
 
@@ -347,7 +346,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) uintptr)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Float32:
+		case xr.Float32:
 
 			x :=
 
@@ -357,13 +356,13 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) float32)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Float64:
+		case xr.Float64:
 
 			x := xv.Float()
 
 			y := y.(func(*Env) float64)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Complex64:
+		case xr.Complex64:
 
 			x :=
 
@@ -373,13 +372,13 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) complex64)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.Complex128:
+		case xr.Complex128:
 
 			x := xv.Complex()
 
 			y := y.(func(*Env) complex128)
 			fun = func(env *Env) bool { return x == y(env) }
-		case r.String:
+		case xr.String:
 
 			x := xv.String()
 
@@ -398,10 +397,10 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if ye.IsNil() {
 			return c.invalidBinaryExpr(node, xe, ye)
 		} else {
-			return c.eqlneqNil(node, xe, ye)
+			return c.eqlneqNilR(node, xe, ye)
 		}
 	} else if ye.IsNil() {
-		return c.eqlneqNil(node, xe, ye)
+		return c.eqlneqNilR(node, xe, ye)
 	}
 
 	if !xe.Type.Comparable() || !xe.Type.Comparable() {
@@ -409,7 +408,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 
 	xc, yc := xe.Const(), ye.Const()
-	if xe.Type.Kind() != r.Interface && ye.Type.Kind() != r.Interface {
+	if xe.Type.Kind() != xr.Interface && ye.Type.Kind() != xr.Interface {
 		c.toSameFuncType(node, xe, ye)
 	}
 
@@ -422,87 +421,87 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	} else if xc == yc {
 		x, y := xe.Fun, ye.Fun
 		switch k {
-		case r.Int:
+		case xr.Int:
 
 			x := x.(func(*Env) int)
 			y := y.(func(*Env) int)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Int8:
+		case xr.Int8:
 
 			x := x.(func(*Env) int8)
 			y := y.(func(*Env) int8)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Int16:
+		case xr.Int16:
 
 			x := x.(func(*Env) int16)
 			y := y.(func(*Env) int16)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Int32:
+		case xr.Int32:
 
 			x := x.(func(*Env) int32)
 			y := y.(func(*Env) int32)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Int64:
+		case xr.Int64:
 
 			x := x.(func(*Env) int64)
 			y := y.(func(*Env) int64)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Uint:
+		case xr.Uint:
 			x := x.(func(*Env) uint)
 			y := y.(func(*Env) uint)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Uint8:
+		case xr.Uint8:
 			x := x.(func(*Env) uint8)
 			y := y.(func(*Env) uint8)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Uint16:
+		case xr.Uint16:
 			x := x.(func(*Env) uint16)
 			y := y.(func(*Env) uint16)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Uint32:
+		case xr.Uint32:
 			x := x.(func(*Env) uint32)
 			y := y.(func(*Env) uint32)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Uint64:
+		case xr.Uint64:
 			x := x.(func(*Env) uint64)
 			y := y.(func(*Env) uint64)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			x := x.(func(*Env) uintptr)
 			y := y.(func(*Env) uintptr)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Float32:
+		case xr.Float32:
 			x := x.(func(*Env) float32)
 			y := y.(func(*Env) float32)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Float64:
+		case xr.Float64:
 			x := x.(func(*Env) float64)
 			y := y.(func(*Env) float64)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Complex64:
+		case xr.Complex64:
 			x := x.(func(*Env) complex64)
 			y := y.(func(*Env) complex64)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.Complex128:
+		case xr.Complex128:
 			x := x.(func(*Env) complex128)
 			y := y.(func(*Env) complex128)
 			fun = func(env *Env) bool { return x(env) != y(env) }
 
-		case r.String:
+		case xr.String:
 			x := x.(func(*Env) string)
 			y := y.(func(*Env) string)
 			fun = func(env *Env) bool { return x(env) != y(env) }
@@ -511,91 +510,91 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 	} else if yc {
 		x := xe.Fun
-		yv := r.ValueOf(ye.Value)
-		if k == r.Bool && !yv.Bool() {
+		yv := xr.ValueOf(ye.Value)
+		if k == xr.Bool && !yv.Bool() {
 			return xe
 		}
 		switch k {
-		case r.Int:
+		case xr.Int:
 
 			x := x.(func(*Env) int)
 			y := int(yv.Int())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Int8:
+		case xr.Int8:
 
 			x := x.(func(*Env) int8)
 			y := int8(yv.Int())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Int16:
+		case xr.Int16:
 
 			x := x.(func(*Env) int16)
 			y := int16(yv.Int())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Int32:
+		case xr.Int32:
 
 			x := x.(func(*Env) int32)
 			y := int32(yv.Int())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Int64:
+		case xr.Int64:
 
 			x := x.(func(*Env) int64)
 			y := yv.Int()
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Uint:
+		case xr.Uint:
 
 			x := x.(func(*Env) uint)
 			y := uint(yv.Uint())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Uint8:
+		case xr.Uint8:
 
 			x := x.(func(*Env) uint8)
 			y := uint8(yv.Uint())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Uint16:
+		case xr.Uint16:
 
 			x := x.(func(*Env) uint16)
 			y := uint16(yv.Uint())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Uint32:
+		case xr.Uint32:
 
 			x := x.(func(*Env) uint32)
 			y := uint32(yv.Uint())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Uint64:
+		case xr.Uint64:
 
 			x := x.(func(*Env) uint64)
 			y := yv.Uint()
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Uintptr:
+		case xr.Uintptr:
 
 			x := x.(func(*Env) uintptr)
 			y := uintptr(yv.Uint())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Float32:
+		case xr.Float32:
 
 			x := x.(func(*Env) float32)
 			y :=
 
 				float32(yv.Float())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Float64:
+		case xr.Float64:
 
 			x := x.(func(*Env) float64)
 			y := yv.Float()
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Complex64:
+		case xr.Complex64:
 
 			x := x.(func(*Env) complex64)
 			y :=
 
 				complex64(yv.Complex())
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.Complex128:
+		case xr.Complex128:
 
 			x := x.(func(*Env) complex128)
 			y := yv.Complex()
 			fun = func(env *Env) bool { return x(env) != y }
-		case r.String:
+		case xr.String:
 
 			x := x.(func(*Env) string)
 			y := yv.String()
@@ -604,13 +603,13 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.Fun
-		if k == r.Bool && !xv.Bool() {
+		if k == xr.Bool && !xv.Bool() {
 			return ye
 		}
 		switch k {
-		case r.Int:
+		case xr.Int:
 
 			x := int(
 
@@ -618,7 +617,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) int)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Int8:
+		case xr.Int8:
 
 			x := int8(
 
@@ -626,7 +625,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) int8)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Int16:
+		case xr.Int16:
 
 			x := int16(
 
@@ -634,7 +633,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) int16)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Int32:
+		case xr.Int32:
 
 			x := int32(
 
@@ -642,13 +641,13 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) int32)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Int64:
+		case xr.Int64:
 
 			x := xv.Int()
 
 			y := y.(func(*Env) int64)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Uint:
+		case xr.Uint:
 
 			x := uint(
 
@@ -656,7 +655,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) uint)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Uint8:
+		case xr.Uint8:
 
 			x := uint8(
 
@@ -664,7 +663,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) uint8)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Uint16:
+		case xr.Uint16:
 
 			x := uint16(
 
@@ -672,7 +671,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) uint16)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Uint32:
+		case xr.Uint32:
 
 			x := uint32(
 
@@ -680,13 +679,13 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) uint32)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Uint64:
+		case xr.Uint64:
 
 			x := xv.Uint()
 
 			y := y.(func(*Env) uint64)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Uintptr:
+		case xr.Uintptr:
 
 			x := uintptr(
 
@@ -694,7 +693,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) uintptr)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Float32:
+		case xr.Float32:
 
 			x :=
 
@@ -704,13 +703,13 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) float32)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Float64:
+		case xr.Float64:
 
 			x := xv.Float()
 
 			y := y.(func(*Env) float64)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Complex64:
+		case xr.Complex64:
 
 			x :=
 
@@ -720,13 +719,13 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 			y := y.(func(*Env) complex64)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.Complex128:
+		case xr.Complex128:
 
 			x := xv.Complex()
 
 			y := y.(func(*Env) complex128)
 			fun = func(env *Env) bool { return x != y(env) }
-		case r.String:
+		case xr.String:
 
 			x := xv.String()
 
@@ -754,7 +753,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		fun = func(env *Env) bool {
 			v1 := x(env)
 			v2 := y(env)
-			if v1 == Nil || v2 == Nil {
+			if !v1.IsValid() || !v2.IsValid() {
 				return v1 == v2
 			}
 
@@ -767,7 +766,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				v2, t2 = extractor2(v2)
 			}
 
-			if v1 == Nil || v2 == Nil {
+			if !v1.IsValid() || !v2.IsValid() {
 				return v1 == v2
 			}
 			return v1.Interface() == v2.Interface() &&
@@ -777,7 +776,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		fun = func(env *Env) bool {
 			v1 := x(env)
 			v2 := y(env)
-			if v1 == Nil || v2 == Nil {
+			if !v1.IsValid() || !v2.IsValid() {
 				return v1 != v2
 			}
 
@@ -790,7 +789,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				v2, t2 = extractor2(v2)
 			}
 
-			if v1 == Nil || v2 == Nil {
+			if !v1.IsValid() || !v2.IsValid() {
 				return v1 != v2
 			}
 			return v1.Interface() != v2.Interface() ||
@@ -799,7 +798,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 	return c.exprBool(fun)
 }
-func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+func (c *Comp) eqlneqNilR(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var e *Expr
 	if ye.IsNil() {
 		e = xe
@@ -812,18 +811,18 @@ func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 
 	var fun func(env *Env) bool
-	if f, ok := e.Fun.(func(env *Env) (r.Value, []r.Value)); ok {
+	if f, ok := e.Fun.(func(env *Env) (xr.Value, []xr.Value)); ok {
 		e.CheckX1()
 		if node.Op == token.EQL {
 			fun = func(env *Env) bool {
 				v, _ := f(env)
-				vnil := v == Nil || reflect.IsNillableKind(v.Kind()) && v.IsNil()
+				vnil := !v.IsValid() || reflect.IsNillableKind(v.Kind()) && v.IsNil()
 				return vnil
 			}
 		} else {
 			fun = func(env *Env) bool {
 				v, _ := f(env)
-				vnil := v == Nil || reflect.IsNillableKind(v.Kind()) && v.IsNil()
+				vnil := !v.IsValid() || reflect.IsNillableKind(v.Kind()) && v.IsNil()
 				return !vnil
 			}
 		}
@@ -833,13 +832,13 @@ func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if node.Op == token.EQL {
 			fun = func(env *Env) bool {
 				v := f(env)
-				vnil := v == Nil || reflect.IsNillableKind(v.Kind()) && v.IsNil()
+				vnil := !v.IsValid() || reflect.IsNillableKind(v.Kind()) && v.IsNil()
 				return vnil
 			}
 		} else {
 			fun = func(env *Env) bool {
 				v := f(env)
-				vnil := v == Nil || reflect.IsNillableKind(v.Kind()) && v.IsNil()
+				vnil := !v.IsValid() || reflect.IsNillableKind(v.Kind()) && v.IsNil()
 				return !vnil
 			}
 		}

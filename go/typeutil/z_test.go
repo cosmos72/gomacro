@@ -68,7 +68,7 @@ func TestBasic(t *testing.T) {
 		types.Complex64:  "complex64",
 		types.Complex128: "complex128",
 		types.String:     "string",
-		types.UntypedNil: "", // highest index
+		types.UntypedNilR: "", // highest index
 	}
 
 	for i, typ := range types.Typ {

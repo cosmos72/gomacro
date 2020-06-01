@@ -16,12 +16,12 @@
 
 package fast
 
-import (	"fmt"
+import (
+	"fmt"
 	"go/token"
 	r "reflect"
 	"unsafe"
 
-	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
@@ -78,7 +78,7 @@ import (	"fmt"
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -159,15 +159,15 @@ import (	"fmt"
 	bind = assign
 
 	switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 			var result *ast.BinaryExpr = ~"{lhs.Bool() + ~,expr}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetBool(~,result)}
-		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+		case xr.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 			var result *ast.BinaryExpr = ~"{lhs.Int() + int64(~,expr)}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetInt(~,result)}
-		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+		case xr.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 			var result *ast.BinaryExpr = ~"{lhs.Uint() + uint64(~,expr)}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetUint(~,result)}
@@ -176,15 +176,15 @@ import (	"fmt"
 				assign.Tok = opset
 				bind = assign
 			}
-		case r.Float32, r.Float64:
+		case xr.Float32, r.Float64:
 			var result *ast.BinaryExpr = ~"{lhs.Float() + float64(~,expr)}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetFloat(~,result)}
-		case r.Complex64, r.Complex128:
+		case xr.Complex64, r.Complex128:
 			var result *ast.BinaryExpr = ~"{lhs.Complex() + complex128(~,expr)}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetComplex(~,result)}
-		case r.String:
+		case xr.String:
 			var result *ast.BinaryExpr = ~"{lhs.String() + ~,expr}
 			result.Op = op
 			bind = ~"{lhs := ~,env . Vals[index]; lhs.SetString(~,result)}
@@ -281,7 +281,7 @@ import (	"fmt"
 			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, t)}
 		} else {
 			kind := makekind(typ)
-			convertval := convertvalue1(typ, ~'{r.ValueOf(val)})
+			convertval := convertvalue1(typ, ~'{xr.ValueOf(val)})
 			caselist[i] = ~"{case ~,kind: val := ~,convertval; setplace_depth_const; ~,opnode; ~,typ}
 		}
 	}
@@ -454,10 +454,10 @@ func (c *Comp) varQuoPow2(va *Var, val I) Stmt {
 		return nil // nothing to do
 	}
 	ypositive := true
-	yv := r.ValueOf(val)
+	yv := xr.ValueOf(val)
 	var y uint64
 	switch reflect.Category(yv.Kind()) {
-	case r.Int:
+	case xr.Int:
 		sy := yv.Int()
 		if sy < 0 {
 			ypositive = false
@@ -465,7 +465,7 @@ func (c *Comp) varQuoPow2(va *Var, val I) Stmt {
 		} else {
 			y = uint64(sy)
 		}
-	case r.Uint:
+	case xr.Uint:
 		y = yv.Uint()
 	default:
 		// floating point or complex division
@@ -485,17 +485,17 @@ func (c *Comp) varQuoPow2(va *Var, val I) Stmt {
 	var ret Stmt
 
 	switch t.Kind() {
-	case r.Int:     {place_depth_quopow2; int}
-	case r.Int8:    {place_depth_quopow2; int8}
-	case r.Int16:   {place_depth_quopow2; int16}
-	case r.Int32:   {place_depth_quopow2; int32}
-	case r.Int64:   {place_depth_quopow2; int64}
-	case r.Uint:    {place_depth_quopow2_u; uint}
-	case r.Uint8:   {place_depth_quopow2_u; uint8}
-	case r.Uint16:  {place_depth_quopow2_u; uint16}
-	case r.Uint32:  {place_depth_quopow2_u; uint32}
-	case r.Uint64:  {place_depth_quopow2_u; uint64}
-	case r.Uintptr: {place_depth_quopow2_u; uintptr}
+	case xr.Int:     {place_depth_quopow2; int}
+	case xr.Int8:    {place_depth_quopow2; int8}
+	case xr.Int16:   {place_depth_quopow2; int16}
+	case xr.Int32:   {place_depth_quopow2; int32}
+	case xr.Int64:   {place_depth_quopow2; int64}
+	case xr.Uint:    {place_depth_quopow2_u; uint}
+	case xr.Uint8:   {place_depth_quopow2_u; uint8}
+	case xr.Uint16:  {place_depth_quopow2_u; uint16}
+	case xr.Uint32:  {place_depth_quopow2_u; uint32}
+	case xr.Uint64:  {place_depth_quopow2_u; uint64}
+	case xr.Uintptr: {place_depth_quopow2_u; uintptr}
 	}
 	return ret
 }
@@ -667,9 +667,9 @@ func (c *Comp) setVar(va *Var, op token.Token, init *Expr) Stmt {
 	if init.Const() {
 		rt := t.ReflectType()
 		val := init.Value
-		v := r.ValueOf(val)
-		if v == None || v == Nil {
-			v = r.Zero(rt)
+		v := xr.ValueOf(val)
+		if v.IsValid() || v == None {
+			v = xr.Zero(rt)
 			val = v.Interface()
 		} else if v.Type() != rt && !shift {
 			v = convert(v, rt)

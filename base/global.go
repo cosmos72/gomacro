@@ -45,7 +45,7 @@ const (
 )
 
 type Inspector interface {
-	Inspect(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *Globals)
+	Inspect(name string, val r.Value, rtyp r.Type, xtyp xr.Type, globals *Globals)
 }
 
 type Globals struct {
@@ -177,8 +177,8 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	return nodes
 }
 
-// print phase
-func (g *Globals) Print(values []r.Value, types []xr.Type) {
+// print values
+func (g *Globals) PrintR(values []r.Value, types []xr.Type) {
 	opts := g.Options
 	if opts&OptShowEval != 0 {
 		if opts&OptShowEvalType != 0 {
@@ -187,13 +187,34 @@ func (g *Globals) Print(values []r.Value, types []xr.Type) {
 				if types != nil && i < len(types) {
 					ti = types[i]
 				} else {
-					ti = reflect.Type(vi)
+					ti = reflect.ValueTypeR(vi)
 				}
 				g.Fprintf(g.Stdout, "%v\t// %v\n", vi, ti)
 			}
 		} else {
 			for _, vi := range values {
 				g.Fprintf(g.Stdout, "%v\n", vi)
+			}
+		}
+	}
+}
+
+func (g *Globals) Print(values []xr.Value, types []xr.Type) {
+	opts := g.Options
+	if opts&OptShowEval != 0 {
+		if opts&OptShowEvalType != 0 {
+			for i, vi := range values {
+				var ti interface{}
+				if types != nil && i < len(types) {
+					ti = types[i]
+				} else {
+					ti = reflect.ValueType(vi)
+				}
+				g.Fprintf(g.Stdout, "%v\t// %v\n", vi.ReflectValue(), ti)
+			}
+		} else {
+			for _, vi := range values {
+				g.Fprintf(g.Stdout, "%v\n", vi.ReflectValue())
 			}
 		}
 	}

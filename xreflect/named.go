@@ -142,9 +142,8 @@ func (t *xtype) AddMethod(name string, signature Type) int {
 	index := gtype.ReplaceMethod(gfun)
 	n2 := gtype.NumMethods()
 
-	nilv := r.Value{}
 	for len(t.methodvalue) < n2 {
-		t.methodvalue = append(t.methodvalue, nilv)
+		t.methodvalue = append(t.methodvalue, r.Value{})
 	}
 	// store in t.methodvalue[index] a nil function with the correct reflect.Type:
 	// needed by Type.GetMethod(int) to retrieve the method's reflect.Type

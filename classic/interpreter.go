@@ -185,7 +185,7 @@ func (ir *Interp) parseEvalPrint(src string) (callAgain bool) {
 	}
 
 	// print phase
-	g.Print(values, types)
+	g.PrintR(values, types)
 	return true
 }
 

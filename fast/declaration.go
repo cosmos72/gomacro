@@ -478,10 +478,9 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
 		if init == nil {
 			// no initializer... use the zero-value of t
-			rtype := t.ReflectType()
 			c.append(func(env *Env) (Stmt, *Env) {
 				// base.Debugf("declaring %v", bind)
-				env.Vals[index] = r.New(rtype).Elem()
+				env.Vals[index] = xr.New(t).Elem()
 				env.IP++
 				return env.Code[env.IP], env
 			})
@@ -498,13 +497,12 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		}
 		var ret func(env *Env) (Stmt, *Env)
 		conv := c.Converter(init.Type, t)
-		rtype := t.ReflectType()
 		// optimization: no need to wrap multiple-valued function into a single-value function
-		if f, ok := init.Fun.(func(*Env) (r.Value, []r.Value)); ok {
+		if f, ok := init.Fun.(func(*Env) (xr.Value, []xr.Value)); ok {
 			if conv != nil {
 				ret = func(env *Env) (Stmt, *Env) {
 					ret, _ := f(env)
-					place := r.New(rtype).Elem()
+					place := xr.New(t).Elem()
 					place.Set(conv(ret))
 					env.Vals[index] = place
 					env.IP++
@@ -513,7 +511,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 			} else {
 				ret = func(env *Env) (Stmt, *Env) {
 					ret, _ := f(env)
-					place := r.New(rtype).Elem()
+					place := xr.New(t).Elem()
 					place.Set(ret)
 					env.Vals[index] = place
 					env.IP++
@@ -524,7 +522,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 			if conv != nil {
 				ret = func(env *Env) (Stmt, *Env) {
 					ret := fun(env)
-					place := r.New(rtype).Elem()
+					place := xr.New(t).Elem()
 					place.Set(conv(ret))
 					env.Vals[index] = place
 					env.IP++
@@ -533,7 +531,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 			} else {
 				ret = func(env *Env) (Stmt, *Env) {
 					ret := fun(env)
-					place := r.New(rtype).Elem()
+					place := xr.New(t).Elem()
 					place.Set(ret)
 					env.Vals[index] = place
 					env.IP++
@@ -547,7 +545,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 }
 
 // DeclBindRuntimeValue compiles a variable, function or constant declaration with a reflect.Value passed at runtime
-func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
+func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, xr.Value) {
 	desc := bind.Desc
 	index := desc.Index()
 	if index == NoIndex {
@@ -561,13 +559,13 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 		return nil
 	case FuncBind:
 		// declaring a function in Env.Binds[], the reflect.Value must not be addressable or settable
-		return func(env *Env, v r.Value) {
+		return func(env *Env, v xr.Value) {
 			env.Vals[index] = convert(v, rtype)
 		}
 	case VarBind:
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
-		return func(env *Env, v r.Value) {
-			place := r.New(rtype).Elem()
+		return func(env *Env, v xr.Value) {
+			place := xr.New(t).Elem()
 			if v.Type() != rtype {
 				v = convert(v, rtype)
 			}
@@ -602,7 +600,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr, pos []token.
 	} else if ni > n {
 		c.Warnf("declaring %d variables from expression returning %d values: %v", n, ni, names)
 	}
-	decls := make([]func(*Env, r.Value), n)
+	decls := make([]func(*Env, xr.Value), n)
 	for i, name := range names {
 		ti := init.Out(i)
 		if t != nil && !t.IdenticalTo(ti) {
@@ -621,7 +619,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr, pos []token.
 		c.Pos = pos[0]
 	}
 	c.append(func(env *Env) (Stmt, *Env) {
-		// call the multi-valued function. we know ni > 1, so just use the []r.Value
+		// call the multi-valued function. we know ni > 1, so just use the []xr.Value
 		_, rets := fun(env)
 
 		// declare and assign the variables one by one. we know n <= ni
@@ -637,7 +635,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr, pos []token.
 
 // DeclFunc0 compiles a function declaration. For caller's convenience, returns allocated Bind
 func (c *Comp) DeclFunc0(name string, fun I) *Bind {
-	funv := r.ValueOf(fun)
+	funv := xr.ValueOf(fun)
 	t := c.TypeOf(fun)
 	if t.Kind() != r.Func {
 		c.Errorf("DeclFunc0(%s): expecting a function, received %v <%v>", name, fun, t)

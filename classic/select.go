@@ -31,7 +31,7 @@ type selectLhsExpr struct {
 
 func (env *Env) evalSelect(node *ast.SelectStmt) (ret r.Value, rets []r.Value) {
 	if node.Body == nil || len(node.Body.List) == 0 {
-		return None, nil
+		return NoneR, nil
 	}
 	list := node.Body.List
 	n := len(list)
@@ -121,7 +121,7 @@ func (env *Env) mustBeSelectRecv(stmt ast.Stmt, node ast.Expr) r.Value {
 func (env *Env) badSelectStatement(stmt ast.Stmt) r.Value {
 	env.Errorf("invalid select case, expecting [ch <- val] or [<-ch] or [var := <-ch] or [place = <-ch], found: %v <%v>",
 		stmt, r.TypeOf(stmt))
-	return None
+	return NoneR
 }
 
 func (env *Env) evalSelectBody(lhs selectLhsExpr, val [2]r.Value, case_ *ast.CommClause) (ret r.Value, rets []r.Value) {
@@ -135,14 +135,14 @@ func (env *Env) evalSelectBody(lhs selectLhsExpr, val [2]r.Value, case_ *ast.Com
 				}
 			}
 		}
-		return None, nil
+		return NoneR, nil
 	}
 	panicking := true
 	defer func() {
 		if panicking {
 			switch pan := recover().(type) {
 			case eBreak:
-				ret, rets = None, nil
+				ret, rets = NoneR, nil
 			default:
 				panic(pan)
 			}

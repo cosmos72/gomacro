@@ -33,7 +33,7 @@ func (env *Env) evalIdentifier(ident *ast.Ident) r.Value {
 
 func (env *Env) resolveIdentifier(ident *ast.Ident) (r.Value, bool) {
 	name := ident.Name
-	value := Nil
+	value := NilR
 	found := false
 	for e := env; e != nil; e = e.Outer {
 		// Debugf("evalIdentifier() looking up %#v in %#v", name, env.Binds)

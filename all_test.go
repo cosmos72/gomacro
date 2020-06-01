@@ -148,7 +148,7 @@ func (test *TestCase) classic(t *testing.T, ir *classic.Interp) {
 			}
 		}()
 	}
-	rets = reflect.PackValues(ir.Eval(test.program))
+	rets = reflect.PackValuesR(ir.Eval(test.program))
 	panicking = false
 	test.compareResults(t, rets)
 }
@@ -165,7 +165,6 @@ func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
 		ir.Comp.Options &^= OptKeepUntyped
 	}
 
-	var rets []r.Value
 	panicking := true
 	if test.result0 == panics {
 		defer func() {
@@ -175,9 +174,10 @@ func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
 		}()
 	}
 
-	rets, _ = ir.Eval(test.program)
+	rets, _ := ir.Eval(test.program)
+	rrets := xr.ToReflectValues(rets)
 	panicking = false
-	test.compareResults(t, rets)
+	test.compareResults(t, rrets)
 }
 
 const sum_source_string = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
@@ -1656,7 +1656,7 @@ func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
 }
 
 func (c *TestCase) compareResult(t *testing.T, actualv r.Value, expected interface{}) {
-	if actualv == Nil || actualv == None {
+	if actualv == NilR || actualv == NoneR {
 		if expected != nil {
 			c.fail(t, nil, expected)
 		}

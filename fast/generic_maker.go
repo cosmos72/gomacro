@@ -171,13 +171,13 @@ func (c *Comp) genericMaker(node *ast.IndexExpr, which BindClass) *genericMaker 
 
 func GenericKey(vals []I, types []xr.Type) I {
 	// slices cannot be used as map keys. use an array and reflection
-	key := r.New(r.ArrayOf(len(types), rtypeOfInterface)).Elem()
+	key := xr.NewR(r.ArrayOf(len(types), rtypeOfInterface)).Elem()
 
 	for i, t := range types {
 		if val := vals[i]; val == nil {
-			key.Index(i).Set(r.ValueOf(xr.MakeKey(t)))
+			key.Index(i).Set(xr.ValueOf(xr.MakeKey(t)))
 		} else {
-			key.Index(i).Set(r.ValueOf(val))
+			key.Index(i).Set(xr.ValueOf(val))
 		}
 	}
 	return key.Interface()
@@ -190,18 +190,18 @@ func GenericKey(vals []I, types []xr.Type) I {
 func (c *Comp) constToAstExpr(val interface{}, pos token.Pos) ast.Expr {
 	var kind token.Token
 	var str string
-	v := r.ValueOf(val)
+	v := xr.ValueOf(val)
 	switch v.Kind() {
-	case r.Bool:
+	case xr.Bool:
 		return &ast.Ident{NamePos: pos, Name: fmt.Sprint(val)}
-	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
+	case xr.Int, r.Int8, r.Int16, r.Int32, r.Int64,
 		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 		kind = token.INT
 		str = fmt.Sprint(val)
-	case r.Float32, r.Float64:
+	case xr.Float32, r.Float64:
 		kind = token.FLOAT
 		str = fmt.Sprintf("%g", val)
-	case r.Complex64, r.Complex128:
+	case xr.Complex64, r.Complex128:
 		return &ast.BinaryExpr{
 			X: &ast.BasicLit{
 				Kind:     token.FLOAT,
@@ -214,7 +214,7 @@ func (c *Comp) constToAstExpr(val interface{}, pos token.Pos) ast.Expr {
 				Value: fmt.Sprintf("%g", imag(v.Complex())),
 			},
 		}
-	case r.String:
+	case xr.String:
 		kind = token.STRING
 		str = fmt.Sprintf("%q", val)
 	default:

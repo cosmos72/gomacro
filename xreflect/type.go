@@ -382,8 +382,3 @@ func (t *xtype) SetUserData(key, value interface{}) {
 		t.userdata[key] = value
 	}
 }
-
-// Zero returns a Value representing the zero value for the specified type.
-func Zero(t Type) r.Value {
-	return r.Zero(t.ReflectType())
-}

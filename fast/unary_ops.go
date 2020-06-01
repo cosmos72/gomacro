@@ -282,79 +282,79 @@ func (c *Comp) Deref(addr *Expr) *Expr {
 }
 
 // deref0Unwrap compiles unary operator * on reflect.Value - unwraps reflect.Value.Elem() if possible
-func (c *Comp) derefUnwrap(t xr.Type, x1 func(*Env) r.Value) I {
+func (c *Comp) derefUnwrap(t xr.Type, x1 func(*Env) xr.Value) I {
 	var fun I
 	switch t.Kind() {
-	case r.Bool:
+	case xr.Bool:
 		fun = func(env *Env) bool {
 			return elem(x1(env)).Bool()
 		}
-	case r.Int:
+	case xr.Int:
 		fun = func(env *Env) int {
 			return int(elem(x1(env)).Int())
 		}
-	case r.Int8:
+	case xr.Int8:
 		fun = func(env *Env) int8 {
 			return int8(elem(x1(env)).Int())
 		}
-	case r.Int16:
+	case xr.Int16:
 		fun = func(env *Env) int16 {
 			return int16(elem(x1(env)).Int())
 		}
-	case r.Int32:
+	case xr.Int32:
 		fun = func(env *Env) int32 {
 			return int32(elem(x1(env)).Int())
 		}
-	case r.Int64:
+	case xr.Int64:
 		fun = func(env *Env) int64 {
 			return elem(x1(env)).Int()
 		}
-	case r.Uint:
+	case xr.Uint:
 		fun = func(env *Env) uint {
 			return uint(elem(x1(env)).Uint())
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		fun = func(env *Env) uint8 {
 			return uint8(elem(x1(env)).Uint())
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		fun = func(env *Env) uint16 {
 			return uint16(elem(x1(env)).Uint())
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		fun = func(env *Env) uint32 {
 			return uint32(elem(x1(env)).Uint())
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		fun = func(env *Env) uint64 {
 			return elem(x1(env)).Uint()
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		fun = func(env *Env) uintptr {
 			return uintptr(elem(x1(env)).Uint())
 		}
-	case r.Float32:
+	case xr.Float32:
 		fun = func(env *Env) float32 {
 			return float32(elem(x1(env)).Float())
 		}
-	case r.Float64:
+	case xr.Float64:
 		fun = func(env *Env) float64 {
 			return elem(x1(env)).Float()
 		}
-	case r.Complex64:
+	case xr.Complex64:
 		fun = func(env *Env) complex64 {
 			return complex64(elem(x1(env)).Complex())
 		}
-	case r.Complex128:
+	case xr.Complex128:
 		fun = func(env *Env) complex128 {
 			return elem(x1(env)).Complex()
 		}
-	case r.String:
+	case xr.String:
 		fun = func(env *Env) string {
 			return elem(x1(env)).String()
 		}
 	default:
-		fun = func(env *Env) r.Value {
+		fun = func(env *Env) xr.Value {
 			return elem(x1(env))
 		}
 	}

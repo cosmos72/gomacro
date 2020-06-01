@@ -538,9 +538,9 @@ func (check *Checker) convertUntyped(x *operand, target Type) {
 				// Non-constant untyped string values are not
 				// permitted by the spec and should not occur.
 				unreachable()
-			case UntypedNil:
+			case UntypedNilR:
 				// Unsafe.Pointer is a basic type that includes nil.
-				if !hasNil(target) {
+				if !hasNilR(target) {
 					goto Error
 				}
 			default:
@@ -548,7 +548,7 @@ func (check *Checker) convertUntyped(x *operand, target Type) {
 			}
 		}
 	case *Interface:
-		if !x.isNil() && !t.Empty() /* empty interfaces are ok */ {
+		if !x.isNilR() && !t.Empty() /* empty interfaces are ok */ {
 			goto Error
 		}
 		// Update operand types to the default type rather then
@@ -557,8 +557,8 @@ func (check *Checker) convertUntyped(x *operand, target Type) {
 		// (this is important for tools such as go vet which need
 		// the dynamic type for argument checking of say, print
 		// functions)
-		if x.isNil() {
-			target = Typ[UntypedNil]
+		if x.isNilR() {
+			target = Typ[UntypedNilR]
 		} else {
 			// cannot assign untyped values to non-empty interfaces
 			if !t.Empty() {
@@ -567,17 +567,17 @@ func (check *Checker) convertUntyped(x *operand, target Type) {
 			target = Default(x.typ)
 		}
 	case *Pointer, *Signature, *Slice, *Map, *Chan:
-		if !x.isNil() {
+		if !x.isNilR() {
 			goto Error
 		}
 		// keep nil untyped - see comment for interfaces, above
-		target = Typ[UntypedNil]
+		target = Typ[UntypedNilR]
 	default:
 		goto Error
 	}
 
 	x.typ = target
-	check.updateExprType(x.expr, target, true) // UntypedNils are final
+	check.updateExprType(x.expr, target, true) // UntypedNilRs are final
 	return
 
 Error:
@@ -594,7 +594,7 @@ func (check *Checker) comparison(x, y *operand, op token.Token) {
 		switch op {
 		case token.EQL, token.NEQ:
 			// spec: "The equality operators == and != apply to operands that are comparable."
-			defined = Comparable(x.typ) && Comparable(y.typ) || x.isNil() && hasNil(y.typ) || y.isNil() && hasNil(x.typ)
+			defined = Comparable(x.typ) && Comparable(y.typ) || x.isNilR() && hasNilR(y.typ) || y.isNilR() && hasNilR(x.typ)
 		case token.LSS, token.LEQ, token.GTR, token.GEQ:
 			// spec: The ordering operators <, <=, >, and >= apply to operands that are ordered."
 			defined = isOrdered(x.typ) && isOrdered(y.typ)
@@ -603,7 +603,7 @@ func (check *Checker) comparison(x, y *operand, op token.Token) {
 		}
 		if !defined {
 			typ := x.typ
-			if x.isNil() {
+			if x.isNilR() {
 				typ = y.typ
 			}
 			err = check.sprintf("operator %s not defined for %s", op, typ)

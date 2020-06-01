@@ -51,7 +51,7 @@ func (_ eReturn) Error() string {
 
 func (env *Env) evalBlock(block *ast.BlockStmt) (r.Value, []r.Value) {
 	if block == nil || len(block.List) == 0 {
-		return None, nil
+		return NoneR, nil
 	}
 	env = NewEnv(env, "{}")
 
@@ -59,7 +59,7 @@ func (env *Env) evalBlock(block *ast.BlockStmt) (r.Value, []r.Value) {
 }
 
 func (env *Env) evalStatements(list []ast.Stmt) (r.Value, []r.Value) {
-	ret := None
+	ret := NoneR
 	var rets []r.Value
 
 	for i := range list {
@@ -87,7 +87,7 @@ again:
 	case *ast.DeferStmt:
 		return env.evalDefer(node.Call)
 	case *ast.EmptyStmt:
-		return None, nil
+		return NoneR, nil
 	case *ast.ExprStmt:
 		return env.evalExpr(node.X)
 	case *ast.ForStmt:
@@ -166,7 +166,7 @@ func (env *Env) evalGo(stmt *ast.GoStmt) (r.Value, []r.Value) {
 			go fun.CallSlice(args)
 		}
 	}
-	return None, nil
+	return NoneR, nil
 }
 
 func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
@@ -184,7 +184,7 @@ func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
 	} else if node.Else != nil {
 		return env.evalStatement(node.Else)
 	} else {
-		return Nil, nil
+		return NilR, nil
 	}
 }
 
@@ -209,14 +209,14 @@ func (env *Env) evalSend(node *ast.SendStmt) (r.Value, []r.Value) {
 	}
 	value := env.evalExpr1(node.Value)
 	channel.Send(value)
-	return None, nil
+	return NoneR, nil
 }
 
 func (env *Env) evalReturn(node *ast.ReturnStmt) (r.Value, []r.Value) {
 	var rets []r.Value
 	if len(node.Results) == 1 {
 		// return foo() returns *all* the values returned by foo, not just the first one
-		rets = reflect.PackValues(env.evalExpr(node.Results[0]))
+		rets = reflect.PackValuesR(env.evalExpr(node.Results[0]))
 	} else {
 		rets = env.evalExprs(node.Results)
 	}

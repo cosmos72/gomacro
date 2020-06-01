@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"go/ast"
 	"go/token"
-	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/output"
@@ -29,7 +28,7 @@ import (
 
 // an instantiated (and compiled) generic function.
 type GenericFuncInstance struct {
-	Func *func(*Env) r.Value
+	Func *func(*Env) xr.Value
 	Type xr.Type
 }
 
@@ -232,12 +231,12 @@ func (c *Comp) genericFunc(maker *genericMaker, node ast.Node) *Expr {
 		instance = maker.instantiateFunc(fun, node)
 	}
 
-	var efun, retfun func(*Env) r.Value
+	var efun, retfun func(*Env) xr.Value
 	eaddr := instance.Func
 	if *eaddr == nil {
 		// currently instantiating it, see comment in Comp.instantiateTemplateFunc() below.
 		// We must try again later to dereference instance.Func.
-		efun = func(env *Env) r.Value {
+		efun = func(env *Env) xr.Value {
 			return (*eaddr)(env)
 		}
 	} else {
@@ -252,23 +251,23 @@ func (c *Comp) genericFunc(maker *genericMaker, node ast.Node) *Expr {
 	case 0:
 		retfun = efun
 	case 1:
-		retfun = func(env *Env) r.Value {
+		retfun = func(env *Env) xr.Value {
 			return efun(env.Outer)
 		}
 	case 2:
-		retfun = func(env *Env) r.Value {
+		retfun = func(env *Env) xr.Value {
 			return efun(env.Outer.Outer)
 		}
 	case c.Depth - 1:
-		retfun = func(env *Env) r.Value {
+		retfun = func(env *Env) xr.Value {
 			return efun(env.FileEnv)
 		}
 	case c.Depth:
-		retfun = func(env *Env) r.Value {
+		retfun = func(env *Env) xr.Value {
 			return efun(env.FileEnv.Outer)
 		}
 	default:
-		retfun = func(env *Env) r.Value {
+		retfun = func(env *Env) xr.Value {
 			for i := upn; i > 0; i-- {
 				env = env.Outer
 			}
@@ -319,7 +318,7 @@ func (maker *genericMaker) instantiateFunc(fun *GenericFunc, node ast.Node) *Gen
 	// 2. check GenericFuncInstance.Func: if it's nil, take its address and dereference it later at runtime
 	t, _, _ := c.TypeFunction(special.decl.Decl.Type)
 
-	instance := &GenericFuncInstance{Type: t, Func: new(func(*Env) r.Value)}
+	instance := &GenericFuncInstance{Type: t, Func: new(func(*Env) xr.Value)}
 	fun.Instances[key] = instance
 
 	// compile an expression that, when evaluated at runtime in the *Env

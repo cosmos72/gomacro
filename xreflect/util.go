@@ -109,7 +109,7 @@ func gtypeToKind(t *xtype, gtype types.Type) r.Kind {
 func IsGoUntypedKind(gkind types.BasicKind) bool {
 	switch gkind {
 	case types.UntypedBool, types.UntypedInt, types.UntypedRune,
-		types.UntypedFloat, types.UntypedComplex, types.UntypedString, types.UntypedNil:
+		types.UntypedFloat, types.UntypedComplex, types.UntypedString, types.UntypedNilR:
 		return true
 	default:
 		return false
@@ -155,7 +155,7 @@ func ToReflectKind(gkind types.BasicKind) r.Kind {
 		kind = r.String
 	case types.UnsafePointer:
 		kind = r.UnsafePointer
-	case types.UntypedNil:
+	case types.UntypedNilR:
 		kind = r.Invalid
 	default:
 		errorf(nil, "unsupported types.BasicKind: %v", gkind)
@@ -227,7 +227,7 @@ func ToBasicKind(kind r.Kind, untyped bool) types.BasicKind {
 	case r.UnsafePointer:
 		gkind = types.UnsafePointer
 	case r.Invalid:
-		gkind = types.UntypedNil
+		gkind = types.UntypedNilR
 	default:
 		errorf(nil, "unsupported refletc.Kind: %v", kind)
 	}

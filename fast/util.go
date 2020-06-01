@@ -22,7 +22,7 @@ import (
 	"go/constant"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/base/untyped"
@@ -30,7 +30,7 @@ import (
 )
 
 // dereference a pointer, possibly inside an xreflect.Forward
-func elem(value r.Value) r.Value {
+func elem(value xr.Value) xr.Value {
 	if value.Kind() == r.Interface {
 		value = value.Elem()
 	}
@@ -48,18 +48,18 @@ func eTrue(*Env) bool {
 	return true
 }
 
-func eNil(*Env) r.Value {
-	return Nil
+func eNilR(*Env) xr.Value {
+	return xr.Value{}
 }
 
-func eXVNone(*Env) (r.Value, []r.Value) {
+func eXVNone(*Env) (xr.Value, []xr.Value) {
 	return None, nil
 }
 
 func nop() {
 }
 
-var valueOfNopFunc = r.ValueOf(nop)
+var valueOfNopFunc = xr.ValueOf(nop)
 
 // opaqueType returns an xr.Type corresponding to rtype but without fields or methods and with the given pkgpath
 func (g *CompGlobals) opaqueType(rtype r.Type, pkgpath string) xr.Type {
@@ -70,12 +70,12 @@ func (g *CompGlobals) opaqueType(rtype r.Type, pkgpath string) xr.Type {
 func (g *CompGlobals) opaqueNamedType(rtype r.Type, name string, pkgpath string) xr.Type {
 	v := g.Universe
 	switch k := rtype.Kind(); k {
-	case r.Ptr:
+	case xr.Ptr:
 		telem := g.opaqueType(rtype.Elem(), pkgpath)
 		t := v.PtrTo(telem)
 		v.ReflectTypes[rtype] = t
 		return t
-	case r.Struct:
+	case xr.Struct:
 		break
 	default:
 		g.Errorf("internal error: unimplemented opaqueNamedType for kind=%v, expecting kind=Struct", k)
@@ -105,13 +105,13 @@ func (e *Expr) TryAsPred() (value bool, fun func(*Env) bool, err bool) {
 		return false, nil, true
 	}
 	if e.Const() {
-		v := r.ValueOf(e.Value)
+		v := xr.ValueOf(e.Value)
 		return v.Bool(), nil, false
 	}
 	switch fun := e.Fun.(type) {
 	case func(*Env) bool:
 		return false, fun, false
-	case func(*Env) (r.Value, []r.Value):
+	case func(*Env) (xr.Value, []xr.Value):
 		e.CheckX1()
 		return false, func(env *Env) bool {
 			ret, _ := fun(env)
@@ -177,7 +177,7 @@ func (e *Expr) AsUint64() func(*Env) uint64 {
 	}
 	var ret func(*Env) uint64
 	switch fun := e.Fun.(type) {
-	case func(*Env) r.Value:
+	case func(*Env) xr.Value:
 		if cat == r.Int {
 			ret = func(env *Env) uint64 {
 				i := fun(env).Int()
@@ -191,7 +191,7 @@ func (e *Expr) AsUint64() func(*Env) uint64 {
 				return fun(env).Uint()
 			}
 		}
-	case func(*Env) (r.Value, []r.Value):
+	case func(*Env) (xr.Value, []xr.Value):
 		if cat == r.Int {
 			ret = func(env *Env) uint64 {
 				v, _ := fun(env)
@@ -276,14 +276,14 @@ func (e *Expr) AsUint64() func(*Env) uint64 {
 }
 
 func constAsUint64(any I) (uint64, bool) {
-	v := r.ValueOf(any)
+	v := xr.ValueOf(any)
 	if !v.IsValid() {
 		return 0, false
 	}
 	switch reflect.Category(v.Kind()) {
-	case r.Uint:
+	case xr.Uint:
 		return v.Uint(), true
-	case r.Int:
+	case xr.Int:
 		if i := v.Int(); i >= 0 {
 			return uint64(i), true
 		}
@@ -303,11 +303,11 @@ func funAsX(any I) func(*Env) {
 	case nil:
 	case func(*Env):
 		return fun
-	case func(*Env) r.Value:
+	case func(*Env) xr.Value:
 		return func(env *Env) {
 			fun(env)
 		}
-	case func(*Env) (r.Value, []r.Value):
+	case func(*Env) (xr.Value, []xr.Value):
 		return func(env *Env) {
 			fun(env)
 		}
@@ -393,16 +393,16 @@ func (e *Expr) CheckX1() {
 		return
 	}
 	if e == nil || e.NumOut() == 0 {
-		output.Errorf("expression returns no values, cannot convert to func(env *Env) r.Value")
+		output.Errorf("expression returns no values, cannot convert to func(env *Env) xr.Value")
 		return
 	} else if e.NumOut() > 1 {
 		output.Warnf("expression returns %d values, using only the first one: %v", e.NumOut(), e.Types)
 	}
 }
 
-func (e *Expr) AsX1() func(*Env) r.Value {
+func (e *Expr) AsX1() func(*Env) xr.Value {
 	if e == nil {
-		return eNil
+		return eNilR
 	}
 	if e.Const() {
 		return valueAsX1(e.Value, e.Type, COptDefaults)
@@ -411,7 +411,7 @@ func (e *Expr) AsX1() func(*Env) r.Value {
 	return funAsX1(e.Fun, e.Type)
 }
 
-func (e *Expr) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
+func (e *Expr) AsXV(opts CompileOptions) func(*Env) (xr.Value, []xr.Value) {
 	if e == nil {
 		return eXVNone
 	}
@@ -421,7 +421,7 @@ func (e *Expr) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 	return funAsXV(e.Fun, e.Type)
 }
 
-func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
+func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) xr.Value {
 	convertuntyped := opts&COptKeepUntyped == 0
 	untyp, untyped := any.(UntypedLit)
 	if untyped && convertuntyped {
@@ -431,21 +431,21 @@ func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 		// Debugf("late conversion of untyped constant %v <%T> to <%v>", untyp, untyp, t)
 		any = untyp.Convert(t)
 	}
-	v := r.ValueOf(any)
+	v := xr.ValueOf(any)
 	if t != nil {
 		rtype := t.ReflectType()
 		if !v.IsValid() {
-			v = r.Zero(rtype)
+			v = xr.ZeroR(rtype)
 		} else if convertuntyped || !untyped {
 			v = convert(v, rtype)
 		}
 	}
-	return func(*Env) r.Value {
+	return func(*Env) xr.Value {
 		return v
 	}
 }
 
-func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
+func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (xr.Value, []xr.Value) {
 	convertuntyped := opts&COptKeepUntyped == 0
 	untyp, untyped := any.(UntypedLit)
 	if convertuntyped {
@@ -459,21 +459,21 @@ func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.V
 			any = untyp.Convert(t)
 		}
 	}
-	v := r.ValueOf(any)
+	v := xr.ValueOf(any)
 	if t != nil {
 		rtype := t.ReflectType()
-		if reflect.Type(v) == nil {
-			v = r.Zero(rtype)
+		if reflect.ValueType(v) == nil {
+			v = xr.ZeroR(rtype)
 		} else if convertuntyped || !untyped {
 			v = convert(v, rtype)
 		}
 	}
-	return func(*Env) (r.Value, []r.Value) {
+	return func(*Env) (xr.Value, []xr.Value) {
 		return v, nil
 	}
 }
 
-func funAsX1(fun I, t xr.Type) func(*Env) r.Value {
+func funAsX1(fun I, t xr.Type) func(*Env) xr.Value {
 	// output.Debugf("funAsX1() %T -> %v", fun, t)
 	var rt r.Type
 	if t != nil {
@@ -485,344 +485,344 @@ func funAsX1(fun I, t xr.Type) func(*Env) r.Value {
 		if fun == nil {
 			break
 		}
-		return func(env *Env) r.Value {
+		return func(env *Env) xr.Value {
 			fun(env)
 			return None
 		}
-	case func(*Env) r.Value:
+	case func(*Env) xr.Value:
 		return fun
-	case func(*Env) (r.Value, []r.Value):
-		return func(env *Env) r.Value {
+	case func(*Env) (xr.Value, []xr.Value):
+		return func(env *Env) xr.Value {
 			ret, _ := fun(env)
 			return ret
 		}
 	case func(*Env) bool:
-		if rt == nil || rt == TypeOfBool {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfBool {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) int:
-		if rt == nil || rt == TypeOfInt {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfInt {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) int8:
-		if rt == nil || rt == TypeOfInt8 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfInt8 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) int16:
-		if rt == nil || rt == TypeOfInt16 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfInt16 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) int32:
-		if rt == nil || rt == TypeOfInt32 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfInt32 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) int64:
-		if rt == nil || rt == TypeOfInt64 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfInt64 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uint:
-		if rt == nil || rt == TypeOfUint {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfUint {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uint8:
-		if rt == nil || rt == TypeOfUint8 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfUint8 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uint16:
-		if rt == nil || rt == TypeOfUint16 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfUint16 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uint32:
-		if rt == nil || rt == TypeOfUint32 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfUint32 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uint64:
-		if rt == nil || rt == TypeOfUint64 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfUint64 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uintptr:
-		if rt == nil || rt == TypeOfUintptr {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfUintptr {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) float32:
-		if rt == nil || rt == TypeOfFloat32 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfFloat32 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) float64:
-		if rt == nil || rt == TypeOfFloat64 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfFloat64 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) complex64:
-		if rt == nil || rt == TypeOfComplex64 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfComplex64 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) complex128:
-		if rt == nil || rt == TypeOfComplex128 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfComplex128 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) string:
-		if rt == nil || rt == TypeOfString {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfString {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *bool:
-		if rt == nil || rt == TypeOfPtrBool {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrBool {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *int:
-		if rt == nil || rt == TypeOfPtrInt {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrInt {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *int8:
-		if rt == nil || rt == TypeOfPtrInt8 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrInt8 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *int16:
-		if rt == nil || rt == TypeOfPtrInt16 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrInt16 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *int32:
-		if rt == nil || rt == TypeOfPtrInt32 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrInt32 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *int64:
-		if rt == nil || rt == TypeOfPtrInt64 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrInt64 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *uint:
-		if rt == nil || rt == TypeOfPtrUint {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrUint {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *uint8:
-		if rt == nil || rt == TypeOfPtrUint8 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrUint8 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *uint16:
-		if rt == nil || rt == TypeOfPtrUint16 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrUint16 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *uint32:
-		if rt == nil || rt == TypeOfPtrUint32 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrUint32 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *uint64:
-		if rt == nil || rt == TypeOfPtrUint64 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrUint64 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *uintptr:
-		if rt == nil || rt == TypeOfPtrUintptr {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrUintptr {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *float32:
-		if rt == nil || rt == TypeOfPtrFloat32 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrFloat32 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *float64:
-		if rt == nil || rt == TypeOfPtrFloat64 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrFloat64 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) *complex64:
-		if rt == nil || rt == TypeOfPtrComplex64 {
-			return func(env *Env) r.Value {
-				return r.ValueOf(fun(env))
+		if rt == nil || rt == base.TypeOfPtrComplex64 {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(fun(env))
 			}
 		} else {
-			return func(env *Env) r.Value {
-				return convert(r.ValueOf(fun(env)), rt)
+			return func(env *Env) xr.Value {
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	default:
-		output.Errorf("unsupported expression type, cannot convert to func(*Env) r.Value: %v <%T>", fun, fun)
+		output.Errorf("unsupported expression type, cannot convert to func(*Env) xr.Value: %v <%T>", fun, fun)
 	}
 	return nil
 }
 
-func funAsXV(fun I, t xr.Type) func(*Env) (r.Value, []r.Value) {
+func funAsXV(fun I, t xr.Type) func(*Env) (xr.Value, []xr.Value) {
 	// output.Debugf("funAsXV() %T -> %v", fun, t)
 	var rt r.Type
 	if t != nil {
@@ -834,338 +834,338 @@ func funAsXV(fun I, t xr.Type) func(*Env) (r.Value, []r.Value) {
 		if fun == nil {
 			break
 		}
-		return func(env *Env) (r.Value, []r.Value) {
+		return func(env *Env) (xr.Value, []xr.Value) {
 			fun(env)
 			return None, nil
 		}
-	case func(*Env) r.Value:
-		return func(env *Env) (r.Value, []r.Value) {
+	case func(*Env) xr.Value:
+		return func(env *Env) (xr.Value, []xr.Value) {
 			return fun(env), nil
 		}
-	case func(*Env) (r.Value, []r.Value):
+	case func(*Env) (xr.Value, []xr.Value):
 		return fun
 	case func(*Env) bool:
-		if rt == nil || rt == TypeOfBool {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfBool {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) int:
-		if rt == nil || rt == TypeOfInt {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfInt {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) int8:
-		if rt == nil || rt == TypeOfInt8 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfInt8 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) int16:
-		if rt == nil || rt == TypeOfInt16 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfInt16 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) int32:
-		if rt == nil || rt == TypeOfInt32 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfInt32 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) int64:
-		if rt == nil || rt == TypeOfInt64 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfInt64 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) uint:
-		if rt == nil || rt == TypeOfUint {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfUint {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) uint8:
-		if rt == nil || rt == TypeOfUint8 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfUint8 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) uint16:
-		if rt == nil || rt == TypeOfUint16 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfUint16 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) uint32:
-		if rt == nil || rt == TypeOfUint32 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfUint32 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) uint64:
-		if rt == nil || rt == TypeOfUint64 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfUint64 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) uintptr:
-		if rt == nil || rt == TypeOfUintptr {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfUintptr {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) float32:
-		if rt == nil || rt == TypeOfFloat32 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfFloat32 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) float64:
-		if rt == nil || rt == TypeOfFloat64 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfFloat64 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) complex64:
-		if rt == nil || rt == TypeOfComplex64 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfComplex64 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) complex128:
-		if rt == nil || rt == TypeOfComplex128 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfComplex128 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) string:
-		if rt == nil || rt == TypeOfString {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfString {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *bool:
-		if rt == nil || rt == TypeOfPtrBool {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrBool {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *int:
-		if rt == nil || rt == TypeOfPtrInt {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrInt {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *int8:
-		if rt == nil || rt == TypeOfPtrInt8 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrInt8 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *int16:
-		if rt == nil || rt == TypeOfPtrInt16 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrInt16 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *int32:
-		if rt == nil || rt == TypeOfPtrInt32 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrInt32 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *int64:
-		if rt == nil || rt == TypeOfPtrInt64 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrInt64 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *uint:
-		if rt == nil || rt == TypeOfPtrUint {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrUint {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *uint8:
-		if rt == nil || rt == TypeOfPtrUint8 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrUint8 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *uint16:
-		if rt == nil || rt == TypeOfPtrUint16 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrUint16 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *uint32:
-		if rt == nil || rt == TypeOfPtrUint32 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrUint32 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *uint64:
-		if rt == nil || rt == TypeOfPtrUint64 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrUint64 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *uintptr:
-		if rt == nil || rt == TypeOfPtrUintptr {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrUintptr {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *float32:
-		if rt == nil || rt == TypeOfPtrFloat32 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrFloat32 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *float64:
-		if rt == nil || rt == TypeOfPtrFloat64 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrFloat64 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	case func(*Env) *complex64:
-		if rt == nil || rt == TypeOfPtrComplex64 {
-			return func(env *Env) (r.Value, []r.Value) {
-				return r.ValueOf(fun(env)), nil
+		if rt == nil || rt == base.TypeOfPtrComplex64 {
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return xr.ValueOf(fun(env)), nil
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return convert(r.ValueOf(fun(env)), rt), nil
+			return func(env *Env) (xr.Value, []xr.Value) {
+				return convert(xr.ValueOf(fun(env)), rt), nil
 			}
 		}
 	default:
-		output.Errorf("unsupported expression, cannot convert to func(*Env) (r.Value, []r.Value) : %v <%T>",
+		output.Errorf("unsupported expression, cannot convert to func(*Env) (xr.Value, []xr.Value) : %v <%T>",
 			fun, fun)
 	}
 	return nil
@@ -1177,97 +1177,97 @@ func (e *Expr) exprXVAsI() *Expr {
 	if e.NumOut() <= 1 {
 		return e
 	}
-	fun := e.Fun.(func(*Env) (r.Value, []r.Value))
+	fun := e.Fun.(func(*Env) (xr.Value, []xr.Value))
 	t := e.Type
 	var ret I
 	switch t.Kind() {
-	case r.Bool:
+	case xr.Bool:
 		ret = func(env *Env) bool {
 			v, _ := fun(env)
 			return v.Bool()
 		}
-	case r.Int:
+	case xr.Int:
 		ret = func(env *Env) int {
 			v, _ := fun(env)
 			return int(v.Int())
 		}
-	case r.Int8:
+	case xr.Int8:
 		ret = func(env *Env) int8 {
 			v, _ := fun(env)
 			return int8(v.Int())
 		}
-	case r.Int16:
+	case xr.Int16:
 		ret = func(env *Env) int16 {
 			v, _ := fun(env)
 			return int16(v.Int())
 		}
-	case r.Int32:
+	case xr.Int32:
 		ret = func(env *Env) int32 {
 			v, _ := fun(env)
 			return int32(v.Int())
 		}
-	case r.Int64:
+	case xr.Int64:
 		ret = func(env *Env) int64 {
 			v, _ := fun(env)
 			return v.Int()
 		}
-	case r.Uint:
+	case xr.Uint:
 		ret = func(env *Env) uint {
 			v, _ := fun(env)
 			return uint(v.Uint())
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		ret = func(env *Env) uint8 {
 			v, _ := fun(env)
 			return uint8(v.Uint())
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		ret = func(env *Env) uint16 {
 			v, _ := fun(env)
 			return uint16(v.Uint())
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		ret = func(env *Env) uint32 {
 			v, _ := fun(env)
 			return uint32(v.Uint())
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		ret = func(env *Env) uint64 {
 			v, _ := fun(env)
 			return v.Uint()
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		ret = func(env *Env) uintptr {
 			v, _ := fun(env)
 			return uintptr(v.Uint())
 		}
-	case r.Float32:
+	case xr.Float32:
 		ret = func(env *Env) float32 {
 			v, _ := fun(env)
 			return float32(v.Float())
 		}
-	case r.Float64:
+	case xr.Float64:
 		ret = func(env *Env) float64 {
 			v, _ := fun(env)
 			return v.Float()
 		}
-	case r.Complex64:
+	case xr.Complex64:
 		ret = func(env *Env) complex64 {
 			v, _ := fun(env)
 			return complex64(v.Complex())
 		}
-	case r.Complex128:
+	case xr.Complex128:
 		ret = func(env *Env) complex128 {
 			v, _ := fun(env)
 			return v.Complex()
 		}
-	case r.String:
+	case xr.String:
 		ret = func(env *Env) string {
 			v, _ := fun(env)
 			return v.String()
 		}
 	default:
-		ret = func(env *Env) r.Value {
+		ret = func(env *Env) xr.Value {
 			v, _ := fun(env)
 			return v
 		}
@@ -1296,13 +1296,13 @@ func funAsStmt(fun I) Stmt {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case func(*Env) r.Value:
+	case func(*Env) xr.Value:
 		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case func(*Env) (r.Value, []r.Value):
+	case func(*Env) (xr.Value, []xr.Value):
 		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
@@ -1498,22 +1498,22 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 			}
 			fun(env)
 		}
-	case func(*Env) r.Value:
-		return func(env *Env) r.Value {
+	case func(*Env) xr.Value:
+		return func(env *Env) xr.Value {
 			for _, f := range funs {
 				f(env)
 			}
 			return fun(env)
 		}
-	case func(*Env) (r.Value, []r.Value):
-		return func(env *Env) (r.Value, []r.Value) {
+	case func(*Env) (xr.Value, []xr.Value):
+		return func(env *Env) (xr.Value, []xr.Value) {
 			for _, f := range funs {
 				f(env)
 			}
 			return fun(env)
 		}
 	case func(*Env) bool:
-		if rt == nil || rt == TypeOfBool {
+		if rt == nil || rt == base.TypeOfBool {
 			return func(env *Env) bool {
 				for _, f := range funs {
 					f(env)
@@ -1521,15 +1521,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) int:
-		if rt == nil || rt == TypeOfInt {
+		if rt == nil || rt == base.TypeOfInt {
 			return func(env *Env) int {
 				for _, f := range funs {
 					f(env)
@@ -1537,15 +1537,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) int8:
-		if rt == nil || rt == TypeOfInt8 {
+		if rt == nil || rt == base.TypeOfInt8 {
 			return func(env *Env) int8 {
 				for _, f := range funs {
 					f(env)
@@ -1553,15 +1553,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) int16:
-		if rt == nil || rt == TypeOfInt16 {
+		if rt == nil || rt == base.TypeOfInt16 {
 			return func(env *Env) int16 {
 				for _, f := range funs {
 					f(env)
@@ -1569,15 +1569,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) int32:
-		if rt == nil || rt == TypeOfInt32 {
+		if rt == nil || rt == base.TypeOfInt32 {
 			return func(env *Env) int32 {
 				for _, f := range funs {
 					f(env)
@@ -1585,15 +1585,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) int64:
-		if rt == nil || rt == TypeOfInt64 {
+		if rt == nil || rt == base.TypeOfInt64 {
 			return func(env *Env) int64 {
 				for _, f := range funs {
 					f(env)
@@ -1601,15 +1601,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uint:
-		if rt == nil || rt == TypeOfUint {
+		if rt == nil || rt == base.TypeOfUint {
 			return func(env *Env) uint {
 				for _, f := range funs {
 					f(env)
@@ -1617,15 +1617,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uint8:
-		if rt == nil || rt == TypeOfUint8 {
+		if rt == nil || rt == base.TypeOfUint8 {
 			return func(env *Env) uint8 {
 				for _, f := range funs {
 					f(env)
@@ -1633,15 +1633,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uint16:
-		if rt == nil || rt == TypeOfUint16 {
+		if rt == nil || rt == base.TypeOfUint16 {
 			return func(env *Env) uint16 {
 				for _, f := range funs {
 					f(env)
@@ -1649,15 +1649,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uint32:
-		if rt == nil || rt == TypeOfUint32 {
+		if rt == nil || rt == base.TypeOfUint32 {
 			return func(env *Env) uint32 {
 				for _, f := range funs {
 					f(env)
@@ -1665,15 +1665,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uint64:
-		if rt == nil || rt == TypeOfUint64 {
+		if rt == nil || rt == base.TypeOfUint64 {
 			return func(env *Env) uint64 {
 				for _, f := range funs {
 					f(env)
@@ -1681,15 +1681,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) uintptr:
-		if rt == nil || rt == TypeOfUintptr {
+		if rt == nil || rt == base.TypeOfUintptr {
 			return func(env *Env) uintptr {
 				for _, f := range funs {
 					f(env)
@@ -1697,15 +1697,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) float32:
-		if rt == nil || rt == TypeOfFloat32 {
+		if rt == nil || rt == base.TypeOfFloat32 {
 			return func(env *Env) float32 {
 				for _, f := range funs {
 					f(env)
@@ -1713,15 +1713,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) float64:
-		if rt == nil || rt == TypeOfFloat64 {
+		if rt == nil || rt == base.TypeOfFloat64 {
 			return func(env *Env) float64 {
 				for _, f := range funs {
 					f(env)
@@ -1729,15 +1729,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) complex64:
-		if rt == nil || rt == TypeOfComplex64 {
+		if rt == nil || rt == base.TypeOfComplex64 {
 			return func(env *Env) complex64 {
 				for _, f := range funs {
 					f(env)
@@ -1745,15 +1745,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) complex128:
-		if rt == nil || rt == TypeOfComplex128 {
+		if rt == nil || rt == base.TypeOfComplex128 {
 			return func(env *Env) complex128 {
 				for _, f := range funs {
 					f(env)
@@ -1761,15 +1761,15 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	case func(*Env) string:
-		if rt == nil || rt == TypeOfString {
+		if rt == nil || rt == base.TypeOfString {
 			return func(env *Env) string {
 				for _, f := range funs {
 					f(env)
@@ -1777,11 +1777,11 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return fun(env)
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
-				return convert(r.ValueOf(fun(env)), rt)
+				return convert(xr.ValueOf(fun(env)), rt)
 			}
 		}
 	default:
@@ -1795,17 +1795,17 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				fun(env)
 			}
 		case 1:
-			var zero r.Value
+			var zero xr.Value
 			if rt != nil {
-				zero = r.Zero(rt)
+				zero = xr.ZeroR(rt)
 			}
 			fun := last.AsX1()
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				for _, f := range funs {
 					f(env)
 				}
 				ret := fun(env)
-				if ret == Nil {
+				if !ret.IsValid() {
 					ret = zero
 				} else if rt != nil && rt != ret.Type() {
 					ret = convert(ret, rt)
@@ -1813,22 +1813,22 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 				return ret
 			}
 		default:
-			var zero []r.Value
+			var zero []xr.Value
 			var rt []r.Type
 			for i, t := range last.Types {
 				if t != nil {
 					rt[i] = t.ReflectType()
-					zero[i] = r.Zero(rt[i])
+					zero[i] = xr.ZeroR(rt[i])
 				}
 			}
 			fun := last.AsXV(opts)
-			return func(env *Env) (r.Value, []r.Value) {
+			return func(env *Env) (xr.Value, []xr.Value) {
 				for _, f := range funs {
 					f(env)
 				}
 				_, rets := fun(env)
 				for i, ret := range rets {
-					if ret == Nil {
+					if !ret.IsValid() {
 						rets[i] = zero[i]
 					} else if rt != nil && rt[i] != ret.Type() {
 						rets[i] = convert(ret, rt[i])
@@ -1846,78 +1846,78 @@ func unwrapBind(bind *Bind, t xr.Type) *Expr {
 	idx := bind.Desc.Index()
 	var ret I
 	switch t.Kind() {
-	case r.Bool:
+	case xr.Bool:
 		ret = func(env *Env) bool {
 			return env.Vals[idx].Bool()
 		}
-	case r.Int:
+	case xr.Int:
 		ret = func(env *Env) int {
 			return int(env.Vals[idx].Int())
 		}
-	case r.Int8:
+	case xr.Int8:
 		ret = func(env *Env) int8 {
 			return int8(env.Vals[idx].Int())
 		}
-	case r.Int16:
+	case xr.Int16:
 		ret = func(env *Env) int16 {
 			return int16(env.Vals[idx].Int())
 		}
-	case r.Int32:
+	case xr.Int32:
 		ret = func(env *Env) int32 {
 			return int32(env.Vals[idx].Int())
 		}
-	case r.Int64:
+	case xr.Int64:
 		ret = func(env *Env) int64 {
 			return env.Vals[idx].Int()
 		}
-	case r.Uint:
+	case xr.Uint:
 		ret = func(env *Env) uint {
 			return uint(env.Vals[idx].Uint())
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		ret = func(env *Env) uint8 {
 			return uint8(env.Vals[idx].Uint())
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		ret = func(env *Env) uint16 {
 			return uint16(env.Vals[idx].Uint())
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		ret = func(env *Env) uint32 {
 			return uint32(env.Vals[idx].Uint())
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		ret = func(env *Env) uint64 {
 			return env.Vals[idx].Uint()
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		ret = func(env *Env) uintptr {
 			return uintptr(env.Vals[idx].Uint())
 		}
-	case r.Float32:
+	case xr.Float32:
 		ret = func(env *Env) float32 {
 			return float32(env.Vals[idx].Float())
 		}
-	case r.Float64:
+	case xr.Float64:
 		ret = func(env *Env) float64 {
 			return env.Vals[idx].Float()
 		}
-	case r.Complex64:
+	case xr.Complex64:
 		ret = func(env *Env) complex64 {
 			return complex64(env.Vals[idx].Complex())
 		}
-	case r.Complex128:
+	case xr.Complex128:
 		ret = func(env *Env) complex128 {
 			return env.Vals[idx].Complex()
 		}
-	case r.String:
+	case xr.String:
 		ret = func(env *Env) string {
 			return env.Vals[idx].String()
 		}
 	default:
 		rtype := t.ReflectType()
-		zero := r.Zero(rtype)
-		ret = func(env *Env) r.Value {
+		zero := xr.ZeroR(rtype)
+		ret = func(env *Env) xr.Value {
 			v := env.Vals[idx]
 			if !v.IsValid() {
 				v = zero
@@ -1936,78 +1936,78 @@ func unwrapBindUp1(bind *Bind, t xr.Type) *Expr {
 	idx := bind.Desc.Index()
 	var ret I
 	switch t.Kind() {
-	case r.Bool:
+	case xr.Bool:
 		ret = func(env *Env) bool {
 			return env.Outer.Vals[idx].Bool()
 		}
-	case r.Int:
+	case xr.Int:
 		ret = func(env *Env) int {
 			return int(env.Outer.Vals[idx].Int())
 		}
-	case r.Int8:
+	case xr.Int8:
 		ret = func(env *Env) int8 {
 			return int8(env.Outer.Vals[idx].Int())
 		}
-	case r.Int16:
+	case xr.Int16:
 		ret = func(env *Env) int16 {
 			return int16(env.Outer.Vals[idx].Int())
 		}
-	case r.Int32:
+	case xr.Int32:
 		ret = func(env *Env) int32 {
 			return int32(env.Outer.Vals[idx].Int())
 		}
-	case r.Int64:
+	case xr.Int64:
 		ret = func(env *Env) int64 {
 			return env.Outer.Vals[idx].Int()
 		}
-	case r.Uint:
+	case xr.Uint:
 		ret = func(env *Env) uint {
 			return uint(env.Outer.Vals[idx].Uint())
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		ret = func(env *Env) uint8 {
 			return uint8(env.Outer.Vals[idx].Uint())
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		ret = func(env *Env) uint16 {
 			return uint16(env.Outer.Vals[idx].Uint())
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		ret = func(env *Env) uint32 {
 			return uint32(env.Outer.Vals[idx].Uint())
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		ret = func(env *Env) uint64 {
 			return env.Outer.Vals[idx].Uint()
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		ret = func(env *Env) uintptr {
 			return uintptr(env.Outer.Vals[idx].Uint())
 		}
-	case r.Float32:
+	case xr.Float32:
 		ret = func(env *Env) float32 {
 			return float32(env.Outer.Vals[idx].Float())
 		}
-	case r.Float64:
+	case xr.Float64:
 		ret = func(env *Env) float64 {
 			return env.Outer.Vals[idx].Float()
 		}
-	case r.Complex64:
+	case xr.Complex64:
 		ret = func(env *Env) complex64 {
 			return complex64(env.Outer.Vals[idx].Complex())
 		}
-	case r.Complex128:
+	case xr.Complex128:
 		ret = func(env *Env) complex128 {
 			return env.Outer.Vals[idx].Complex()
 		}
-	case r.String:
+	case xr.String:
 		ret = func(env *Env) string {
 			return env.Outer.Vals[idx].String()
 		}
 	default:
 		rtype := t.ReflectType()
-		zero := r.Zero(rtype)
-		ret = func(env *Env) r.Value {
+		zero := xr.ZeroR(rtype)
+		ret = func(env *Env) xr.Value {
 			v := env.Outer.Vals[idx]
 			if !v.IsValid() {
 				v = zero

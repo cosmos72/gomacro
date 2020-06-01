@@ -156,7 +156,7 @@ func (ip *Inspector) showFields(v r.Value) {
 	n := v.NumField()
 	for i := 0; i < n; i++ {
 		f := v.Field(i)
-		t := reflect.Type(f)
+		t := reflect.ValueTypeR(f)
 		f = dereferenceValue(f)
 		g.Fprintf(g.Stdout, "    %d. ", i)
 		ip.showVar(v.Type().Field(i).Name, f, t)
@@ -168,7 +168,7 @@ func (ip *Inspector) showIndexes(v r.Value) {
 	n := v.Len()
 	for i := 0; i < n; i++ {
 		f := v.Index(i)
-		t := reflect.Type(f)
+		t := reflect.ValueTypeR(f)
 		f = dereferenceValue(f)
 		g.Fprintf(g.Stdout, "    %d. ", i)
 		ip.showVar("", f, t)
@@ -234,11 +234,11 @@ func (ip *Inspector) Enter(cmd string) {
 		fname = v.Type().Field(i).Name
 		f = v.Field(i)
 	default:
-		g.Fprintf(g.Stdout, "cannot enter <%v>: expecting array, slice, string or struct\n", reflect.Type(v))
+		g.Fprintf(g.Stdout, "cannot enter <%v>: expecting array, slice, string or struct\n", reflect.ValueTypeR(v))
 		return
 	}
 	var t r.Type
-	if f.IsValid() && f != base.None {
+	if f.IsValid() && f != base.NoneR {
 		if f.Kind() == r.Interface {
 			f = f.Elem() // concrete type
 		}

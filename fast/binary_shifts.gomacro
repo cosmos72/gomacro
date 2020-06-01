@@ -72,7 +72,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -180,7 +180,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 		shiftss; token.SHL; false; true; {int; uint}
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.AsUint64()
 		shiftss; token.SHL; true; false; {int; uint}
 	}
@@ -210,7 +210,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 		shiftss; token.SHR; false; true; {int; uint}
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.AsUint64()
 		shiftss; token.SHR; true; false; {int; uint}
 	}

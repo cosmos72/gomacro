@@ -293,7 +293,7 @@ func (tv TypeAndValue) IsValue() bool {
 // IsNil reports whether the corresponding expression denotes the
 // predeclared value nil.
 func (tv TypeAndValue) IsNil() bool {
-	return tv.mode == value && tv.Type == Typ[UntypedNil]
+	return tv.mode == value && tv.Type == Typ[UntypedNilR]
 }
 
 // Addressable reports whether the corresponding expression

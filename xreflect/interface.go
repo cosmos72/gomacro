@@ -31,19 +31,18 @@ func IsEmulatedInterface(t Type) bool {
 }
 
 // extract the concrete value and type contained in an emulated interface
-func FromEmulatedInterface(v r.Value) (r.Value, Type) {
+func FromEmulatedInterface(v Value) (Value, Type) {
 	h := v.Elem().Field(0).Interface().(InterfaceHeader)
 	return h.val, h.typ
 }
 
 // create an emulated interface from given value, type and method extractors
 // (methods extractors are functions that, given a value, return one of its methods)
-func ToEmulatedInterface(rtypeinterf r.Type, v r.Value,
-	t Type, obj2methods []func(r.Value) r.Value) r.Value {
+func ToEmulatedInterface(rtypeinterf r.Type, v Value, t Type, obj2methods []func(Value) Value) Value {
 
-	addr := r.New(rtypeinterf.Elem())
+	addr := NewR(rtypeinterf.Elem())
 	place := addr.Elem()
-	place.Field(0).Set(r.ValueOf(InterfaceHeader{v, t}))
+	place.Field(0).Set(ValueOf(InterfaceHeader{v, t}))
 	for i := range obj2methods {
 		mtd := obj2methods[i](v)
 		place.Field(i + 1).Set(mtd)
@@ -52,7 +51,7 @@ func ToEmulatedInterface(rtypeinterf r.Type, v r.Value,
 }
 
 // extract the already-made i-th closure from inside the emulated interface object.
-func EmulatedInterfaceGetMethod(obj r.Value, index int) r.Value {
+func EmulatedInterfaceGetMethod(obj Value, index int) Value {
 	return obj.Elem().Field(index + 1)
 }
 

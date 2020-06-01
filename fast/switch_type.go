@@ -206,7 +206,7 @@ func (c *Comp) typeswitchTag(e *Expr) *Bind {
 			// Debugf("typeswitchTag = %v <%v>", v, Type(v))
 			// no need to create a settable reflect.Value
 			env.Vals[index] = v
-			env.Vals[index+1] = r.ValueOf(xt)
+			env.Vals[index+1] = xr.ValueOf(xt)
 			env.IP++
 			return env.Code[env.IP], env
 		})
@@ -259,7 +259,7 @@ func (c *Comp) typeswitchCase(node *ast.CaseClause, varname string, bind *Bind, 
 
 	// compile a comparison of tag against each type
 	for i, enode := range node.List {
-		t := c.compileTypeOrNil(enode)
+		t := c.compileTypeOrNilR(enode)
 		if t != nil {
 			rtypes[i] = t.ReflectType()
 			if t.Kind() != r.Interface && !t.Implements(bind.Type) {
@@ -469,97 +469,97 @@ func (c *Comp) typeswitchVar(varname string, t xr.Type, sym *Symbol) {
 	}
 	var stmt Stmt
 	switch t.Kind() {
-	case r.Bool:
+	case xr.Bool:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*bool)(unsafe.Pointer(&env.Ints[idx])) = env.Outer.Vals[sidx].Bool()
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Int:
+	case xr.Int:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*int)(unsafe.Pointer(&env.Ints[idx])) = int(env.Outer.Vals[sidx].Int())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Int8:
+	case xr.Int8:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*int8)(unsafe.Pointer(&env.Ints[idx])) = int8(env.Outer.Vals[sidx].Int())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Int16:
+	case xr.Int16:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*int16)(unsafe.Pointer(&env.Ints[idx])) = int16(env.Outer.Vals[sidx].Int())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Int32:
+	case xr.Int32:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*int32)(unsafe.Pointer(&env.Ints[idx])) = int32(env.Outer.Vals[sidx].Int())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Int64:
+	case xr.Int64:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*int64)(unsafe.Pointer(&env.Ints[idx])) = int64(env.Outer.Vals[sidx].Int())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Uint:
+	case xr.Uint:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*uint)(unsafe.Pointer(&env.Ints[idx])) = uint(env.Outer.Vals[sidx].Uint())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*uint8)(unsafe.Pointer(&env.Ints[idx])) = uint8(env.Outer.Vals[sidx].Uint())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*uint16)(unsafe.Pointer(&env.Ints[idx])) = uint16(env.Outer.Vals[sidx].Uint())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*uint32)(unsafe.Pointer(&env.Ints[idx])) = uint32(env.Outer.Vals[sidx].Uint())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		stmt = func(env *Env) (Stmt, *Env) {
 			env.Ints[idx] = env.Outer.Vals[sidx].Uint()
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*uintptr)(unsafe.Pointer(&env.Ints[idx])) = uintptr(env.Outer.Vals[sidx].Uint())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Float32:
+	case xr.Float32:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*float32)(unsafe.Pointer(&env.Ints[idx])) = float32(env.Outer.Vals[sidx].Float())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Float64:
+	case xr.Float64:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*float64)(unsafe.Pointer(&env.Ints[idx])) = env.Outer.Vals[sidx].Float()
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Complex64:
+	case xr.Complex64:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*complex64)(unsafe.Pointer(&env.Ints[idx])) = complex64(env.Outer.Vals[sidx].Complex())
 			env.IP++
 			return env.Code[env.IP], env
 		}
-	case r.Complex128:
+	case xr.Complex128:
 		stmt = func(env *Env) (Stmt, *Env) {
 			*(*complex128)(unsafe.Pointer(&env.Ints[idx])) = env.Outer.Vals[sidx].Complex()
 			env.IP++
@@ -567,10 +567,10 @@ func (c *Comp) typeswitchVar(varname string, t xr.Type, sym *Symbol) {
 		}
 	default:
 		rtype := t.ReflectType()
-		zero := r.Zero(rtype)
+		zero := xr.ZeroR(rtype)
 		stmt = func(env *Env) (Stmt, *Env) {
 			v := env.Outer.Vals[sidx]
-			place := r.New(rtype).Elem()
+			place := xr.New(t).Elem()
 			if !v.IsValid() {
 				v = zero
 			} else if v.Type() != rtype {

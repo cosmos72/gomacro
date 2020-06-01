@@ -41,9 +41,9 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	bindkeys := c.NewBind("", VarBind, tkeyslice)
 	idxkeys := bindkeys.Desc.Index()
 	c.append(func(env *Env) (Stmt, *Env) {
-		// convert []r.Value slice into a []rtkey slice, to avoid reflect.Value.Interface() while iterating
+		// convert []xr.Value slice into a []rtkey slice, to avoid reflect.Value.Interface() while iterating
 		vkeys := env.Vals[idxmap].MapKeys()
-		keys := r.MakeSlice(rtkeyslice, len(vkeys), len(vkeys))
+		keys := xr.MakeSlice(rtkeyslice, len(vkeys), len(vkeys))
 		for i, vkey := range vkeys {
 			keys.Index(i).Set(vkey)
 		}
@@ -114,7 +114,7 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 		idxval := placeval.Var.Desc.Index()
 		upval := placeval.Var.Upn
 		rtype := tval.ReflectType()
-		zero := r.Zero(rtype)
+		zero := xr.Zero(rtype)
 		c.append(func(env *Env) (Stmt, *Env) {
 			vmap := env.Vals[idxmap]
 			key := env.Vals[idxkey]

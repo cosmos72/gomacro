@@ -328,7 +328,7 @@ func (st *Stringer) rvalueToPrintable(format string, value r.Value) interface{} 
 	var i interface{}
 	if !value.IsValid() {
 		i = nil
-	} else if value == reflect.None {
+	} else if value == reflect.NoneR {
 		i = "/*no value*/"
 	} else if value.CanInterface() {
 		i = st.toPrintable(format, value.Interface())

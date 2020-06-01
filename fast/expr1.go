@@ -18,7 +18,6 @@ package fast
 
 import (
 	"go/constant"
-	r "reflect"
 
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/reflect"
@@ -59,11 +58,11 @@ func exprFun(t xr.Type, fun I) *Expr {
 	return &Expr{Lit: Lit{Type: t}, Fun: fun}
 }
 
-func exprX1(t xr.Type, fun func(env *Env) r.Value) *Expr {
+func exprX1(t xr.Type, fun func(env *Env) xr.Value) *Expr {
 	return &Expr{Lit: Lit{Type: t}, Fun: fun}
 }
 
-func exprXV(types []xr.Type, fun func(env *Env) (r.Value, []r.Value)) *Expr {
+func exprXV(types []xr.Type, fun func(env *Env) (xr.Value, []xr.Value)) *Expr {
 	if len(types) == 1 {
 		return &Expr{Lit: Lit{Type: types[0]}, Fun: fun}
 	} else {
@@ -103,7 +102,7 @@ func (expr *Expr) EvalConst(opts CompileOptions) I {
 		return nil
 	}
 	var value I
-	if ret != reflect.Nil {
+	if ret.IsValid() {
 		value = ret.Interface()
 	}
 	expr.Value = value

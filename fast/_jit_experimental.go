@@ -187,7 +187,7 @@ func (j *Jit) Can(e *Expr) bool {
 func (j *Jit) Const(e *Expr) *Expr {
 	if j != nil && e.Jit == nil && e.Const() {
 		switch e.Lit.Type.Kind() {
-		case r.Bool, r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
+		case xr.Bool, r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
 			r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr,
 			r.Float32, r.Float64: // r.Complex64, r.Complex128
 

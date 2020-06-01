@@ -189,9 +189,9 @@ func (x *operand) setConst(tok token.Token, lit string) {
 	x.val = constant.MakeFromLiteral(lit, tok, 0)
 }
 
-// isNil reports whether x is the nil value.
-func (x *operand) isNil() bool {
-	return x.mode == value && x.typ == Typ[UntypedNil]
+// isNilR reports whether x is the nil value.
+func (x *operand) isNilR() bool {
+	return x.mode == value && x.typ == Typ[UntypedNilR]
 }
 
 // TODO(gri) The functions operand.assignableTo, checker.convertUntyped,
@@ -224,7 +224,7 @@ func (x *operand) assignableTo(check *Checker, T Type, reason *string) bool {
 	if isUntyped(Vu) {
 		switch t := Tu.(type) {
 		case *Basic:
-			if x.isNil() && t.kind == UnsafePointer {
+			if x.isNilR() && t.kind == UnsafePointer {
 				return true
 			}
 			if x.mode == constant_ {
@@ -236,9 +236,9 @@ func (x *operand) assignableTo(check *Checker, T Type, reason *string) bool {
 				return Vb.kind == UntypedBool && isBoolean(Tu)
 			}
 		case *Interface:
-			return x.isNil() || t.Empty()
+			return x.isNilR() || t.Empty()
 		case *Pointer, *Signature, *Slice, *Map, *Chan:
-			return x.isNil()
+			return x.isNilR()
 		}
 	}
 	// Vu is typed

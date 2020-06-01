@@ -71,7 +71,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -85,9 +85,9 @@ import (
 	if EvalType(rettyp) == nil {
 		// keep the result wrapped in a reflect.Value
 		return ~"{
-			ret = func(env *Env) r.Value {
+			ret = func(env *Env) xr.Value {
 				funv := exprfun(env)
-				return callxr(funv, base.ZeroValues)[0]
+				return callxr(funv, ZeroValues)[0]
 			}
 		}
 	}
@@ -107,7 +107,7 @@ import (
 			ret = func(env *Env) ~,rettyp {
 				fun := exprfun(env)
 				// Debugf("calling %v with args []", fun.Type())
-				ret := callxr(fun, base.ZeroValues)[0]
+				ret := callxr(fun, ZeroValues)[0]
 				return ~,retconv
 			}
 		} else if funsym != nil {
@@ -164,26 +164,26 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 	}
 	tret := expr.Type.Out(0)
 	kret := tret.Kind()
-	var cachedfunv r.Value
+	var cachedfunv xr.Value
 	var ret I
 	switch kret {
-	case r.Bool:      {mcall0ret1; bool}
-	case r.Int:       {mcall0ret1; int}
-	case r.Int8:      {mcall0ret1; int8}
-	case r.Int16:     {mcall0ret1; int16}
-	case r.Int32:     {mcall0ret1; int32}
-	case r.Int64:     {mcall0ret1; int64}
-	case r.Uint:      {mcall0ret1; uint}
-	case r.Uint8:     {mcall0ret1; uint8}
-	case r.Uint16:    {mcall0ret1; uint16}
-	case r.Uint32:    {mcall0ret1; uint32}
-	case r.Uint64:    {mcall0ret1; uint64}
-	case r.Uintptr:   {mcall0ret1; uintptr}
-	case r.Float32:   {mcall0ret1; float32}
-	case r.Float64:   {mcall0ret1; float64}
-	case r.Complex64: {mcall0ret1; complex64}
-	case r.Complex128:{mcall0ret1; complex128}
-	case r.String:    {mcall0ret1; string}
+	case xr.Bool:      {mcall0ret1; bool}
+	case xr.Int:       {mcall0ret1; int}
+	case xr.Int8:      {mcall0ret1; int8}
+	case xr.Int16:     {mcall0ret1; int16}
+	case xr.Int32:     {mcall0ret1; int32}
+	case xr.Int64:     {mcall0ret1; int64}
+	case xr.Uint:      {mcall0ret1; uint}
+	case xr.Uint8:     {mcall0ret1; uint8}
+	case xr.Uint16:    {mcall0ret1; uint16}
+	case xr.Uint32:    {mcall0ret1; uint32}
+	case xr.Uint64:    {mcall0ret1; uint64}
+	case xr.Uintptr:   {mcall0ret1; uintptr}
+	case xr.Float32:   {mcall0ret1; float32}
+	case xr.Float64:   {mcall0ret1; float64}
+	case xr.Complex64: {mcall0ret1; complex64}
+	case xr.Complex128:{mcall0ret1; complex128}
+	case xr.String:    {mcall0ret1; string}
 	default:          {mcall0ret1; nil}
 	}
 	return ret

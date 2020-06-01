@@ -28,6 +28,7 @@ import (
 	"github.com/cosmos72/gomacro/base/reflect"
 	etoken "github.com/cosmos72/gomacro/go/etoken"
 	mp "github.com/cosmos72/gomacro/go/parser"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 var (
@@ -53,11 +54,11 @@ func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 			}
 			fun := expr.AsX1()
 			toUnwrap := block != node
-			return exprX1(c.Universe.FromReflectType(rtypeOfNode), func(env *Env) r.Value {
-				x := reflect.Interface(fun(env))
+			return exprX1(c.Universe.FromReflectType(rtypeOfNode), func(env *Env) xr.Value {
+				x := reflect.ValueInterface(fun(env))
 				node := AnyToAstWithNode(x, "Quasiquote").Node()
 				node = SimplifyNodeForQuote(node, toUnwrap)
-				return r.ValueOf(node)
+				return xr.ValueOf(node)
 			})
 		}
 	}
@@ -98,7 +99,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 	switch in := in.(type) {
 	case AstWithSlice:
 		n := in.Size()
-		funs := make([]func(*Env) r.Value, 0, n)
+		funs := make([]func(*Env) xr.Value, 0, n)
 		splices := make([]bool, 0, n)
 		positions := make([]token.Position, 0, n)
 		for i := 0; i < n; i++ {
@@ -124,10 +125,10 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 		typ := c.TypeOf(in.Interface()) // extract the concrete type implementing ast.Node
 		rtype := typ.ReflectType()
 
-		return exprX1(typ, func(env *Env) r.Value {
+		return exprX1(typ, func(env *Env) xr.Value {
 			out := form.New().(AstWithSlice)
 			for i, fun := range funs {
-				x := reflect.Interface(fun(env))
+				x := reflect.ValueInterface(fun(env))
 				if debug {
 					output.Debugf("Quasiquote: env=%p, append to AstWithSlice: <%v> returned %v // %T", env, r.TypeOf(fun), x, x)
 				}
@@ -145,7 +146,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 					}
 				}
 			}
-			return r.ValueOf(out.Interface()).Convert(rtype)
+			return xr.ValueOf(out.Interface()).Convert(rtype)
 		}), false
 	case UnaryExpr:
 		unary := in.X
@@ -181,8 +182,8 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 				toks = toks[:unquoteDepth-1]
 				pos = pos[:unquoteDepth-1]
 
-				return exprX1(c.Universe.FromReflectType(rtypeOfBlockStmt), func(env *Env) r.Value {
-					x := reflect.Interface(fun(env))
+				return exprX1(c.Universe.FromReflectType(rtypeOfBlockStmt), func(env *Env) xr.Value {
+					x := reflect.ValueInterface(fun(env))
 					// Debugf("Quasiquote: runtime deep expansion returned: %v // %T", x, x)
 					form := AnyToAstWithSlice(x, position)
 					out := BlockStmt{&ast.BlockStmt{Lbrace: pos0, Rbrace: end}}
@@ -191,7 +192,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 						formi := AnyToAstWithNode(form.Get(i), position)
 						out.Append(MakeNestedQuote(formi, toks, pos))
 					}
-					return r.ValueOf(out.X)
+					return xr.ValueOf(out.X)
 				}), true
 			}
 			fallthrough
@@ -223,17 +224,17 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 			if op == etoken.UNQUOTE_SPLICE {
 				return c.quoteUnquoteSplice(op, pos, position, fun), false
 			}
-			return exprX1(c.Universe.FromReflectType(rtypeOfUnaryExpr), func(env *Env) r.Value {
+			return exprX1(c.Universe.FromReflectType(rtypeOfUnaryExpr), func(env *Env) xr.Value {
 				var node ast.Node
 				if fun != nil {
-					x := reflect.Interface(fun(env))
+					x := reflect.ValueInterface(fun(env))
 					if debug {
 						output.Debugf("Quasiquote: env = %p, body of %s: <%v> returned %v <%v>", env, etoken.String(op), r.TypeOf(fun), x, r.TypeOf(x))
 					}
 					node = AnyToAstWithNode(x, position).Node()
 				}
 				ret, _ := mp.MakeQuote(nil, op, token.NoPos, node)
-				return r.ValueOf(ret)
+				return xr.ValueOf(ret)
 			}), false
 		}
 	}
@@ -258,11 +259,11 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 	rtype := typ.ReflectType()
 
 	if n == 0 {
-		return exprX1(typ, func(env *Env) r.Value {
-			return r.ValueOf(form.New().Interface()).Convert(rtype)
+		return exprX1(typ, func(env *Env) xr.Value {
+			return xr.ValueOf(form.New().Interface()).Convert(rtype)
 		}), false
 	}
-	funs := make([]func(*Env) r.Value, n)
+	funs := make([]func(*Env) xr.Value, n)
 	positions := make([]token.Position, n)
 	for i := 0; i < n; i++ {
 		if form := in.Get(i); form != nil {
@@ -279,26 +280,26 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 		}
 	}
 
-	return exprX1(typ, func(env *Env) r.Value {
+	return exprX1(typ, func(env *Env) xr.Value {
 		out := form.New().(AstWithNode)
 		for i, fun := range funs {
 			if fun != nil {
-				x := reflect.Interface(fun(env))
+				x := reflect.ValueInterface(fun(env))
 				if debug {
 					output.Debugf("Quasiquote: env = %p, <%v> returned %v <%v>", env, r.TypeOf(fun), x, r.TypeOf(x))
 				}
 				out.Set(i, anyToAst(x, positions[i]))
 			}
 		}
-		return r.ValueOf(out.Interface()).Convert(rtype)
+		return xr.ValueOf(out.Interface()).Convert(rtype)
 	}), false
 }
 
-func (c *Comp) quoteUnquoteSplice(op token.Token, pos token.Pos, position token.Position, fun func(*Env) r.Value) *Expr {
-	return exprX1(c.Universe.FromReflectType(rtypeOfUnaryExpr), func(env *Env) r.Value {
+func (c *Comp) quoteUnquoteSplice(op token.Token, pos token.Pos, position token.Position, fun func(*Env) xr.Value) *Expr {
+	return exprX1(c.Universe.FromReflectType(rtypeOfUnaryExpr), func(env *Env) xr.Value {
 		var node ast.Node
 		if fun != nil {
-			x := reflect.Interface(fun(env))
+			x := reflect.ValueInterface(fun(env))
 			form := anyToAst(x, position)
 			switch form := form.(type) {
 			case AstWithNode:
@@ -319,10 +320,10 @@ func (c *Comp) quoteUnquoteSplice(op token.Token, pos token.Pos, position token.
 				}
 				output.Errorf("%s%s returned invalid type, expecting AstWithNode or AstWithSlice: %v, <%v>",
 					prefix, etoken.String(etoken.UNQUOTE_SPLICE), form, r.TypeOf(form))
-				return Nil
+				return xr.Value{}
 			}
 		}
 		ret, _ := mp.MakeQuote(nil, op, token.NoPos, node)
-		return r.ValueOf(ret)
+		return xr.ValueOf(ret)
 	})
 }
