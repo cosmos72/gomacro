@@ -28,7 +28,7 @@ func (t *xtype) ChanDir() r.ChanDir {
 	if t.Kind() != r.Chan {
 		xerrorf(t, "ChanDir of non-chan type %v", t)
 	}
-	gdir := t.gtype.(*types.Chan).Dir()
+	gdir := t.gunderlying().(*types.Chan).Dir()
 	return gdirTodir(gdir)
 }
 
@@ -90,7 +90,7 @@ func (t *xtype) Len() int {
 	if t.Kind() != r.Array {
 		xerrorf(t, "Len of non-array type %v", t)
 	}
-	return int(t.gtype.(*types.Array).Len())
+	return int(t.gunderlying().(*types.Array).Len())
 }
 
 func (v *Universe) ArrayOf(count int, elem Type) Type {

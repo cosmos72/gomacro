@@ -17,6 +17,7 @@
 package xreflect
 
 import (
+	"fmt"
 	"go/ast"
 	r "reflect"
 
@@ -90,6 +91,19 @@ const (
 	// type is still being defined
 	OptIncomplete
 )
+
+func (o Option) String() string {
+	switch o {
+	case OptDefault:
+		return "OptDefault"
+	case OptRecursive:
+		return "OptDefault"
+	case OptIncomplete:
+		return "OptIncomplete"
+	default:
+		return fmt.Sprintf("Opt(%d)", uint8(o))
+	}
+}
 
 type xtype struct {
 	kind     r.Kind
@@ -188,9 +202,9 @@ func MakeKey(t Type) Key {
 	if xt == nil {
 		return Key{}
 	}
-	i := xt.universe.gmap.At(xt.gtype)
-	if i != nil {
-		xt = unwrap(i.(Type))
+	it := xt.resolveFwd()
+	if it != nil {
+		xt = unwrap(it)
 	}
 	return Key{xt.universe, xt.gtype}
 }

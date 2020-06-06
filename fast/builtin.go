@@ -617,7 +617,7 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	args := make([]*Expr, nargs)
 	argtypes := make([]xr.Type, nargs)
 	argtypes[0] = c.TypeOfInterface()
-	args[0] = c.exprValue(argtypes[0], tin.ReflectType()) // no need to build TypeOfReflectType
+	args[0] = c.exprValue(argtypes[0], tin) // no need to build TypeOfXreflectType
 	te := c.TypeOfInt()
 	for i := 1; i < nargs; i++ {
 		argi := c.expr1(node.Args[i], nil)

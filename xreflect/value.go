@@ -85,6 +85,14 @@ func ToReflectValues(v []Value) []r.Value {
 	return rv
 }
 
+func isfwd(rv r.Value) bool {
+	return rv.Kind() == r.Interface && rv.Type() == rTypeOfForward
+}
+
+func (v Value) isfwd() bool {
+	return isfwd(v.rv)
+}
+
 func (v Value) fwd() r.Value {
 	rv := v.rv
 	if rv.Kind() == r.Interface && rv.Type() == rTypeOfForward {
@@ -100,7 +108,10 @@ func (v Value) ReflectValue() r.Value {
 // -----------------------------------------------------------------------------
 
 func (v Value) Addr() Value {
-	return Value{v.fwd().Addr()}
+	// values wrapped in Forward are not addressable
+	// (because values wrapped in interfaces are not addressable)
+	// thus just return the pointer to Forward
+	return Value{v.rv.Addr()}
 }
 
 func (v Value) Bool() bool {
@@ -132,7 +143,7 @@ func (v Value) CanInterface() bool {
 }
 
 func (v Value) CanSet() bool {
-	return v.fwd().CanSet()
+	return v.rv.CanSet()
 }
 
 func (v Value) Cap() int {
@@ -267,16 +278,39 @@ func (v Value) Send(x Value) {
 	v.fwd().Send(x.fwd())
 }
 
+func (v Value) setr(rx r.Value) {
+	if v.isfwd() {
+		rxtyp := rx.Type()
+		rtyp := v.Type()
+		if rxtyp != rtyp && rxtyp.ConvertibleTo(rtyp) {
+			rx = rx.Convert(rtyp)
+		}
+	}
+	v.rv.Set(rx)
+}
+
+func (v Value) set(x interface{}) {
+	v.setr(r.ValueOf(x))
+}
+
 func (v Value) Set(x Value) {
-	v.fwd().Set(x.fwd())
+	v.setr(x.fwd())
 }
 
 func (v Value) SetBool(x bool) {
-	v.fwd().SetBool(x)
+	if v.isfwd() {
+		v.set(x)
+	} else {
+		v.rv.SetBool(x)
+	}
 }
 
 func (v Value) SetBytes(x []byte) {
-	v.fwd().SetBytes(x)
+	if v.isfwd() {
+		v.set(x)
+	} else {
+		v.rv.SetBytes(x)
+	}
 }
 
 func (v Value) SetCap(n int) {
@@ -284,15 +318,27 @@ func (v Value) SetCap(n int) {
 }
 
 func (v Value) SetComplex(x complex128) {
-	v.fwd().SetComplex(x)
+	if v.isfwd() {
+		v.set(x)
+	} else {
+		v.rv.SetComplex(x)
+	}
 }
 
 func (v Value) SetFloat(x float64) {
-	v.fwd().SetFloat(x)
+	if v.isfwd() {
+		v.set(x)
+	} else {
+		v.rv.SetFloat(x)
+	}
 }
 
 func (v Value) SetInt(x int64) {
-	v.fwd().SetInt(x)
+	if v.isfwd() {
+		v.set(x)
+	} else {
+		v.rv.SetInt(x)
+	}
 }
 
 func (v Value) SetLen(n int) {
@@ -306,11 +352,19 @@ func (v Value) SetMapIndex(key, elem Value) {
 // func (v Value) SetPointer(x unsafe.Pointer) { ... }
 
 func (v Value) SetString(x string) {
-	v.fwd().SetString(x)
+	if v.isfwd() {
+		v.set(x)
+	} else {
+		v.rv.SetString(x)
+	}
 }
 
 func (v Value) SetUint(x uint64) {
-	v.fwd().SetUint(x)
+	if v.isfwd() {
+		v.set(x)
+	} else {
+		v.rv.SetUint(x)
+	}
 }
 
 func (v Value) Slice(i, j int) Value {

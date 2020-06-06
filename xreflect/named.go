@@ -50,7 +50,7 @@ func (v *Universe) reflectNamedOf(name, pkgpath string, rtype r.Type) Type {
 		underlying = v.TypeOfForward
 		opt = OptIncomplete
 	}
-	// debugf("namedof: %s/%s rtype = %v option = %v", pkgpath, name, rtype, opt)
+	// debugf("namedof: %s/%s, rtype = %v, %v", pkgpath, name, rtype, opt)
 	pkg := v.loadPackage(pkgpath)
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, nil)
 	return v.maketype4(
@@ -85,7 +85,7 @@ func (t *xtype) SetUnderlying(underlying Type) {
 	gunderlying := xunderlying.gtype.Underlying() // in case underlying is named
 	t.kind = gtypeToKind(xunderlying, gunderlying)
 	gtype.SetUnderlying(gunderlying)
-	// debugf("SetUnderlying: updated <%v> reflect Type from <%v> to <%v> (option = %v)", gtype, t.rtype, underlying.ReflectType(), t.option)
+	// debugf("SetUnderlying: updated <%v> reflect Type from <%v> to <%v> (%v)", gtype, t.rtype, underlying.ReflectType(), t.option)
 	t.rtype = underlying.ReflectType()
 	if t.kind == r.Interface {
 		// propagate methodvalue from underlying interface to named type

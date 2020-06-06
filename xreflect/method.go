@@ -39,7 +39,7 @@ func (m Method) String() string {
 // Returns 0 for other unnamed types.
 func (t *xtype) NumMethod() int {
 	num := 0
-	if gt, ok := t.gtype.Underlying().(*types.Interface); ok {
+	if gt, ok := t.gunderlying().(*types.Interface); ok {
 		num = gt.NumMethods()
 	} else {
 		// generics v2 add methods to most types
@@ -52,7 +52,7 @@ func (t *xtype) NumMethod() int {
 // Wrapper methods for embedded fields or embedded interfaces are not counted.
 func (t *xtype) NumExplicitMethod() int {
 	num := 0
-	if gt, ok := t.gtype.Underlying().(*types.Interface); ok {
+	if gt, ok := t.gunderlying().(*types.Interface); ok {
 		num = gt.NumExplicitMethods()
 	} else {
 		// generics v2 add methods to most types
@@ -139,7 +139,7 @@ func (t *xtype) method(i int) Method {
 		// easy, method is cached already
 		// fmt.Printf("DEBUG xtype.method(%d): t = %v,\tt.methodvalue[%d] = %v // %v\n", i, t, i, rfunc, rValueType(rfunc))
 		rfunctype = rfunc.Type()
-	} else if _, ok := t.gtype.Underlying().(*types.Interface); ok {
+	} else if _, ok := t.gunderlying().(*types.Interface); ok {
 		if rtype.Kind() == r.Ptr && isReflectInterfaceStruct(rtype.Elem()) {
 			// rtype is our emulated interface type,
 			// i.e. a pointer to a struct containing: InterfaceHeader, [0]struct { embeddeds }, methods (without receiver)
@@ -244,7 +244,7 @@ func removeReceiver(t Type) Type {
 
 func (t *xtype) gmethod(i int) *types.Func {
 	var gfun *types.Func
-	if gtype, ok := t.gtype.Underlying().(*types.Interface); ok {
+	if gtype, ok := t.gunderlying().(*types.Interface); ok {
 		gfun = gtype.Method(i)
 	} else {
 		gfun = t.gtype.Method(i)

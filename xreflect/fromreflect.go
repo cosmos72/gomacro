@@ -444,7 +444,7 @@ func (v *Universe) fromReflectInterface(rtype r.Type) Type {
 		// clone it NOW in order to detach from xreflect.Type and its associated reflect.Type
 		// otherwise the modified method.GoType() will remain inside an unmodified xreflect.Type
 		// Strange bugs happen then, see https://github.com/gopherdata/gophernotes/issues/151
-		gsig := cloneGoSignature(method.GoType().(*types.Signature))
+		gsig := cloneGoSignature(method.gunderlying().(*types.Signature))
 		gmethods[i] = types.NewFunc(token.NoPos, (*types.Package)(pkg), rmethod.Name, gsig)
 	}
 	// no way to extract embedded interfaces from reflect.Type. Just collect all methods
@@ -508,7 +508,7 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype r.Type) Type {
 		if t.Kind() != r.Func {
 			errorf(t, "FromReflectType: reflect.Type <%v> is an emulated interface containing the method <%v>.\n\tExtracting the latter returned a non-function: %v", t)
 		}
-		gtype := t.GoType().Underlying()
+		gtype := t.gunderlying()
 		pkg := v.loadPackage(rfield.PkgPath)
 		gmethods = append(gmethods, types.NewFunc(token.NoPos, (*types.Package)(pkg), name, gtype.(*types.Signature)))
 		if rebuild {

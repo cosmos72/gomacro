@@ -309,7 +309,7 @@ func (t *xtype) Implements(u Type) bool {
 	}
 	xu := unwrap(u)
 	return t.gtype == xu.gtype ||
-		(types.Implements(t.gtype, xu.gtype.Underlying().(*types.Interface)) &&
+		(types.Implements(t.gtype, xu.gunderlying().(*types.Interface)) &&
 			matchReceiverType(t, xu))
 }
 
@@ -381,4 +381,10 @@ func (t *xtype) SetUserData(key, value interface{}) {
 	} else {
 		t.userdata[key] = value
 	}
+}
+
+// lookup for t in t's Universe
+// needed to resolve reflect type from rTypeOfForward to concrete type
+func (t *xtype) resolveFwd() Type {
+	return t.universe.resolve(t.gtype)
 }

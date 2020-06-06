@@ -29,6 +29,7 @@ type Types struct {
 }
 
 type Universe struct {
+	// map types.Type -> Type
 	Types
 	// FromReflectType() map of types under construction.
 	// v.addmethods() will be invoked on them once the topmost FromReflectType() finishes.
@@ -154,6 +155,12 @@ func (v *Universe) importPackage(path string) *Package {
 	// convert go/types.Package -> github.com/cosmos72/go/types.Package
 	v.cachePackage(pkg)
 	return (*Package)(pkg)
+}
+
+// lookup for gtype in Universe
+func (v *Universe) resolve(gtype types.Type) Type {
+	t, _ := v.gmap.At(gtype).(Type)
+	return t
 }
 
 func (v *Universe) namedTypeFromImport(rtype r.Type) Type {

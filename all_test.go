@@ -374,6 +374,19 @@ type TagTriple = struct { // unnamed!
 	B, C string `json:"baz"`
 }
 
+// approximate 'type X struct { *X }'
+type structX = struct {
+	X xr.Forward
+}
+
+// approximate 'type F func(F); var f F; &f'
+func make_y_combinator_1() interface{} {
+	type F = func(xr.Forward)
+	var f F
+	var fwd xr.Forward = f
+	return &fwd
+}
+
 var bigInt = new(big.Int)
 var bigRat = new(big.Rat)
 var bigFloat = new(big.Float)
@@ -609,9 +622,7 @@ var testcases = []TestCase{
 	TestCase{A, "field_get_1", "pair.A", rune(0), nil},
 	TestCase{A, "field_get_2", "pair.B", "", nil},
 	TestCase{F, "field_anonymous_1", "triple.Pair", Pair{}, nil},
-	TestCase{F, "field_anonymous_2", "type Z struct { *Z }; Z{}", struct {
-		Z xr.Forward
-	}{}, nil},
+	TestCase{F, "field_anonymous_2", "type X struct { *X }; X{}", structX{(*structX)(nil)}, nil},
 	TestCase{F, "field_embedded_1", "triple.A", rune(0), nil},
 	TestCase{F, "field_embedded_2", "triple.B", "", nil},
 	TestCase{F, "field_embedded_3", "triple.Pair.A", rune(0), nil},
@@ -619,7 +630,7 @@ var testcases = []TestCase{
 	TestCase{F, "field_embedded_5", "tp.A", panics, nil},
 	TestCase{F, "field_embedded_6", "tp.Pair = &triple.Pair; tp.B", "", nil},
 
-	TestCase{F, "self_embedded_1", "type X struct { *X }; X{}.X", (xr.Forward)(nil), nil},
+	TestCase{F, "self_embedded_1", "X{}.X", (*structX)(nil), nil},
 	TestCase{F, "self_embedded_2", "var x X; x.X = &x; x.X.X.X.X.X.X.X.X == &x", true, nil},
 	TestCase{F, "self_embedded_3", "x.X.X.X == x.X.X.X.X.X", true, nil},
 
@@ -726,9 +737,9 @@ var testcases = []TestCase{
 	TestCase{A, "fibonacci", fibonacci_source_string + "; fibonacci(13)", 233, nil},
 	TestCase{A, "function_literal", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
-	TestCase{F, "y_combinator_1", "type F func(F); var f F; &f", new(xr.Forward), nil}, // xr.Forward is contagious
-	TestCase{F, "y_combinator_2", "func Y(f F) { }; Y", func(xr.Forward) {}, nil},      // avoid the infinite recursion, only check the types
-	TestCase{F, "y_combinator_3", "Y(Y)", nil, none},                                   // also check actual invokations
+	TestCase{F, "y_combinator_1", "type F func(F); var f F; &f", make_y_combinator_1(), nil},
+	TestCase{F, "y_combinator_2", "func Y(f F) { }; Y", func(xr.Forward) {}, nil}, // avoid the infinite recursion, only check the types
+	TestCase{F, "y_combinator_3", "Y(Y)", nil, none},                              // also check actual invokations
 	TestCase{F, "y_combinator_4", "f=Y; f(Y)", nil, none},
 	TestCase{F, "y_combinator_5", "Y(f)", nil, none},
 	TestCase{F, "y_combinator_6", "f(f)", nil, none},
@@ -1452,8 +1463,9 @@ var testcases = []TestCase{
 
 	TestCase{F | G1 | G2, "recursive_generic_type_1",
 		generic_type("ListX", "T") + `struct { First T; Rest *ListX#[T] }
-		var lx ListX#[error]; lx`, ListX2{}, nil},
-	TestCase{F | G1 | G2, "recursive_generic_type_2", `ListX#[interface{}]{}`, ListX3{}, nil},
+		var lx ListX#[error]; lx`, ListX2{nil, (*ListX2)(nil)}, nil},
+	TestCase{F | G1 | G2, "recursive_generic_type_2", `ListX#[interface{}]{}`,
+		ListX3{nil, (*ListX3)(nil)}, nil},
 
 	TestCase{F | G1, "specialized_generic_type_1", `
 		template[] for[struct{}] type ListX struct { }

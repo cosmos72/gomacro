@@ -18,7 +18,8 @@ package xreflect
 
 import (
 	r "reflect"
-	"time"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 type SelectCase = r.SelectCase
@@ -123,11 +124,8 @@ func sliceOfForward(n int) []r.Type {
 
 // recursively initialize any xreflect.Forward
 func fillForward(rv r.Value, t Type) r.Value {
-	return rv
-
-	// FIXME debug this
 	xt := unwrap(t)
-	debugf("fillForward: %+v type %v (option = %#v)", rv.Interface(), t, xt.option)
+	// debugf("fillForward: value %+v, type %v, %v", rv.Interface(), t, xt.option)
 	if xt == nil || xt.option == OptDefault {
 		return rv
 	}
@@ -135,15 +133,9 @@ func fillForward(rv r.Value, t Type) r.Value {
 	case Array:
 		fillForwardSlice(rv, t)
 	case Interface:
-		if rv.Type() != rTypeOfForward || !rv.IsNil() {
-			break
+		if isfwd(rv) {
+			rv = fillForwardInterface(rv, t)
 		}
-		fallthrough
-	case Invalid:
-		if t.Kind() == Interface {
-			break
-		}
-		rv = fillForwardInterface(rv, t)
 	case Ptr:
 		rv = fillForwardPtr(rv, t)
 	case Slice:
@@ -155,14 +147,59 @@ func fillForward(rv r.Value, t Type) r.Value {
 }
 
 func fillForwardInterface(rv r.Value, t Type) r.Value {
-	time.Sleep(time.Second)
-	fill := New(t).ReflectValue().Elem()
+	xt := unwrap(t)
+	rt := xt.rtype
+	// debugf("fillForwardInterface: (step 1) value %+v, type %v, kind %v, rtype %v, %v", rv.Interface(), t, xt.kind, rt, xt.option)
+	// time.Sleep(time.Second / 10)
+	switch xt.kind {
+	case Chan:
+		relem := xt.elem().resolveFwd().ReflectType()
+		rt = r.ChanOf(xt.ChanDir(), relem)
+	case Func:
+		rt = resolveFwdFunc(xt)
+	case Map:
+		rkey := xt.Key().resolveFwd().ReflectType()
+		relem := xt.elem().resolveFwd().ReflectType()
+		rt = r.MapOf(rkey, relem)
+	case Ptr:
+		relem := xt.elem().resolveFwd().ReflectType()
+		rt = r.PtrTo(relem)
+	case Slice:
+		relem := xt.elem().resolveFwd().ReflectType()
+		rt = r.SliceOf(relem)
+	}
+	// debugf("fillForwardInterface: (step 2) value %+v, type %v, kind %v, rtype %v, %v", rv.Interface(), t, xt.kind, rt, xt.option)
+	fill := r.Zero(rt)
 	if rv.CanSet() {
 		rv.Set(fill)
 	} else {
 		rv = fill
 	}
 	return rv
+}
+
+// convert reflect type rTypeOfForward to concrete function type
+func resolveFwdFunc(xt *xtype) r.Type {
+	v := xt.universe
+	gsig := xt.gunderlying().(*types.Signature)
+	var in []r.Type
+	if grecv := gsig.Recv(); grecv != nil {
+		in = append(in, v.resolve(grecv.Type()).ReflectType())
+	}
+	in = append(in, resolveFwdTuple(v, gsig.Params())...)
+	out := resolveFwdTuple(v, gsig.Results())
+	return r.FuncOf(in, out, gsig.Variadic())
+}
+
+func resolveFwdTuple(v *Universe, tuple *types.Tuple) []r.Type {
+	if tuple == nil {
+		return nil
+	}
+	rtypes := make([]r.Type, tuple.Len())
+	for i, n := 0, tuple.Len(); i < n; i++ {
+		rtypes[i] = v.resolve(tuple.At(i).Type()).ReflectType()
+	}
+	return rtypes
 }
 
 func fillForwardSlice(rv r.Value, t Type) {
@@ -174,7 +211,7 @@ func fillForwardSlice(rv r.Value, t Type) {
 }
 
 func fillForwardPtr(rv r.Value, t Type) r.Value {
-	debugf("fillForwardPtr: %+v type %v", rv.Interface(), t)
+	// debugf("fillForwardPtr: %+v type %v", rv.Interface(), t)
 	fill := r.Zero(t.ReflectType())
 	if rv.CanSet() {
 		rv.Set(fill)
@@ -185,13 +222,13 @@ func fillForwardPtr(rv r.Value, t Type) r.Value {
 }
 
 func fillForwardStruct(rv r.Value, t Type) {
-	debugf("fillForwardStruct: %+v type %v", rv.Interface(), t)
+	// debugf("fillForwardStruct: %+v type %v", rv.Interface(), t)
 	rt := t.ReflectType()
 	for i, n := 0, rv.NumField(); i < n; i++ {
 		field := t.Field(i)
 		tfield := field.Type
 		rfield := rv.Field(i)
-		debugf("fillForwardStruct field %d: %q %+v type %v", i, field.Name, rv.Interface(), t)
+		// debugf("fillForwardStruct field %d: %q %+v type %v", i, field.Name, rv.Interface(), t)
 
 		if rt.Field(i).Type == rTypeOfForward {
 			fillForwardInterface(rfield, tfield)
