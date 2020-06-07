@@ -43,17 +43,17 @@ func (c *Comp) CompositeLit(node *ast.CompositeLit, t xr.Type) *Expr {
 	}
 	switch t.Kind() {
 	case xr.Array:
-		return c.compositeLitArray(t, ellipsis, node)
+		return c.compositeLitArray(t.Resolve(), ellipsis, node)
 	case xr.Map:
 		return c.compositeLitMap(t, node)
 	case xr.Slice:
-		return c.compositeLitSlice(t, node)
+		return c.compositeLitSlice(t.Resolve(), node)
 	case xr.Struct:
-		return c.compositeLitStruct(t, node)
+		return c.compositeLitStruct(t.Resolve(), node)
 	case xr.Ptr:
 		switch t.Elem().Kind() {
 		case xr.Array, r.Map, r.Slice, r.Struct:
-			return c.addressOf(node, t)
+			return c.addressOf(node, t.Resolve())
 		}
 	}
 	c.Errorf("invalid type for composite literal: <%v> %v", t, node.Type)

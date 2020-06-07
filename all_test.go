@@ -634,10 +634,23 @@ var testcases = []TestCase{
 	TestCase{F, "self_embedded_2", "var x X; x.X = &x; x.X.X.X.X.X.X.X.X == &x", true, nil},
 	TestCase{F, "self_embedded_3", "x.X.X.X == x.X.X.X.X.X", true, nil},
 
-	TestCase{F, "recursive_type_issue_44", `
+	TestCase{F, "recursive_type_gomacro_issue_44", `
 		type FS struct { slice []FS }
 		fs := make([]FS, 8)
 		fs[0].slice = fs[1:8]
+	`, nil, none},
+
+	TestCase{F, "recursive_type_gophernotes_issue_208", `
+		type Item struct {
+		    Name               string
+		    Children           []Item
+		}
+		graph := Item{
+		    Name: "my-name",
+		    Children: []Item{
+		        {Name: "other-name"},
+		    },
+		}
 	`, nil, none},
 
 	TestCase{A, "address_0", "var vf = 1.25; *&vf == vf", true, nil},

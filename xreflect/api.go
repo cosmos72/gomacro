@@ -131,7 +131,19 @@ func (t Type) PkgPath() string {
 //    i.e. the type name will be missing due to limitation 1 above,
 //    and the field 'Rest' will have type interface{} instead of *List due to limitation 5.
 func (t Type) ReflectType() r.Type {
-	return t(z{}).ReflectType()
+	return t(z{}).rtype
+}
+
+// if t.ReflectType() is Forward i.e. unknown/approximated due to recursive types,
+// try to resolve it
+func (t Type) Resolve() Type {
+	xt := t(z{})
+	if xt.rtype == rtypeOfForward {
+		if rtype := resolveFwdR(xt); rtype != xt.rtype {
+			t = xt.universe.MakeType(xt.gtype, rtype, OptRecursive)
+		}
+	}
+	return t
 }
 
 func (t Type) approxReflectType() r.Type {
