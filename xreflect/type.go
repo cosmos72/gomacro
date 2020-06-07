@@ -385,6 +385,6 @@ func (t *xtype) SetUserData(key, value interface{}) {
 
 // lookup for t in t's Universe
 // needed to resolve reflect type from rTypeOfForward to concrete type
-func (t *xtype) resolveFwd() Type {
+func (t *xtype) resolve() Type {
 	return t.universe.resolve(t.gtype)
 }

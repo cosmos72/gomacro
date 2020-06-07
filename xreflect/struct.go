@@ -55,7 +55,7 @@ func (t *xtype) field(i int) StructField {
 	} else {
 		// cannot dig in a forward-declared type,
 		// so try to resolve it
-		it := t.resolveFwd()
+		it := t.resolve()
 		if it != nil {
 			rtype := it.ReflectType()
 			if rtype.Kind() != t.kind {

@@ -202,7 +202,7 @@ func MakeKey(t Type) Key {
 	if xt == nil {
 		return Key{}
 	}
-	it := xt.resolveFwd()
+	it := xt.resolve()
 	if it != nil {
 		xt = unwrap(it)
 	}

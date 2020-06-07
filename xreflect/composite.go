@@ -97,7 +97,10 @@ func (v *Universe) ArrayOf(count int, elem Type) Type {
 	e := unwrap(elem)
 	return v.MakeType(
 		types.NewArray(e.gtype, int64(count)),
-		r.ArrayOf(count, e.approxReflectType()),
+		propagateFwd(e,
+			func(rt r.Type) r.Type {
+				return r.ArrayOf(count, rt)
+			}),
 		e.option)
 }
 
@@ -121,16 +124,9 @@ func (v *Universe) MapOf(key, elem Type) Type {
 
 func (v *Universe) PtrTo(elem Type) Type {
 	e := unwrap(elem)
-	rtype := e.rtype
-	if e.option != OptDefault || rtype == rTypeOfForward {
-		e.option = OptRecursive
-		rtype = rTypeOfForward
-	} else {
-		rtype = r.PtrTo(rtype)
-	}
 	return v.MakeType(
 		types.NewPointer(e.gtype),
-		rtype,
+		propagateFwd(e, r.PtrTo),
 		e.option)
 }
 
@@ -138,6 +134,17 @@ func (v *Universe) SliceOf(elem Type) Type {
 	e := unwrap(elem)
 	return v.MakeType(
 		types.NewSlice(e.gtype),
-		r.SliceOf(e.approxReflectType()),
+		propagateFwd(e, r.SliceOf),
 		e.option)
+}
+
+func propagateFwd(xt *xtype, maker func(r.Type) r.Type) r.Type {
+	rtype := xt.rtype
+	if xt.option != OptDefault || rtype == rTypeOfForward {
+		xt.option = OptRecursive
+		rtype = rTypeOfForward
+	} else {
+		rtype = maker(rtype)
+	}
+	return rtype
 }

@@ -336,8 +336,8 @@ func (t Type) gunderlying() types.Type {
 
 // lookup for t in t's Universe.
 // needed to resolve reflect type from rTypeOfForward to concrete type
-func (t Type) resolveFwd() Type {
-	return t(z{}).resolveFwd()
+func (t Type) resolve() Type {
+	return t(z{}).resolve()
 }
 
 func (t Type) Universe() *Universe {
