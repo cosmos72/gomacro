@@ -23,7 +23,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/reflect"
 	etoken "github.com/cosmos72/gomacro/go/etoken"
@@ -39,10 +39,11 @@ var (
 
 func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 	block := unary.X.(*ast.FuncLit).Body
-	node := SimplifyNodeForQuote(block, true)
+	node := base.SimplifyNodeForQuote(block, true)
 
 	if block != nil && len(block.List) == 1 {
-		if unary, ok := SimplifyNodeForQuote(block.List[0], false).(*ast.UnaryExpr); ok && (unary.Op == etoken.UNQUOTE || unary.Op == etoken.UNQUOTE_SPLICE) {
+		unary, ok := base.SimplifyNodeForQuote(block.List[0], false).(*ast.UnaryExpr)
+		if ok && (unary.Op == etoken.UNQUOTE || unary.Op == etoken.UNQUOTE_SPLICE) {
 			// to support quasiquote{unquote ...} and quasiquote{unquote_splice ...}
 			// we invoke SimplifyNodeForQuote() at the end, not at the beginning.
 
@@ -57,7 +58,7 @@ func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 			return exprX1(c.Universe.FromReflectType(rtypeOfNode), func(env *Env) xr.Value {
 				x := reflect.ValueInterface(fun(env))
 				node := AnyToAstWithNode(x, "Quasiquote").Node()
-				node = SimplifyNodeForQuote(node, toUnwrap)
+				node = base.SimplifyNodeForQuote(node, toUnwrap)
 				return xr.ValueOf(node)
 			})
 		}
@@ -87,7 +88,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 	if in == nil || in.Interface() == nil {
 		return nil, false
 	}
-	debug := c.Options&OptDebugQuasiquote != 0
+	debug := c.Options&base.OptDebugQuasiquote != 0
 	var label string
 	if canSplice {
 		label = " splice"
@@ -104,7 +105,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 		positions := make([]token.Position, 0, n)
 		for i := 0; i < n; i++ {
 			if form := in.Get(i); form != nil {
-				form = SimplifyAstForQuote(form, false)
+				form = base.SimplifyAstForQuote(form, false)
 				expr, splice := c.quasiquote(form, depth, true)
 				fun := expr.AsX1()
 				if fun == nil {
@@ -152,7 +153,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 		unary := in.X
 		switch op := unary.Op; op {
 		case etoken.UNQUOTE, etoken.UNQUOTE_SPLICE:
-			inner, unquoteDepth := DescendNestedUnquotes(in)
+			inner, unquoteDepth := base.DescendNestedUnquotes(in)
 			if debug {
 				c.Debugf("Quasiquote[%d]%s deep splice expansion? %v. unquoteDepth = %d, inner.Op() = %s: %v // %T",
 					depth, label, unquoteDepth > 1 && unquoteDepth >= depth && inner.Op() == etoken.UNQUOTE_SPLICE,
@@ -169,13 +170,13 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 				//   quasiquote{1; unquote{2}; unquote{7}; unquote{8}}
 
 				depth -= unquoteDepth
-				node := SimplifyNodeForQuote(inner.X.X.(*ast.FuncLit).Body, true)
+				node := base.SimplifyNodeForQuote(inner.X.X.(*ast.FuncLit).Body, true)
 				form := ToAst(node)
 				if debug {
 					c.Debugf("Quasiquote[%d]%s deep splice compiling %s: %v // %T", depth, label, etoken.String(inner.Op()), node, node)
 				}
 				fun := c.compileExpr(form).AsX1()
-				toks, pos := CollectNestedUnquotes(in)
+				toks, pos := base.CollectNestedUnquotes(in)
 				position := c.Fileset.Position(pos[0])
 				pos0 := pos[0]
 				end := unary.End()
@@ -190,14 +191,14 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 					for i, ni := 0, form.Size(); i < ni; i++ {
 						// cheat: BlockStmt.Append() does not modify the receiver
 						formi := AnyToAstWithNode(form.Get(i), position)
-						out.Append(MakeNestedQuote(formi, toks, pos))
+						out.Append(base.MakeNestedQuote(formi, toks, pos))
 					}
 					return xr.ValueOf(out.X)
 				}), true
 			}
 			fallthrough
 		case etoken.QUOTE, etoken.QUASIQUOTE:
-			node := SimplifyNodeForQuote(unary.X.(*ast.FuncLit).Body, true)
+			node := base.SimplifyNodeForQuote(unary.X.(*ast.FuncLit).Body, true)
 			form := ToAst(node)
 
 			if op == etoken.QUASIQUOTE {
@@ -267,7 +268,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 	positions := make([]token.Position, n)
 	for i := 0; i < n; i++ {
 		if form := in.Get(i); form != nil {
-			form = SimplifyAstForQuote(form, false)
+			form = base.SimplifyAstForQuote(form, false)
 			fun := c.quasiquote1(form, depth, false).AsX1()
 			if fun == nil {
 				c.Warnf("Quasiquote[%d]: node expanded to nil: %v", depth, form.Interface())

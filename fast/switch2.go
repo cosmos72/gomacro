@@ -22,7 +22,6 @@
 package fast
 
 import (
-	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 

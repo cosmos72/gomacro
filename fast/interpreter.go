@@ -24,7 +24,7 @@ import (
 	"os"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/gls"
 	"github.com/cosmos72/gomacro/go/types"
@@ -137,7 +137,7 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 	}
 }
 
-func (ir *Interp) SetInspector(inspector Inspector) {
+func (ir *Interp) SetInspector(inspector base.Inspector) {
 	ir.Comp.Globals.Inspector = inspector
 }
 
@@ -282,10 +282,10 @@ func (ir *Interp) EvalReader(src io.Reader) (comments string, err error) {
 	savein := g.Readline
 	saveopts := g.Options
 	g.Line = 0
-	in := MakeBufReadline(bufio.NewReader(src), g.Stdout)
+	in := base.MakeBufReadline(bufio.NewReader(src), g.Stdout)
 	g.Readline = in
 	// parsing a file: suppress prompt and printing expression results
-	g.Options &^= OptShowPrompt | OptShowEval | OptShowEvalType
+	g.Options &^= base.OptShowPrompt | base.OptShowEval | base.OptShowEvalType
 	defer func() {
 		g.Readline = savein
 		g.Options = saveopts
@@ -300,7 +300,7 @@ func (ir *Interp) EvalReader(src io.Reader) (comments string, err error) {
 	}()
 
 	// perform the first iteration manually, to collect comments
-	str, firstToken := g.ReadMultiline(ReadOptCollectAllComments, g.Prompt)
+	str, firstToken := g.ReadMultiline(base.ReadOptCollectAllComments, g.Prompt)
 	if firstToken >= 0 {
 		comments = str[0:firstToken]
 		if firstToken > 0 {

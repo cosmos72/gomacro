@@ -23,7 +23,7 @@ import (
 	"strings"
 	"unsafe"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/paths"
@@ -62,7 +62,7 @@ func (ir *Interp) ChangePackage(name, path string) {
 
 	c.CompGlobals.KnownImports[oldp.Path] = oldp // overwrite any cached import with same path as current Interp
 
-	trace := c.Globals.Options&OptShowPrompt != 0
+	trace := c.Globals.Options&base.OptShowPrompt != 0
 	top := &Interp{c.TopComp(), ir.env.Top()}
 	if newp != nil {
 		newp.Name = name
@@ -74,7 +74,7 @@ func (ir *Interp) ChangePackage(name, path string) {
 		// requested package does not exist - create an empty one
 		ir.Comp = NewComp(top.Comp, nil)
 		ir.env = NewEnv(top.env, 0, 0)
-		if c.Globals.Options&OptDebugger != 0 {
+		if c.Globals.Options&base.OptDebugger != 0 {
 			ir.env.DebugComp = ir.Comp
 		}
 		ir.Comp.Name = name
@@ -147,7 +147,8 @@ func (c *Comp) ImportPackageOrError(alias, path string) (*Import, error) {
 	g := c.CompGlobals
 	imp := g.KnownImports[path]
 	if imp == nil {
-		pkgref, err := g.Importer.ImportPackageOrError(alias, path, g.Options&OptModuleImport != 0)
+		pkgref, err := g.Importer.ImportPackageOrError(
+			alias, path, g.Options&base.OptModuleImport != 0)
 		if err != nil {
 			return nil, err
 		}

@@ -29,17 +29,6 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-// dereference a pointer, possibly inside an xreflect.Forward
-func elem(value xr.Value) xr.Value {
-	if value.Kind() == r.Interface {
-		value = value.Elem()
-	}
-	if value.Kind() == r.Ptr {
-		value = value.Elem()
-	}
-	return value
-}
-
 func eFalse(*Env) bool {
 	return false
 }

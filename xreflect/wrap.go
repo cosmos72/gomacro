@@ -18,6 +18,7 @@ package xreflect
 
 import (
 	r "reflect"
+	"time"
 
 	"github.com/cosmos72/gomacro/go/types"
 )
@@ -149,8 +150,8 @@ func fillForward(rv r.Value, t Type) r.Value {
 func fillForwardInterface(rv r.Value, t Type) r.Value {
 	xt := unwrap(t)
 	rt := xt.rtype
-	// debugf("fillForwardInterface: (step 1) value %+v, type %v, kind %v, rtype %v, %v", rv.Interface(), t, xt.kind, rt, xt.option)
-	// time.Sleep(time.Second / 10)
+	debugf("fillForwardInterface: (step 1) value %+v, type %v, kind %v, rtype %v, %v", rv.Interface(), t, xt.kind, rt, xt.option)
+	time.Sleep(time.Second / 10)
 	switch xt.kind {
 	case Chan:
 		relem := xt.elem().resolveFwd().ReflectType()
@@ -167,8 +168,10 @@ func fillForwardInterface(rv r.Value, t Type) r.Value {
 	case Slice:
 		relem := xt.elem().resolveFwd().ReflectType()
 		rt = r.SliceOf(relem)
+	case Struct:
+		rt = xt.resolveFwd().ReflectType()
 	}
-	// debugf("fillForwardInterface: (step 2) value %+v, type %v, kind %v, rtype %v, %v", rv.Interface(), t, xt.kind, rt, xt.option)
+	debugf("fillForwardInterface: (step 2) value %+v, type %v, kind %v, rtype %v, %v", rv.Interface(), t, xt.kind, rt, xt.option)
 	fill := r.Zero(rt)
 	if rv.CanSet() {
 		rv.Set(fill)

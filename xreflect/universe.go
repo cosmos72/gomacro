@@ -160,6 +160,9 @@ func (v *Universe) importPackage(path string) *Package {
 // lookup for gtype in Universe
 func (v *Universe) resolve(gtype types.Type) Type {
 	t, _ := v.gmap.At(gtype).(Type)
+	if t == nil || t.ReflectType() == rtypeOfForward {
+		t, _ = v.gmap.At(gtype.Underlying()).(Type)
+	}
 	return t
 }
 

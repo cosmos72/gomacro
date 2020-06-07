@@ -21,7 +21,7 @@ import (
 	r "reflect"
 	"unsafe"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -99,10 +99,10 @@ func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool
 func (c *Comp) TryLookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool, xr.Method, bool, error) {
 	field, fieldn := c.LookupField(t, name)
 	mtd, mtdn := c.LookupMethod(t, name)
-	if c.Options&OptDebugField != 0 {
+	if c.Options&base.OptDebugField != 0 {
 		c.Debugf("LookupFieldOrMethod for %v.%v found %d fields:  %#v", t, name, fieldn, field)
 	}
-	if c.Options&OptDebugMethod != 0 {
+	if c.Options&base.OptDebugMethod != 0 {
 		c.Debugf("LookupFieldOrMethod for %v.%v found %d methods: %#v", t, name, mtdn, mtd)
 	}
 	fielddepth := len(field.Index)
@@ -477,7 +477,7 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 
 // create and return a function that, given a reflect.Value, returns its method specified by mtd
 func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(xr.Value) xr.Value) {
-	if c.Options&OptDebugMethod != 0 {
+	if c.Options&base.OptDebugMethod != 0 {
 		c.Debugf("compileObjGetMethod for %v.%v: method is %#v", t, mtd.Name, mtd)
 	}
 	index := mtd.Index
@@ -569,7 +569,7 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(xr.Value)
 			c.Errorf("method declared but not yet implemented: %s.%s", tname, methodname)
 		} else if len(*funs) <= index || (*funs)[index].Kind() != r.Func {
 			// c.Warnf("method declared but not yet implemented: %s.%s", tname, methodname)
-		} else if c.Options&OptDebugMethod != 0 {
+		} else if c.Options&base.OptDebugMethod != 0 {
 			c.Debugf("compiling method %v.%s <%v>: method declared by interpreted code, manually building the closure reflect.Type <%v>",
 				tname, methodname, mtd.Type, rtclosure)
 		}
@@ -718,7 +718,7 @@ func (c *Comp) computeMethodFieldIndex(t xr.Type, mtd xr.Method) (fieldtype xr.T
 	addressof = !objPointer && recvPointer
 	deref = objPointer && !recvPointer
 
-	debug := c.Options&OptDebugMethod != 0
+	debug := c.Options&base.OptDebugMethod != 0
 	if debug {
 		c.Debugf("compiling method %v.%v", t.Name(), mtd.Name)
 	}

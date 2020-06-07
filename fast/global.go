@@ -25,7 +25,7 @@ import (
 	"sort"
 
 	"github.com/cosmos72/gomacro/atomic"
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/untyped"
 	xr "github.com/cosmos72/gomacro/xreflect"
@@ -546,7 +546,7 @@ type Debugger interface {
 type IrGlobals struct {
 	gls  map[uintptr]*Run
 	lock atomic.SpinLock
-	Globals
+	base.Globals
 }
 
 // Run contains per-goroutine interpreter runtime bookeeping information
@@ -554,14 +554,14 @@ type Run struct {
 	*IrGlobals
 	goid         uintptr // owner goroutine id
 	Interrupt    Stmt
-	Signals      Signals // set by defer, return, breakpoint, debugger and Run.interrupt(os.Signal)
+	Signals      base.Signals // set by defer, return, breakpoint, debugger and Run.interrupt(os.Signal)
 	ExecFlags    ExecFlags
 	CurrEnv      *Env        // caller of current function. used ONLY at function entry to build call stack
 	InstallDefer func()      // defer function to be installed
 	DeferOfFun   *Env        // function whose defer are running
 	PanicFun     *Env        // the currently panicking function
 	Panic        interface{} // current panic. needed for recover()
-	CmdOpt       CmdOpt
+	CmdOpt       base.CmdOpt
 	Debugger     Debugger
 	DebugDepth   int // depth of function to debug with single-step
 	PoolSize     int
@@ -581,7 +581,7 @@ type CompGlobals struct {
 
 func (cg *CompGlobals) CompileOptions() CompileOptions {
 	var opts CompileOptions
-	if cg.Options&OptKeepUntyped != 0 {
+	if cg.Options&base.OptKeepUntyped != 0 {
 		opts = COptKeepUntyped
 	}
 	return opts
