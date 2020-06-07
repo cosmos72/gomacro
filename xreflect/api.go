@@ -134,6 +134,10 @@ func (t Type) ReflectType() r.Type {
 	return t(z{}).ReflectType()
 }
 
+func (t Type) approxReflectType() r.Type {
+	return t(z{}).approxReflectType()
+}
+
 func (t Type) UnsafeForceReflectType(rtype r.Type) {
 	t(z{}).UnsafeForceReflectType(rtype)
 }
@@ -328,6 +332,12 @@ func (t Type) SetUnderlying(underlying Type) {
 // or for struct types with embedded or unexported fields.
 func (t Type) gunderlying() types.Type {
 	return t(z{}).gunderlying()
+}
+
+// lookup for t in t's Universe.
+// needed to resolve reflect type from rTypeOfForward to concrete type
+func (t Type) resolve() Type {
+	return t(z{}).resolve()
 }
 
 func (t Type) Universe() *Universe {

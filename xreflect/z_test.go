@@ -129,7 +129,7 @@ func TestBasic(t *testing.T) {
 		is(t, typ.ReflectType(), rtype)
 		istypeof(t, typ.GoType(), (*types.Basic)(nil))
 
-		basic := typ.GoType().Underlying().(*types.Basic)
+		basic := typ.gunderlying().(*types.Basic)
 		k := ToReflectKind(basic.Kind())
 		is(t, k, rtype.Kind())
 	}

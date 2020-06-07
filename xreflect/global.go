@@ -17,6 +17,7 @@
 package xreflect
 
 import (
+	"fmt"
 	"go/ast"
 	r "reflect"
 
@@ -30,18 +31,18 @@ type Forward interface{}
 // InterfaceHeader is the internal header of interpreted interfaces
 type InterfaceHeader struct {
 	// val and typ must be private! otherwise interpreted code may mess with them and break type safety
-	val r.Value
+	val Value
 	typ Type
 }
 
-func MakeInterfaceHeader(val r.Value, typ Type) InterfaceHeader {
+func MakeInterfaceHeader(val Value, typ Type) InterfaceHeader {
 	if val.IsValid() && val.CanSet() {
 		val = val.Convert(val.Type()) // make a copy
 	}
 	return InterfaceHeader{val, typ}
 }
 
-func (h InterfaceHeader) Value() r.Value {
+func (h InterfaceHeader) Value() Value {
 	return h.val
 }
 
@@ -80,18 +81,44 @@ const (
 	addmethodsDone
 )
 
+type Option uint8
+
+const (
+	OptDefault Option = iota
+	// type is approximate because it's self-recursive
+	// or part of a recursive cycle
+	OptRecursive
+	// type is still being defined
+	OptIncomplete
+)
+
+func (o Option) String() string {
+	switch o {
+	case OptDefault:
+		return "OptDefault"
+	case OptRecursive:
+		return "OptDefault"
+	case OptIncomplete:
+		return "OptIncomplete"
+	default:
+		return fmt.Sprintf("Opt(%d)", uint8(o))
+	}
+}
+
 type xtype struct {
 	kind     r.Kind
 	gtype    types.Type
 	rtype    r.Type
 	universe *Universe
-	// lazily computed information
-	lazy struct {
-		underlying Type           // underlying type,
-		elem       Type           // chan, pointer, slice, array, map: element type
-		key        Type           // map: key type
-		fields     *[]StructField // struct: fields
-	}
+	/*
+		// lazily computed information
+		lazy struct {
+			underlying Type           // underlying type,
+			elem       Type           // chan, pointer, slice, array, map: element type
+			key        Type           // map: key type
+			fields     *[]StructField // struct: fields
+		}
+	*/
 	cache struct {
 		field  map[QName]StructField
 		method map[QName]Method
@@ -99,6 +126,7 @@ type xtype struct {
 	methodvalue []r.Value
 	userdata    map[interface{}]interface{}
 	addmethods  addmethods
+	option      Option
 }
 
 // QName is a replacement for go/types.Id and implements accurate comparison
@@ -174,9 +202,9 @@ func MakeKey(t Type) Key {
 	if xt == nil {
 		return Key{}
 	}
-	i := xt.universe.gmap.At(xt.gtype)
-	if i != nil {
-		xt = unwrap(i.(Type))
+	it := xt.resolve()
+	if it != nil {
+		xt = unwrap(it)
 	}
 	return Key{xt.universe, xt.gtype}
 }

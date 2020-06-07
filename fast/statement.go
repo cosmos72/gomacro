@@ -22,9 +22,10 @@ import (
 	r "reflect"
 	"sort"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/gls"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func stmtNop(env *Env) (Stmt, *Env) {
@@ -292,7 +293,7 @@ func (c *Comp) Defer(node *ast.DeferStmt) {
 		if f.CanSet() {
 			f = f.Convert(f.Type()) // make a copy
 		}
-		args := make([]r.Value, len(argfuns))
+		args := make([]xr.Value, len(argfuns))
 		for i, argfun := range argfuns {
 			v := argfun(env)
 			if v.CanSet() {
@@ -311,7 +312,7 @@ func (c *Comp) Defer(node *ast.DeferStmt) {
 				f.Call(args)
 			}
 		}
-		run.Signals.Sync = SigDefer
+		run.Signals.Sync = base.SigDefer
 		return run.Interrupt, env
 	}, node.Pos())
 	c.Code.WithDefers = true
@@ -444,7 +445,7 @@ func (c *Comp) Go(node *ast.GoStmt) {
 	argfunsX1 := call.MakeArgfunsX1()
 
 	var debugC *Comp
-	if c2.Globals.Options&OptDebugger != 0 {
+	if c2.Globals.Options&base.OptDebugger != 0 {
 		// keep a reference to c2 only if needed
 		debugC = c2
 	}
@@ -460,7 +461,7 @@ func (c *Comp) Go(node *ast.GoStmt) {
 		// function and arguments are evaluated in the caller's goroutine
 		// using the new Env: we compiled them with c2 => execute them with env2
 		funv := exprfun(env2)
-		argv := make([]r.Value, len(argfunsX1))
+		argv := make([]xr.Value, len(argfunsX1))
 		for i, argfun := range argfunsX1 {
 			argv[i] = argfun(env2)
 		}
@@ -623,7 +624,7 @@ func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn 
 	n := len(resultBinds)
 	e := c.ExprsMultipleValues(exprs, n)[0]
 	fun := e.AsXV(COptDefaults)
-	assigns := make([]func(*Env, r.Value), n)
+	assigns := make([]func(*Env, xr.Value), n)
 	for i := 0; i < n; i++ {
 		texpected := resultBinds[i].Type
 		tactual := e.Out(i)
@@ -641,7 +642,7 @@ func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn 
 		// append the return epilogue
 		env.IP++
 		g := env.Run
-		g.Signals.Sync = SigReturn
+		g.Signals.Sync = base.SigReturn
 		return g.Interrupt, env
 	}, node.Pos())
 }
@@ -649,7 +650,7 @@ func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn 
 func stmtReturn(env *Env) (Stmt, *Env) {
 	env.IP++
 	g := env.Run
-	g.Signals.Sync = SigReturn
+	g.Signals.Sync = base.SigReturn
 	return g.Interrupt, env
 }
 
@@ -736,7 +737,7 @@ func (c *Comp) pushEnvIfFlag(nbind *[2]int, flag bool) (*Comp, bool) {
 	}
 	innerC := NewComp(c, &c.Code)
 	if flag {
-		if c.Globals.Options&OptDebugger != 0 {
+		if c.Globals.Options&base.OptDebugger != 0 {
 			// for debugger, inject the inner *Comp into the inner *Env
 			debugC = innerC
 		}

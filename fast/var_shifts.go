@@ -27,6 +27,7 @@ import (
 	"unsafe"
 
 	"github.com/cosmos72/gomacro/base/reflect"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) varShlConst(va *Var, ival I) Stmt {
@@ -52,7 +53,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 
 	var ret Stmt
 	switch t.Kind() {
-	case r.Int:
+	case xr.Int:
 		switch upn {
 		case 0:
 
@@ -183,7 +184,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Int8:
+	case xr.Int8:
 		switch upn {
 		case 0:
 
@@ -314,7 +315,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Int16:
+	case xr.Int16:
 		switch upn {
 		case 0:
 
@@ -445,7 +446,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Int32:
+	case xr.Int32:
 		switch upn {
 		case 0:
 
@@ -576,7 +577,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Int64:
+	case xr.Int64:
 		switch upn {
 		case 0:
 
@@ -707,7 +708,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uint:
+	case xr.Uint:
 		switch upn {
 		case 0:
 
@@ -838,7 +839,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		switch upn {
 		case 0:
 
@@ -969,7 +970,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		switch upn {
 		case 0:
 
@@ -1100,7 +1101,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		switch upn {
 		case 0:
 
@@ -1231,7 +1232,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		switch upn {
 		case 0:
 
@@ -1367,7 +1368,7 @@ func (c *Comp) varShlConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		switch upn {
 		case 0:
 
@@ -1520,7 +1521,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 	fun := e.AsUint64()
 	var ret Stmt
 	switch t.Kind() {
-	case r.Int:
+	case xr.Int:
 		switch upn {
 		case 0:
 
@@ -1651,7 +1652,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Int8:
+	case xr.Int8:
 		switch upn {
 		case 0:
 
@@ -1782,7 +1783,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Int16:
+	case xr.Int16:
 		switch upn {
 		case 0:
 
@@ -1913,7 +1914,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Int32:
+	case xr.Int32:
 		switch upn {
 		case 0:
 
@@ -2044,7 +2045,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Int64:
+	case xr.Int64:
 		switch upn {
 		case 0:
 
@@ -2175,7 +2176,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uint:
+	case xr.Uint:
 		switch upn {
 		case 0:
 
@@ -2306,7 +2307,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		switch upn {
 		case 0:
 
@@ -2437,7 +2438,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		switch upn {
 		case 0:
 
@@ -2568,7 +2569,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		switch upn {
 		case 0:
 
@@ -2699,7 +2700,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		switch upn {
 		case 0:
 
@@ -2835,7 +2836,7 @@ func (c *Comp) varShlExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		switch upn {
 		case 0:
 
@@ -2995,7 +2996,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 
 	var ret Stmt
 	switch t.Kind() {
-	case r.Int:
+	case xr.Int:
 		switch upn {
 		case 0:
 
@@ -3126,7 +3127,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Int8:
+	case xr.Int8:
 		switch upn {
 		case 0:
 
@@ -3257,7 +3258,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Int16:
+	case xr.Int16:
 		switch upn {
 		case 0:
 
@@ -3388,7 +3389,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Int32:
+	case xr.Int32:
 		switch upn {
 		case 0:
 
@@ -3519,7 +3520,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Int64:
+	case xr.Int64:
 		switch upn {
 		case 0:
 
@@ -3650,7 +3651,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uint:
+	case xr.Uint:
 		switch upn {
 		case 0:
 
@@ -3781,7 +3782,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		switch upn {
 		case 0:
 
@@ -3912,7 +3913,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		switch upn {
 		case 0:
 
@@ -4043,7 +4044,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		switch upn {
 		case 0:
 
@@ -4174,7 +4175,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		switch upn {
 		case 0:
 
@@ -4310,7 +4311,7 @@ func (c *Comp) varShrConst(va *Var, ival I) Stmt {
 				}
 			}
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		switch upn {
 		case 0:
 
@@ -4463,7 +4464,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 	fun := e.AsUint64()
 	var ret Stmt
 	switch t.Kind() {
-	case r.Int:
+	case xr.Int:
 		switch upn {
 		case 0:
 
@@ -4594,7 +4595,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Int8:
+	case xr.Int8:
 		switch upn {
 		case 0:
 
@@ -4725,7 +4726,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Int16:
+	case xr.Int16:
 		switch upn {
 		case 0:
 
@@ -4856,7 +4857,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Int32:
+	case xr.Int32:
 		switch upn {
 		case 0:
 
@@ -4987,7 +4988,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Int64:
+	case xr.Int64:
 		switch upn {
 		case 0:
 
@@ -5118,7 +5119,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uint:
+	case xr.Uint:
 		switch upn {
 		case 0:
 
@@ -5249,7 +5250,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		switch upn {
 		case 0:
 
@@ -5380,7 +5381,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		switch upn {
 		case 0:
 
@@ -5511,7 +5512,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		switch upn {
 		case 0:
 
@@ -5642,7 +5643,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		switch upn {
 		case 0:
 
@@ -5778,7 +5779,7 @@ func (c *Comp) varShrExpr(va *Var, e *Expr) Stmt {
 				}
 			}
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		switch upn {
 		case 0:
 

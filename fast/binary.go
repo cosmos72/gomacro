@@ -20,11 +20,11 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/token"
-	r "reflect"
 
 	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/base/untyped"
 	etoken "github.com/cosmos72/gomacro/go/etoken"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
@@ -246,14 +246,14 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		return c.ShiftUntyped(node, node.Op, xe.Value.(UntypedLit), ye.Value.(UntypedLit))
 	}
 	xet, yet := xe.DefaultType(), ye.DefaultType()
-	if xet == nil || !reflect.IsCategory(xet.Kind(), r.Int, r.Uint) {
+	if xet == nil || !reflect.IsCategory(xet.Kind(), xr.Int, xr.Uint) {
 		return c.invalidBinaryExpr(node, xe, ye)
 	}
 	if xe.Untyped() {
 		xuntyp := xe.Value.(UntypedLit)
 		if ye.Const() {
 			// untyped << constant
-			yuntyp := untyped.MakeLit(untyped.Int, constant.MakeUint64(r.ValueOf(ye.Value).Uint()), &c.Universe.BasicTypes)
+			yuntyp := untyped.MakeLit(untyped.Int, constant.MakeUint64(xr.ValueOf(ye.Value).Uint()), &c.Universe.BasicTypes)
 			return c.ShiftUntyped(node, node.Op, xuntyp, yuntyp)
 		}
 		// untyped << expression
@@ -272,13 +272,13 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 	if ye.Untyped() {
 		// untyped constants do not distinguish between int and uint
-		if yet == nil || !reflect.IsCategory(yet.Kind(), r.Int) {
+		if yet == nil || !reflect.IsCategory(yet.Kind(), xr.Int) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 		ye.ConstTo(c.TypeOfUint64())
 	} else {
 		// accept shift by signed integer, introduced in Go 1.13
-		if yet == nil || !reflect.IsCategory(yet.Kind(), r.Int, r.Uint) {
+		if yet == nil || !reflect.IsCategory(yet.Kind(), xr.Int, xr.Uint) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 	}

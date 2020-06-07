@@ -25,6 +25,16 @@ import (
 	"github.com/cosmos72/gomacro/go/typeutil"
 )
 
+func combineOpt(ts []Type) Option {
+	opt := OptDefault
+	if ts != nil {
+		for _, t := range ts {
+			opt |= unwrap(t).option
+		}
+	}
+	return opt
+}
+
 func identicalType(t, u Type) bool {
 	xt := unwrap(t)
 	yt := unwrap(u)
@@ -85,7 +95,7 @@ func (m *Types) add(t Type) {
 }
 
 // all unexported methods assume lock is already held
-func (v *Universe) maketype3(kind r.Kind, gtype types.Type, rtype r.Type) Type {
+func (v *Universe) maketype4(kind r.Kind, gtype types.Type, rtype r.Type, opt Option) Type {
 	if gtype == nil {
 		errorf(nil, "MakeType of nil types.Type")
 	} else if rtype == nil {
@@ -106,23 +116,32 @@ func (v *Universe) maketype3(kind r.Kind, gtype types.Type, rtype r.Type) Type {
 			debugOnMismatchCache(&v.Types.gmap, gtype, rtype, t)
 		}
 	}
-	xt := &xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v}
+	if rtype == rTypeOfForward {
+		opt = OptIncomplete
+	}
+	xt := &xtype{
+		kind:     kind,
+		gtype:    gtype,
+		rtype:    rtype,
+		universe: v,
+		option:   opt,
+	}
 	t := wrap(xt)
 	v.add(t)
 	v.addTypeMethodsCTI(xt)
 	return t
 }
 
-func (v *Universe) maketype(gtype types.Type, rtype r.Type) Type {
-	return v.maketype3(gtypeToKind(nil, gtype), gtype, rtype)
+func (v *Universe) maketype(gtype types.Type, rtype r.Type, opt Option) Type {
+	return v.maketype4(gtypeToKind(nil, gtype), gtype, rtype, opt)
 }
 
-func (v *Universe) MakeType(gtype types.Type, rtype r.Type) Type {
+func (v *Universe) MakeType(gtype types.Type, rtype r.Type, opt Option) Type {
 	kind := gtypeToKind(nil, gtype)
 	if v.ThreadSafe {
 		defer un(lock(v))
 	}
-	return v.maketype3(kind, gtype, rtype)
+	return v.maketype4(kind, gtype, rtype, opt)
 }
 
 // GoType returns the go/types.Type corresponding to the type.
@@ -149,6 +168,15 @@ func (t *xtype) GoType() types.Type {
 //    i.e. the type name will be missing due to limitation 1 above,
 //    and the field 'Rest' will have type interface{} instead of *List due to limitation 5.
 func (t *xtype) ReflectType() r.Type {
+	return t.rtype
+}
+
+func (t *xtype) approxReflectType() r.Type {
+	if t.option != OptDefault {
+		t.option = OptRecursive
+		// debugf("approximating type %v to xr.Forward\n", t)
+		return rTypeOfForward
+	}
 	return t.rtype
 }
 
@@ -281,7 +309,7 @@ func (t *xtype) Implements(u Type) bool {
 	}
 	xu := unwrap(u)
 	return t.gtype == xu.gtype ||
-		(types.Implements(t.gtype, xu.gtype.Underlying().(*types.Interface)) &&
+		(types.Implements(t.gtype, xu.gunderlying().(*types.Interface)) &&
 			matchReceiverType(t, xu))
 }
 
@@ -355,7 +383,8 @@ func (t *xtype) SetUserData(key, value interface{}) {
 	}
 }
 
-// Zero returns a Value representing the zero value for the specified type.
-func Zero(t Type) r.Value {
-	return r.Zero(t.ReflectType())
+// lookup for t in t's Universe
+// needed to resolve reflect type from rTypeOfForward to concrete type
+func (t *xtype) resolve() Type {
+	return t.universe.resolve(t.gtype)
 }

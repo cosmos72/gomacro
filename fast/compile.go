@@ -22,9 +22,10 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/dep"
 	"github.com/cosmos72/gomacro/gls"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func NewComp(outer *Comp, code *Code) *Comp {
@@ -66,7 +67,7 @@ func (c *Comp) FileComp() *Comp {
 func NewIrGlobals() *IrGlobals {
 	return &IrGlobals{
 		gls:     make(map[uintptr]*Run),
-		Globals: *NewGlobals(),
+		Globals: *base.NewGlobals(),
 	}
 }
 
@@ -126,7 +127,7 @@ func newEnv(run *Run, outer *Env, nbind int, nintbind int) *Env {
 	if cap(env.Vals) >= nbind {
 		env.Vals = env.Vals[0:nbind]
 	} else {
-		env.Vals = make([]r.Value, nbind)
+		env.Vals = make([]xr.Value, nbind)
 	}
 	if cap(env.Ints) >= nintbind {
 		env.Ints = env.Ints[0:nintbind]
@@ -159,7 +160,7 @@ func NewEnv(outer *Env, nbind int, nintbind int) *Env {
 		if cap(env.Vals) >= nbind {
 			env.Vals = env.Vals[0:nbind]
 		} else {
-			env.Vals = make([]r.Value, nbind)
+			env.Vals = make([]xr.Value, nbind)
 		}
 		if cap(env.Ints) >= nintbind {
 			env.Ints = env.Ints[0:nintbind]
@@ -205,7 +206,7 @@ func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
 		if cap(env.Vals) >= nbind {
 			env.Vals = env.Vals[0:nbind]
 		} else {
-			env.Vals = make([]r.Value, nbind)
+			env.Vals = make([]xr.Value, nbind)
 		}
 		if cap(env.Ints) >= nintbind {
 			env.Ints = env.Ints[0:nintbind]
@@ -311,7 +312,7 @@ func (c *Comp) Parse(src string) Ast {
 	forms := anyToAst(nodes, "Parse")
 
 	forms, _ = c.MacroExpandCodewalk(forms)
-	if c.Options&OptShowMacroExpand != 0 {
+	if c.Options&base.OptShowMacroExpand != 0 {
 		c.Debugf("after macroexpansion: %v", forms.Interface())
 	}
 	return forms

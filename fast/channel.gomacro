@@ -20,7 +20,7 @@ import (
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/reflect"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -66,7 +66,7 @@ import (
 	var t r.Type = EvalType(typ)
 	if t == nil {
 		// keep the result wrapped in a reflect.Value
-		typ = ~'{r.Value}
+		typ = ~'{xr.Value}
 	} else {
 		// unwrap the result
 		tname := t.Name()
@@ -86,7 +86,7 @@ import (
 		sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 		switch t.Kind() {
-		case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+		case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 			// result of reflect.Value.{tname} is already the correct type
 			val = ~"{~,sel ()}
 		default:
@@ -106,32 +106,32 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 	if t.ChanDir()&r.RecvDir == 0 {
 		return c.badUnaryExpr("cannot receive from send-only channel", node, xe)
 	}
-	var fun func(env *Env) (r.Value, []r.Value)
+	var fun func(env *Env) (xr.Value, []xr.Value)
 	switch x := xe.Fun.(type) {
-	case func(env *Env) (r.Value, []r.Value):
+	case func(env *Env) (xr.Value, []xr.Value):
 		channelfun := x
-		fun = func(env *Env) (r.Value, []r.Value) {
+		fun = func(env *Env) (xr.Value, []xr.Value) {
 			channel, _ := channelfun(env)
 			retv, ok := channel.Recv()
-			var okv r.Value
+			var okv xr.Value
 			if ok {
 				okv = True
 			} else {
 				okv = False
 			}
-			return retv, []r.Value{retv, okv}
+			return retv, []xr.Value{retv, okv}
 		}
 	default:
 		channelfun := xe.AsX1()
-		fun = func(env *Env) (r.Value, []r.Value) {
+		fun = func(env *Env) (xr.Value, []xr.Value) {
 			retv, ok := channelfun(env).Recv()
-			var okv r.Value
+			var okv xr.Value
 			if ok {
 				okv = True
 			} else {
 				okv = False
 			}
-			return retv, []r.Value{retv, okv}
+			return retv, []xr.Value{retv, okv}
 		}
 	}
 	types := []xr.Type{t.Elem(), c.TypeOfBool()}
@@ -142,7 +142,7 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 	if EvalType(typ) == nil {
 		return ~"{
 			default:
-			fun = func(env *Env) r.Value {
+			fun = func(env *Env) xr.Value {
 				channel, _ := channelfun(env)
 				retv, _ := channel.Recv()
 				return retv
@@ -165,7 +165,7 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 	if EvalType(typ) == nil {
 		return ~"{
 			default:
-			fun = func(env *Env) r.Value {
+			fun = func(env *Env) xr.Value {
 				retv, _ := channelfun(env).Recv()
 				return retv
 			}
@@ -208,7 +208,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 	telem := t.Elem()
 	var fun I
 	switch x := xe.Fun.(type) {
-	case func(env *Env) (r.Value, []r.Value):
+	case func(env *Env) (xr.Value, []xr.Value):
 		channelfun := x
 		switch telem.Kind() {
 			{recv1_xv; bool}
@@ -332,7 +332,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 	sendonly := t.ChanDir() == r.SendDir
 	var stmt Stmt
 	if expr.Const() {
-		v := r.ValueOf(expr.Value)
+		v := xr.ValueOf(expr.Value)
 		if reflect.KindToType(kelem) == rtelem {
 			switch kelem {
 			{send_c; bool}

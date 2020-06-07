@@ -256,7 +256,7 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 				env.Warnf("MacroExpand1: cannot extract interface{} from reflect.Value: %v", result)
 				continue
 			}
-			if result == None {
+			if result == NoneR {
 				continue
 			}
 			res := AnyToAst(result.Interface(), "macroexpansion")

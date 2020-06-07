@@ -54,24 +54,24 @@ func (c *Comp) Range(node *ast.RangeStmt, labels []string) {
 	}
 
 	switch t.Kind() {
-	case r.Ptr:
+	case xr.Ptr:
 		if t.Elem().Kind() != r.Array {
 			c.Errorf("cannot range over %v <%v>", node.X, t)
 		}
 		// range on pointer to array: dereference it
 		t = t.Elem()
 		efun := erange.AsX1()
-		erange = exprX1(t, func(env *Env) r.Value {
+		erange = exprX1(t, func(env *Env) xr.Value {
 			return efun(env).Elem()
 		})
 		fallthrough
-	case r.Array, r.Slice:
+	case xr.Array, r.Slice:
 		c.rangeSlice(node, erange, &jump)
-	case r.Chan:
+	case xr.Chan:
 		c.rangeChan(node, erange, &jump)
-	case r.Map:
+	case xr.Map:
 		c.rangeMap(node, erange, &jump)
-	case r.String:
+	case xr.String:
 		c.rangeString(node, erange, &jump)
 	default:
 		c.Errorf("cannot range over %v <%v>", node.X, t)

@@ -60,7 +60,7 @@ const (
 	UntypedFloat
 	UntypedComplex
 	UntypedString
-	UntypedNil
+	UntypedNilR
 
 	// aliases
 	Byte = Uint8

@@ -38,7 +38,7 @@ func (env *Env) evalExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) [
 		}
 		node := nodes[0]
 		// collect multiple values
-		values = reflect.PackValues(env.EvalNode(node))
+		values = reflect.PackValuesR(env.EvalNode(node))
 		n = len(values)
 		if n < expectedValuesN {
 			env.Errorf("value count mismatch: expression returned %d values, cannot assign them to %d places: %v returned %v",
@@ -236,7 +236,7 @@ func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
 // note: converting key to ktype is caller's responsibility
 func (env *Env) mapIndex(obj r.Value, key r.Value) (r.Value, bool, r.Type) {
 	value := obj.MapIndex(key)
-	present := value != Nil
+	present := value != NilR
 	var t r.Type
 	if present {
 		t = value.Type()
@@ -263,39 +263,39 @@ func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 		}
 		elem := obj.Elem()
 		if elem.Kind() == r.Struct {
-			if val = elem.FieldByName(name); val != Nil {
+			if val = elem.FieldByName(name); val != NilR {
 				break
 			}
 		}
 		// search for methods with pointer receiver first
-		if val = env.ObjMethodByName(obj, name); val != Nil {
+		if val = env.ObjMethodByName(obj, name); val != NilR {
 			break
 		}
-		if val = env.ObjMethodByName(elem, name); val != Nil {
+		if val = env.ObjMethodByName(elem, name); val != NilR {
 			break
 		}
 		return env.Errorf("pointer to struct <%v> has no field or method %s", typeOf(obj), name)
 
 	case r.Interface:
 		val = obj.MethodByName(name)
-		if val != Nil {
+		if val != NilR {
 			break
 		}
 		return env.Errorf("interface <%v> has no method %s", typeOf(obj), name)
 
 	case r.Struct:
-		if val = obj.FieldByName(name); val != Nil {
+		if val = obj.FieldByName(name); val != NilR {
 			break
 		}
 		fallthrough
 	default:
 		// search for methods with pointer receiver first
 		if obj.CanAddr() {
-			if val = env.ObjMethodByName(obj.Addr(), name); val != Nil {
+			if val = env.ObjMethodByName(obj.Addr(), name); val != NilR {
 				break
 			}
 		}
-		if val = env.ObjMethodByName(obj, name); val != Nil {
+		if val = env.ObjMethodByName(obj, name); val != NilR {
 			break
 		}
 		if obj.Kind() == r.Struct {
@@ -310,7 +310,7 @@ func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 func (env *Env) evalTypeAssertExpr(node *ast.TypeAssertExpr, panicOnFail bool) (r.Value, []r.Value) {
 	val := env.evalExpr1(node.X)
 	t2 := env.evalType(node.Type)
-	if val == None || val == Nil {
+	if val == NoneR || val == NilR {
 		if panicOnFail {
 			return env.Errorf("type assertion failed: %v <%v> is not a <%v>", val, nil, t2)
 		}

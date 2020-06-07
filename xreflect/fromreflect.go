@@ -238,7 +238,6 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 	if xt.methodvalue == nil {
 		xt.methodvalue = make([]r.Value, ntotal)
 	}
-	nilv := r.Value{}
 	if v.rebuild() {
 		v.RebuildDepth--
 	}
@@ -271,7 +270,7 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 				xi = n2 - 1
 			}
 			for len(xt.methodvalue) <= xi {
-				xt.methodvalue = append(xt.methodvalue, nilv)
+				xt.methodvalue = append(xt.methodvalue, r.Value{})
 			}
 			xt.methodvalue[xi] = rmethod.Func
 			cache[qname] = xi
@@ -333,7 +332,8 @@ func (v *Universe) rebuildnamed(t Type, name string, pkgpath string) Type {
 		rtype := t.ReflectType()
 		// do not trust v.maketype() detection of reflect.Kind from t.gunderlying():
 		// t may be incomplete, thus t.gunderlying() could be a dummy interface{}
-		t2.SetUnderlying(v.maketype3(t.Kind(), t.gunderlying(), ReflectUnderlying(rtype)))
+		u := v.maketype4(t.Kind(), t.gunderlying(), ReflectUnderlying(rtype), unwrap(t).option)
+		t2.SetUnderlying(u)
 		t2.UnsafeForceReflectType(rtype)
 		t = t2
 	}
@@ -347,7 +347,7 @@ func (v *Universe) fromReflectArray(rtype r.Type) Type {
 	if true || v.rebuild() { // rtype may be named... clean it
 		rtype = r.ArrayOf(count, elem.ReflectType())
 	}
-	return v.maketype(types.NewArray(elem.GoType(), int64(count)), rtype)
+	return v.maketype(types.NewArray(elem.GoType(), int64(count)), rtype, unwrap(elem).option)
 }
 
 // fromReflectChan converts a reflect.Type with Kind reflect.Chan into a Type
@@ -358,7 +358,7 @@ func (v *Universe) fromReflectChan(rtype r.Type) Type {
 		rtype = r.ChanOf(dir, elem.ReflectType())
 	}
 	gdir := dirToGdir(dir)
-	return v.maketype(types.NewChan(gdir, elem.GoType()), rtype)
+	return v.maketype(types.NewChan(gdir, elem.GoType()), rtype, unwrap(elem).option)
 }
 
 // fromReflectFunc converts a reflect.Type with Kind reflect.Func into a function Type
@@ -384,6 +384,7 @@ func (v *Universe) fromReflectFunc(rtype r.Type) Type {
 	return v.maketype(
 		types.NewSignature(nil, gin, gout, variadic),
 		rtype,
+		OptDefault,
 	)
 }
 
@@ -415,6 +416,7 @@ func (v *Universe) fromReflectMethod(rtype r.Type) Type {
 	return v.maketype(
 		types.NewSignature(grecv, gin, gout, variadic),
 		rtype,
+		OptDefault,
 	)
 }
 
@@ -442,7 +444,7 @@ func (v *Universe) fromReflectInterface(rtype r.Type) Type {
 		// clone it NOW in order to detach from xreflect.Type and its associated reflect.Type
 		// otherwise the modified method.GoType() will remain inside an unmodified xreflect.Type
 		// Strange bugs happen then, see https://github.com/gopherdata/gophernotes/issues/151
-		gsig := cloneGoSignature(method.GoType().(*types.Signature))
+		gsig := cloneGoSignature(method.gunderlying().(*types.Signature))
 		gmethods[i] = types.NewFunc(token.NoPos, (*types.Package)(pkg), rmethod.Name, gsig)
 	}
 	// no way to extract embedded interfaces from reflect.Type. Just collect all methods
@@ -463,7 +465,7 @@ func (v *Universe) fromReflectInterface(rtype r.Type) Type {
 		// Then use a pointer to the proxy struct: InterfaceOf() does that, and we must behave identically
 		rtype = r.PtrTo(r.StructOf(rfields))
 	}
-	return v.maketype(types.NewInterface(gmethods, nil).Complete(), rtype)
+	return v.maketype(types.NewInterface(gmethods, nil).Complete(), rtype, OptDefault)
 }
 
 // isReflectInterfaceStruct returns true if rtype is a reflect.Type with Kind reflect.Struct,
@@ -506,7 +508,7 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype r.Type) Type {
 		if t.Kind() != r.Func {
 			errorf(t, "FromReflectType: reflect.Type <%v> is an emulated interface containing the method <%v>.\n\tExtracting the latter returned a non-function: %v", t)
 		}
-		gtype := t.GoType().Underlying()
+		gtype := t.gunderlying()
 		pkg := v.loadPackage(rfield.PkgPath)
 		gmethods = append(gmethods, types.NewFunc(token.NoPos, (*types.Package)(pkg), name, gtype.(*types.Signature)))
 		if rebuild {
@@ -516,7 +518,7 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype r.Type) Type {
 	if rebuild {
 		rtype = r.PtrTo(r.StructOf(rebuildfields))
 	}
-	return v.maketype(types.NewInterface(gmethods, gembeddeds).Complete(), rtype)
+	return v.maketype(types.NewInterface(gmethods, gembeddeds).Complete(), rtype, OptDefault)
 }
 
 func (v *Universe) fromReflectInterfaceEmbeddeds(rinterf, rtype r.Type) []Type {
@@ -540,12 +542,15 @@ func (v *Universe) fromReflectInterfaceEmbeddeds(rinterf, rtype r.Type) []Type {
 
 // fromReflectMap converts a reflect.Type with Kind reflect.map into a Type
 func (v *Universe) fromReflectMap(rtype r.Type) Type {
-	key := v.fromReflectType(rtype.Key())
-	elem := v.fromReflectType(rtype.Elem())
+	k := unwrap(v.fromReflectType(rtype.Key()))
+	e := unwrap(v.fromReflectType(rtype.Elem()))
 	if true || v.rebuild() { // rtype may be named... clean it
-		rtype = r.MapOf(key.ReflectType(), elem.ReflectType())
+		rtype = r.MapOf(k.approxReflectType(), e.approxReflectType())
 	}
-	return v.maketype(types.NewMap(key.GoType(), elem.GoType()), rtype)
+	return v.MakeType(
+		types.NewMap(k.gtype, e.gtype),
+		rtype,
+		k.option|e.option)
 }
 
 // fromReflectPtr converts a reflect.Type with Kind reflect.Ptr into a Type
@@ -553,6 +558,7 @@ func (v *Universe) fromReflectPtr(rtype r.Type) Type {
 	relem := rtype.Elem()
 	var gtype types.Type
 	rebuild := v.rebuild()
+	opt := OptDefault
 	if isReflectInterfaceStruct(relem) {
 		if rebuild {
 			v.RebuildDepth--
@@ -565,23 +571,25 @@ func (v *Universe) fromReflectPtr(rtype r.Type) Type {
 			relem = t.ReflectType().Elem()
 		}
 		gtype = t.GoType()
+		opt = unwrap(t).option
 	} else {
-		elem := v.fromReflectType(relem)
-		gtype = types.NewPointer(elem.GoType())
+		e := unwrap(v.fromReflectType(relem))
+		gtype = types.NewPointer(e.gtype)
+		opt = e.option
 	}
 	if true || rebuild { // rtype may be named... clean it
 		rtype = r.PtrTo(relem)
 	}
-	return v.maketype3(r.Ptr, gtype, rtype)
+	return v.maketype4(r.Ptr, gtype, rtype, opt)
 }
 
 // fromReflectPtr converts a reflect.Type with Kind reflect.Slice into a Type
 func (v *Universe) fromReflectSlice(rtype r.Type) Type {
-	elem := v.fromReflectType(rtype.Elem())
+	e := unwrap(v.fromReflectType(rtype.Elem()))
 	if true || v.rebuild() { // rtype may be named... clean it
-		rtype = r.SliceOf(elem.ReflectType())
+		rtype = r.SliceOf(e.approxReflectType())
 	}
-	return v.maketype(types.NewSlice(elem.GoType()), rtype)
+	return v.maketype(types.NewSlice(e.gtype), rtype, e.option)
 }
 
 // fromReflectStruct converts a reflect.Type with Kind reflect.Struct into a Type
@@ -610,7 +618,7 @@ func (v *Universe) fromReflectStruct(rtype r.Type) Type {
 			rtype = rtype2
 		}
 	}
-	return v.maketype(types.NewStruct(vars, tags), rtype)
+	return v.maketype(types.NewStruct(vars, tags), rtype, OptDefault)
 }
 
 // best-effort implementation of missing reflect.Type.Underlying()

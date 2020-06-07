@@ -191,7 +191,7 @@ func (env *Env) evalUnquote(inout UnaryExpr) interface{} {
 	if len(extraValues) > 1 {
 		env.Warnf("unquote returned %d values, only the first one will be used: %v", len(extraValues), block)
 	}
-	if ret == None || ret == Nil {
+	if ret == NoneR || ret == NilR {
 		return nil
 	}
 	return ret.Interface()

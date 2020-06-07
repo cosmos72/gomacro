@@ -17,22 +17,20 @@
 package fast
 
 import (
-	r "reflect"
-
-	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/reflect"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // placeSetValue compiles 'place = value' where value is a reflect.Value passed at runtime.
 // Used to assign places with the result of multi-valued expressions,
 // and to implement multiple assignment place1, place2... = expr1, expr2...
-func (c *Comp) placeSetValue(place *Place) func(lhs, key, val r.Value) {
+func (c *Comp) placeSetValue(place *Place) func(lhs, key, val xr.Value) {
 	rtype := place.Type.ReflectType()
 
 	if place.MapKey != nil {
-		zero := r.Zero(rtype)
-		return func(lhs, key, val r.Value) {
-			if val == Nil || val == None {
+		zero := xr.ZeroR(rtype)
+		return func(lhs, key, val xr.Value) {
+			if !val.IsValid() || val == None {
 				val = zero
 			} else if val.Type() != rtype {
 				val = val.Convert(rtype)
@@ -40,36 +38,36 @@ func (c *Comp) placeSetValue(place *Place) func(lhs, key, val r.Value) {
 			lhs.SetMapIndex(key, val)
 		}
 	}
-	var ret func(r.Value, r.Value, r.Value)
+	var ret func(xr.Value, xr.Value, xr.Value)
 	switch reflect.Category(rtype.Kind()) {
-	case r.Bool:
-		ret = func(lhs, key, val r.Value) {
+	case xr.Bool:
+		ret = func(lhs, key, val xr.Value) {
 			lhs.SetBool(val.Bool())
 		}
-	case r.Int:
-		ret = func(lhs, key, val r.Value) {
+	case xr.Int:
+		ret = func(lhs, key, val xr.Value) {
 			lhs.SetInt(val.Int())
 		}
-	case r.Uint:
-		ret = func(lhs, key, val r.Value) {
+	case xr.Uint:
+		ret = func(lhs, key, val xr.Value) {
 			lhs.SetUint(val.Uint())
 		}
-	case r.Float64:
-		ret = func(lhs, key, val r.Value) {
+	case xr.Float64:
+		ret = func(lhs, key, val xr.Value) {
 			lhs.SetFloat(val.Float())
 		}
-	case r.Complex128:
-		ret = func(lhs, key, val r.Value) {
+	case xr.Complex128:
+		ret = func(lhs, key, val xr.Value) {
 			lhs.SetComplex(val.Complex())
 		}
-	case r.String:
-		ret = func(lhs, key, val r.Value) {
+	case xr.String:
+		ret = func(lhs, key, val xr.Value) {
 			lhs.SetString(val.String())
 		}
 	default:
-		zero := r.Zero(rtype)
-		ret = func(lhs, key, val r.Value) {
-			if val == Nil || val == None {
+		zero := xr.ZeroR(rtype)
+		ret = func(lhs, key, val xr.Value) {
+			if !val.IsValid() || val == None {
 				val = zero
 			} else if val.Type() != rtype {
 				val = val.Convert(rtype)

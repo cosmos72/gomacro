@@ -38,7 +38,7 @@ func (env *Env) evalSwitch(node *ast.SwitchStmt) (ret r.Value, rets []r.Value) {
 		tag = env.evalExpr1(node.Tag)
 	}
 	if node.Body == nil || len(node.Body.List) == 0 {
-		return None, nil
+		return NoneR, nil
 	}
 	isFallthrough := false
 	cases := node.Body.List
@@ -64,20 +64,20 @@ func (env *Env) evalSwitch(node *ast.SwitchStmt) (ret r.Value, rets []r.Value) {
 			return ret, rets
 		}
 	}
-	return None, nil
+	return NoneR, nil
 }
 
 func (env *Env) caseMatches(tag r.Value, list []ast.Expr) bool {
 	var i interface{}
 	var t r.Type = nil
-	if tag != None && tag != Nil {
+	if tag != NoneR && tag != NilR {
 		i = tag.Interface()
 		t = tag.Type()
 	}
 	for _, expr := range list {
 		v := env.evalExpr1(expr)
 		if t == nil {
-			if v == Nil || v == None {
+			if v == NilR || v == NoneR {
 				return true
 			}
 		} else {
@@ -94,7 +94,7 @@ func (env *Env) caseMatches(tag r.Value, list []ast.Expr) bool {
 
 func (env *Env) evalCaseBody(isDefault bool, case_ *ast.CaseClause) (ret r.Value, rets []r.Value, isFallthrough bool) {
 	if case_ == nil || len(case_.Body) == 0 {
-		return None, nil, false
+		return NoneR, nil, false
 	}
 	body := case_.Body
 	n := len(body)
@@ -116,7 +116,7 @@ func (env *Env) evalCaseBody(isDefault bool, case_ *ast.CaseClause) (ret r.Value
 		if panicking {
 			switch pan := recover().(type) {
 			case eBreak:
-				ret, rets, isFallthrough = None, nil, false
+				ret, rets, isFallthrough = NoneR, nil, false
 			default:
 				panic(pan)
 			}

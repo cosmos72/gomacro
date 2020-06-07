@@ -34,10 +34,10 @@ func (env *Env) evalTypeSwitch(node *ast.TypeSwitchStmt) (ret r.Value, rets []r.
 	varname, expr := env.mustBeTypeSwitchStatement(node.Assign)
 	v := env.evalExpr1(expr)
 	if node.Body == nil || len(node.Body.List) == 0 {
-		return None, nil
+		return NoneR, nil
 	}
 	var vt r.Type = nil
-	if v != None && v != Nil {
+	if v != NoneR && v != NilR {
 		// go through interface{} to obtain actual concrete type
 		val := v.Interface()
 		v = r.ValueOf(val)
@@ -58,7 +58,7 @@ func (env *Env) evalTypeSwitch(node *ast.TypeSwitchStmt) (ret r.Value, rets []r.
 	if default_ != nil {
 		return env.evalTypecaseBody(varname, TypeOfInterface, v, default_, true)
 	}
-	return None, nil
+	return NoneR, nil
 }
 
 func (env *Env) mustBeTypeSwitchStatement(node ast.Stmt) (*ast.Ident, ast.Expr) {
@@ -96,7 +96,7 @@ func (env *Env) badTypeSwitchStatement(s ast.Stmt) (*ast.Ident, ast.Expr) {
 
 func (env *Env) typecaseMatches(vt r.Type, list []ast.Expr) (r.Type, bool) {
 	for _, expr := range list {
-		t := env.evalTypeOrNil(expr)
+		t := env.evalTypeOrNilR(expr)
 		if t == nil {
 			if vt == nil {
 				return TypeOfInterface, true
@@ -110,14 +110,14 @@ func (env *Env) typecaseMatches(vt r.Type, list []ast.Expr) (r.Type, bool) {
 
 func (env *Env) evalTypecaseBody(varname *ast.Ident, t r.Type, val r.Value, case_ *ast.CaseClause, isDefault bool) (ret r.Value, rets []r.Value) {
 	if case_ == nil || len(case_.Body) == 0 {
-		return None, nil
+		return NoneR, nil
 	}
 	panicking := true
 	defer func() {
 		if panicking {
 			switch pan := recover().(type) {
 			case eBreak:
-				ret, rets = None, nil
+				ret, rets = NoneR, nil
 			default:
 				panic(pan)
 			}

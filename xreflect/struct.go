@@ -43,7 +43,7 @@ func (t *xtype) field(i int) StructField {
 	if t.kind != r.Struct {
 		xerrorf(t, "Field of non-struct type %v", t)
 	}
-	gtype := t.gtype.Underlying().(*types.Struct)
+	gtype := t.gunderlying().(*types.Struct)
 
 	if i < 0 || i >= gtype.NumFields() {
 		xerrorf(t, "Field(%v) out of bounds, struct type has %v fields: %v", i, gtype.NumFields(), t)
@@ -55,9 +55,9 @@ func (t *xtype) field(i int) StructField {
 	} else {
 		// cannot dig in a forward-declared type,
 		// so try to resolve it
-		it := t.universe.gmap.At(t.gtype)
+		it := t.resolve()
 		if it != nil {
-			rtype := it.(Type).ReflectType()
+			rtype := it.ReflectType()
 			if rtype.Kind() != t.kind {
 				debugf("mismatched Forward type: <%v> has reflect.Type <%v>", t, rtype)
 			}
@@ -72,7 +72,7 @@ func (t *xtype) field(i int) StructField {
 	return StructField{
 		Name:      va.Name(),
 		Pkg:       (*Package)(va.Pkg()),
-		Type:      t.universe.maketype(va.Type(), rf.Type), // lock already held
+		Type:      t.universe.maketype(va.Type(), rf.Type, t.option), // lock already held
 		Tag:       rf.Tag,
 		Offset:    rf.Offset,
 		Index:     rf.Index,
@@ -181,8 +181,13 @@ func (v *Universe) StructOf(fields []StructField) Type {
 	vars := toGoFields(fields)
 	tags := toTags(fields)
 	rfields := toReflectFields(fields, true)
+	opt := OptDefault
+	for i := range fields {
+		opt |= unwrap(fields[i].Type).option
+	}
 	return v.MakeType(
 		types.NewStruct(vars, tags),
 		r.StructOf(rfields),
+		opt,
 	)
 }

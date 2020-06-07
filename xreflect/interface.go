@@ -31,19 +31,18 @@ func IsEmulatedInterface(t Type) bool {
 }
 
 // extract the concrete value and type contained in an emulated interface
-func FromEmulatedInterface(v r.Value) (r.Value, Type) {
+func FromEmulatedInterface(v Value) (Value, Type) {
 	h := v.Elem().Field(0).Interface().(InterfaceHeader)
 	return h.val, h.typ
 }
 
 // create an emulated interface from given value, type and method extractors
 // (methods extractors are functions that, given a value, return one of its methods)
-func ToEmulatedInterface(rtypeinterf r.Type, v r.Value,
-	t Type, obj2methods []func(r.Value) r.Value) r.Value {
+func ToEmulatedInterface(rtypeinterf r.Type, v Value, t Type, obj2methods []func(Value) Value) Value {
 
-	addr := r.New(rtypeinterf.Elem())
+	addr := NewR(rtypeinterf.Elem())
 	place := addr.Elem()
-	place.Field(0).Set(r.ValueOf(InterfaceHeader{v, t}))
+	place.Field(0).Set(ValueOf(InterfaceHeader{v, t}))
 	for i := range obj2methods {
 		mtd := obj2methods[i](v)
 		place.Field(i + 1).Set(mtd)
@@ -52,7 +51,7 @@ func ToEmulatedInterface(rtypeinterf r.Type, v r.Value,
 }
 
 // extract the already-made i-th closure from inside the emulated interface object.
-func EmulatedInterfaceGetMethod(obj r.Value, index int) r.Value {
+func EmulatedInterfaceGetMethod(obj Value, index int) Value {
 	return obj.Elem().Field(index + 1)
 }
 
@@ -134,6 +133,8 @@ var ConstrainedInterfaceReceiverType genericV2InterfaceReceiverType
 // Once you know that methods and embedded interfaces are complete,
 // call Complete() to compute the method set and mark this Type as complete.
 func (v *Universe) InterfaceOf(pkg *Package, methodnames []string, methodtypes []Type, embeddeds []Type) Type {
+	opt := combineOpt(methodtypes) | combineOpt(embeddeds)
+
 	methodnames = append(([]string)(nil), methodnames...) // dup before modifying
 	methodtypes = append(([]Type)(nil), methodtypes...)   // dup before modifying
 	embeddeds = append(([]Type)(nil), embeddeds...)       // dup before modifying
@@ -185,7 +186,7 @@ func (v *Universe) InterfaceOf(pkg *Package, methodnames []string, methodtypes [
 	// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
 	// Use a pointer to the proxy struct
 	rtype := r.PtrTo(r.StructOf(rfields))
-	t := v.maketype3(r.Interface, gtype, rtype)
+	t := v.maketype4(r.Interface, gtype, rtype, opt)
 	setInterfaceMethods(t)
 	if recv != nil {
 		t.SetUserData(ConstrainedInterfaceReceiverType, recv)

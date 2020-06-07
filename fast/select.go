@@ -21,12 +21,14 @@ import (
 	"go/token"
 	r "reflect"
 	"sort"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 type selectEntry struct {
-	Dir  r.SelectDir
-	Chan func(*Env) r.Value
-	Send func(*Env) r.Value
+	Dir  xr.SelectDir
+	Chan func(*Env) xr.Value
+	Send func(*Env) xr.Value
 }
 
 func (c *Comp) Select(node *ast.SelectStmt, labels []string) {
@@ -35,7 +37,7 @@ func (c *Comp) Select(node *ast.SelectStmt, labels []string) {
 	}
 	sort.Strings(labels)
 
-	// unnamed bind, contains received value. Nil means nothing received
+	// unnamed bind, contains received value. xr.Value{} means nothing received
 	// note: containLocalBinds knows we create a local bind,
 	// and returns true if it encounters a non-empty SelectStmt
 	bindrecv := c.NewBind("", VarBind, c.TypeOfInterface())
@@ -58,19 +60,19 @@ func (c *Comp) Select(node *ast.SelectStmt, labels []string) {
 	}
 
 	c.append(func(env *Env) (Stmt, *Env) {
-		cases := make([]r.SelectCase, len(entries))
+		cases := make([]xr.SelectCase, len(entries))
 		for i := range entries {
 			c := &cases[i]
 			e := &entries[i]
 			c.Dir = e.Dir
 			if e.Chan != nil {
-				c.Chan = e.Chan(env)
+				c.Chan = e.Chan(env).ReflectValue()
 				if e.Send != nil {
-					c.Send = e.Send(env)
+					c.Send = e.Send(env).ReflectValue()
 				}
 			}
 		}
-		chosen, recv, _ := r.Select(cases)
+		chosen, recv, _ := xr.Select(cases)
 		env.Vals[idxrecv] = recv
 		ip := ips[chosen]
 		env.IP = ip

@@ -77,7 +77,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -158,11 +158,11 @@ import (
 	bind = assign
 
 	switch t.Kind() {
-		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+		case xr.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 			var result *ast.BinaryExpr = ~"{lhs.Int() + ~,expr}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetInt(~,result)}
-		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+		case xr.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 			var result *ast.BinaryExpr = ~"{lhs.Uint() + ~,expr}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetUint(~,result)}
@@ -171,15 +171,15 @@ import (
 				assign.Tok = opset
 				bind = assign
 			}
-		case r.Float32, r.Float64:
+		case xr.Float32, r.Float64:
 			var result *ast.BinaryExpr = ~"{lhs.Float() + ~,expr}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetFloat(~,result)}
-		case r.Complex64, r.Complex128:
+		case xr.Complex64, r.Complex128:
 			var result *ast.BinaryExpr = ~"{lhs.Complex() + ~,expr}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetComplex(~,result)}
-		case r.String:
+		case xr.String:
 			var result *ast.BinaryExpr = ~"{lhs.String() + ~,expr}
 			result.Op = op
 			bind = ~"{lhs := ~,env . Vals[index]; lhs.SetString(~,result)}

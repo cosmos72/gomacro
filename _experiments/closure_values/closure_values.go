@@ -96,7 +96,7 @@ func VarSetInt(idx int, expr XInt) X {
 	return func(env *Env) (r.Value, []r.Value) {
 		val := expr(env)
 		env.Binds[idx].SetInt(int64(val))
-		return base.None, nil
+		return base.NoneR, nil
 	}
 }
 
@@ -104,7 +104,7 @@ func VarIncInt(idx int) X {
 	return func(env *Env) (r.Value, []r.Value) {
 		v := env.Binds[idx]
 		v.SetInt(v.Int() + 1)
-		return base.None, nil
+		return base.NoneR, nil
 	}
 }
 
@@ -179,7 +179,7 @@ func If(pred XBool, then, els X) X {
 			if pred(env) {
 				return then(env)
 			} else {
-				return base.None, nil
+				return base.NoneR, nil
 			}
 		}
 	}
@@ -191,7 +191,7 @@ func For(init X, pred XBool, post X, body X) X {
 			for pred(env) {
 				body(env)
 			}
-			return base.None, nil
+			return base.NoneR, nil
 		}
 
 	} else {
@@ -202,13 +202,13 @@ func For(init X, pred XBool, post X, body X) X {
 			for init(env); pred(env); post(env) {
 				body(env)
 			}
-			return base.None, nil
+			return base.NoneR, nil
 		}
 	}
 }
 
 func Nop(env *Env) (r.Value, []r.Value) {
-	return base.None, nil
+	return base.NoneR, nil
 }
 
 func Block(list ...X) X {
@@ -251,7 +251,7 @@ func Return(exprs ...X) X {
 			for i, value := range exprs {
 				rets[i], _ = value(env)
 			}
-			ret0 := base.None
+			ret0 := base.NoneR
 			if len(rets) > 0 {
 				ret0 = rets[0]
 			}

@@ -21,7 +21,7 @@ import (
 	r "reflect"
 	"unsafe"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -48,12 +48,12 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 	if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
 		t = t.Elem()
 		fun := e.AsX1()
-		e = exprFun(t, func(env *Env) r.Value {
+		e = exprFun(t, func(env *Env) xr.Value {
 			return fun(env).Elem()
 		})
 	}
 	switch t.Kind() {
-	case r.Struct:
+	case xr.Struct:
 		field, fieldok, mtd, mtdok := c.LookupFieldOrMethod(t, name)
 		if fieldok {
 			return c.compileField(e, field)
@@ -99,10 +99,10 @@ func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool
 func (c *Comp) TryLookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool, xr.Method, bool, error) {
 	field, fieldn := c.LookupField(t, name)
 	mtd, mtdn := c.LookupMethod(t, name)
-	if c.Options&OptDebugField != 0 {
+	if c.Options&base.OptDebugField != 0 {
 		c.Debugf("LookupFieldOrMethod for %v.%v found %d fields:  %#v", t, name, fieldn, field)
 	}
-	if c.Options&OptDebugMethod != 0 {
+	if c.Options&base.OptDebugMethod != 0 {
 		c.Debugf("LookupFieldOrMethod for %v.%v found %d methods: %#v", t, name, mtdn, mtd)
 	}
 	fielddepth := len(field.Index)
@@ -182,10 +182,10 @@ func (c *Comp) LookupMethod(t xr.Type, name string) (mtd xr.Method, numfound int
 }
 
 // field0 is a variant of reflect.Value.Field, also accepts pointer values
-func field0(v r.Value, index int) r.Value {
+func field0(v xr.Value, index int) xr.Value {
 	switch v.Kind() {
 	// also accept interface xr.Forward and extract concrete type from it
-	case r.Ptr, r.Interface:
+	case xr.Ptr, r.Interface:
 		v = v.Elem()
 	}
 	v = v.Field(index)
@@ -197,11 +197,10 @@ func field0(v r.Value, index int) r.Value {
 
 // fieldByIndex is a variant of reflect.Value.FieldByIndex,
 // also accepts pointer values and dereferences any pointer
-func fieldByIndex(v r.Value, index []int) r.Value {
+func fieldByIndex(v xr.Value, index []int) xr.Value {
 	for _, x := range index {
-		switch v.Kind() {
 		// also accept interface xr.Forward and extract concrete type from it
-		case r.Ptr, r.Interface:
+		for v.Kind() == r.Ptr || v.Kind() == r.Interface {
 			v = v.Elem()
 		}
 		v = v.Field(x)
@@ -213,7 +212,7 @@ func fieldByIndex(v r.Value, index []int) r.Value {
 }
 
 // unset v.flag & flagRO, to allow extracting v.Interface()
-func makeAccessible(v r.Value) r.Value {
+func makeAccessible(v xr.Value) xr.Value {
 	type UnsafeValue struct {
 		typ  *uintptr
 		ptr  unsafe.Pointer
@@ -240,187 +239,187 @@ func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
 	if len(index) == 1 {
 		index0 := index[0]
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 			fun = func(env *Env) bool {
 				obj := objfun(env)
 				return field0(obj, index0).Bool()
 			}
-		case r.Int:
+		case xr.Int:
 			fun = func(env *Env) int {
 				obj := objfun(env)
 				return int(field0(obj, index0).Int())
 			}
-		case r.Int8:
+		case xr.Int8:
 			fun = func(env *Env) int8 {
 				obj := objfun(env)
 				return int8(field0(obj, index0).Int())
 			}
-		case r.Int16:
+		case xr.Int16:
 			fun = func(env *Env) int16 {
 				obj := objfun(env)
 				return int16(field0(obj, index0).Int())
 			}
-		case r.Int32:
+		case xr.Int32:
 			fun = func(env *Env) int32 {
 				obj := objfun(env)
 				return int32(field0(obj, index0).Int())
 			}
-		case r.Int64:
+		case xr.Int64:
 			fun = func(env *Env) int64 {
 				obj := objfun(env)
 				return field0(obj, index0).Int()
 			}
-		case r.Uint:
+		case xr.Uint:
 			fun = func(env *Env) uint {
 				obj := objfun(env)
 				return uint(field0(obj, index0).Uint())
 			}
-		case r.Uint8:
+		case xr.Uint8:
 			fun = func(env *Env) uint8 {
 				obj := objfun(env)
 				return uint8(field0(obj, index0).Uint())
 			}
-		case r.Uint16:
+		case xr.Uint16:
 			fun = func(env *Env) uint16 {
 				obj := objfun(env)
 				return uint16(field0(obj, index0).Uint())
 			}
-		case r.Uint32:
+		case xr.Uint32:
 			fun = func(env *Env) uint32 {
 				obj := objfun(env)
 				return uint32(field0(obj, index0).Uint())
 			}
-		case r.Uint64:
+		case xr.Uint64:
 			fun = func(env *Env) uint64 {
 				obj := objfun(env)
 				return field0(obj, index0).Uint()
 			}
-		case r.Uintptr:
+		case xr.Uintptr:
 			fun = func(env *Env) uintptr {
 				obj := objfun(env)
 				return uintptr(field0(obj, index0).Uint())
 			}
-		case r.Float32:
+		case xr.Float32:
 			fun = func(env *Env) float32 {
 				obj := objfun(env)
 				return float32(field0(obj, index0).Float())
 			}
-		case r.Float64:
+		case xr.Float64:
 			fun = func(env *Env) float64 {
 				obj := objfun(env)
 				return field0(obj, index0).Float()
 			}
-		case r.Complex64:
+		case xr.Complex64:
 			fun = func(env *Env) complex64 {
 				obj := objfun(env)
 				return complex64(field0(obj, index0).Complex())
 			}
-		case r.Complex128:
+		case xr.Complex128:
 			fun = func(env *Env) complex128 {
 				obj := objfun(env)
 				return field0(obj, index0).Complex()
 			}
-		case r.String:
+		case xr.String:
 			fun = func(env *Env) string {
 				obj := objfun(env)
 				return field0(obj, index0).String()
 			}
 		default:
-			fun = func(env *Env) r.Value {
+			fun = func(env *Env) xr.Value {
 				obj := objfun(env)
 				return field0(obj, index0)
 			}
 		}
 	} else {
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 			fun = func(env *Env) bool {
 				obj := objfun(env)
 				return fieldByIndex(obj, index).Bool()
 			}
-		case r.Int:
+		case xr.Int:
 			fun = func(env *Env) int {
 				obj := objfun(env)
 				return int(fieldByIndex(obj, index).Int())
 			}
-		case r.Int8:
+		case xr.Int8:
 			fun = func(env *Env) int8 {
 				obj := objfun(env)
 				return int8(fieldByIndex(obj, index).Int())
 			}
-		case r.Int16:
+		case xr.Int16:
 			fun = func(env *Env) int16 {
 				obj := objfun(env)
 				return int16(fieldByIndex(obj, index).Int())
 			}
-		case r.Int32:
+		case xr.Int32:
 			fun = func(env *Env) int32 {
 				obj := objfun(env)
 				return int32(fieldByIndex(obj, index).Int())
 			}
-		case r.Int64:
+		case xr.Int64:
 			fun = func(env *Env) int64 {
 				obj := objfun(env)
 				return fieldByIndex(obj, index).Int()
 			}
-		case r.Uint:
+		case xr.Uint:
 			fun = func(env *Env) uint {
 				obj := objfun(env)
 				return uint(fieldByIndex(obj, index).Uint())
 			}
-		case r.Uint8:
+		case xr.Uint8:
 			fun = func(env *Env) uint8 {
 				obj := objfun(env)
 				return uint8(fieldByIndex(obj, index).Uint())
 			}
-		case r.Uint16:
+		case xr.Uint16:
 			fun = func(env *Env) uint16 {
 				obj := objfun(env)
 				return uint16(fieldByIndex(obj, index).Uint())
 			}
-		case r.Uint32:
+		case xr.Uint32:
 			fun = func(env *Env) uint32 {
 				obj := objfun(env)
 				return uint32(fieldByIndex(obj, index).Uint())
 			}
-		case r.Uint64:
+		case xr.Uint64:
 			fun = func(env *Env) uint64 {
 				obj := objfun(env)
 				return fieldByIndex(obj, index).Uint()
 			}
-		case r.Uintptr:
+		case xr.Uintptr:
 
 			fun = func(env *Env) uintptr {
 				obj := objfun(env)
 				return uintptr(fieldByIndex(obj, index).Uint())
 			}
-		case r.Float32:
+		case xr.Float32:
 			fun = func(env *Env) float32 {
 				obj := objfun(env)
 				return float32(fieldByIndex(obj, index).Float())
 			}
-		case r.Float64:
+		case xr.Float64:
 			fun = func(env *Env) float64 {
 				obj := objfun(env)
 				return fieldByIndex(obj, index).Float()
 			}
-		case r.Complex64:
+		case xr.Complex64:
 			fun = func(env *Env) complex64 {
 				obj := objfun(env)
 				return complex64(fieldByIndex(obj, index).Complex())
 			}
-		case r.Complex128:
+		case xr.Complex128:
 			fun = func(env *Env) complex128 {
 				obj := objfun(env)
 				return fieldByIndex(obj, index).Complex()
 			}
-		case r.String:
+		case xr.String:
 			fun = func(env *Env) string {
 				obj := objfun(env)
 				return fieldByIndex(obj, index).String()
 			}
 		default:
-			fun = func(env *Env) r.Value {
+			fun = func(env *Env) xr.Value {
 				obj := objfun(env)
 				return fieldByIndex(obj, index)
 			}
@@ -471,14 +470,14 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 	fun := e.AsX1()
 	tclosure := c.removeFirstParam(mtd.Type)
 
-	return exprX1(tclosure, func(env *Env) r.Value {
+	return exprX1(tclosure, func(env *Env) xr.Value {
 		return obj2method(fun(env))
 	})
 }
 
 // create and return a function that, given a reflect.Value, returns its method specified by mtd
-func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) r.Value) {
-	if c.Options&OptDebugMethod != 0 {
+func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(xr.Value) xr.Value) {
+	if c.Options&base.OptDebugMethod != 0 {
 		c.Debugf("compileObjGetMethod for %v.%v: method is %#v", t, mtd.Name, mtd)
 	}
 	index := mtd.Index
@@ -486,7 +485,8 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 	if tfunc == nil {
 		c.Errorf("compileObjGetMethod for %v.%v: internal error, method type is nil! %#v", t, mtd.Name, mtd)
 	}
-	rtclosure := c.removeFirstParam(tfunc).ReflectType()
+	tclosure := c.removeFirstParam(tfunc)
+	rtclosure := tclosure.ReflectType()
 
 	tfield, fieldindex, addressof, deref := c.computeMethodFieldIndex(t, mtd)
 	rtfield := tfield.ReflectType()
@@ -501,49 +501,49 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 		switch len(fieldindex) {
 		case 0:
 			if addressof {
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					return obj.Addr().Method(index)
 				}
 			} else if deref {
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					return obj.Elem().Method(index)
 				}
 			} else {
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					return obj.Method(index)
 				}
 			}
 		case 1:
 			fieldindex := fieldindex[0]
 			if addressof {
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					obj = field0(obj, fieldindex)
 					return obj.Addr().Method(index)
 				}
 			} else if deref {
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					obj = field0(obj, fieldindex)
 					return obj.Elem().Method(index)
 				}
 			} else {
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					obj = field0(obj, fieldindex)
 					return obj.Method(index)
 				}
 			}
 		default:
 			if addressof {
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					obj = fieldByIndex(obj, fieldindex)
 					return obj.Addr().Method(index)
 				}
 			} else if deref {
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					obj = fieldByIndex(obj, fieldindex)
 					return obj.Elem().Method(index)
 				}
 			} else {
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					obj = fieldByIndex(obj, fieldindex)
 					return obj.Method(index)
 				}
@@ -555,21 +555,21 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 
 		// method declared by interpreted code, manually build the closure.
 		//
-		// It's not possible to call r.MakeFunc() only once at compile-time,
+		// It's not possible to call xr.MakeFunc() only once at compile-time,
 		// because the closure passed to it needs access to a variable holding the receiver.
 		// such variable would be evaluated only once at compile-time,
 		// not once per method extraction!
 		funs := mtd.Funs
-		call := r.Value.Call
+		call := xr.Value.Call
 		if tfunc.IsVariadic() {
-			call = r.Value.CallSlice
+			call = xr.Value.CallSlice
 		}
 
 		if funs == nil {
 			c.Errorf("method declared but not yet implemented: %s.%s", tname, methodname)
 		} else if len(*funs) <= index || (*funs)[index].Kind() != r.Func {
 			// c.Warnf("method declared but not yet implemented: %s.%s", tname, methodname)
-		} else if c.Options&OptDebugMethod != 0 {
+		} else if c.Options&base.OptDebugMethod != 0 {
 			c.Debugf("compiling method %v.%s <%v>: method declared by interpreted code, manually building the closure reflect.Type <%v>",
 				tname, methodname, mtd.Type, rtclosure)
 		}
@@ -585,25 +585,26 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 		} else {
 			switch len(fieldindex) {
 			case 0:
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					if addressof {
 						obj = obj.Addr()
 					} else if deref {
 						obj = obj.Elem()
 					}
-					fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
-					if fun == Nil {
+					// retrieve the function as soon as possible (early bind)
+					fun := xr.MakeValue((*funs)[index])
+					if !fun.IsValid() {
 						c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
-					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
-						args = append([]r.Value{obj}, args...)
+					return xr.MakeFunc(tclosure, func(args []xr.Value) []xr.Value {
+						args = append([]xr.Value{obj}, args...)
 						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs
 						return call(fun, args)
 					})
 				}
 			case 1:
 				fieldindex := fieldindex[0]
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					obj = field0(obj, fieldindex)
 					// Debugf("invoking method <%v> on receiver <%v> (addressof=%t, deref=%t)", (*funs)[index].Type(), obj.Type(), addressof, deref)
 					if addressof {
@@ -611,30 +612,32 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 					} else if deref {
 						obj = obj.Elem()
 					}
-					fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
-					if fun == Nil {
+					// retrieve the function as soon as possible (early bind)
+					fun := xr.MakeValue((*funs)[index])
+					if !fun.IsValid() {
 						c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
-					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
-						args = append([]r.Value{obj}, args...)
+					return xr.MakeFunc(tclosure, func(args []xr.Value) []xr.Value {
+						args = append([]xr.Value{obj}, args...)
 						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
 						return call(fun, args)
 					})
 				}
 			default:
-				ret = func(obj r.Value) r.Value {
+				ret = func(obj xr.Value) xr.Value {
 					obj = fieldByIndex(obj, fieldindex)
 					if addressof {
 						obj = obj.Addr()
 					} else if deref {
 						obj = obj.Elem()
 					}
-					fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
-					if fun == Nil {
+					// retrieve the function as soon as possible (early bind)
+					fun := xr.MakeValue((*funs)[index])
+					if !fun.IsValid() {
 						c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
-					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
-						args = append([]r.Value{obj}, args...)
+					return xr.MakeFunc(tclosure, func(args []xr.Value) []xr.Value {
+						args = append([]xr.Value{obj}, args...)
 						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
 						return call(fun, args)
 					})
@@ -656,10 +659,10 @@ func (c *Comp) compatibleMethodType(t xr.Type, mtd xr.Method, rmtd r.Method) boo
 	return rt1.NumIn()-1 == rt2.NumIn() && c.removeFirstParam(mtd.Type).ReflectType() == rt2
 }
 
-func compileInterfaceGetMethod(fieldindex []int, deref bool, index int) func(r.Value) r.Value {
+func compileInterfaceGetMethod(fieldindex []int, deref bool, index int) func(xr.Value) xr.Value {
 	switch len(fieldindex) {
 	case 0:
-		return func(obj r.Value) r.Value {
+		return func(obj xr.Value) xr.Value {
 			if deref {
 				obj = obj.Elem()
 			}
@@ -667,7 +670,7 @@ func compileInterfaceGetMethod(fieldindex []int, deref bool, index int) func(r.V
 		}
 	case 1:
 		fieldindex := fieldindex[0]
-		return func(obj r.Value) r.Value {
+		return func(obj xr.Value) xr.Value {
 			obj = field0(obj, fieldindex)
 			if deref {
 				obj = obj.Elem()
@@ -675,7 +678,7 @@ func compileInterfaceGetMethod(fieldindex []int, deref bool, index int) func(r.V
 			return xr.EmulatedInterfaceGetMethod(obj, index)
 		}
 	default:
-		return func(obj r.Value) r.Value {
+		return func(obj xr.Value) xr.Value {
 			obj = fieldByIndex(obj, fieldindex)
 			if deref {
 				obj = obj.Elem()
@@ -715,7 +718,7 @@ func (c *Comp) computeMethodFieldIndex(t xr.Type, mtd xr.Method) (fieldtype xr.T
 	addressof = !objPointer && recvPointer
 	deref = objPointer && !recvPointer
 
-	debug := c.Options&OptDebugMethod != 0
+	debug := c.Options&base.OptDebugMethod != 0
 	if debug {
 		c.Debugf("compiling method %v.%v", t.Name(), mtd.Name)
 	}
@@ -831,12 +834,12 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 		t = t.Elem()
 	}
 	rtype := t.ReflectType()
-	call := r.Value.Call
+	call := xr.Value.Call
 	if tfunc.IsVariadic() {
-		call = r.Value.CallSlice
+		call = xr.Value.CallSlice
 	}
 
-	var ret r.Value
+	var ret xr.Value
 
 	// c.Debugf("compileMethodAsFunc: t = <%v> has %d methods, rtype = <%v> has %d methods", t, t.NumMethod(), rtype, rtype.NumMethod())
 
@@ -847,7 +850,7 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 		if !ok {
 			c.Errorf("inconsistent type <%v>: reflect.Type <%v> has no method %q", t, rtype, mtd.Name)
 		}
-		rfunc := rmethod.Func
+		rfunc := xr.MakeValue(rmethod.Func)
 
 		if rfunc.Kind() != r.Func {
 			if rtype.Kind() != r.Interface {
@@ -857,17 +860,17 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 			rindex := rmethod.Index // usually == index. may differ if we removed wrapper methods from t
 			switch len(fieldindex) {
 			case 0:
-				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+				ret = xr.MakeFunc(tfunc, func(args []xr.Value) []xr.Value {
 					return call(args[0].Method(rindex), args[1:])
 				})
 			case 1:
 				fieldindex := fieldindex[0]
-				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+				ret = xr.MakeFunc(tfunc, func(args []xr.Value) []xr.Value {
 					args[0] = field0(args[0], fieldindex)
 					return call(args[0].Method(rindex), args[1:])
 				})
 			default:
-				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+				ret = xr.MakeFunc(tfunc, func(args []xr.Value) []xr.Value {
 					args[0] = fieldByIndex(args[0], fieldindex)
 					return call(args[0].Method(rindex), args[1:])
 				})
@@ -879,12 +882,12 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 				ret = rfunc
 			case 1:
 				fieldindex := fieldindex[0]
-				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+				ret = xr.MakeFunc(tfunc, func(args []xr.Value) []xr.Value {
 					args[0] = field0(args[0], fieldindex)
 					return call(rfunc, args)
 				})
 			default:
-				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+				ret = xr.MakeFunc(tfunc, func(args []xr.Value) []xr.Value {
 					args[0] = fieldByIndex(args[0], fieldindex)
 					return call(rfunc, args)
 				})
@@ -904,21 +907,22 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 
 		switch len(fieldindex) {
 		case 0:
-			ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+			ret = xr.MakeFunc(tfunc, func(args []xr.Value) []xr.Value {
 				if addressof {
 					args[0] = args[0].Addr()
 				} else if deref {
 					args[0] = args[0].Elem()
 				}
-				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
-				if fun == Nil {
+				// retrieve the function as soon as possible (early bind)
+				fun := xr.MakeValue((*funs)[index])
+				if !fun.IsValid() {
 					c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
 				return call(fun, args)
 			})
 		case 1:
 			fieldindex := fieldindex[0]
-			ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+			ret = xr.MakeFunc(tfunc, func(args []xr.Value) []xr.Value {
 				args[0] = field0(args[0], fieldindex)
 				// Debugf("invoking method <%v> on receiver <%v> (addressof=%t, deref=%t)", (*funs)[index].Type(), obj.Type(), addressof, deref)
 				if addressof {
@@ -926,22 +930,24 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 				} else if deref {
 					args[0] = args[0].Elem()
 				}
-				fun := (*funs)[index]
-				if fun == Nil {
+				// retrieve the function as soon as possible (early bind)
+				fun := xr.MakeValue((*funs)[index])
+				if !fun.IsValid() {
 					c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
 				return call(fun, args)
 			})
 		default:
-			ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+			ret = xr.MakeFunc(tfunc, func(args []xr.Value) []xr.Value {
 				args[0] = fieldByIndex(args[0], fieldindex)
 				if addressof {
 					args[0] = args[0].Addr()
 				} else if deref {
 					args[0] = args[0].Elem()
 				}
-				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
-				if fun == Nil {
+				// retrieve the function as soon as possible (early bind)
+				fun := xr.MakeValue((*funs)[index])
+				if !fun.IsValid() {
 					c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
 				return call(fun, args)
@@ -963,20 +969,20 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 	}
 	ispointer := false
 	switch te.Kind() {
-	case r.Ptr:
+	case xr.Ptr:
 		ispointer = true
 		te = te.Elem()
 		if te.Kind() != r.Struct {
 			break
 		}
 		objfun := obje.AsX1()
-		obje = exprFun(te, func(env *Env) r.Value {
+		obje = exprFun(te, func(env *Env) xr.Value {
 			obj := objfun(env)
 			// Debugf("SelectorPlace: obj = %v <%v> (expecting pointer to struct)", obj, obj.Type())
 			return obj.Elem()
 		})
 		fallthrough
-	case r.Struct:
+	case xr.Struct:
 		field, fieldn := c.LookupField(te, name)
 		if fieldn == 0 {
 			break
@@ -1015,24 +1021,24 @@ func (c *Comp) compileFieldPlace(obje *Expr, field xr.StructField) *Place {
 	objfun := obje.AsX1()
 	index := descendEmbeddedFields(obje.Type, field)
 	t := field.Type
-	var fun, addr func(*Env) r.Value
+	var fun, addr func(*Env) xr.Value
 
 	if len(index) == 1 {
 		index0 := index[0]
-		fun = func(env *Env) r.Value {
+		fun = func(env *Env) xr.Value {
 			obj := objfun(env)
 			return field0(obj, index0)
 		}
-		addr = func(env *Env) r.Value {
+		addr = func(env *Env) xr.Value {
 			obj := objfun(env)
 			return field0(obj, index0).Addr()
 		}
 	} else {
-		fun = func(env *Env) r.Value {
+		fun = func(env *Env) xr.Value {
 			obj := objfun(env)
 			return fieldByIndex(obj, index)
 		}
-		addr = func(env *Env) r.Value {
+		addr = func(env *Env) xr.Value {
 			obj := objfun(env)
 			return fieldByIndex(obj, index).Addr()
 		}

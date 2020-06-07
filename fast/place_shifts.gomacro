@@ -65,11 +65,11 @@ import (
 	signed := false
 
 	switch t.Kind() {
-		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+		case xr.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 			get = ~"{lhs.Int()}
 			set = ~"{lhs.SetInt(~,shift)}
 			signed = true
-		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+		case xr.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 			get = ~"{lhs.Uint()}
 			set = ~"{lhs.SetUint(~,shift)}
 		default:
@@ -112,10 +112,10 @@ import (
 	signed := false
 
 	switch t.Kind() {
-		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+		case xr.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 			get = ~"{lhs.MapIndex(key).Int()}
 			signed = true
-		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+		case xr.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 			get = ~"{lhs.MapIndex(key).Uint()}
 		default:
 			panic("invalid operator " + op.String() + "= on " + t.String())
@@ -132,7 +132,7 @@ import (
 				if result < 0 {
 					result += roundup
 				}
-				v := r.ValueOf(~,shift)
+				v := xr.ValueOf(~,shift)
 				if v.Type() != rt {
 					v = convert(v, rt)
 				}
@@ -147,7 +147,7 @@ import (
 				lhs := lhsfun(env)
 				key := keyfun(env)
 				result := ~,get
-				v := r.ValueOf(~,shift)
+				v := xr.ValueOf(~,shift)
 				if v.Type() != rt {
 					v = convert(v, rt)
 				}
@@ -217,7 +217,7 @@ import (
 		conv = ~'shift
 		opnode = ~'{token.QUO} // for error messages
 	} else {
-		conv = ~'{r.ValueOf(val).Uint()}
+		conv = ~'{xr.ValueOf(val).Uint()}
 	}
 
 	return ~"{
@@ -350,11 +350,11 @@ func (c *Comp) placeQuoPow2(place *Place, val I) Stmt {
 	}
 
 	ypositive := true
-	yv := r.ValueOf(val)
+	yv := xr.ValueOf(val)
 	ycat := reflect.Category(yv.Kind())
 	var y uint64
 	switch ycat {
-	case r.Int:
+	case xr.Int:
 		sy := yv.Int()
 		if sy < 0 {
 			ypositive = false
@@ -362,7 +362,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) Stmt {
 		} else {
 			y = uint64(sy)
 		}
-	case r.Uint:
+	case xr.Uint:
 		y = yv.Uint()
 	default:
 		// floating point or complex division

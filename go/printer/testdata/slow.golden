@@ -9,7 +9,7 @@ import (
 	"google3/spam/archer/frontend/deepequal"
 )
 
-func TestTwoNilValues(t *testing.T) {
+func TestTwoNilRValues(t *testing.T) {
 	if err := deepequal.Check(nil, nil); err != nil {
 		t.Errorf("expected nil, saw %v", err)
 	}

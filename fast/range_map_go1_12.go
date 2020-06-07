@@ -22,6 +22,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
@@ -36,8 +38,8 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	binditer := c.NewBind("", VarBind, c.TypeOfInterface())
 	idxiter := binditer.Desc.Index()
 	c.append(func(env *Env) (Stmt, *Env) {
-		iter := mapfun(env).MapRange()
-		env.Vals[idxiter] = r.ValueOf(iter)
+		iter := mapfun(env).ReflectValue().MapRange()
+		env.Vals[idxiter] = xr.ValueOf(iter)
 		env.IP++
 		return env.Code[env.IP], env
 	})
@@ -69,10 +71,10 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 		iter := env.Vals[idxiter].Interface().(*r.MapIter)
 		if iter.Next() {
 			if idxkey != NoIndex {
-				env.Vals[idxkey] = iter.Key()
+				env.Vals[idxkey] = xr.MakeValue(iter.Key())
 			}
 			if idxval != NoIndex {
-				env.Vals[idxval] = iter.Value()
+				env.Vals[idxval] = xr.MakeValue(iter.Value())
 			}
 			ip = env.IP + 1
 		} else {

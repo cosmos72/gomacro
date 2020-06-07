@@ -18,7 +18,6 @@ package debug
 
 import (
 	"go/token"
-	"reflect"
 	"runtime/debug"
 
 	"github.com/cosmos72/gomacro/base"
@@ -126,7 +125,7 @@ func (d *Debugger) Repl() DebugOp {
 	return op
 }
 
-func (d *Debugger) Eval(src string) ([]reflect.Value, []xreflect.Type) {
+func (d *Debugger) Eval(src string) ([]xreflect.Value, []xreflect.Type) {
 	g := d.globals
 	trap := g.Options&base.OptTrapPanic != 0
 

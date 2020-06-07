@@ -44,9 +44,9 @@ const (
 )
 
 var (
-	Nil = reflect.Nil
+	NilR = reflect.NilR
 
-	None = reflect.None // used to indicate "no value"
+	NoneR = reflect.NoneR // used to indicate "no value"
 
 	True  = r.ValueOf(true)
 	False = r.ValueOf(false)

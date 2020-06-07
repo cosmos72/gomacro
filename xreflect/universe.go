@@ -29,6 +29,7 @@ type Types struct {
 }
 
 type Universe struct {
+	// map types.Type -> Type
 	Types
 	// FromReflectType() map of types under construction.
 	// v.addmethods() will be invoked on them once the topmost FromReflectType() finishes.
@@ -156,6 +157,15 @@ func (v *Universe) importPackage(path string) *Package {
 	return (*Package)(pkg)
 }
 
+// lookup for gtype in Universe
+func (v *Universe) resolve(gtype types.Type) Type {
+	t, _ := v.gmap.At(gtype).(Type)
+	if t == nil || t.ReflectType() == rtypeOfForward {
+		t, _ = v.gmap.At(gtype.Underlying()).(Type)
+	}
+	return t
+}
+
 func (v *Universe) namedTypeFromImport(rtype r.Type) Type {
 	t := v.namedTypeFromPackageCache(rtype)
 	if unwrap(t) != nil {
@@ -184,7 +194,7 @@ func (v *Universe) namedTypeFromPackage(rtype r.Type, pkg *types.Package) Type {
 			if gtype := obj.Type(); gtype != nil {
 				// debugf("imported named type %v for %v", gtype, rtype)
 				// not v.MakeType, because we already hold the lock
-				return v.maketype3(gtypeToKind(nil, gtype), gtype, rtype)
+				return v.maketype4(gtypeToKind(nil, gtype), gtype, rtype, OptDefault)
 			}
 		}
 	}

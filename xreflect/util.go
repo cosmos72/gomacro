@@ -50,17 +50,30 @@ func xerrorf(t *xtype, format string, args ...interface{}) {
 	panic(&Error{wrap(t), format, args})
 }
 
+func gdirTodir(dir types.ChanDir) r.ChanDir {
+	var ret r.ChanDir
+	switch dir {
+	case types.RecvOnly:
+		ret = r.RecvDir
+	case types.SendOnly:
+		ret = r.SendDir
+	case types.SendRecv:
+		ret = r.BothDir
+	}
+	return ret
+}
+
 func dirToGdir(dir r.ChanDir) types.ChanDir {
-	var gdir types.ChanDir
+	var ret types.ChanDir
 	switch dir {
 	case r.RecvDir:
-		gdir = types.RecvOnly
+		ret = types.RecvOnly
 	case r.SendDir:
-		gdir = types.SendOnly
+		ret = types.SendOnly
 	case r.BothDir:
-		gdir = types.SendRecv
+		ret = types.SendRecv
 	}
-	return gdir
+	return ret
 }
 
 func gtypeToKind(t *xtype, gtype types.Type) r.Kind {
@@ -96,7 +109,7 @@ func gtypeToKind(t *xtype, gtype types.Type) r.Kind {
 func IsGoUntypedKind(gkind types.BasicKind) bool {
 	switch gkind {
 	case types.UntypedBool, types.UntypedInt, types.UntypedRune,
-		types.UntypedFloat, types.UntypedComplex, types.UntypedString, types.UntypedNil:
+		types.UntypedFloat, types.UntypedComplex, types.UntypedString, types.UntypedNilR:
 		return true
 	default:
 		return false
@@ -142,7 +155,7 @@ func ToReflectKind(gkind types.BasicKind) r.Kind {
 		kind = r.String
 	case types.UnsafePointer:
 		kind = r.UnsafePointer
-	case types.UntypedNil:
+	case types.UntypedNilR:
 		kind = r.Invalid
 	default:
 		errorf(nil, "unsupported types.BasicKind: %v", gkind)
@@ -214,7 +227,7 @@ func ToBasicKind(kind r.Kind, untyped bool) types.BasicKind {
 	case r.UnsafePointer:
 		gkind = types.UnsafePointer
 	case r.Invalid:
-		gkind = types.UntypedNil
+		gkind = types.UntypedNilR
 	default:
 		errorf(nil, "unsupported refletc.Kind: %v", kind)
 	}

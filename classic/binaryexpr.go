@@ -20,7 +20,7 @@ import (
 	"go/token"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/reflect"
 	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
@@ -227,10 +227,10 @@ func binaryResultType(xt, yt r.Type) r.Type {
 	}
 	// int and uint are used to approximate untyped constants,
 	// avoid them if possible
-	if xt == TypeOfInt || xt == TypeOfUint {
+	if xt == base.TypeOfInt || xt == base.TypeOfUint {
 		return yt
 	}
-	if yt == TypeOfInt || yt == TypeOfUint {
+	if yt == base.TypeOfInt || yt == base.TypeOfUint {
 		return xt
 	}
 	// prefer larger types
@@ -365,9 +365,9 @@ func (env *Env) evalBinaryExprString(xv r.Value, op token.Token, yv r.Value) r.V
 		return env.unsupportedBinaryExpr(xv, op, yv)
 	}
 	if b {
-		return True
+		return base.True
 	} else {
-		return False
+		return base.False
 	}
 }
 
@@ -384,8 +384,8 @@ func (env *Env) evalBinaryExprMisc(xv r.Value, op token.Token, yv r.Value) bool 
 	if xv == yv {
 		return eql
 	}
-	xnil := xv == Nil || reflect.IsNillableKind(xv.Kind()) && xv.IsNil()
-	ynil := yv == Nil || reflect.IsNillableKind(yv.Kind()) && yv.IsNil()
+	xnil := xv == base.NilR || reflect.IsNillableKind(xv.Kind()) && xv.IsNil()
+	ynil := yv == base.NilR || reflect.IsNillableKind(yv.Kind()) && yv.IsNil()
 	if xnil || ynil {
 		return eql == (xnil == ynil)
 	}

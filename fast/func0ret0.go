@@ -17,30 +17,28 @@
 package fast
 
 import (
-	r "reflect"
-
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) func0ret0(t xr.Type, m *funcMaker) func(env *Env) r.Value {
+func (c *Comp) func0ret0(t xr.Type, m *funcMaker) func(env *Env) xr.Value {
 	funcbody := m.funcbody
 	if funcbody == nil {
-		return func(env *Env) r.Value {
+		return func(env *Env) xr.Value {
 			return valueOfNopFunc
 		}
 	}
 	var debugC *Comp
-	if c.Globals.Options&OptDebugger != 0 {
+	if c.Globals.Options&base.OptDebugger != 0 {
 		debugC = c
 	}
 
 	nbind := m.nbind
 	nintbind := m.nintbind
-	return func(env *Env) r.Value {
+	return func(env *Env) xr.Value {
 		// function is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
-		return r.ValueOf(func() {
+		return xr.ValueOf(func() {
 			env := newEnv4Func(env, nbind, nintbind, debugC)
 			// execute the body
 			funcbody(env)

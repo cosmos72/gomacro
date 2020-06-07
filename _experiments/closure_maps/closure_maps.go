@@ -135,7 +135,7 @@ func VarSetInt(name string, expr XInt) X {
 		for e := env; e != nil; e = e.Outer {
 			if v, ok := env.Binds[name]; ok {
 				v.SetInt(int64(val))
-				return base.None, nil
+				return base.NoneR, nil
 			}
 		}
 		return errorf("undefined identifier: %v", name)
@@ -147,7 +147,7 @@ func VarIncInt(name string) X {
 		for e := env; e != nil; e = e.Outer {
 			if v, ok := env.Binds[name]; ok {
 				v.SetInt(v.Int() + 1)
-				return base.None, nil
+				return base.NoneR, nil
 			}
 		}
 		return errorf("undefined identifier: %v", name)
@@ -194,7 +194,7 @@ func For(init X, pred XBool, post X, body X) X {
 			for pred(env) {
 				body(env)
 			}
-			return base.None, nil
+			return base.NoneR, nil
 		}
 
 	} else {
@@ -205,13 +205,13 @@ func For(init X, pred XBool, post X, body X) X {
 			for init(env); pred(env); post(env) {
 				body(env)
 			}
-			return base.None, nil
+			return base.NoneR, nil
 		}
 	}
 }
 
 func Nop(env *Env) (r.Value, []r.Value) {
-	return base.None, nil
+	return base.NoneR, nil
 }
 
 func Block(list ...X) X {
@@ -258,7 +258,7 @@ func Return(exprs ...X) X {
 					warnExtraValues(extra)
 				}
 			}
-			ret0 := base.None
+			ret0 := base.NoneR
 			if len(rets) > 0 {
 				ret0 = rets[0]
 			}
@@ -331,7 +331,7 @@ func CallInt(fun X, args ...X) XInt {
 		if len(extra) > 1 {
 			warnExtraValues(extra)
 		}
-		if fvalue == base.Nil || fvalue == base.None {
+		if fvalue == base.NilR || fvalue == base.NoneR {
 			errorf("undefined identifier: %v", fun)
 		}
 		f := fvalue.Interface().(FuncInt)

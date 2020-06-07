@@ -23,7 +23,7 @@ import (
 	"strings"
 	"unsafe"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/paths"
@@ -62,7 +62,7 @@ func (ir *Interp) ChangePackage(name, path string) {
 
 	c.CompGlobals.KnownImports[oldp.Path] = oldp // overwrite any cached import with same path as current Interp
 
-	trace := c.Globals.Options&OptShowPrompt != 0
+	trace := c.Globals.Options&base.OptShowPrompt != 0
 	top := &Interp{c.TopComp(), ir.env.Top()}
 	if newp != nil {
 		newp.Name = name
@@ -74,7 +74,7 @@ func (ir *Interp) ChangePackage(name, path string) {
 		// requested package does not exist - create an empty one
 		ir.Comp = NewComp(top.Comp, nil)
 		ir.env = NewEnv(top.env, 0, 0)
-		if c.Globals.Options&OptDebugger != 0 {
+		if c.Globals.Options&base.OptDebugger != 0 {
 			ir.env.DebugComp = ir.Comp
 		}
 		ir.Comp.Name = name
@@ -147,7 +147,8 @@ func (c *Comp) ImportPackageOrError(alias, path string) (*Import, error) {
 	g := c.CompGlobals
 	imp := g.KnownImports[path]
 	if imp == nil {
-		pkgref, err := g.Importer.ImportPackageOrError(alias, path, g.Options&OptModuleImport != 0)
+		pkgref, err := g.Importer.ImportPackageOrError(
+			alias, path, g.Options&base.OptModuleImport != 0)
 		if err != nil {
 			return nil, err
 		}
@@ -229,7 +230,7 @@ func (c *Comp) declDotImport0(imp *Import) {
 
 	var indexv, cindexv []int // mapping between Import.Vals[index] and Env.Vals[cindex]
 
-	var funv []func(*Env) r.Value
+	var funv []func(*Env) xr.Value
 	var findexv []int
 
 	for name, bind := range imp.Binds {
@@ -295,7 +296,7 @@ func (g *CompGlobals) NewImport(pkgref *genimport.PackageRef) *Import {
 }
 
 func (imp *Import) loadBinds(g *CompGlobals, pkgref *genimport.PackageRef) {
-	vals := make([]r.Value, len(pkgref.Binds))
+	vals := make([]xr.Value, len(pkgref.Binds))
 	untypeds := pkgref.Untypeds
 	o := &g.Output
 	for name, val := range pkgref.Binds {
@@ -325,11 +326,11 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *genimport.PackageRef) {
 			continue
 		}
 		if len(vals) <= idx {
-			tmp := make([]r.Value, idx*2)
+			tmp := make([]xr.Value, idx*2)
 			copy(tmp, vals)
 			vals = tmp
 		}
-		vals[idx] = val
+		vals[idx] = xr.MakeValue(val)
 	}
 	imp.Vals = vals
 }
@@ -412,10 +413,10 @@ func (imp *Import) selectorPlace(c *Comp, name string, opt PlaceOption) *Place {
 			if val.IsValid() && val.CanAddr() && val.CanSet() {
 				return &Place{
 					Var: Var{Type: bind.Type},
-					Fun: func(*Env) r.Value {
+					Fun: func(*Env) xr.Value {
 						return val
 					},
-					Addr: func(*Env) r.Value {
+					Addr: func(*Env) xr.Value {
 						return val.Addr()
 					},
 				}
@@ -462,76 +463,76 @@ func (imp *Import) symbol(bind *Bind, st *output.Stringer) *Expr {
 	}
 	var fun I
 	switch t.Kind() {
-	case r.Bool:
+	case xr.Bool:
 		fun = func(*Env) bool {
 			return v.Bool()
 		}
-	case r.Int:
+	case xr.Int:
 		fun = func(*Env) int {
 			return int(v.Int())
 		}
-	case r.Int8:
+	case xr.Int8:
 		fun = func(*Env) int8 {
 			return int8(v.Int())
 		}
-	case r.Int16:
+	case xr.Int16:
 		fun = func(*Env) int16 {
 			return int16(v.Int())
 		}
-	case r.Int32:
+	case xr.Int32:
 		fun = func(*Env) int32 {
 			return int32(v.Int())
 		}
-	case r.Int64:
+	case xr.Int64:
 		fun = func(*Env) int64 {
 			return v.Int()
 		}
-	case r.Uint:
+	case xr.Uint:
 		fun = func(*Env) uint {
 			return uint(v.Uint())
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		fun = func(*Env) uint8 {
 			return uint8(v.Uint())
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		fun = func(*Env) uint16 {
 			return uint16(v.Uint())
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		fun = func(*Env) uint32 {
 			return uint32(v.Uint())
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		fun = func(*Env) uint64 {
 			return v.Uint()
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		fun = func(*Env) uintptr {
 			return uintptr(v.Uint())
 		}
-	case r.Float32:
+	case xr.Float32:
 		fun = func(*Env) float32 {
 			return float32(v.Float())
 		}
-	case r.Float64:
+	case xr.Float64:
 		fun = func(*Env) float64 {
 			return v.Float()
 		}
-	case r.Complex64:
+	case xr.Complex64:
 		fun = func(*Env) complex64 {
 			return complex64(v.Complex())
 		}
-	case r.Complex128:
+	case xr.Complex128:
 		fun = func(*Env) complex128 {
 			return v.Complex()
 		}
-	case r.String:
+	case xr.String:
 		fun = func(*Env) string {
 			return v.String()
 		}
 	default:
-		fun = func(*Env) r.Value {
+		fun = func(*Env) xr.Value {
 			return v
 		}
 	}
@@ -553,67 +554,67 @@ func (imp *Import) intSymbol(bind *Bind, st *output.Stringer) *Expr {
 	env := imp.env
 	var fun I
 	switch t.Kind() {
-	case r.Bool:
+	case xr.Bool:
 		fun = func(*Env) bool {
 			return *(*bool)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Int:
+	case xr.Int:
 		fun = func(*Env) int {
 			return *(*int)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Int8:
+	case xr.Int8:
 		fun = func(*Env) int8 {
 			return *(*int8)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Int16:
+	case xr.Int16:
 		fun = func(*Env) int16 {
 			return *(*int16)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Int32:
+	case xr.Int32:
 		fun = func(*Env) int32 {
 			return *(*int32)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Int64:
+	case xr.Int64:
 		fun = func(*Env) int64 {
 			return *(*int64)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Uint:
+	case xr.Uint:
 		fun = func(*Env) uint {
 			return *(*uint)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		fun = func(*Env) uint8 {
 			return *(*uint8)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		fun = func(*Env) uint16 {
 			return *(*uint16)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		fun = func(*Env) uint32 {
 			return *(*uint32)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		fun = func(*Env) uint64 {
 			return env.Ints[idx]
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		fun = func(*Env) uintptr {
 			return *(*uintptr)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Float32:
+	case xr.Float32:
 		fun = func(*Env) float32 {
 			return *(*float32)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Float64:
+	case xr.Float64:
 		fun = func(*Env) float64 {
 			return *(*float64)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Complex64:
+	case xr.Complex64:
 		fun = func(*Env) complex64 {
 			return *(*complex64)(unsafe.Pointer(&env.Ints[idx]))
 		}
-	case r.Complex128:
+	case xr.Complex128:
 		fun = func(*Env) complex128 {
 			return *(*complex128)(unsafe.Pointer(&env.Ints[idx]))
 		}
@@ -636,72 +637,72 @@ func (imp *Import) intPlace(c *Comp, bind *Bind, opt PlaceOption) *Place {
 		c.Errorf("%v %v %v.%v", opt, bind.Desc.Class(), imp.Name, bind.Name)
 	}
 	t := bind.Type
-	var addr func(*Env) r.Value
+	var addr func(*Env) xr.Value
 	impenv := imp.env
 	switch t.Kind() {
-	case r.Bool:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*bool)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Bool:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*bool)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Int:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*int)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Int:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*int)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Int8:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*int8)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Int8:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*int8)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Int16:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*int16)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Int16:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*int16)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Int32:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*int32)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Int32:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*int32)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Int64:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*int64)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Int64:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*int64)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Uint:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*uint)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Uint:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*uint)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Uint8:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*uint8)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Uint8:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*uint8)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Uint16:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*uint16)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Uint16:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*uint16)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Uint32:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*uint32)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Uint32:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*uint32)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Uint64:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf(&impenv.Ints[idx])
+	case xr.Uint64:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf(&impenv.Ints[idx])
 		}
-	case r.Uintptr:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*uintptr)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Uintptr:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*uintptr)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Float32:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*float32)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Float32:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*float32)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Float64:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*float64)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Float64:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*float64)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Complex64:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*complex64)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Complex64:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*complex64)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
-	case r.Complex128:
-		addr = func(env *Env) r.Value {
-			return r.ValueOf((*complex128)(unsafe.Pointer(&impenv.Ints[idx])))
+	case xr.Complex128:
+		addr = func(env *Env) xr.Value {
+			return xr.ValueOf((*complex128)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
 	default:
 		c.Errorf("%s unsupported variable type <%v>: %s %s.%s",
@@ -710,7 +711,7 @@ func (imp *Import) intPlace(c *Comp, bind *Bind, opt PlaceOption) *Place {
 	}
 	return &Place{
 		Var: Var{Type: bind.Type, Name: bind.Name},
-		Fun: func(env *Env) r.Value {
+		Fun: func(env *Env) xr.Value {
 			return addr(env).Elem()
 		},
 		Addr: addr,

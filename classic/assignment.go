@@ -27,7 +27,7 @@ import (
 
 type placeType struct {
 	obj    r.Value // the map to modify, or a settable r.Value
-	mapkey r.Value // the map key to set, or Nil
+	mapkey r.Value // the map key to set, or NilR
 }
 
 // dummy place for assignment to _
@@ -79,7 +79,7 @@ func (env *Env) evalPlaces(node []ast.Expr) []placeType {
 }
 
 func (env *Env) evalPlace(node ast.Expr) placeType {
-	obj := Nil
+	obj := NilR
 	// ignore parenthesis: (expr) = value is the same as expr = value
 	for {
 		if paren, ok := node.(*ast.ParenExpr); ok {
@@ -96,10 +96,10 @@ func (env *Env) evalPlace(node ast.Expr) placeType {
 		switch obj.Kind() {
 		case r.Map:
 			// make a copy of obj and index, to protect against "evil assignment" m, i, m[i] = nil, 1, 2  where m is a map
-			if obj != Nil && obj.CanSet() {
+			if obj != NilR && obj.CanSet() {
 				obj = obj.Convert(obj.Type())
 			}
-			if index != Nil && index.CanSet() {
+			if index != NilR && index.CanSet() {
 				index = index.Convert(index.Type())
 			}
 			return placeType{obj, index}
@@ -132,7 +132,7 @@ func (env *Env) evalPlace(node ast.Expr) placeType {
 		env.Errorf("cannot assign to read-only location: %v", node)
 		return placeType{}
 	}
-	return placeType{obj, Nil}
+	return placeType{obj, NilR}
 }
 
 func (env *Env) assignPlaces(places []placeType, op token.Token, values []r.Value) (r.Value, []r.Value) {
@@ -151,11 +151,11 @@ func (env *Env) assignPlaces(places []placeType, op token.Token, values []r.Valu
 	for i := 0; i < n; i++ {
 		p := &places[i]
 		v := p.mapkey
-		if v != Nil && v.CanSet() {
+		if v != NilR && v.CanSet() {
 			p.mapkey = v.Convert(v.Type()) // r.Value.Convert() makes a copy
 		}
 		v = values[i]
-		if v != Nil && v.CanSet() {
+		if v != NilR && v.CanSet() {
 			values[i] = v.Convert(v.Type()) // r.Value.Convert() makes a copy
 		}
 	}
@@ -171,7 +171,7 @@ func (env *Env) assignPlace(place placeType, op token.Token, value r.Value) r.Va
 		return value
 	}
 	key := place.mapkey
-	if key == Nil {
+	if key == NilR {
 		t := typeOf(obj)
 		value = env.valueToType(value, t)
 		if op != token.ASSIGN {

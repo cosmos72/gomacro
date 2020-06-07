@@ -105,7 +105,7 @@ func VarSetInt(idx int, expr XInt) X {
 	return func(env *Env) (interface{}, []interface{}) {
 		val := expr(env)
 		env.Binds[idx] = val
-		return base.None, nil
+		return base.NoneR, nil
 	}
 }
 
@@ -113,7 +113,7 @@ func VarIncInt(idx int) X {
 	return func(env *Env) (interface{}, []interface{}) {
 		v := env.Binds[idx]
 		env.Binds[idx] = v.(int) + 1
-		return base.None, nil
+		return base.NoneR, nil
 	}
 }
 
@@ -157,7 +157,7 @@ func For(init X, pred XBool, post X, body X) X {
 			for pred(env) {
 				body(env)
 			}
-			return base.None, nil
+			return base.NoneR, nil
 		}
 
 	} else {
@@ -168,13 +168,13 @@ func For(init X, pred XBool, post X, body X) X {
 			for init(env); pred(env); post(env) {
 				body(env)
 			}
-			return base.None, nil
+			return base.NoneR, nil
 		}
 	}
 }
 
 func Nop(env *Env) (interface{}, []interface{}) {
-	return base.None, nil
+	return base.NoneR, nil
 }
 
 func Block(list ...X) X {

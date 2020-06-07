@@ -88,7 +88,7 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 		env.DefineVar(argName, t.In(i), args[i])
 	}
 	// use evalStatements(), not evalBlock(): in Go, the function arguments and body are in the same scope
-	rets := reflect.PackValues(env.evalStatements(body.List))
+	rets := reflect.PackValuesR(env.evalStatements(body.List))
 	results = env.convertFuncCallResults(t, rets, false)
 	panicking = false
 	return results
@@ -112,7 +112,7 @@ func (env *Env) convertFuncCallResults(t r.Type, rets []r.Value, warn bool) []r.
 	}
 	for i, ret := range rets {
 		ti := t.Out(i)
-		if ret == Nil || ret == None {
+		if ret == NilR || ret == NoneR {
 			rets[i] = r.Zero(ti)
 		} else {
 			rets[i] = ret.Convert(ti)
@@ -199,7 +199,7 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 	default:
 		break
 	}
-	return env.Errorf("call of non-function %v <%v>: %v", reflect.Interface(fun), reflect.Type(fun), node)
+	return env.Errorf("call of non-function %v <%v>: %v", reflect.ValueInterfaceR(fun), reflect.ValueTypeR(fun), node)
 }
 
 func (env *Env) evalConstructorArgs(fun Constructor, node *ast.CallExpr) (r.Type, []r.Value) {
@@ -267,5 +267,5 @@ func (env *Env) evalDefer(node *ast.CallExpr) (r.Value, []r.Value) {
 		}
 	}
 	frame.defers = append(frame.defers, closure)
-	return None, nil
+	return NoneR, nil
 }

@@ -193,7 +193,7 @@ func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, const
 		env.Binds.Set(name, value)
 	} else {
 		addr := r.New(t)
-		value = env.assignPlace(placeType{addr.Elem(), Nil}, token.ASSIGN, value)
+		value = env.assignPlace(placeType{addr.Elem(), NilR}, token.ASSIGN, value)
 		env.Binds.Set(name, addr.Elem())
 	}
 	// Debugf("defineConstVarOrFunc() added %#v to %#v", name, env.Binds)

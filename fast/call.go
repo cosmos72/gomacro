@@ -44,9 +44,9 @@ func newCall1(fun *Expr, arg *Expr, isconst bool, outtypes ...xr.Type) *Call {
 	}
 }
 
-func (call *Call) MakeArgfunsX1() []func(*Env) r.Value {
+func (call *Call) MakeArgfunsX1() []func(*Env) xr.Value {
 	args := call.Args
-	argfuns := make([]func(*Env) r.Value, len(args))
+	argfuns := make([]func(*Env) xr.Value, len(args))
 	for i, arg := range args {
 		argfuns[i] = arg.AsX1()
 	}
@@ -105,8 +105,8 @@ func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 		args = append(args, lastarg)
 	}
 	switch t.Kind() {
-	case r.Func:
-	case r.Ptr:
+	case xr.Func:
+	case xr.Ptr:
 		if (GENERICS_V1_CXX() || GENERICS_V2_CTI()) && t.ReflectType() == rtypeOfPtrGenericFunc {
 			fun = c.inferGenericFunc(node, fun, args)
 			t = fun.Type
@@ -205,11 +205,11 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellips
 	if variadic {
 		tlast = t.In(n - 1).Elem()
 	}
-	var convs []func(r.Value) r.Value
+	var convs []func(xr.Value) xr.Value
 	needconvs := false
 	multivalue := len(args) != narg
 	if multivalue {
-		convs = make([]func(r.Value) r.Value, narg)
+		convs = make([]func(xr.Value) xr.Value, narg)
 	}
 	for i := 0; i < narg; i++ {
 		if variadic && i >= n-1 {
@@ -243,7 +243,7 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellips
 		return
 	}
 	f := args[0].AsXV(COptDefaults)
-	args[0].Fun = func(env *Env) (r.Value, []r.Value) {
+	args[0].Fun = func(env *Env) (xr.Value, []xr.Value) {
 		_, vs := f(env)
 		for i, conv := range convs {
 			if conv != nil {
@@ -319,7 +319,7 @@ func (c *Comp) callnret0(call *Call, maxdepth int) func(env *Env) {
 		argfun := argfunsX1[0]
 		ret = func(env *Env) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfun(env),
 			}
 			callxr(funv, argv)
@@ -327,7 +327,7 @@ func (c *Comp) callnret0(call *Call, maxdepth int) func(env *Env) {
 	case 2:
 		ret = func(env *Env) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfunsX1[0](env),
 				argfunsX1[1](env),
 			}
@@ -336,7 +336,7 @@ func (c *Comp) callnret0(call *Call, maxdepth int) func(env *Env) {
 	default:
 		ret = func(env *Env) {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
+			argv := make([]xr.Value, len(argfunsX1))
 			for i, argfun := range argfunsX1 {
 				argv[i] = argfun(env)
 			}
@@ -373,7 +373,7 @@ func (c *Comp) call_ret1(call *Call, maxdepth int) I {
 
 // cannot optimize much here... fast_interpreter ASSUMES that expressions
 // returning multiple values actually return (reflect.Value, []reflect.Value)
-func (c *Comp) call_ret2plus(call *Call, maxdepth int) func(env *Env) (r.Value, []r.Value) {
+func (c *Comp) call_ret2plus(call *Call, maxdepth int) func(env *Env) (xr.Value, []xr.Value) {
 	if call.Ellipsis {
 		return call_ellipsis_ret2plus(call, maxdepth)
 	}
@@ -381,32 +381,32 @@ func (c *Comp) call_ret2plus(call *Call, maxdepth int) func(env *Env) (r.Value, 
 	expr := call.Fun
 	exprfun := expr.AsX1()
 	argfunsX1 := call.MakeArgfunsX1()
-	var ret func(*Env) (r.Value, []r.Value)
+	var ret func(*Env) (xr.Value, []xr.Value)
 	switch len(call.Args) {
 	case 0:
-		ret = func(env *Env) (r.Value, []r.Value) {
+		ret = func(env *Env) (xr.Value, []xr.Value) {
 			funv := exprfun(env)
 			retv := callxr(funv, nil)
 			return retv[0], retv
 		}
 	case 1:
 		argfun := argfunsX1[0]
-		ret = func(env *Env) (r.Value, []r.Value) {
+		ret = func(env *Env) (xr.Value, []xr.Value) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfun(env),
 			}
 			retv := callxr(funv, argv)
 			return retv[0], retv
 		}
 	case 2:
-		argfuns := [2]func(*Env) r.Value{
+		argfuns := [2]func(*Env) xr.Value{
 			argfunsX1[0],
 			argfunsX1[1],
 		}
-		ret = func(env *Env) (r.Value, []r.Value) {
+		ret = func(env *Env) (xr.Value, []xr.Value) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
@@ -414,14 +414,14 @@ func (c *Comp) call_ret2plus(call *Call, maxdepth int) func(env *Env) (r.Value, 
 			return retv[0], retv
 		}
 	case 3:
-		argfuns := [3]func(*Env) r.Value{
+		argfuns := [3]func(*Env) xr.Value{
 			argfunsX1[0],
 			argfunsX1[1],
 			argfunsX1[2],
 		}
-		ret = func(env *Env) (r.Value, []r.Value) {
+		ret = func(env *Env) (xr.Value, []xr.Value) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 				argfuns[2](env),
@@ -431,9 +431,9 @@ func (c *Comp) call_ret2plus(call *Call, maxdepth int) func(env *Env) (r.Value, 
 		}
 	default:
 		// general case
-		ret = func(env *Env) (r.Value, []r.Value) {
+		ret = func(env *Env) (xr.Value, []xr.Value) {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
+			argv := make([]xr.Value, len(argfunsX1))
 			for i, argfun := range argfunsX1 {
 				argv[i] = argfun(env)
 			}
@@ -446,14 +446,14 @@ func (c *Comp) call_ret2plus(call *Call, maxdepth int) func(env *Env) (r.Value, 
 
 // replacement for reflect.Value.Call() that correctly handles
 // functions wrapped in xr.Forward
-func callxr(fun r.Value, args []r.Value) []r.Value {
+func callxr(fun xr.Value, args []xr.Value) []xr.Value {
 	if fun.Kind() == r.Interface {
 		fun = fun.Elem()
 	}
 	return fun.Call(args)
 }
 
-func callslicexr(fun r.Value, args []r.Value) []r.Value {
+func callslicexr(fun xr.Value, args []xr.Value) []xr.Value {
 	if fun.Kind() == r.Interface {
 		fun = fun.Elem()
 	}

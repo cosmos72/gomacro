@@ -28,7 +28,8 @@ func (t *xtype) ChanDir() r.ChanDir {
 	if t.Kind() != r.Chan {
 		xerrorf(t, "ChanDir of non-chan type %v", t)
 	}
-	return t.rtype.ChanDir()
+	gdir := t.gunderlying().(*types.Chan).Dir()
+	return gdirTodir(gdir)
 }
 
 // Elem returns a type's element type.
@@ -42,28 +43,29 @@ func (t *xtype) Elem() Type {
 }
 
 func (t *xtype) elem() Type {
-	gtype := t.gunderlying()
-	rtype := t.rtype
-	switch gtype := gtype.(type) {
+	var gelem types.Type
+	switch gtype := t.gunderlying().(type) {
 	case *types.Array:
-		return t.universe.maketype(gtype.Elem(), rtype.Elem())
+		gelem = gtype.Elem()
 	case *types.Chan:
-		return t.universe.maketype(gtype.Elem(), rtype.Elem())
+		gelem = gtype.Elem()
 	case *types.Map:
-		return t.universe.maketype(gtype.Elem(), rtype.Elem())
+		gelem = gtype.Elem()
 	case *types.Pointer:
-		// if reflect type is xreflect.Forward due to contagion,
-		// we do not know the element type -> return xreflect.Forward
-		if rtype != rTypeOfForward {
-			rtype = rtype.Elem()
-		}
-		return t.universe.maketype(gtype.Elem(), rtype)
+		gelem = gtype.Elem()
 	case *types.Slice:
-		return t.universe.maketype(gtype.Elem(), rtype.Elem())
+		gelem = gtype.Elem()
 	default:
 		xerrorf(t, "Elem of invalid type %v", t)
-		return nil
 	}
+	rtype := t.rtype
+	// if rtype is xreflect.Forward due to contagion,
+	// we do not know the element type -> use xreflect.Forward
+	switch rtype.Kind() {
+	case r.Array, r.Chan, r.Map, r.Ptr, r.Slice:
+		rtype = rtype.Elem()
+	}
+	return t.universe.maketype(gelem, rtype, t.option)
 }
 
 // Key returns a map type's key type.
@@ -72,8 +74,14 @@ func (t *xtype) Key() Type {
 	if t.Kind() != r.Map {
 		xerrorf(t, "Key of non-map type %v", t)
 	}
-	gtype := t.gunderlying().(*types.Map)
-	return t.universe.MakeType(gtype.Key(), t.rtype.Key())
+	gkey := t.gunderlying().(*types.Map).Key()
+	rtype := t.rtype
+	// if rtype is xreflect.Forward due to contagion,
+	// we do not know the element type -> use xreflect.Forward
+	if rtype != rTypeOfForward {
+		rtype = rtype.Key()
+	}
+	return t.universe.MakeType(gkey, rtype, t.option)
 }
 
 // Len returns an array type's length.
@@ -82,45 +90,61 @@ func (t *xtype) Len() int {
 	if t.Kind() != r.Array {
 		xerrorf(t, "Len of non-array type %v", t)
 	}
-	return t.rtype.Len()
+	return int(t.gunderlying().(*types.Array).Len())
 }
 
 func (v *Universe) ArrayOf(count int, elem Type) Type {
+	e := unwrap(elem)
 	return v.MakeType(
-		types.NewArray(elem.GoType(), int64(count)),
-		r.ArrayOf(count, elem.ReflectType()))
+		types.NewArray(e.gtype, int64(count)),
+		propagateFwd(e,
+			func(rt r.Type) r.Type {
+				return r.ArrayOf(count, rt)
+			}),
+		e.option)
 }
 
 func (v *Universe) ChanOf(dir r.ChanDir, elem Type) Type {
+	e := unwrap(elem)
 	gdir := dirToGdir(dir)
 	return v.MakeType(
-		types.NewChan(gdir, elem.GoType()),
-		r.ChanOf(dir, elem.ReflectType()))
+		types.NewChan(gdir, e.gtype),
+		r.ChanOf(dir, e.approxReflectType()),
+		e.option)
 }
 
 func (v *Universe) MapOf(key, elem Type) Type {
+	k := unwrap(key)
+	e := unwrap(elem)
 	return v.MakeType(
-		types.NewMap(key.GoType(), elem.GoType()),
-		r.MapOf(key.ReflectType(), elem.ReflectType()))
+		types.NewMap(k.gtype, e.gtype),
+		r.MapOf(k.approxReflectType(), e.approxReflectType()),
+		k.option|e.option)
 }
 
 func (v *Universe) PtrTo(elem Type) Type {
-	rtyp := elem.ReflectType()
-
-	// do not create the reflect type *xreflect.Forward
-	// because it hurts the implementation of recursive types.
-	// Instead, consider xreflect.Forward as slightly contagious.
-	if rtyp != rTypeOfForward {
-		rtyp = r.PtrTo(rtyp)
-	}
-
+	e := unwrap(elem)
 	return v.MakeType(
-		types.NewPointer(elem.GoType()),
-		rtyp)
+		types.NewPointer(e.gtype),
+		propagateFwd(e, r.PtrTo),
+		e.option)
 }
 
 func (v *Universe) SliceOf(elem Type) Type {
+	e := unwrap(elem)
 	return v.MakeType(
-		types.NewSlice(elem.GoType()),
-		r.SliceOf(elem.ReflectType()))
+		types.NewSlice(e.gtype),
+		propagateFwd(e, r.SliceOf),
+		e.option)
+}
+
+func propagateFwd(xt *xtype, maker func(r.Type) r.Type) r.Type {
+	rtype := xt.rtype
+	if xt.option != OptDefault || rtype == rTypeOfForward {
+		xt.option = OptRecursive
+		rtype = rTypeOfForward
+	} else {
+		rtype = maker(rtype)
+	}
+	return rtype
 }

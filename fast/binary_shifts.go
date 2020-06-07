@@ -23,7 +23,8 @@ package fast
 
 import (
 	"go/ast"
-	r "reflect"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -40,77 +41,77 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.AsUint64()
 
 		switch xk {
-		case r.Int:
+		case xr.Int:
 			x := x.(func(*Env) int)
 
 			fun = func(env *Env) int {
 				return x(env) << y(env)
 			}
 
-		case r.Int8:
+		case xr.Int8:
 			x := x.(func(*Env) int8)
 
 			fun = func(env *Env) int8 {
 				return x(env) << y(env)
 			}
 
-		case r.Int16:
+		case xr.Int16:
 			x := x.(func(*Env) int16)
 
 			fun = func(env *Env) int16 {
 				return x(env) << y(env)
 			}
 
-		case r.Int32:
+		case xr.Int32:
 			x := x.(func(*Env) int32)
 
 			fun = func(env *Env) int32 {
 				return x(env) << y(env)
 			}
 
-		case r.Int64:
+		case xr.Int64:
 			x := x.(func(*Env) int64)
 
 			fun = func(env *Env) int64 {
 				return x(env) << y(env)
 			}
 
-		case r.Uint:
+		case xr.Uint:
 			x := x.(func(*Env) uint)
 
 			fun = func(env *Env) uint {
 				return x(env) << y(env)
 			}
 
-		case r.Uint8:
+		case xr.Uint8:
 			x := x.(func(*Env) uint8)
 
 			fun = func(env *Env) uint8 {
 				return x(env) << y(env)
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			x := x.(func(*Env) uint16)
 
 			fun = func(env *Env) uint16 {
 				return x(env) << y(env)
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			x := x.(func(*Env) uint32)
 
 			fun = func(env *Env) uint32 {
 				return x(env) << y(env)
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			x := x.(func(*Env) uint64)
 
 			fun = func(env *Env) uint64 {
 				return x(env) << y(env)
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			x := x.(func(*Env) uintptr)
 
 			fun = func(env *Env) uintptr {
@@ -131,77 +132,77 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 
 		switch xk {
-		case r.Int:
+		case xr.Int:
 			x := x.(func(*Env) int)
 
 			fun = func(env *Env) int {
 				return x(env) << y
 			}
 
-		case r.Int8:
+		case xr.Int8:
 			x := x.(func(*Env) int8)
 
 			fun = func(env *Env) int8 {
 				return x(env) << y
 			}
 
-		case r.Int16:
+		case xr.Int16:
 			x := x.(func(*Env) int16)
 
 			fun = func(env *Env) int16 {
 				return x(env) << y
 			}
 
-		case r.Int32:
+		case xr.Int32:
 			x := x.(func(*Env) int32)
 
 			fun = func(env *Env) int32 {
 				return x(env) << y
 			}
 
-		case r.Int64:
+		case xr.Int64:
 			x := x.(func(*Env) int64)
 
 			fun = func(env *Env) int64 {
 				return x(env) << y
 			}
 
-		case r.Uint:
+		case xr.Uint:
 			x := x.(func(*Env) uint)
 
 			fun = func(env *Env) uint {
 				return x(env) << y
 			}
 
-		case r.Uint8:
+		case xr.Uint8:
 			x := x.(func(*Env) uint8)
 
 			fun = func(env *Env) uint8 {
 				return x(env) << y
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			x := x.(func(*Env) uint16)
 
 			fun = func(env *Env) uint16 {
 				return x(env) << y
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			x := x.(func(*Env) uint32)
 
 			fun = func(env *Env) uint32 {
 				return x(env) << y
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			x := x.(func(*Env) uint64)
 
 			fun = func(env *Env) uint64 {
 				return x(env) << y
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			x := x.(func(*Env) uintptr)
 
 			fun = func(env *Env) uintptr {
@@ -213,45 +214,45 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 		}
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.AsUint64()
 
 		switch xk {
-		case r.Int:
+		case xr.Int:
 			x :=
 
 				int(xv.Int())
 			fun = func(env *Env) int {
 				return x << y(env)
 			}
-		case r.Int8:
+		case xr.Int8:
 			x :=
 
 				int8(xv.Int())
 			fun = func(env *Env) int8 {
 				return x << y(env)
 			}
-		case r.Int16:
+		case xr.Int16:
 			x :=
 
 				int16(xv.Int())
 			fun = func(env *Env) int16 {
 				return x << y(env)
 			}
-		case r.Int32:
+		case xr.Int32:
 			x :=
 
 				int32(xv.Int())
 			fun = func(env *Env) int32 {
 				return x << y(env)
 			}
-		case r.Int64:
+		case xr.Int64:
 			x := xv.Int()
 			fun = func(env *Env) int64 {
 				return x << y(env)
 			}
 
-		case r.Uint:
+		case xr.Uint:
 			x :=
 
 				uint(xv.Uint())
@@ -259,7 +260,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				return x << y(env)
 			}
 
-		case r.Uint8:
+		case xr.Uint8:
 			x :=
 
 				uint8(xv.Uint())
@@ -267,7 +268,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				return x << y(env)
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			x :=
 
 				uint16(xv.Uint())
@@ -275,7 +276,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				return x << y(env)
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			x :=
 
 				uint32(xv.Uint())
@@ -283,13 +284,13 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				return x << y(env)
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			x := xv.Uint()
 			fun = func(env *Env) uint64 {
 				return x << y(env)
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			x :=
 
 				uintptr(xv.Uint())
@@ -318,77 +319,77 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.AsUint64()
 
 		switch xk {
-		case r.Int:
+		case xr.Int:
 			x := x.(func(*Env) int)
 
 			fun = func(env *Env) int {
 				return x(env) >> y(env)
 			}
 
-		case r.Int8:
+		case xr.Int8:
 			x := x.(func(*Env) int8)
 
 			fun = func(env *Env) int8 {
 				return x(env) >> y(env)
 			}
 
-		case r.Int16:
+		case xr.Int16:
 			x := x.(func(*Env) int16)
 
 			fun = func(env *Env) int16 {
 				return x(env) >> y(env)
 			}
 
-		case r.Int32:
+		case xr.Int32:
 			x := x.(func(*Env) int32)
 
 			fun = func(env *Env) int32 {
 				return x(env) >> y(env)
 			}
 
-		case r.Int64:
+		case xr.Int64:
 			x := x.(func(*Env) int64)
 
 			fun = func(env *Env) int64 {
 				return x(env) >> y(env)
 			}
 
-		case r.Uint:
+		case xr.Uint:
 			x := x.(func(*Env) uint)
 
 			fun = func(env *Env) uint {
 				return x(env) >> y(env)
 			}
 
-		case r.Uint8:
+		case xr.Uint8:
 			x := x.(func(*Env) uint8)
 
 			fun = func(env *Env) uint8 {
 				return x(env) >> y(env)
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			x := x.(func(*Env) uint16)
 
 			fun = func(env *Env) uint16 {
 				return x(env) >> y(env)
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			x := x.(func(*Env) uint32)
 
 			fun = func(env *Env) uint32 {
 				return x(env) >> y(env)
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			x := x.(func(*Env) uint64)
 
 			fun = func(env *Env) uint64 {
 				return x(env) >> y(env)
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			x := x.(func(*Env) uintptr)
 
 			fun = func(env *Env) uintptr {
@@ -409,77 +410,77 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 
 		switch xk {
-		case r.Int:
+		case xr.Int:
 			x := x.(func(*Env) int)
 
 			fun = func(env *Env) int {
 				return x(env) >> y
 			}
 
-		case r.Int8:
+		case xr.Int8:
 			x := x.(func(*Env) int8)
 
 			fun = func(env *Env) int8 {
 				return x(env) >> y
 			}
 
-		case r.Int16:
+		case xr.Int16:
 			x := x.(func(*Env) int16)
 
 			fun = func(env *Env) int16 {
 				return x(env) >> y
 			}
 
-		case r.Int32:
+		case xr.Int32:
 			x := x.(func(*Env) int32)
 
 			fun = func(env *Env) int32 {
 				return x(env) >> y
 			}
 
-		case r.Int64:
+		case xr.Int64:
 			x := x.(func(*Env) int64)
 
 			fun = func(env *Env) int64 {
 				return x(env) >> y
 			}
 
-		case r.Uint:
+		case xr.Uint:
 			x := x.(func(*Env) uint)
 
 			fun = func(env *Env) uint {
 				return x(env) >> y
 			}
 
-		case r.Uint8:
+		case xr.Uint8:
 			x := x.(func(*Env) uint8)
 
 			fun = func(env *Env) uint8 {
 				return x(env) >> y
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			x := x.(func(*Env) uint16)
 
 			fun = func(env *Env) uint16 {
 				return x(env) >> y
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			x := x.(func(*Env) uint32)
 
 			fun = func(env *Env) uint32 {
 				return x(env) >> y
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			x := x.(func(*Env) uint64)
 
 			fun = func(env *Env) uint64 {
 				return x(env) >> y
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			x := x.(func(*Env) uintptr)
 
 			fun = func(env *Env) uintptr {
@@ -491,45 +492,45 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 		}
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.AsUint64()
 
 		switch xk {
-		case r.Int:
+		case xr.Int:
 			x :=
 
 				int(xv.Int())
 			fun = func(env *Env) int {
 				return x >> y(env)
 			}
-		case r.Int8:
+		case xr.Int8:
 			x :=
 
 				int8(xv.Int())
 			fun = func(env *Env) int8 {
 				return x >> y(env)
 			}
-		case r.Int16:
+		case xr.Int16:
 			x :=
 
 				int16(xv.Int())
 			fun = func(env *Env) int16 {
 				return x >> y(env)
 			}
-		case r.Int32:
+		case xr.Int32:
 			x :=
 
 				int32(xv.Int())
 			fun = func(env *Env) int32 {
 				return x >> y(env)
 			}
-		case r.Int64:
+		case xr.Int64:
 			x := xv.Int()
 			fun = func(env *Env) int64 {
 				return x >> y(env)
 			}
 
-		case r.Uint:
+		case xr.Uint:
 			x :=
 
 				uint(xv.Uint())
@@ -537,7 +538,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				return x >> y(env)
 			}
 
-		case r.Uint8:
+		case xr.Uint8:
 			x :=
 
 				uint8(xv.Uint())
@@ -545,7 +546,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				return x >> y(env)
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			x :=
 
 				uint16(xv.Uint())
@@ -553,7 +554,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				return x >> y(env)
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			x :=
 
 				uint32(xv.Uint())
@@ -561,13 +562,13 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				return x >> y(env)
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			x := xv.Uint()
 			fun = func(env *Env) uint64 {
 				return x >> y(env)
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			x :=
 
 				uintptr(xv.Uint())
