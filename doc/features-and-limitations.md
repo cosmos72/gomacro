@@ -45,6 +45,8 @@ Gomacro default interpreter supports:
 
 Some features are still missing or incomplete:
 * goto can only jump back, not forward
+* conversions from/to unsafe.Pointer are not supported
+* some corner cases using recursive types may not work correctly.
 * out-of-order code is under testing - some corner cases, as for example out-of-order declarations
   used in keys of composite literals, are not supported.  
   Clearly, at REPL code is still executed as soon as possible, so it makes a difference mostly

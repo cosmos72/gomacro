@@ -129,7 +129,9 @@ The main limitations and missing features are:
 
 * importing 3<sup>rd</sup> party libraries at runtime currently only works on Linux and Mac OS X.
   On other systems as Windows, Android and *BSD it is cumbersome and requires recompiling - see [Importing packages](#importing-packages).
+* conversions from/to unsafe.Pointer are not supported
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
+* some corner cases using recursive types may not work correctly.
 * goto can only jump backward, not forward
 * out-of-order code is under testing - some corner cases, as for example out-of-order declarations
   used in keys of composite literals, are not supported.
