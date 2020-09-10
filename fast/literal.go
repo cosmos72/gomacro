@@ -132,7 +132,7 @@ func (e *Expr) ConstTo(t xr.Type) I {
 // actually performs type conversion (and subsequent overflow checks) ONLY on untyped constants.
 func (lit *Lit) ConstTo(t xr.Type) I {
 	value := lit.Value
-	// output.Debugf("Lit.ConstTo(): converting constant %v <%v> (stored as <%v>) to <%v>", value, TypeOf(value), lit.Type, t)
+	// output.Debugf("Lit.ConstTo(): converting constant %v <%v> (emulated type <%v>) to <%v>", value, r.TypeOf(value), lit.Type, t)
 	if t == nil {
 		// only literal nil has type nil
 		if value != nil {
@@ -150,7 +150,7 @@ func (lit *Lit) ConstTo(t xr.Type) I {
 		val := x.Convert(t)
 		lit.Type = t
 		lit.Value = val
-		// output.Debugf("UntypedLit.Convert(): converted untyped constant %v to %v <%v> (stored as <%v>)", x, val, TypeOf(val), t)
+		// output.Debugf("Lit.ConstTo(): converted untyped constant %v to %v <%v> (emulated type <%v>)", x, val, r.TypeOf(val), t)
 		return val
 	case nil:
 		// literal nil can only be converted to nillable types

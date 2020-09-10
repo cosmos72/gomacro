@@ -242,7 +242,7 @@ func (c *Comp) DeclConsts0(names []string, t xr.Type, inits []*Expr) {
 		if !init.Const() {
 			c.Errorf("const initializer for %q is not a constant", name)
 		}
-		c.DeclConst0(name, t, init.Value)
+		c.DeclConst0(name, t, init.Value, init.Type)
 	}
 }
 
@@ -270,12 +270,15 @@ func (c *Comp) DeclVars0(names []string, t xr.Type, inits []*Expr, pos []token.P
 }
 
 // DeclConst0 compiles a constant declaration
-func (c *Comp) DeclConst0(name string, t xr.Type, value I) {
+func (c *Comp) DeclConst0(name string, t xr.Type, value I, valueType xr.Type) {
 	if !isLiteral(value) {
 		c.Errorf("const initializer for %q is not a constant: %v <%T>", name, value, value)
 		return
 	}
-	lit := c.litValue(value)
+	if valueType == nil {
+		valueType = c.TypeOf(value)
+	}
+	lit := Lit{Type: valueType, Value: value}
 	if t == nil {
 		t = lit.Type
 	} else {

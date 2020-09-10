@@ -910,9 +910,13 @@ var testcases = []TestCase{
 	TestCase{A, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, Pair{A: 0x73, B: "\x94"}, nil},
 	TestCase{A, "literal_struct_address", `&Pair{1,"2"}`, &Pair{A: 1, B: "2"}, nil},
 
+	// issue #103
+	TestCase{A, "named_const_type_1", `type Int int
+				 const namedOne Int = Int(1); namedOne`, int(1), nil},
+
 	TestCase{A, "named_func_type_1", `import "context"
-		         _, cancel := context.WithCancel(context.Background())
-		         cancel()`, nil, none},
+				 _, cancel := context.WithCancel(context.Background())
+				 cancel()`, nil, none},
 
 	TestCase{A, "method_decl_1", `func (p *Pair) SetA(a rune) { p.A = a }; nil`, nil, nil},
 	TestCase{A, "method_decl_2", `func (p Pair) SetAV(a rune) { p.A = a }; nil`, nil, nil},
@@ -947,7 +951,6 @@ var testcases = []TestCase{
 	TestCase{F, "interface_method_to_closure_5", "ist.String", panics, nil},
 	TestCase{F, "interface_4", `
 		type IncAdd interface { Inc(int); Add(int) int }
-		type Int int
 		func (i Int)  Add(j int) int { return int(i) + j }
 		func (i *Int) Inc(j int) { *i += Int(j) }
 		var ia IncAdd

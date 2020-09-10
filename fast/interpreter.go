@@ -153,7 +153,7 @@ func (ir *Interp) Interrupt(os.Signal) {
 
 // DeclConst compiles a constant declaration
 func (ir *Interp) DeclConst(name string, t xr.Type, value I) {
-	ir.Comp.DeclConst0(name, t, value)
+	ir.Comp.DeclConst0(name, t, value, nil)
 }
 
 // DeclFunc compiles a function declaration

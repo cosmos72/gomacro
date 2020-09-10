@@ -70,7 +70,7 @@ func (special *genericFuncCandidate) injectBinds(c *Comp) {
 	for i, name := range special.decl.Params {
 		t := special.types[i]
 		if val := special.vals[i]; val != nil {
-			c.DeclConst0(name, t, val)
+			c.DeclConst0(name, t, val, t)
 		} else {
 			c.declTypeAlias(name, t)
 		}
@@ -81,7 +81,7 @@ func (special *genericTypeCandidate) injectBinds(c *Comp) {
 	for i, name := range special.decl.Params {
 		t := special.types[i]
 		if val := special.vals[i]; val != nil {
-			c.DeclConst0(name, t, val)
+			c.DeclConst0(name, t, val, t)
 		} else {
 			c.declTypeAlias(name, t)
 		}
