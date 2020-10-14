@@ -18,6 +18,8 @@ package fast
 
 import (
 	r "reflect"
+
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 func (ir *Interp) Inspect(src string) {
@@ -32,8 +34,9 @@ func (ir *Interp) Inspect(src string) {
 	val, xtyp := ir.RunExpr1(c.Compile(c.Parse(src)))
 	typ := xtyp.ReflectType()
 	if val.IsValid() && val.Kind() == r.Interface {
-		val = val.Elem() // extract concrete type
-		typ = typ.Elem()
+		// extract concrete type
+		val = val.Elem()
+		typ = reflect.ValueType(val)
 	}
 	inspector.Inspect(src, val.ReflectValue(), typ, xtyp, &ir.Comp.Globals)
 }
