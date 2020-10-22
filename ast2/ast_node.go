@@ -174,7 +174,7 @@ func (x DeferStmt) Op() token.Token      { return token.DEFER }
 func (x Ellipsis) Op() token.Token       { return token.ELLIPSIS }
 func (x EmptyStmt) Op() token.Token      { return token.SEMICOLON }
 func (x ExprStmt) Op() token.Token       { return token.LPAREN } // same as ParenExpr
-func (x Field) Op() token.Token          { return token.PERIOD }
+func (x Field) Op() token.Token          { return etoken.E_FIELDDECL }
 func (x ForStmt) Op() token.Token        { return token.FOR }
 func (x FuncDecl) Op() token.Token       { return etoken.E_FUNCDECL }
 func (x FuncLit) Op() token.Token        { return etoken.LAMBDA }
@@ -187,14 +187,14 @@ func (x IncDecStmt) Op() token.Token     { return x.X.Tok }
 func (x IndexExpr) Op() token.Token      { return token.LBRACK }
 func (x InterfaceType) Op() token.Token  { return token.INTERFACE }
 func (x KeyValueExpr) Op() token.Token   { return etoken.E_KEYVALUE }
-func (x LabeledStmt) Op() token.Token    { return etoken.E_LABEL }
+func (x LabeledStmt) Op() token.Token    { return etoken.E_LABELEDSTMT }
 func (x MapType) Op() token.Token        { return token.MAP }
 func (x Package) Op() token.Token        { return token.PACKAGE }
 func (x ParenExpr) Op() token.Token      { return token.LPAREN }
 func (x RangeStmt) Op() token.Token      { return token.RANGE }
 func (x SelectStmt) Op() token.Token     { return token.SELECT }
-func (x SelectorExpr) Op() token.Token   { return token.CASE }
-func (x SendStmt) Op() token.Token       { return token.ARROW }
+func (x SelectorExpr) Op() token.Token   { return token.PERIOD }
+func (x SendStmt) Op() token.Token       { return etoken.E_SENDSTMT }
 func (x SliceExpr) Op() token.Token      { return token.RBRACK }
 func (x StarExpr) Op() token.Token       { return token.MUL }
 func (x StructType) Op() token.Token     { return token.STRUCT }

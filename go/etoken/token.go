@@ -28,10 +28,12 @@ const (
 	// the following are never used by go/scanner
 	// they are returned by ast2/Ast.Op() for corresponding AST nodes
 	E_CALL
+	E_FIELDDECL
 	E_FUNCDECL
 	E_FUNCTYPE
 	E_KEYVALUE
-	E_LABEL
+	E_LABELEDSTMT
+	E_SENDSTMT
 	E_TYPEASSERT
 	E_TYPESWITCH
 )
