@@ -169,7 +169,7 @@ func (x CommClause) Op() token.Token {
 	}
 }
 func (x CompositeLit) Op() token.Token   { return token.RBRACE }
-func (x DeclStmt) Op() token.Token       { return x.X.Decl.(*ast.GenDecl).Tok }
+func (x DeclStmt) Op() token.Token       { return etoken.E_DECLSTMT }
 func (x DeferStmt) Op() token.Token      { return token.DEFER }
 func (x Ellipsis) Op() token.Token       { return token.ELLIPSIS }
 func (x EmptyStmt) Op() token.Token      { return token.SEMICOLON }
@@ -200,7 +200,13 @@ func (x StarExpr) Op() token.Token       { return token.MUL }
 func (x StructType) Op() token.Token     { return token.STRUCT }
 func (x SwitchStmt) Op() token.Token     { return token.SWITCH }
 func (x TypeAssertExpr) Op() token.Token { return etoken.E_TYPEASSERT }
-func (x TypeSpec) Op() token.Token       { return token.TYPE }
+func (x TypeSpec) Op() token.Token {
+	if x.X.Assign == token.NoPos {
+		return token.TYPE
+	} else {
+		return etoken.E_ALIASTYPE
+	}
+}
 func (x TypeSwitchStmt) Op() token.Token { return etoken.E_TYPESWITCH }
 func (x UnaryExpr) Op() token.Token      { return x.X.Op }
 func (x ValueSpec) Op() token.Token      { return token.VAR } // can be VAR or CONST

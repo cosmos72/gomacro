@@ -27,7 +27,9 @@ const (
 
 	// the following are never used by go/scanner
 	// they are returned by ast2/Ast.Op() for corresponding AST nodes
+	E_ALIASTYPE
 	E_CALL
+	E_DECLSTMT
 	E_FIELDDECL
 	E_FUNCDECL
 	E_FUNCTYPE
