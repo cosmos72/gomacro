@@ -24,6 +24,16 @@ const (
 	TYPECASE
 	TEMPLATE // template
 	HASH     // #
+
+	// the following are never used by go/scanner
+	// they are returned by ast2/Ast.Op() for corresponding AST nodes
+	E_CALL
+	E_FUNCDECL
+	E_FUNCTYPE
+	E_KEYVALUE
+	E_LABEL
+	E_TYPEASSERT
+	E_TYPESWITCH
 )
 
 var tokens map[Token]string

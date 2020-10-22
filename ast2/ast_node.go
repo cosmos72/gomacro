@@ -19,6 +19,8 @@ package ast2
 import (
 	"go/ast"
 	"go/token"
+
+	"github.com/cosmos72/gomacro/go/etoken"
 )
 
 func asInterface(x interface{}, isnil bool) interface{} {
@@ -150,7 +152,7 @@ func (x BadStmt) Op() token.Token    { return token.ILLEGAL }
 func (x BasicLit) Op() token.Token   { return x.X.Kind }
 func (x BinaryExpr) Op() token.Token { return x.X.Op }
 func (x BranchStmt) Op() token.Token { return x.X.Tok }
-func (x CallExpr) Op() token.Token   { return token.RPAREN }
+func (x CallExpr) Op() token.Token   { return etoken.E_CALL }
 func (x CaseClause) Op() token.Token {
 	if len(x.X.List) != 0 {
 		return token.CASE
@@ -171,12 +173,12 @@ func (x DeclStmt) Op() token.Token       { return x.X.Decl.(*ast.GenDecl).Tok }
 func (x DeferStmt) Op() token.Token      { return token.DEFER }
 func (x Ellipsis) Op() token.Token       { return token.ELLIPSIS }
 func (x EmptyStmt) Op() token.Token      { return token.SEMICOLON }
-func (x ExprStmt) Op() token.Token       { return token.ELSE } // FIXME
+func (x ExprStmt) Op() token.Token       { return token.LPAREN } // same as ParenExpr
 func (x Field) Op() token.Token          { return token.PERIOD }
 func (x ForStmt) Op() token.Token        { return token.FOR }
-func (x FuncDecl) Op() token.Token       { return token.FUNC }
-func (x FuncLit) Op() token.Token        { return token.FUNC }
-func (x FuncType) Op() token.Token       { return token.FUNC }
+func (x FuncDecl) Op() token.Token       { return etoken.E_FUNCDECL }
+func (x FuncLit) Op() token.Token        { return etoken.LAMBDA }
+func (x FuncType) Op() token.Token       { return etoken.E_FUNCTYPE }
 func (x GoStmt) Op() token.Token         { return token.GO }
 func (x Ident) Op() token.Token          { return token.IDENT }
 func (x IfStmt) Op() token.Token         { return token.IF }
@@ -184,22 +186,22 @@ func (x ImportSpec) Op() token.Token     { return token.IMPORT }
 func (x IncDecStmt) Op() token.Token     { return x.X.Tok }
 func (x IndexExpr) Op() token.Token      { return token.LBRACK }
 func (x InterfaceType) Op() token.Token  { return token.INTERFACE }
-func (x KeyValueExpr) Op() token.Token   { return token.COLON } // FIXME
-func (x LabeledStmt) Op() token.Token    { return token.COLON } // FIXME
+func (x KeyValueExpr) Op() token.Token   { return etoken.E_KEYVALUE }
+func (x LabeledStmt) Op() token.Token    { return etoken.E_LABEL }
 func (x MapType) Op() token.Token        { return token.MAP }
 func (x Package) Op() token.Token        { return token.PACKAGE }
 func (x ParenExpr) Op() token.Token      { return token.LPAREN }
 func (x RangeStmt) Op() token.Token      { return token.RANGE }
 func (x SelectStmt) Op() token.Token     { return token.SELECT }
 func (x SelectorExpr) Op() token.Token   { return token.CASE }
-func (x SendStmt) Op() token.Token       { return token.CHAN }   // FIXME
-func (x SliceExpr) Op() token.Token      { return token.RBRACK } // FIXME
+func (x SendStmt) Op() token.Token       { return token.ARROW }
+func (x SliceExpr) Op() token.Token      { return token.RBRACK }
 func (x StarExpr) Op() token.Token       { return token.MUL }
 func (x StructType) Op() token.Token     { return token.STRUCT }
 func (x SwitchStmt) Op() token.Token     { return token.SWITCH }
-func (x TypeAssertExpr) Op() token.Token { return token.TYPE } // FIXME
+func (x TypeAssertExpr) Op() token.Token { return etoken.E_TYPEASSERT }
 func (x TypeSpec) Op() token.Token       { return token.TYPE }
-func (x TypeSwitchStmt) Op() token.Token { return token.SWITCH } // FIXME
+func (x TypeSwitchStmt) Op() token.Token { return etoken.E_TYPESWITCH }
 func (x UnaryExpr) Op() token.Token      { return x.X.Op }
 func (x ValueSpec) Op() token.Token      { return token.VAR } // can be VAR or CONST
 
