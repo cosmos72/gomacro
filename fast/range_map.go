@@ -1,5 +1,3 @@
-// +build go1.12
-
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -10,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * range_map_go1_12.go
+ * range_map.go
  *
  *  Created on Dec 11, 2019
  *      Author Massimiliano Ghilardi

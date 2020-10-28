@@ -1,5 +1,3 @@
-// +build go1.11
-
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -10,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * importer_go1_11.go
+ * importer_load.go
  *
  *  Created on Nov 16, 2019
  *      Author Massimiliano Ghilardi
