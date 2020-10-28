@@ -20,11 +20,11 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/token"
-	r "reflect"
 
 	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/base/untyped"
-	mt "github.com/cosmos72/gomacro/token"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
@@ -139,32 +139,48 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 	}
 }
 
+var tokenRemoveAssign = map[token.Token]token.Token{
+	token.ADD_ASSIGN:     token.ADD,
+	token.SUB_ASSIGN:     token.SUB,
+	token.MUL_ASSIGN:     token.MUL,
+	token.QUO_ASSIGN:     token.QUO,
+	token.REM_ASSIGN:     token.REM,
+	token.AND_ASSIGN:     token.AND,
+	token.OR_ASSIGN:      token.OR,
+	token.XOR_ASSIGN:     token.XOR,
+	token.SHL_ASSIGN:     token.SHL,
+	token.SHR_ASSIGN:     token.SHR,
+	token.AND_NOT_ASSIGN: token.AND_NOT,
+}
+
+var tokenAddAssign = map[token.Token]token.Token{
+	token.ADD:     token.ADD_ASSIGN,
+	token.SUB:     token.SUB_ASSIGN,
+	token.MUL:     token.MUL_ASSIGN,
+	token.QUO:     token.QUO_ASSIGN,
+	token.REM:     token.REM_ASSIGN,
+	token.AND:     token.AND_ASSIGN,
+	token.OR:      token.OR_ASSIGN,
+	token.XOR:     token.XOR_ASSIGN,
+	token.SHL:     token.SHL_ASSIGN,
+	token.SHR:     token.SHR_ASSIGN,
+	token.AND_NOT: token.AND_NOT_ASSIGN,
+}
+
 func tokenWithoutAssign(op token.Token) token.Token {
-	switch op {
-	case token.ADD_ASSIGN:
-		op = token.ADD
-	case token.SUB_ASSIGN:
-		op = token.SUB
-	case token.MUL_ASSIGN:
-		op = token.MUL
-	case token.QUO_ASSIGN:
-		op = token.QUO
-	case token.REM_ASSIGN:
-		op = token.REM
-	case token.AND_ASSIGN:
-		op = token.AND
-	case token.OR_ASSIGN:
-		op = token.OR
-	case token.XOR_ASSIGN:
-		op = token.XOR
-	case token.SHL_ASSIGN:
-		op = token.SHL
-	case token.SHR_ASSIGN:
-		op = token.SHR
-	case token.AND_NOT_ASSIGN:
-		op = token.AND_NOT
+	ret, ok := tokenRemoveAssign[op]
+	if !ok {
+		ret = op
 	}
-	return op
+	return ret
+}
+
+func tokenWithAssign(op token.Token) token.Token {
+	ret, ok := tokenAddAssign[op]
+	if !ok {
+		ret = op
+	}
+	return ret
 }
 
 var warnUntypedShift, warnUntypedShift2 = true, true
@@ -230,14 +246,14 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		return c.ShiftUntyped(node, node.Op, xe.Value.(UntypedLit), ye.Value.(UntypedLit))
 	}
 	xet, yet := xe.DefaultType(), ye.DefaultType()
-	if xet == nil || !reflect.IsCategory(xet.Kind(), r.Int, r.Uint) {
+	if xet == nil || !reflect.IsCategory(xet.Kind(), xr.Int, xr.Uint) {
 		return c.invalidBinaryExpr(node, xe, ye)
 	}
 	if xe.Untyped() {
 		xuntyp := xe.Value.(UntypedLit)
 		if ye.Const() {
 			// untyped << constant
-			yuntyp := untyped.MakeLit(untyped.Int, constant.MakeUint64(r.ValueOf(ye.Value).Uint()), &c.Universe.BasicTypes)
+			yuntyp := untyped.MakeLit(untyped.Int, constant.MakeUint64(xr.ValueOf(ye.Value).Uint()), &c.Universe.BasicTypes)
 			return c.ShiftUntyped(node, node.Op, xuntyp, yuntyp)
 		}
 		// untyped << expression
@@ -256,12 +272,13 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 	if ye.Untyped() {
 		// untyped constants do not distinguish between int and uint
-		if yet == nil || !reflect.IsCategory(yet.Kind(), r.Int) {
+		if yet == nil || !reflect.IsCategory(yet.Kind(), xr.Int) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 		ye.ConstTo(c.TypeOfUint64())
 	} else {
-		if yet == nil || !reflect.IsCategory(yet.Kind(), r.Uint) {
+		// accept shift by signed integer, introduced in Go 1.13
+		if yet == nil || !reflect.IsCategory(yet.Kind(), xr.Int, xr.Uint) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 	}
@@ -331,7 +348,7 @@ func (c *Comp) unimplementedBinaryExpr(node *ast.BinaryExpr, x *Expr, y *Expr) *
 }
 
 func (c *Comp) badBinaryExpr(reason string, node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
-	opstr := mt.String(node.Op)
+	opstr := etoken.String(node.Op)
 	var xstr, ystr string
 	if x.Const() {
 		xstr = x.String() + " "

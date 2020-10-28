@@ -29,7 +29,15 @@ const (
 	writeMethodsAsFields writeTypeOpts = 1 << iota
 	writeForceParamNames
 	writeIncludeParamTypes
+	writeLastParamIsVariadic
 )
+
+func lastParamIsVariadic(variadic bool) writeTypeOpts {
+	if variadic {
+		return writeLastParamIsVariadic
+	}
+	return 0
+}
 
 func (gen *genimport) writeInterfaceProxy(pkgPath string, name string, t *types.Interface) {
 	fmt.Fprintf(gen.out, "\n// --------------- proxy for %s.%s ---------------\ntype %s%s struct {", pkgPath, name, gen.proxyprefix, name)
@@ -70,9 +78,10 @@ func (gen *genimport) writeInterfaceMethod(interfaceName string, method *types.F
 	} else {
 		fmt.Fprintf(out, "func (P *%s%s) %s(", gen.proxyprefix, interfaceName, method.Name())
 	}
-	results := sig.Results()
-	gen.writeTypeTuple(params, opts|writeIncludeParamTypes)
+	variadic := lastParamIsVariadic(sig.Variadic())
+	gen.writeTypeTuple(params, opts|variadic|writeIncludeParamTypes)
 	out.WriteString(") ")
+	results := sig.Results()
 	gen.writeTypeTupleOut(results)
 	if opts&writeMethodsAsFields != 0 {
 		return
@@ -85,7 +94,7 @@ func (gen *genimport) writeInterfaceMethod(interfaceName string, method *types.F
 	if params != nil && params.Len() != 0 {
 		out.WriteString(", ")
 	}
-	gen.writeTypeTuple(params, writeForceParamNames)
+	gen.writeTypeTuple(params, variadic|writeForceParamNames)
 	out.WriteString(")\n}\n")
 }
 
@@ -117,12 +126,16 @@ func (gen *genimport) writeTypeTupleOut(tuple *types.Tuple) {
 }
 
 func (gen *genimport) writeTypeTuple(tuple *types.Tuple, opts writeTypeOpts) {
+	opt := opts &^ writeLastParamIsVariadic
 	n := tuple.Len()
 	for i := 0; i < n; i++ {
 		if i != 0 {
 			gen.out.WriteString(", ")
 		}
-		gen.writeTypeVar(tuple.At(i), i, opts)
+		if i == n-1 && opt != opts {
+			opt = opts // restore 'variadic' flag
+		}
+		gen.writeTypeVar(tuple.At(i), i, opt)
 	}
 }
 
@@ -137,7 +150,14 @@ func (gen *genimport) writeTypeVar(v *types.Var, index int, opts writeTypeOpts) 
 		if len(name) != 0 {
 			out.WriteString(" ")
 		}
-		types.WriteType(out, v.Type(), gen.packageNameQualifier)
+		t := v.Type()
+		if opts&writeLastParamIsVariadic != 0 {
+			out.WriteString("...")
+			t = t.(*types.Slice).Elem()
+		}
+		types.WriteType(out, t, gen.packageNameQualifier)
+	} else if len(name) != 0 && opts&writeLastParamIsVariadic != 0 {
+		out.WriteString("...")
 	}
 }
 

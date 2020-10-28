@@ -20,7 +20,6 @@ import (
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/untyped"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -43,18 +42,18 @@ func (c *Comp) CompositeLit(node *ast.CompositeLit, t xr.Type) *Expr {
 		c.Errorf("no explicit type and no inferred type, cannot compile composite literal: %v", node)
 	}
 	switch t.Kind() {
-	case r.Array:
-		return c.compositeLitArray(t, ellipsis, node)
-	case r.Map:
+	case xr.Array:
+		return c.compositeLitArray(t.Resolve(), ellipsis, node)
+	case xr.Map:
 		return c.compositeLitMap(t, node)
-	case r.Slice:
-		return c.compositeLitSlice(t, node)
-	case r.Struct:
-		return c.compositeLitStruct(t, node)
-	case r.Ptr:
+	case xr.Slice:
+		return c.compositeLitSlice(t.Resolve(), node)
+	case xr.Struct:
+		return c.compositeLitStruct(t.Resolve(), node)
+	case xr.Ptr:
 		switch t.Elem().Kind() {
-		case r.Array, r.Map, r.Slice, r.Struct:
-			return c.addressOf(node, t)
+		case xr.Array, r.Map, r.Slice, r.Struct:
+			return c.addressOf(node, t.Resolve())
 		}
 	}
 	c.Errorf("invalid type for composite literal: <%v> %v", t, node.Type)
@@ -62,33 +61,33 @@ func (c *Comp) CompositeLit(node *ast.CompositeLit, t xr.Type) *Expr {
 }
 
 func (c *Comp) compositeLitArray(t xr.Type, ellipsis bool, node *ast.CompositeLit) *Expr {
-	rtype := t.ReflectType()
 	n := len(node.Elts)
 	if n == 0 {
-		return exprX1(t, func(env *Env) r.Value {
+		return exprX1(t, func(env *Env) xr.Value {
 			// array len is already encoded in its type
-			return r.New(rtype).Elem()
+			return xr.New(t).Elem()
 		})
 	}
 	size, keys, funvals := c.compositeLitElements(t, ellipsis, node)
 	if ellipsis {
 		// rebuild type with correct length
 		t = c.Universe.ArrayOf(size, t.Elem())
-		rtype = t.ReflectType()
+
 	}
 
-	rtval := rtype.Elem()
-	zeroval := r.Zero(rtval)
+	telem := t.Elem()
+	rtelem := telem.ReflectType()
+	zeroelem := xr.Zero(telem)
 
-	return exprX1(t, func(env *Env) r.Value {
-		obj := r.New(rtype).Elem()
-		var val r.Value
+	return exprX1(t, func(env *Env) xr.Value {
+		obj := xr.New(t).Elem()
+		var val xr.Value
 		for i, funval := range funvals {
 			val = funval(env)
-			if val == Nil || val == None {
-				val = zeroval
-			} else if val.Type() != rtval {
-				val = convert(val, rtval)
+			if !val.IsValid() || val == None {
+				val = zeroelem
+			} else if val.Type() != rtelem {
+				val = convert(val, rtelem)
 			}
 			obj.Index(keys[i]).Set(val)
 		}
@@ -100,23 +99,23 @@ func (c *Comp) compositeLitSlice(t xr.Type, node *ast.CompositeLit) *Expr {
 	rtype := t.ReflectType()
 	n := len(node.Elts)
 	if n == 0 {
-		return exprX1(t, func(env *Env) r.Value {
-			return r.MakeSlice(rtype, 0, 0)
+		return exprX1(t, func(env *Env) xr.Value {
+			return xr.MakeSlice(t, 0, 0)
 		})
 	}
 	size, keys, funvals := c.compositeLitElements(t, false, node)
 
-	rtval := rtype.Elem()
-	zeroval := r.Zero(rtval)
-	return exprX1(t, func(env *Env) r.Value {
-		obj := r.MakeSlice(rtype, size, size)
-		var val r.Value
+	rtelem := rtype.Elem()
+	zeroelem := xr.ZeroR(rtelem)
+	return exprX1(t, func(env *Env) xr.Value {
+		obj := xr.MakeSlice(t, size, size)
+		var val xr.Value
 		for i, funval := range funvals {
 			val = funval(env)
-			if val == Nil || val == None {
-				val = zeroval
-			} else if val.Type() != rtval {
-				val = convert(val, rtval)
+			if !val.IsValid() || val == None {
+				val = zeroelem
+			} else if val.Type() != rtelem {
+				val = convert(val, rtelem)
 			}
 			obj.Index(keys[i]).Set(val)
 		}
@@ -124,12 +123,12 @@ func (c *Comp) compositeLitSlice(t xr.Type, node *ast.CompositeLit) *Expr {
 	})
 }
 
-func (c *Comp) compositeLitElements(t xr.Type, ellipsis bool, node *ast.CompositeLit) (size int, keys []int, funvals []func(*Env) r.Value) {
+func (c *Comp) compositeLitElements(t xr.Type, ellipsis bool, node *ast.CompositeLit) (size int, keys []int, funvals []func(*Env) xr.Value) {
 	n := len(node.Elts)
 	tval := t.Elem()
 	seen := make(map[int]bool) // indexes already seen
 	keys = make([]int, n)
-	funvals = make([]func(*Env) r.Value, n)
+	funvals = make([]func(*Env) xr.Value, n)
 	size = 0
 	key, lastkey := 0, -1
 
@@ -180,19 +179,18 @@ func (c *Comp) compositeLitElements(t xr.Type, ellipsis bool, node *ast.Composit
 }
 
 func (c *Comp) compositeLitMap(t xr.Type, node *ast.CompositeLit) *Expr {
-	rtype := t.ReflectType()
 	n := len(node.Elts)
 	if n == 0 {
-		return exprX1(t, func(env *Env) r.Value {
-			return r.MakeMap(rtype)
+		return exprX1(t, func(env *Env) xr.Value {
+			return xr.MakeMap(t)
 		})
 	}
 	tkey := t.Key()
 	tval := t.Elem()
 
 	seen := make(map[interface{}]bool) // constant keys already seen
-	funkeys := make([]func(*Env) r.Value, n)
-	funvals := make([]func(*Env) r.Value, n)
+	funkeys := make([]func(*Env) xr.Value, n)
+	funvals := make([]func(*Env) xr.Value, n)
 
 	for i, el := range node.Elts {
 		switch elkv := el.(type) {
@@ -224,9 +222,9 @@ func (c *Comp) compositeLitMap(t xr.Type, node *ast.CompositeLit) *Expr {
 			c.Errorf("missing key in map literal: %v", el)
 		}
 	}
-	return exprX1(t, func(env *Env) r.Value {
-		obj := r.MakeMap(rtype)
-		var key, val r.Value
+	return exprX1(t, func(env *Env) xr.Value {
+		obj := xr.MakeMap(t)
+		var key, val xr.Value
 		for i, funkey := range funkeys {
 			key = funkey(env)
 			val = funvals[i](env)
@@ -237,17 +235,16 @@ func (c *Comp) compositeLitMap(t xr.Type, node *ast.CompositeLit) *Expr {
 }
 
 func (c *Comp) compositeLitStruct(t xr.Type, node *ast.CompositeLit) *Expr {
-	rtype := t.ReflectType()
 	n := len(node.Elts)
 	if n == 0 {
-		return exprX1(t, func(env *Env) r.Value {
-			return r.New(rtype).Elem()
+		return exprX1(t, func(env *Env) xr.Value {
+			return xr.New(t).Elem()
 		})
 	}
 
 	var seen map[string]bool
 	var all map[string]xr.StructField
-	inits := make([]func(*Env) r.Value, n)
+	inits := make([]func(*Env) xr.Value, n)
 	indexes := make([]int, n)
 	var flagkv, flagv bool
 
@@ -315,13 +312,13 @@ func (c *Comp) compositeLitStruct(t xr.Type, node *ast.CompositeLit) *Expr {
 		c.Errorf("too %s values in struct initializer: <%v> has %d fields, found %d initializer%s",
 			label, t, nfield, n, plural)
 	}
-	return exprX1(t, func(env *Env) r.Value {
-		obj := r.New(rtype).Elem()
-		var val, field r.Value
+	return exprX1(t, func(env *Env) xr.Value {
+		obj := xr.New(t).Elem()
+		var val, field xr.Value
 		var tfield r.Type
 		for i, init := range inits {
 			val = init(env)
-			if val == Nil || val == None {
+			if !val.IsValid() || val == None {
 				continue
 			}
 			field = obj.Field(indexes[i])

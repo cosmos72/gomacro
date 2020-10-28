@@ -25,6 +25,8 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+:package fast
+
 :import (
 	"go/ast"
 	r "reflect"
@@ -69,7 +71,7 @@ import (
 		// no need to set special flags like env.IntAddressTaken.
 		// that's needed instead when taking the address of env.Ints[index]
 		bind = ~'{env .Vals[index].Addr()}
-		rettype = ~'{r.Value}
+		rettype = ~'{xr.Value}
 		return ~"{
 			ret = func(env *Env) (~,rettype) {
 				~,@decls
@@ -112,22 +114,22 @@ import (
 :macro addresses(depth ast.Node) ast.Node {
 	return ~"{
 		switch k {
-		case r.Bool:       address; ~,depth; bool
-		case r.Int:        address; ~,depth; int
-		case r.Int8:       address; ~,depth; int8
-		case r.Int16:      address; ~,depth; int16
-		case r.Int32:      address; ~,depth; int32
-		case r.Int64:      address; ~,depth; int64
-		case r.Uint:       address; ~,depth; uint
-		case r.Uint8:      address; ~,depth; uint8
-		case r.Uint16:     address; ~,depth; uint16
-		case r.Uint32:     address; ~,depth; uint32
-		case r.Uint64:     address; ~,depth; uint64
-		case r.Uintptr:    address; ~,depth; uintptr
-		case r.Float32:    address; ~,depth; float32
-		case r.Float64:    address; ~,depth; float64
-		case r.Complex64:  address; ~,depth; complex64
-		case r.Complex128: address; ~,depth; complex128
+		case xr.Bool:       address; ~,depth; bool
+		case xr.Int:        address; ~,depth; int
+		case xr.Int8:       address; ~,depth; int8
+		case xr.Int16:      address; ~,depth; int16
+		case xr.Int32:      address; ~,depth; int32
+		case xr.Int64:      address; ~,depth; int64
+		case xr.Uint:       address; ~,depth; uint
+		case xr.Uint8:      address; ~,depth; uint8
+		case xr.Uint16:     address; ~,depth; uint16
+		case xr.Uint32:     address; ~,depth; uint32
+		case xr.Uint64:     address; ~,depth; uint64
+		case xr.Uintptr:    address; ~,depth; uintptr
+		case xr.Float32:    address; ~,depth; float32
+		case xr.Float64:    address; ~,depth; float64
+		case xr.Complex64:  address; ~,depth; complex64
+		case xr.Complex128: address; ~,depth; complex128
 		default:           address; ~,depth; nil
 		}
 	}

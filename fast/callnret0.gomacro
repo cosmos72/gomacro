@@ -21,6 +21,8 @@ import (
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
+:package fast
+
 :import (
 	"go/ast"
 	"go/token"
@@ -69,7 +71,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -90,7 +92,7 @@ func (c *Comp) call0ret0(call *Call, maxdepth int) func(env *Env) {
 		}
 	}
 
-	var cachedfunv r.Value
+	var cachedfunv xr.Value
 	var cachedfun func()
 
 	funupn := funsym.Upn
@@ -139,7 +141,7 @@ func (c *Comp) call0ret0(call *Call, maxdepth int) func(env *Env) {
 			ret = func(env *Env) {
 				funv := exprfun(env)
 				// keep the argument wrapped in a reflect.Value
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				callxr(funv, argv)
@@ -154,7 +156,7 @@ func (c *Comp) call0ret0(call *Call, maxdepth int) func(env *Env) {
 		}
 	}
 
-	argconv := convertvalue1(argtyp, ~'{r.ValueOf(arg.Value)})
+	argconv := convertvalue1(argtyp, ~'{xr.ValueOf(arg.Value)})
 
 	return ~"{
 		if arg.Const() {
@@ -214,30 +216,30 @@ func (c *Comp) call1ret0(call *Call, maxdepth int) func(env *Env) {
 	arg := call.Args[0]
 	argfun := call.MakeArgfunsX1()[0]
 
-	var cachedfunv r.Value
+	var cachedfunv xr.Value
 	var ret func(env *Env)
 
 	t := expr.Type.In(0)
 	k := t.Kind()
 	if reflect.KindToType(k) == t.ReflectType() {
 		switch k {
-		case r.Bool:      {mcall1ret0; bool}
-		case r.Int:       {mcall1ret0; int}
-		case r.Int8:      {mcall1ret0; int8}
-		case r.Int16:     {mcall1ret0; int16}
-		case r.Int32:     {mcall1ret0; int32}
-		case r.Int64:     {mcall1ret0; int64}
-		case r.Uint:      {mcall1ret0; uint}
-		case r.Uint8:     {mcall1ret0; uint8}
-		case r.Uint16:    {mcall1ret0; uint16}
-		case r.Uint32:    {mcall1ret0; uint32}
-		case r.Uint64:    {mcall1ret0; uint64}
-		case r.Uintptr:   {mcall1ret0; uintptr}
-		case r.Float32:   {mcall1ret0; float32}
-		case r.Float64:   {mcall1ret0; float64}
-		case r.Complex64: {mcall1ret0; complex64}
-		case r.Complex128:{mcall1ret0; complex128}
-		case r.String:    {mcall1ret0; string}
+		case xr.Bool:      {mcall1ret0; bool}
+		case xr.Int:       {mcall1ret0; int}
+		case xr.Int8:      {mcall1ret0; int8}
+		case xr.Int16:     {mcall1ret0; int16}
+		case xr.Int32:     {mcall1ret0; int32}
+		case xr.Int64:     {mcall1ret0; int64}
+		case xr.Uint:      {mcall1ret0; uint}
+		case xr.Uint8:     {mcall1ret0; uint8}
+		case xr.Uint16:    {mcall1ret0; uint16}
+		case xr.Uint32:    {mcall1ret0; uint32}
+		case xr.Uint64:    {mcall1ret0; uint64}
+		case xr.Uintptr:   {mcall1ret0; uintptr}
+		case xr.Float32:   {mcall1ret0; float32}
+		case xr.Float64:   {mcall1ret0; float64}
+		case xr.Complex64: {mcall1ret0; complex64}
+		case xr.Complex128:{mcall1ret0; complex128}
+		case xr.String:    {mcall1ret0; string}
 		}
 	}
 	if ret == nil {
@@ -253,7 +255,7 @@ func (c *Comp) call1ret0(call *Call, maxdepth int) func(env *Env) {
 			ret = func(env *Env) {
 				funv := exprfun(env)
 				// keep the arguments wrapped in a reflect.Value
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
@@ -308,11 +310,11 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 	}
 	args := call.Args
 	argfunsX1 := call.MakeArgfunsX1()
-	argfuns := [2]func(*Env)r.Value {
+	argfuns := [2]func(*Env)xr.Value {
 		argfunsX1[0],
 		argfunsX1[1],
 	}
-	var cachedfunv r.Value
+	var cachedfunv xr.Value
 	var ret func(env *Env)
 
 	t := expr.Type.In(0)
@@ -320,23 +322,23 @@ func (c *Comp) call2ret0(call *Call, maxdepth int) func(env *Env) {
 	k := t.Kind()
 	if reflect.KindToType(k) == rt && expr.Type.In(1).ReflectType() == rt {
 		switch k {
-		case r.Bool:      {mcall2ret0; bool;       bool}
-		case r.Int:       {mcall2ret0; int;        int}
-		case r.Int8:      {mcall2ret0; int8;       int8}
-		case r.Int16:     {mcall2ret0; int16;      int16}
-		case r.Int32:     {mcall2ret0; int32;      int32}
-		case r.Int64:     {mcall2ret0; int64;      int64}
-		case r.Uint:      {mcall2ret0; uint;       uint}
-		case r.Uint8:     {mcall2ret0; uint8;      uint8}
-		case r.Uint16:    {mcall2ret0; uint16;     uint16}
-		case r.Uint32:    {mcall2ret0; uint32;     uint32}
-		case r.Uint64:    {mcall2ret0; uint64;     uint64}
-		case r.Uintptr:   {mcall2ret0; uintptr;    uintptr}
-		case r.Float32:   {mcall2ret0; float32;    float32}
-		case r.Float64:   {mcall2ret0; float64;    float64}
-		case r.Complex64: {mcall2ret0; complex64;  complex64}
-		case r.Complex128:{mcall2ret0; complex128; complex128}
-		case r.String:    {mcall2ret0; string;     string}
+		case xr.Bool:      {mcall2ret0; bool;       bool}
+		case xr.Int:       {mcall2ret0; int;        int}
+		case xr.Int8:      {mcall2ret0; int8;       int8}
+		case xr.Int16:     {mcall2ret0; int16;      int16}
+		case xr.Int32:     {mcall2ret0; int32;      int32}
+		case xr.Int64:     {mcall2ret0; int64;      int64}
+		case xr.Uint:      {mcall2ret0; uint;       uint}
+		case xr.Uint8:     {mcall2ret0; uint8;      uint8}
+		case xr.Uint16:    {mcall2ret0; uint16;     uint16}
+		case xr.Uint32:    {mcall2ret0; uint32;     uint32}
+		case xr.Uint64:    {mcall2ret0; uint64;     uint64}
+		case xr.Uintptr:   {mcall2ret0; uintptr;    uintptr}
+		case xr.Float32:   {mcall2ret0; float32;    float32}
+		case xr.Float64:   {mcall2ret0; float64;    float64}
+		case xr.Complex64: {mcall2ret0; complex64;  complex64}
+		case xr.Complex128:{mcall2ret0; complex128; complex128}
+		case xr.String:    {mcall2ret0; string;     string}
 		}
 	}
 	if ret == nil {

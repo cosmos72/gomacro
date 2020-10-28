@@ -16,6 +16,8 @@
 
 package fast
 
+:package fast
+
 :import (
 	"go/ast"
 	r "reflect"
@@ -39,18 +41,18 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	t := obj.Type
 	var ret *Expr
 	switch t.Kind() {
-	case r.Array, r.Slice, r.String:
+	case xr.Array, r.Slice, r.String:
 		ret = c.vectorIndex(node, obj, idx)
-	case r.Map:
+	case xr.Map:
 		if multivalued {
 			ret = c.mapIndex(node, obj, idx)
 		} else {
 			ret = c.mapIndex1(node, obj, idx)
 		}
-	case r.Ptr:
+	case xr.Ptr:
 		if t.Elem().Kind() == r.Array {
 			objfun := obj.AsX1()
-			deref := exprFun(t.Elem(), func(env *Env) r.Value {
+			deref := exprFun(t.Elem(), func(env *Env) xr.Value {
 				return objfun(env).Elem()
 			})
 			ret = c.vectorIndex(node, deref, idx)
@@ -93,7 +95,7 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	var t r.Type = EvalType(typ)
 	if t == nil {
 		// keep the result wrapped in a reflect.Value
-		typ = ~'{r.Value}
+		typ = ~'{xr.Value}
 	} else {
 		// unwrap the result
 		tname := t.Name()
@@ -113,7 +115,7 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 		sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 		switch t.Kind() {
-		case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+		case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 			// result of reflect.Value.{tname} is already the correct type
 			val = ~"{~,sel ()}
 		default:
@@ -277,35 +279,35 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	}
 	objfun := obj.AsX1()
 	zero := xr.Zero(tval)
-	var fun func(env *Env) (r.Value, []r.Value)
+	var fun func(env *Env) (xr.Value, []xr.Value)
 	if idxconst {
-		key := r.ValueOf(idx.Value)
-		fun = func(env *Env) (r.Value, []r.Value) {
+		key := xr.ValueOf(idx.Value)
+		fun = func(env *Env) (xr.Value, []xr.Value) {
 			obj := objfun(env)
 			val := obj.MapIndex(key)
-			var ok r.Value
-			if val == base.Nil {
+			var ok xr.Value
+			if !val.IsValid() {
 				val = zero // map[key] returns the zero value if key is not present
-				ok = base.False
+				ok = False
 			} else {
-				ok = base.True
+				ok = True
 			}
-			return val, []r.Value{val, ok}
+			return val, []xr.Value{val, ok}
 		}
 	} else {
 		keyfun := idx.AsX1()
-		fun = func(env *Env) (r.Value, []r.Value) {
+		fun = func(env *Env) (xr.Value, []xr.Value) {
 			obj := objfun(env)
 			key := keyfun(env)
 			val := obj.MapIndex(key)
-			var ok r.Value
-			if val == base.Nil {
+			var ok xr.Value
+			if !val.IsValid() {
 				val = zero // map[key] returns the zero value if key is not present
-				ok = base.False
+				ok = False
 			} else {
-				ok = base.True
+				ok = True
 			}
-			return val, []r.Value{val, ok}
+			return val, []xr.Value{val, ok}
 		}
 	}
 	return exprXV([]xr.Type{tval, c.TypeOfBool()}, fun)
@@ -315,10 +317,10 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	if EvalType(typ) == nil {
 		return ~'{
 			zero := xr.Zero(tval)
-			fun = func(env *Env) r.Value {
+			fun = func(env *Env) xr.Value {
 				obj := objfun(env)
 				result := obj.MapIndex(key)
-				if result == base.Nil {
+				if !result.IsValid() {
 					result = zero
 				}
 				return result
@@ -331,7 +333,7 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			obj := objfun(env)
 			v := obj.MapIndex(key)
 			var result ~,typ
-			if v != base.Nil {
+			if v.IsValid() {
 				result = ~,unwrap
 			}
 			return result
@@ -343,11 +345,11 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	if EvalType(typ) == nil {
 		return ~'{
 			zero := xr.Zero(tval)
-			fun = func(env *Env) r.Value {
+			fun = func(env *Env) xr.Value {
 				obj := objfun(env)
 				key := keyfun(env)
 				result := obj.MapIndex(key)
-				if result == base.Nil {
+				if !result.IsValid() {
 					result = zero
 				}
 				return result
@@ -361,7 +363,7 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			key := keyfun(env)
 			v := obj.MapIndex(key)
 			var result ~,typ
-			if v != base.Nil {
+			if v.IsValid() {
 				result = ~,unwrap
 			}
 			return result
@@ -383,47 +385,47 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	objfun := obj.AsX1()
 	var fun I
 	if idxconst {
-		key := r.ValueOf(idx.Value)
+		key := xr.ValueOf(idx.Value)
 		switch tval.Kind() {
-		case r.Bool:       mapindex1_c; bool
-		case r.Int:        mapindex1_c; int
-		case r.Int8:       mapindex1_c; int8
-		case r.Int16:      mapindex1_c; int16
-		case r.Int32:      mapindex1_c; int32
-		case r.Int64:      mapindex1_c; int64
-		case r.Uint:       mapindex1_c; uint
-		case r.Uint8:      mapindex1_c; uint8
-		case r.Uint16:     mapindex1_c; uint16
-		case r.Uint32:     mapindex1_c; uint32
-		case r.Uint64:     mapindex1_c; uint64
-		case r.Uintptr:    mapindex1_c; uintptr
-		case r.Float32:    mapindex1_c; float32
-		case r.Float64:    mapindex1_c; float64
-		case r.Complex64:  mapindex1_c; complex64
-		case r.Complex128: mapindex1_c; complex128
-		case r.String:     mapindex1_c; string
+		case xr.Bool:       mapindex1_c; bool
+		case xr.Int:        mapindex1_c; int
+		case xr.Int8:       mapindex1_c; int8
+		case xr.Int16:      mapindex1_c; int16
+		case xr.Int32:      mapindex1_c; int32
+		case xr.Int64:      mapindex1_c; int64
+		case xr.Uint:       mapindex1_c; uint
+		case xr.Uint8:      mapindex1_c; uint8
+		case xr.Uint16:     mapindex1_c; uint16
+		case xr.Uint32:     mapindex1_c; uint32
+		case xr.Uint64:     mapindex1_c; uint64
+		case xr.Uintptr:    mapindex1_c; uintptr
+		case xr.Float32:    mapindex1_c; float32
+		case xr.Float64:    mapindex1_c; float64
+		case xr.Complex64:  mapindex1_c; complex64
+		case xr.Complex128: mapindex1_c; complex128
+		case xr.String:     mapindex1_c; string
 		default:           mapindex1_c; nil
 		}
 	} else {
 		keyfun := idx.AsX1()
 		switch tval.Kind() {
-		case r.Bool:       mapindex1_e; bool
-		case r.Int:        mapindex1_e; int
-		case r.Int8:       mapindex1_e; int8
-		case r.Int16:      mapindex1_e; int16
-		case r.Int32:      mapindex1_e; int32
-		case r.Int64:      mapindex1_e; int64
-		case r.Uint:       mapindex1_e; uint
-		case r.Uint8:      mapindex1_e; uint8
-		case r.Uint16:     mapindex1_e; uint16
-		case r.Uint32:     mapindex1_e; uint32
-		case r.Uint64:     mapindex1_e; uint64
-		case r.Uintptr:    mapindex1_e; uintptr
-		case r.Float32:    mapindex1_e; float32
-		case r.Float64:    mapindex1_e; float64
-		case r.Complex64:  mapindex1_e; complex64
-		case r.Complex128: mapindex1_e; complex128
-		case r.String:     mapindex1_e; string
+		case xr.Bool:       mapindex1_e; bool
+		case xr.Int:        mapindex1_e; int
+		case xr.Int8:       mapindex1_e; int8
+		case xr.Int16:      mapindex1_e; int16
+		case xr.Int32:      mapindex1_e; int32
+		case xr.Int64:      mapindex1_e; int64
+		case xr.Uint:       mapindex1_e; uint
+		case xr.Uint8:      mapindex1_e; uint8
+		case xr.Uint16:     mapindex1_e; uint16
+		case xr.Uint32:     mapindex1_e; uint32
+		case xr.Uint64:     mapindex1_e; uint64
+		case xr.Uintptr:    mapindex1_e; uintptr
+		case xr.Float32:    mapindex1_e; float32
+		case xr.Float64:    mapindex1_e; float64
+		case xr.Complex64:  mapindex1_e; complex64
+		case xr.Complex128: mapindex1_e; complex128
+		case xr.String:     mapindex1_e; string
 		default:           mapindex1_e; nil
 		}
 	}
@@ -439,20 +441,20 @@ func (c *Comp) IndexPlace(node *ast.IndexExpr, opt PlaceOption) *Place {
 	}
 	t := obj.Type
 	switch t.Kind() {
-	case r.Array, r.Slice:
+	case xr.Array, r.Slice:
 		return c.vectorPlace(node, obj, idx)
-	case r.String:
+	case xr.String:
 		// bytes in a string are not settable nor addressable
 		c.Errorf("%s a byte in a string: %v", opt, node)
 		return nil
-	case r.Map:
+	case xr.Map:
 		// elements in a map are settable but not addressable
 		if opt == PlaceAddress {
 			c.Errorf("%s a map element: %v", opt, node)
 			return nil
 		}
 		return c.mapPlace(node, obj, idx)
-	case r.Ptr:
+	case xr.Ptr:
 		if t.Elem().Kind() == r.Array {
 			return c.vectorPtrPlace(node, obj, idx)
 		}
@@ -486,25 +488,25 @@ func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	}
 	t := obj.Type.Elem()
 	objfun := obj.AsX1()
-	var fun, addr func(env *Env) r.Value
+	var fun, addr func(env *Env) xr.Value
 	if idxconst {
 		i := idx.Value.(int)
-		fun = func(env *Env) r.Value {
+		fun = func(env *Env) xr.Value {
 			objv := objfun(env)
 			return objv.Index(i)
 		}
-		addr = func(env *Env) r.Value {
+		addr = func(env *Env) xr.Value {
 			objv := objfun(env)
 			return objv.Index(i).Addr()
 		}
 	} else {
 		idxfun := idx.WithFun().(func(*Env) int)
-		fun = func(env *Env) r.Value {
+		fun = func(env *Env) xr.Value {
 			objv := objfun(env)
 			i := idxfun(env)
 			return objv.Index(i)
 		}
-		addr = func(env *Env) r.Value {
+		addr = func(env *Env) xr.Value {
 			objv := objfun(env)
 			i := idxfun(env)
 			return objv.Index(i).Addr()
@@ -523,25 +525,25 @@ func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place 
 	}
 	t := obj.Type.Elem().Elem() // Elem() for the pointer to array, another Elem() for the array element type
 	objfun := obj.AsX1()
-	var fun, addr func(env *Env) r.Value
+	var fun, addr func(env *Env) xr.Value
 	if idxconst {
 		i := idx.Value.(int)
-		fun = func(env *Env) r.Value {
+		fun = func(env *Env) xr.Value {
 			objv := objfun(env).Elem()
 			return objv.Index(i)
 		}
-		addr = func(env *Env) r.Value {
+		addr = func(env *Env) xr.Value {
 			objv := objfun(env).Elem()
 			return objv.Index(i).Addr()
 		}
 	} else {
 		idxfun := idx.WithFun().(func(*Env) int)
-		fun = func(env *Env) r.Value {
+		fun = func(env *Env) xr.Value {
 			objv := objfun(env).Elem()
 			i := idxfun(env)
 			return objv.Index(i)
 		}
-		addr = func(env *Env) r.Value {
+		addr = func(env *Env) xr.Value {
 			objv := objfun(env).Elem()
 			i := idxfun(env)
 			return objv.Index(i).Addr()

@@ -4,7 +4,10 @@ gomacro is an almost complete Go interpreter, implemented in pure Go. It offers 
 an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
 (except in one very specific case: import of a 3<sup>rd</sup> party package at runtime).
 
-It has two dependencies beyond the Go standard library: github.com/peterh/liner and golang.org/x/sys
+It has two dependencies beyond the Go standard library:
+<a href="https://github.com/peterh/liner">github.com/peterh/liner</a>
+and
+<a href="https://golang.org/x/tools/go/packages">golang.org/x/tools/go/packages</a>
 
 Gomacro can be used as:
 * a standalone executable with interactive Go REPL, line editing and code completion:
@@ -25,15 +28,15 @@ Gomacro can be used as:
   Line editing follows mostly Emacs: Ctrl+A or Home jumps to start of line,
   Ctrl+E or End jumps to end of line, Ald+D deletes word starting at cursor...
   For the full list of key bindings, see https://github.com/peterh/liner
-  
+
 * a tool to experiment with Go **generics**: see [Generics](#generics)
 
 * a Go source code debugger: see [Debugger](#debugger)
 
 * an interactive tool to make science more productive and more fun.
   If you use compiled Go with scientific libraries (physics, bioinformatics, statistics...)
-  you can import the same libraries from gomacro REPL (immediate on Go 1.8+ and Linux
-  or Go 1.10.2+ and Mac OS X, requires restarting on other platforms,
+  you can import the same libraries from gomacro REPL (immediate on Linux and Mac OS X,
+  requires restarting on other platforms,
   see [Importing packages](#importing-packages) below), call them interactively,
   inspect the results, feed them to other functions/libraries, all in a single session.
   The imported libraries will be **compiled**, not interpreted,
@@ -44,7 +47,7 @@ Gomacro can be used as:
 
 * a library that adds Eval() and scripting capabilities to your Go programs in few lines
   of code:
-	```
+	```go
 	package main
 	import (
 		"fmt"
@@ -53,9 +56,9 @@ Gomacro can be used as:
 	)
 	func RunGomacro(toeval string) reflect.Value {
 		interp := fast.New()
-		// for simplicity, only collect the first returned value
-		val, _ := interp.Eval(toeval)
-		return val
+		vals, _ := interp.Eval(toeval)
+		// for simplicity, only use the first returned value
+		return vals[0]
 	}
 	func main() {
 		fmt.Println(RunGomacro("1+1"))
@@ -90,18 +93,14 @@ Gomacro can be used as:
   and call any other function or library: they can even read and write files,
   open network connections, etc... as a normal Go function can do.
 
-  Run `gomacro -m -w FILENAMES` to parse and expand macros in one or more files.
-  For each filename on the command line, gomacro will parse it, expand macros,
-  then create a corresponding FILENAME.go with the parsed and macroexpanded
-  imports, declarations and statements.
-
-  To parse and macroexpand all *.gomacro files in a directory, run `gomacro -m -w DIRECTORY`
+  See [doc/code_generation.pdf](https://github.com/cosmos72/gomacro/blob/master/doc/code_generation.pdf)
+  for an introduction to the topic.
 
 ## Installation
 
 ### Prerequites
 
-- [Go 1.9+](https://golang.org/doc/install)
+- [Go 1.13+](https://golang.org/doc/install)
 
 ### Supported platforms
 
@@ -128,14 +127,16 @@ Almost complete.
 
 The main limitations and missing features are:
 
-* freely importing 3<sup>rd</sup> party libraries at runtime currently only works on Linux and Mac OS X.
+* importing 3<sup>rd</sup> party libraries at runtime currently only works on Linux and Mac OS X.
   On other systems as Windows, Android and *BSD it is cumbersome and requires recompiling - see [Importing packages](#importing-packages).
+* conversions from/to unsafe.Pointer are not supported
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
+* some corner cases using recursive types may not work correctly.
 * goto can only jump backward, not forward
 * out-of-order code is under testing - some corner cases, as for example out-of-order declarations
-  used in keys of composite literals, are not supported.  
+  used in keys of composite literals, are not supported.
   Clearly, at REPL code is still executed as soon as possible, so it makes a difference mostly
-  if you separate multiple declarations with ; on a single line. Example: `var a = b; var b = 42`  
+  if you separate multiple declarations with ; on a single line. Example: `var a = b; var b = 42`\
   Support for "batch mode" is in progress - it reads as much source code as possible before executing it,
   and it's useful mostly to execute whole files or directories.
 
@@ -173,7 +174,7 @@ Compared to compiled Go, gomacro supports several extensions:
   (see next item) before exceeding 5e1232.
 
 * untyped constants can be converted implicitly to `*big.Int`, `*big.Rat` and `*big.Float`. Examples:
-    ```
+    ```go
 	import "math/big"
 	var i *big.Int = 1<<1000                 // exact - would overflow int
 	var r *big.Rat = 1.000000000000000000001 // exact - different from 1.0
@@ -185,7 +186,11 @@ Compared to compiled Go, gomacro supports several extensions:
 
   Be aware that converting a huge value to string, as typing `f` at REPL would do, can be very slow.
 
-* macros, quoting and quasiquoting (to be documented)
+* zero value constructors: for any type `T`, the expression `T()`
+  returns the zero value of the type
+
+* macros, quoting and quasiquoting: see
+  [doc/code_generation.pdf](https://github.com/cosmos72/gomacro/blob/master/doc/code_generation.pdf)
 
 and slightly relaxed checks:
 
@@ -218,7 +223,7 @@ Further examples are listed by [Gophernotes](https://github.com/gopherdata/gophe
 ## Importing packages
 
 Gomacro supports the standard Go syntax `import`, including package renaming. Examples:
-```
+```go
 import "fmt"
 import (
     "io"
@@ -235,22 +240,25 @@ The next steps depend on the system you are running gomacro on:
 
 ### Linux and Mac OS X
 
-If you are running gomacro on Linux or Mac OS X, `import` will then just work. Example:
+If you are running gomacro on Linux or Mac OS X, `import` will then just work:
+it will automatically download, compile and import a package. Example:
 ```
-$ go get gonum.org/v1/plot
 $ gomacro
 [greeting message...]
 
 gomacro> import "gonum.org/v1/plot"
-// debug: created file "/home/max/src/gomacro_imports/gonum.org/v1/plot/plot.go"...
-// debug: compiling "/home/max/go/src/gomacro_imports/gonum.org/v1/plot/plot.go" ...
+// debug: looking for package "gonum.org/v1/plot" ...
+// debug: compiling "/home/max/go/src/gomacro.imports/gonum.org/v1/plot/plot.go" ...
+go: finding module for package gonum.org/v1/plot/vg/draw
+go: finding module for package gonum.org/v1/plot
+go: found gonum.org/v1/plot in gonum.org/v1/plot v0.0.0-20200226011204-b25252b0d522
 gomacro> plot.New()
 &{...} // *plot.Plot
 <nil>  // error
 ```
 
 Note: internally, gomacro will compile and load a Go plugin containing the package's exported declarations.
-Go plugins require Go 1.8+ on Linux and Go 1.10.2+ on Mac OS X.
+Go plugins are currently supported only on Linux and Mac OS X.
 
 **WARNING** On Mac OS X, **never** execute `strip gomacro`: it breaks plugin support,
             and loading third party packages stops working.
@@ -258,7 +266,9 @@ Go plugins require Go 1.8+ on Linux and Go 1.10.2+ on Mac OS X.
 
 ### Other systems
 
-On all other systems as Windows, Android and *BSD you can still use `import`, but there are some more steps.
+On all other systems as Windows, Android and *BSD you can still use `import`,
+but there are more steps: you need to manually download the package,
+and you also need to recompile gomacro after the `import` (it will tell you).
 Example:
 ```
 $ go get gonum.org/v1/plot
@@ -291,25 +301,148 @@ then quit and recompile gomacro only once.
 
 ## Generics
 
-gomacro contains an experimental version of Go generics.
+gomacro contains two alternative, experimental versions of Go generics:
 
-For the experience report written while implementing them, see [doc/generics.md](doc/generics.md)
+* the first version is modeled after C++ templates, and is appropriately named "C++ style"\
+  See [doc/generics-c++.md](doc/generics-c++.md) for how to enable and use them.
+
+* the second version is named "contracts are interfaces" - or more briefly "CTI".
+  It is modeled after several published proposals for Go generics,
+  most notably Ian Lance Taylor's [Type Parameters in Go](https://github.com/golang/proposal/blob/master/design/15292/2013-12-type-params.md)
+  It has some additions inspired from [Haskell generics](https://wiki.haskell.org/Generics)
+  and original contributions from the author - in particular to create a simpler alternative to
+  [Go 2 contracts](https://go.googlesource.com/proposal/+/master/design/go2draft-contracts.md)
+
+  For their design document and reasoning behind some of the design choices, see [doc/generics-cti.md](doc/generics-cti.md)
+
+The second version of generics "CTI" is enabled by default in gomacro.
 
 They are in beta status, and at the moment only generic types and functions are supported.
 Syntax and examples:
-```
-template[T,U] type Pair struct { First T; Second U }
+```go
+// declare a generic type with two type arguments T and U
+type Pair#[T,U] struct {
+	First T
+	Second U
+}
 
+// instantiate the generic type using explicit types for T and U,
+// and create a variable of such type.
 var pair Pair#[complex64, struct{}]
 
 // equivalent:
 pair := Pair#[complex64, struct{}] {}
 
+// a more complex example, showing higher-order functions
+func Transform#[T,U](slice []T, trans func(T) U) []U {
+	ret := make([]U, len(slice))
+	for i := range slice {
+		ret[i] = trans(slice[i])
+	}
+	return ret
+}
+Transform#[string,int] // returns func([]string, func(string) int) []int
 
-template[T] func Sum(args ...T) T {
-	var sum T // exploit zero value of T
+// returns []int{3, 2, 1} i.e. the len() of each string in input slice:
+Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
+```
+Contracts specify the available methods of a generic type.
+For simplicity, they do not introduce a new syntax or new language concepts:
+contracts are just (generic) interfaces.
+With a tiny addition, actually: the ability to optionally indicate the receiver type.
+
+For example, the contract specifying that values of type `T` can be compared with each other
+to determine if the first is less, equal or greater than the second is:
+```Go
+type Comparable#[T] interface {
+	// returns -1 if a is less than b
+	// returns  0 if a is equal to b
+	// returns  1 if a is greater than b
+	func (a T) Cmp(b T) int
+}
+```
+A type `T` implements `Comparable#[T]` if it has a method `func (T) Cmp(T) int`.
+This interface is carefully chosen to match the existing methods of
+`*math/big.Float`, `*math/big.Int` and `*math/big.Rat`.
+In other words, `*math/big.Float`, `*math/big.Int` and `*math/big.Rat` already implement it.
+
+What about basic types as `int8`, `int16`, `int32`, `uint`... `float*`, `complex*` ... ?
+Gomacro extends them, automatically adding many methods equivalent to the ones declared
+on `*math/big.Int` to perform arithmetic and comparison, including `Cmp` which is
+internally defined as (no need to define it yourself):
+```Go
+func (a int) Cmp(b int) int {
+	if a < b {
+		return -1
+	} else if a > b {
+		return 1
+	} else {
+		return 0
+	}
+}
+```
+Thus the generic functions `Min` and `Max` can be written as
+```Go
+func Min#[T: Comparable] (a, b T) T {
+	if a.Cmp(b) < 0 { // also <= would work
+		return a
+	}
+	return b
+}
+func Max#[T: Comparable] (a, b T) T {
+	if a.Cmp(b) > 0 { // also >= would work
+		return a
+	}
+	return b
+}
+```
+Where the syntax `#[T: Comparable]` or equivalently `#[T: Comparable#[T]]`
+indicates that `T` must satisfy the contract (implement the interface) `Comparable#[T]`
+
+Such functions `Min` and `Max` will then work automatically for every type `T`
+that satisfies the contract (implements the interface) `Comparable#[T]`:\
+all basic integers and floats, plus `*math/big.Float`, `*math/big.Int` and `*math/big.Rat`,
+plus every user-defined type `T` that has a method `func (T) Cmp(T) int`
+
+If you do not specify the contract(s) that a type must satisfy, generic functions
+cannot access the fields and methods of a such type, which is then treated
+as a "black box", similarly to `interface{}`.
+
+Two values of type `T` can be added if `T` has an appropriate method.
+But which name and signature should we choose to add values?
+Copying again from `math/big`, the method we choose is `func (T) Add(T,T) T`
+If receiver is a pointer, it will be set to the result - in any case,
+the result will also be returned.
+Similarly to `Comparable`, the contract `Addable` is then
+```Go
+type Addable#[T] interface {
+	// Add two values a, b and return the result.
+	// If recv is a pointer, it must be non-nil
+	// and it will be set to the result
+	func (recv T) Add(a, b T) T
+}
+```
+With such a contract, a generic function `Sum` is quite straightforward:
+```Go
+func Sum#[T: Addable] (args ...T) T {
+	// to create the zero value of T,
+	// one can write 'var sum T' or equivalently 'sum := T()'
+	// Unluckily, that's not enough for math/big numbers, which require
+	// the receiver of method calls to be created with a function `New()`
+	// Once math/big numbers have such method, the following
+	// will be fully general - currently it works only on basic types.
+	sum := T().New()
+
 	for _, elem := range args {
-		sum += elem
+		// use the method T.Add(T, T)
+		//
+		// as an optimization, relevant at least for math/big numbers,
+		// also use sum as the receiver where result of Add will be stored
+		// if the method Add has pointer receiver.
+		//
+		// To cover the case where method Add has instead value receiver,
+		// also assign the returned value to sum
+		sum = sum.Add(sum, elem)
 	}
 	return sum
 }
@@ -322,60 +455,17 @@ Sum#[complex64] (1.1+2.2i, 3.3) // returns complex64(4.4+2.2i)
 Sum#[string]                         // returns func(...string) string
 Sum#[string]("abc.","def.","xy","z") // returns "abc.def.xyz"
 
-template[T,U] func Transform(slice []T, trans func(T) U) []U {
-	ret := make([]U, len(slice))
-	for i := range slice {
-		ret[i] = trans(slice[i])
-	}
-	return ret
-}
-Transform#[string,int] // returns func([]string, func(string) int) []int
-
-// returns []int{3, 2, 1} i.e. the len() of each string in input slice:
-
-Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
-
-// Partial and full specialization of templates are supported.
-// Together with recursive templates, they also (incidentally)
-// provide Turing completeness at compile-time:
-
-// The following example uses recursion and full specialization
-// to compute fibonacci sequence at compile time.
-
-// general case: encode Fib#[N] in the length of array type.
-template[N] type Fib [
-	len((*Fib#[N-1])(nil)) +
-	len((*Fib#[N-2])(nil))   ]int
-
-template[] for[2] type Fib [1]int // specialization for Fib#[2]
-template[] for[1] type Fib [1]int // specialization for Fib#[1]
-
-const Fib30 = len((*Fib#[30])(nil)) // compile-time constant
-
 ```
+Partial and full specialization of generics is **not** supported in CTI generics,
+both for simplicity and to avoid accidentally providing Turing completeness at compile-time.
+
+Instantiation of generic types and functions is on-demand.
+
 Current limitations:
-* instantiation is on-demand, but template arguments #[...] must be explicit.
-* template methods not supported yet.
-
-Observation: the compile-time Turing completeness provided by these C++-style templates
-is really poorly readable, for three reasons:
-* iteration must be written as recursion
-* `if` must be written as template specialization, outside the main template
-* integers must be encoded inside types, for example in the length of array types
-
-In the author's opinion, compile-time Turing completeness is a very enticing
-feature for several use cases and for a non-trivial percentage of developers.
-
-If the only way to get such feature is with poorly readable (ab)use of templates,
-the result is a lot of poorly readable template code.
-
-If Turing-complete templates are ever added to Go (or any other language)
-it is thus very important to also provide an alternative, more natural syntax
-to perform Turing-complete computation at compile-time. An example
-could be: `const foo(args)` where the function `foo` must respect certain
-constraints (to be defined) in order to be callable at compile time.
-
-For a more detailed discussion, see [doc/generics.md](doc/generics.md).
+* type inference on generic arguments #[...] is not yet implemented,
+  thus generic arguments #[...] must be explicit.
+* generic methods are not yet implemented.
+* types are not checked to actually satisfy contracts.
 
 ## Debugger
 
@@ -385,7 +475,7 @@ There are three ways to enter it:
 * type `:debug STATEMENT-OR-FUNCTION-CALL` at the prompt.
 * add a statement (an expression is not enough) `"break"` or `_ = "break"` to your code, then execute it normally.
 
-In all cases, execution will be suspended and you will get a `debug>` prompt, which accepts the following commands:  
+In all cases, execution will be suspended and you will get a `debug>` prompt, which accepts the following commands:\
 `step`, `next`, `finish`, `continue`, `env [NAME]`, `inspect EXPR`, `list`, `print EXPR-OR-STATEMENT`
 
 Also,
@@ -435,7 +525,7 @@ from the same author.
 Building a Go interpreter that supports Lisp-like macros,
 allows to embed all these code-generation activities
 into regular Go source code, without the need for external programs
-(except for the intepreter itself).
+(except for the interpreter itself).
 
 As a free bonus, we get support for Eval()
 

@@ -21,8 +21,9 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	. "github.com/cosmos72/gomacro/base"
-	mt "github.com/cosmos72/gomacro/token"
+	"github.com/cosmos72/gomacro/base"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // MacroExpandNodeCodewalk traverses the whole AST tree using pre-order traversal,
@@ -52,7 +53,7 @@ func (c *Comp) macroExpandCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythi
 	if in == nil || in.Size() == 0 {
 		return in, false
 	}
-	debug := c.Options&OptDebugMacroExpand != 0
+	debug := c.Options&base.OptDebugMacroExpand != 0
 	if quasiquoteDepth <= 0 {
 		if debug {
 			c.Debugf("MacroExpandCodewalk: qq = %d, macroexpanding %v", quasiquoteDepth, in.Interface())
@@ -60,7 +61,7 @@ func (c *Comp) macroExpandCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythi
 		in, anythingExpanded = c.MacroExpand(in)
 	}
 	if in != nil {
-		in = UnwrapTrivialAst(in)
+		in = base.UnwrapTrivialAst(in)
 	}
 	if in == nil {
 		return in, anythingExpanded
@@ -70,30 +71,30 @@ func (c *Comp) macroExpandCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythi
 	if expr, ok := in.(UnaryExpr); ok {
 		op := expr.X.Op
 		switch op {
-		case mt.MACRO:
+		case etoken.MACRO:
 			break
-		case mt.QUOTE:
+		case etoken.QUOTE:
 			// QUOTE prevents macroexpansion only if found outside any QUASIQUOTE
 			if quasiquoteDepth == 0 {
 				return saved, anythingExpanded
 			}
-		case mt.QUASIQUOTE:
+		case etoken.QUASIQUOTE:
 			// extract the body of QUASIQUOTE
 			quasiquoteDepth++
-		case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+		case etoken.UNQUOTE, etoken.UNQUOTE_SPLICE:
 			// extract the body of UNQUOTE or UNQUOTE_SPLICE
 			quasiquoteDepth--
 		default:
 			goto Recurse
 		}
-		inChild := UnwrapTrivialAst(in.Get(0).Get(1))
+		inChild := base.UnwrapTrivialAst(in.Get(0).Get(1))
 		outChild, expanded := c.macroExpandCodewalk(inChild, quasiquoteDepth)
-		if op == mt.MACRO {
+		if op == etoken.MACRO {
 			return outChild, expanded
 		}
 		out := in
 		if expanded {
-			out = MakeQuote2(expr, outChild.(AstWithNode))
+			out = base.MakeQuote2(expr, outChild.(AstWithNode))
 		}
 		return out, expanded
 	}
@@ -114,7 +115,7 @@ Recurse:
 		out = outSlice
 	}
 	for i := 0; i < n; i++ {
-		child := UnwrapTrivialAst(in.Get(i))
+		child := base.UnwrapTrivialAst(in.Get(i))
 		if child != nil {
 			expanded := false
 			if child.Size() != 0 {
@@ -179,14 +180,14 @@ func (c *Comp) MacroExpandNode1(in ast.Node) (out ast.Node, expanded bool) {
 }
 
 func (c *Comp) extractMacroCall(form Ast) Macro {
-	form = UnwrapTrivialAst(form)
+	form = base.UnwrapTrivialAst(form)
 	switch form := form.(type) {
 	case Ident:
 		sym := c.TryResolve(form.X.Name)
 		if sym != nil && sym.Bind.Desc.Class() == ConstBind && sym.Type != nil && sym.Type.Kind() == r.Struct {
 			switch value := sym.Value.(type) {
 			case Macro:
-				if c.Options&OptDebugMacroExpand != 0 {
+				if c.Options&base.OptDebugMacroExpand != 0 {
 					c.Debugf("MacroExpand1: found macro: %v", form.X.Name)
 				}
 				return value
@@ -204,12 +205,12 @@ func (c *Comp) MacroExpand1(in Ast) (out Ast, expanded bool) {
 		return nil, false
 	}
 	// unwrap trivial nodes: DeclStmt, ParenExpr, ExprStmt
-	in = UnwrapTrivialAstKeepBlocks(in)
+	in = base.UnwrapTrivialAstKeepBlocks(in)
 	ins, ok := in.(AstWithSlice)
 	if !ok {
 		return in, false
 	}
-	debug := c.Options&OptDebugMacroExpand != 0
+	debug := c.Options&base.OptDebugMacroExpand != 0
 	if debug {
 		c.Debugf("MacroExpand1: found list: %v", ins.Interface())
 	}
@@ -229,11 +230,11 @@ func (c *Comp) MacroExpand1(in Ast) (out Ast, expanded bool) {
 		}
 		argn := macro.argNum
 		leftn := n - i - 1
-		var args []r.Value
+		var args []xr.Value
 		if argn > leftn {
-			args := make([]r.Value, leftn+1) // include the macro itself
+			args := make([]xr.Value, leftn+1) // include the macro itself
 			for j := 0; j <= leftn; j++ {
-				args[j] = r.ValueOf(ins.Get(i + j).Interface())
+				args[j] = xr.ValueOf(ins.Get(i + j).Interface())
 			}
 			c.Errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", args, macro.argNum, leftn)
 			return in, false
@@ -242,34 +243,43 @@ func (c *Comp) MacroExpand1(in Ast) (out Ast, expanded bool) {
 			c.Debugf("MacroExpand1: found macro call %v at %d-th position of %v", elt.Interface(), i, ins.Interface())
 		}
 		// wrap each ast.Node into a reflect.Value
-		args = make([]r.Value, argn)
+		args = make([]xr.Value, argn)
 		for j := 0; j < argn; j++ {
-			args[j] = r.ValueOf(ToNode(ins.Get(i + j + 1)))
+			args[j] = xr.ValueOf(ToNode(ins.Get(i + j + 1)))
 		}
 		// invoke the macro
 		results := macro.closure(args)
 		if debug {
 			c.Debugf("MacroExpand1: macro expanded to: %v", results)
 		}
-		var out Ast
-		switch len(results) {
-		default:
-			args = append([]r.Value{r.ValueOf(elt.Interface())}, args...)
-			c.Warnf("macroexpansion returned %d values, using only the first one: %v %v returned %v",
-				len(results), args, results)
-			fallthrough
-		case 1:
-			any := results[0].Interface()
-			if any != nil {
-				out = anyToAst(any, "macroexpansion")
-				break
+		// a macro expansion can return multiple values.
+		// each value can be:
+		// * ast.Node or something that implements ast.Node
+		// * slice of: ast.Node or something that implements ast.Node
+		// * Ast or something that implements Ast
+		for _, result := range results {
+			if !result.IsValid() || !result.CanInterface() {
+				c.Warnf("MacroExpand1: cannot extract interface{} from reflect.Value result: %v", result)
+				continue
 			}
-			fallthrough
-		case 0:
-			// do not insert nil nodes... they would wreak havok, convert them to the identifier nil
-			out = Ident{&ast.Ident{Name: "nil"}}
+			if result == None {
+				continue
+			}
+			res := AnyToAst(result.Interface(), "macroexpansion")
+			switch res := res.(type) {
+			case AstWithSlice:
+				n := res.Size()
+				for i := 0; i < n; i++ {
+					outs = outs.Append(res.Get(i))
+				}
+			case Ast:
+				outs = outs.Append(res)
+			case nil:
+			default:
+				c.Warnf("MacroExpand1: cannot convert result to Ast: %v", result)
+				continue
+			}
 		}
-		outs = outs.Append(out)
 		i += argn
 		expanded = true
 	}
@@ -279,5 +289,5 @@ func (c *Comp) MacroExpand1(in Ast) (out Ast, expanded bool) {
 	if outs.Size() == 0 {
 		return EmptyStmt{&ast.EmptyStmt{}}, true
 	}
-	return UnwrapTrivialAst(outs), true
+	return base.UnwrapTrivialAst(outs), true
 }

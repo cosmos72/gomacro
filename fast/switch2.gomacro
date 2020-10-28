@@ -18,8 +18,9 @@ package fast
 
 import (
 	r "reflect"
-	. "github.com/cosmos72/gomacro/base"
 )
+
+:package fast
 
 :import (
 	"go/ast"
@@ -60,7 +61,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -94,29 +95,29 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 	var cachefun I
 	var stmt Stmt
 	switch e.Type.Kind() {
-	case r.Bool:		{switchtag; bool}
-	case r.Int:			{switchtag; int}
-	case r.Int8:		{switchtag; int8}
-	case r.Int16:		{switchtag; int16}
-	case r.Int32:		{switchtag; int32}
-	case r.Int64:		{switchtag; int64}
-	case r.Uint:		{switchtag; uint}
-	case r.Uint8:		{switchtag; uint8}
-	case r.Uint16:		{switchtag; uint16}
-	case r.Uint32:		{switchtag; uint32}
-	case r.Uint64:		{switchtag; uint64}
-	case r.Uintptr:		{switchtag; uintptr}
-	case r.Float32:		{switchtag; float32}
-	case r.Float64:		{switchtag; float64}
-	case r.Complex64:	{switchtag; complex64}
-	case r.Complex128:	{switchtag; complex128}
-	case r.String:		{switchtag; string}
+	case xr.Bool:		{switchtag; bool}
+	case xr.Int:			{switchtag; int}
+	case xr.Int8:		{switchtag; int8}
+	case xr.Int16:		{switchtag; int16}
+	case xr.Int32:		{switchtag; int32}
+	case xr.Int64:		{switchtag; int64}
+	case xr.Uint:		{switchtag; uint}
+	case xr.Uint8:		{switchtag; uint8}
+	case xr.Uint16:		{switchtag; uint16}
+	case xr.Uint32:		{switchtag; uint32}
+	case xr.Uint64:		{switchtag; uint64}
+	case xr.Uintptr:		{switchtag; uintptr}
+	case xr.Float32:		{switchtag; float32}
+	case xr.Float64:		{switchtag; float64}
+	case xr.Complex64:	{switchtag; complex64}
+	case xr.Complex128:	{switchtag; complex128}
+	case xr.String:		{switchtag; string}
 	default:
-		val := xr.Zero(e.Type)
-		cachefun = func(*Env) r.Value {
+		val := xr.Zero(e.Type.ReflectType())
+		cachefun = func(*Env) xr.Value {
 			return val
 		}
-		if efun, ok := efun.(func(*Env) (r.Value, []r.Value)); ok {
+		if efun, ok := efun.(func(*Env) (xr.Value, []xr.Value)); ok {
 			stmt = func(env *Env) (Stmt, *Env) {
 				val, _ = efun(env)
 				env.IP++
@@ -137,7 +138,7 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 */
 
 :macro switch_goto_map(typ ast.Node) ast.Node {
-	conv := convertvalue1(typ, ~'{r.ValueOf(k)})
+	conv := convertvalue1(typ, ~'{xr.ValueOf(k)})
 	return ~"{
 		stmt = c.switchGotoSlice(tag, seen)
 		if stmt != nil {
@@ -160,7 +161,7 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 }
 
 :macro switch_goto_slice(typ ast.Node) ast.Node {
-	conv := convertvalue1(typ, ~'{r.ValueOf(k)})
+	conv := convertvalue1(typ, ~'{xr.ValueOf(k)})
 	return ~"{
 		var min, max ~,typ
 		for k := range seen.GotoMap {
@@ -219,7 +220,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 	case func(*Env) bool:
 		m := [2]int{-1, -1}
 		for k, v := range seen.GotoMap {
-			if r.ValueOf(k).Bool() {
+			if xr.ValueOf(k).Bool() {
 				m[1] = v.IP
 			} else {
 				m[0] = v.IP
@@ -256,7 +257,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 	case func(*Env) complex64:	{switch_goto_map; complex64}
 	case func(*Env) complex128:	{switch_goto_map; complex128}
 	case func(*Env) string:		{switch_goto_map; string}
-	case func(*Env) (r.Value, []r.Value):
+	case func(*Env) (xr.Value, []xr.Value):
 		m := make(map[interface{}]int, len(seen.GotoMap))
 		for k, v := range seen.GotoMap {
 			m[k] = v.IP

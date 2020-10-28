@@ -19,9 +19,9 @@ package fast
 import (
 	"go/ast"
 	r "reflect"
-
-	// . "github.com/cosmos72/gomacro/base"
 )
+
+:package fast
 
 :import (
 	"fmt"
@@ -73,7 +73,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -174,10 +174,10 @@ func (c *Comp) Lss(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{binaryops; token.LSS; false; false; { int; uint; float32; float64; string }}
 	} else if yc {
 		x := xe.Fun
-		yv := r.ValueOf(ye.Value)
+		yv := xr.ValueOf(ye.Value)
 		{binaryops; token.LSS; false; true; { int; uint; float32; float64; string }}
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.Fun
 		{binaryops; token.LSS; true; false; { int; uint; float32; float64; string }}
 	}
@@ -197,10 +197,10 @@ func (c *Comp) Gtr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{binaryops; token.GTR; false; false; { int; uint; float32; float64; string }}
 	} else if yc {
 		x := xe.Fun
-		yv := r.ValueOf(ye.Value)
+		yv := xr.ValueOf(ye.Value)
 		{binaryops; token.GTR; false; true; { int; uint; float32; float64; string }}
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.Fun
 		{binaryops; token.GTR; true; false; { int; uint; float32; float64; string }}
 	}
@@ -220,10 +220,10 @@ func (c *Comp) Leq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{binaryops; token.LEQ; false; false; { int; uint; float32; float64; string }}
 	} else if yc {
 		x := xe.Fun
-		yv := r.ValueOf(ye.Value)
+		yv := xr.ValueOf(ye.Value)
 		{binaryops; token.LEQ; false; true; { int; uint; float32; float64; string }}
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.Fun
 		{binaryops; token.LEQ; true; false; { int; uint; float32; float64; string }}
 	}
@@ -243,10 +243,10 @@ func (c *Comp) Geq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{binaryops; token.GEQ; false; false; { int; uint; float32; float64; string }}
 	} else if yc {
 		x := xe.Fun
-		yv := r.ValueOf(ye.Value)
+		yv := xr.ValueOf(ye.Value)
 		{binaryops; token.GEQ; false; true; { int; uint; float32; float64; string }}
 	} else {
-		xv := r.ValueOf(xe.Value)
+		xv := xr.ValueOf(xe.Value)
 		y := ye.Fun
 		{binaryops; token.GEQ; true; false; { int; uint; float32; float64; string }}
 	}

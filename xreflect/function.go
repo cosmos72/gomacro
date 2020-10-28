@@ -18,15 +18,16 @@ package xreflect
 
 import (
 	"fmt"
-	"go/types"
-	"reflect"
+	r "reflect"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 // IsMethod reports whether a function type's contains a receiver, i.e. is a method.
 // If IsMethod returns true, the actual receiver type is available as the first parameter, i.e. Type.In(0)
 // It panics if the type's Kind is not Func.
 func (t *xtype) IsMethod() bool {
-	if t.Kind() != reflect.Func {
+	if t.Kind() != r.Func {
 		xerrorf(t, "IsMethod of non-func type %v", t)
 	}
 	gtype := t.gunderlying().(*types.Signature)
@@ -37,7 +38,7 @@ func (t *xtype) IsMethod() bool {
 // If so, t.In(t.NumIn() - 1) returns the parameter's implicit actual type []T.
 // IsVariadic panics if the type's Kind is not Func.
 func (t *xtype) IsVariadic() bool {
-	if t.Kind() != reflect.Func {
+	if t.Kind() != r.Func {
 		xerrorf(t, "In of non-func type %v", t)
 	}
 	gtype := t.gunderlying().(*types.Signature)
@@ -48,7 +49,7 @@ func (t *xtype) IsVariadic() bool {
 // It panics if the type's Kind is not Func.
 // It panics if i is not in the range [0, NumIn()).
 func (t *xtype) In(i int) Type {
-	if t.Kind() != reflect.Func {
+	if t.Kind() != r.Func {
 		xerrorf(t, "In of non-func type %v", t)
 	}
 	gtype := t.gunderlying().(*types.Signature)
@@ -70,13 +71,13 @@ func (t *xtype) In(i int) Type {
 	if rt != rTypeOfForward {
 		rt = rt.In(i)
 	}
-	return t.universe.MakeType(va.Type(), rt)
+	return t.universe.MakeType(va.Type(), rt, t.option)
 }
 
 // NumIn returns a function type's input parameter count.
 // It panics if the type's Kind is not Func.
 func (t *xtype) NumIn() int {
-	if t.Kind() != reflect.Func {
+	if t.Kind() != r.Func {
 		xerrorf(t, "NumIn of non-func type %v", t)
 	}
 	n := 0
@@ -104,7 +105,7 @@ func (t *xtype) NumIn() int {
 // NumOut returns a function type's output parameter count.
 // It panics if the type's Kind is not Func.
 func (t *xtype) NumOut() int {
-	if t.Kind() != reflect.Func {
+	if t.Kind() != r.Func {
 		xerrorf(t, "NumOut of non-func type %v", t)
 	}
 	gtype := t.gunderlying().(*types.Signature)
@@ -115,7 +116,7 @@ func (t *xtype) NumOut() int {
 // It panics if the type's Kind is not Func.
 // It panics if i is not in the range [0, NumOut()).
 func (t *xtype) Out(i int) Type {
-	if t.Kind() != reflect.Func {
+	if t.Kind() != r.Func {
 		xerrorf(t, "Out of non-func type %v", t)
 	}
 	gtype := t.gunderlying().(*types.Signature)
@@ -125,7 +126,7 @@ func (t *xtype) Out(i int) Type {
 	if rt != rTypeOfForward {
 		rt = rt.Out(i)
 	}
-	return t.universe.MakeType(va.Type(), rt)
+	return t.universe.MakeType(va.Type(), rt, t.option)
 }
 
 func (v *Universe) FuncOf(in []Type, out []Type, variadic bool) Type {
@@ -156,13 +157,15 @@ func (v *Universe) MethodOf(recv Type, in []Type, out []Type, variadic bool) Typ
 	rin := toReflectTypes(in)
 	rout := toReflectTypes(out)
 	var grecv *types.Var
-	if unwrap(recv) != nil {
-		rin = append([]reflect.Type{recv.ReflectType()}, rin...)
+	opt := combineOpt(in) | combineOpt(out)
+	if xrecv := unwrap(recv); xrecv != nil {
+		rin = append([]r.Type{xrecv.approxReflectType()}, rin...)
 		grecv = toGoParam(recv)
+		opt |= xrecv.option
 	}
 	// contagion: if one or more in/out reflect.Type is Forward,
 	// set the whole func reflect.Type to Forward
-	var rfunc reflect.Type
+	var rfunc r.Type
 loop:
 	for {
 		for _, rt := range rin {
@@ -177,11 +180,12 @@ loop:
 				break loop
 			}
 		}
-		rfunc = reflect.FuncOf(rin, rout, variadic)
+		rfunc = r.FuncOf(rin, rout, variadic)
 		break
 	}
 	return v.MakeType(
 		types.NewSignature(grecv, gin, gout, variadic),
 		rfunc,
+		opt,
 	)
 }

@@ -24,6 +24,8 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+:package fast
+
 :import (
 	"go/ast"
 	r "reflect"
@@ -61,26 +63,26 @@ import (
 		typename := &ast.Ident{Name: t.Name()}
 		bind = ~"{*(*~,typename)(unsafe.Pointer(& ~,env .Ints[index])) = ~,expr}
 		switch t.Kind() {
-			case r.Bool:
+			case xr.Bool:
 				cbind = ~"{~,env . Vals[index].SetBool(~,expr)}
-			case r.Int, r.Int8, r.Int16, r.Int32:
+			case xr.Int, r.Int8, r.Int16, r.Int32:
 				cbind = ~"{~,env . Vals[index].SetInt(int64(~,expr))}
-			case r.Int64:
+			case xr.Int64:
 				cbind = ~"{~,env . Vals[index].SetInt(~,expr)}
-			case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uintptr:
+			case xr.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uintptr:
 				cbind = ~"{~,env . Vals[index].SetUint(uint64(~,expr))}
-			case r.Uint64:
+			case xr.Uint64:
 				bind = ~"{~,env . Ints[index] = ~,expr}
 				cbind = ~"{~,env . Vals[index].SetUint(~,expr)}
-			case r.Float32:
+			case xr.Float32:
 				cbind = ~"{~,env . Vals[index].SetFloat(float64(~,expr))}
-			case r.Float64:
+			case xr.Float64:
 				cbind = ~"{~,env . Vals[index].SetFloat(~,expr)}
-			case r.Complex64:
+			case xr.Complex64:
 				cbind = ~"{~,env . Vals[index] .SetComplex(complex128(~,expr))}
-			case r.Complex128:
+			case xr.Complex128:
 				cbind = ~"{~,env . Vals[index] .SetComplex(~,expr)}
-			case r.String:
+			case xr.String:
 				bind = ~"{~,env . Vals[index] .SetString(~,expr)}
 		}
 	}
@@ -148,7 +150,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -193,23 +195,23 @@ import (
 :macro setplaces_const(depth ast.Node) ast.Node {
 	return ~"{
 		switch t.Kind() {
-		case r.Bool:       setplace_const; ~,depth; bool;
-		case r.Int:        setplace_const; ~,depth; int;
-		case r.Int8:       setplace_const; ~,depth; int8;
-		case r.Int16:      setplace_const; ~,depth; int16;
-		case r.Int32:      setplace_const; ~,depth; int32;
-		case r.Int64:      setplace_const; ~,depth; int64;
-		case r.Uint:       setplace_const; ~,depth; uint;
-		case r.Uint8:      setplace_const; ~,depth; uint8;
-		case r.Uint16:     setplace_const; ~,depth; uint16;
-		case r.Uint32:     setplace_const; ~,depth; uint32;
-		case r.Uint64:     setplace_const; ~,depth; uint64;
-		case r.Uintptr:    setplace_const; ~,depth; uintptr;
-		case r.Float32:    setplace_const; ~,depth; float32;
-		case r.Float64:    setplace_const; ~,depth; float64;
-		case r.Complex64:  setplace_const; ~,depth; complex64;
-		case r.Complex128: setplace_const; ~,depth; complex128;
-		case r.String:     setplace_const; ~,depth; string;
+		case xr.Bool:       setplace_const; ~,depth; bool;
+		case xr.Int:        setplace_const; ~,depth; int;
+		case xr.Int8:       setplace_const; ~,depth; int8;
+		case xr.Int16:      setplace_const; ~,depth; int16;
+		case xr.Int32:      setplace_const; ~,depth; int32;
+		case xr.Int64:      setplace_const; ~,depth; int64;
+		case xr.Uint:       setplace_const; ~,depth; uint;
+		case xr.Uint8:      setplace_const; ~,depth; uint8;
+		case xr.Uint16:     setplace_const; ~,depth; uint16;
+		case xr.Uint32:     setplace_const; ~,depth; uint32;
+		case xr.Uint64:     setplace_const; ~,depth; uint64;
+		case xr.Uintptr:    setplace_const; ~,depth; uintptr;
+		case xr.Float32:    setplace_const; ~,depth; float32;
+		case xr.Float64:    setplace_const; ~,depth; float64;
+		case xr.Complex64:  setplace_const; ~,depth; complex64;
+		case xr.Complex128: setplace_const; ~,depth; complex128;
+		case xr.String:     setplace_const; ~,depth; string;
 		default:           setplace_const; ~,depth; nil;
 		}
 	}
@@ -218,44 +220,44 @@ import (
 :macro setplaces_expr(depth ast.Node) ast.Node {
 	return ~"{
 		switch t.Kind() {
-		case r.Bool:       setplace_expr; ~,depth; bool;
-		case r.Int:        setplace_expr; ~,depth; int;
-		case r.Int8:       setplace_expr; ~,depth; int8;
-		case r.Int16:      setplace_expr; ~,depth; int16;
-		case r.Int32:      setplace_expr; ~,depth; int32;
-		case r.Int64:      setplace_expr; ~,depth; int64;
-		case r.Uint:       setplace_expr; ~,depth; uint;
-		case r.Uint8:      setplace_expr; ~,depth; uint8;
-		case r.Uint16:     setplace_expr; ~,depth; uint16;
-		case r.Uint32:     setplace_expr; ~,depth; uint32;
-		case r.Uint64:     setplace_expr; ~,depth; uint64;
-		case r.Uintptr:    setplace_expr; ~,depth; uintptr;
-		case r.Float32:    setplace_expr; ~,depth; float32;
-		case r.Float64:    setplace_expr; ~,depth; float64;
-		case r.Complex64:  setplace_expr; ~,depth; complex64;
-		case r.Complex128: setplace_expr; ~,depth; complex128;
-		case r.String:     setplace_expr; ~,depth; string;
+		case xr.Bool:       setplace_expr; ~,depth; bool;
+		case xr.Int:        setplace_expr; ~,depth; int;
+		case xr.Int8:       setplace_expr; ~,depth; int8;
+		case xr.Int16:      setplace_expr; ~,depth; int16;
+		case xr.Int32:      setplace_expr; ~,depth; int32;
+		case xr.Int64:      setplace_expr; ~,depth; int64;
+		case xr.Uint:       setplace_expr; ~,depth; uint;
+		case xr.Uint8:      setplace_expr; ~,depth; uint8;
+		case xr.Uint16:     setplace_expr; ~,depth; uint16;
+		case xr.Uint32:     setplace_expr; ~,depth; uint32;
+		case xr.Uint64:     setplace_expr; ~,depth; uint64;
+		case xr.Uintptr:    setplace_expr; ~,depth; uintptr;
+		case xr.Float32:    setplace_expr; ~,depth; float32;
+		case xr.Float64:    setplace_expr; ~,depth; float64;
+		case xr.Complex64:  setplace_expr; ~,depth; complex64;
+		case xr.Complex128: setplace_expr; ~,depth; complex128;
+		case xr.String:     setplace_expr; ~,depth; string;
 		default:           setplace_expr; ~,depth; nil;
 		}
 	}
 }
 
 // varSetZero compiles 'variable = 0'
-func (c *Comp) varSetZero(va *Var) {
-	zero := xr.Zero(va.Type).Interface()
-	c.varSetConst(va, zero)
+func (c *Comp) varSetZero(va *Var) Stmt {
+	zero := xr.Zero(va.Type.ReflectType()).Interface()
+	return c.varSetConst(va, zero)
 }
 
 // varSetConst compiles 'name = constant'
-func (c *Comp) varSetConst(va *Var, val I) {
+func (c *Comp) varSetConst(va *Var, val I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
 
-	v := r.ValueOf(val)
+	v := xr.ValueOf(val)
 	rt := t.ReflectType()
 	if reflect.Type(v) == nil {
-		v = r.Zero(rt)
+		v = xr.Zero(rt)
 	} else {
 		v = convert(v, rt)
 	}
@@ -268,11 +270,11 @@ func (c *Comp) varSetConst(va *Var, val I) {
 	default:        setplaces_const; -1
 	case c.Depth-1: setplaces_const; -2
 	}
-	c.append(ret)
+	return ret
 }
 
 // varSetExpr compiles 'name = expression'
-func (c *Comp) varSetExpr(va *Var, e *Expr) {
+func (c *Comp) varSetExpr(va *Var, e *Expr) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -287,5 +289,5 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 	default:        setplaces_expr; -1
 	case c.Depth-1: setplaces_expr; -2
 	}
-	c.append(ret)
+	return ret
 }

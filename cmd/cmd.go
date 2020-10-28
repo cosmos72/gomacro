@@ -30,6 +30,7 @@ import (
 	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/fast"
 	"github.com/cosmos72/gomacro/fast/debug"
+	"github.com/cosmos72/gomacro/go/etoken"
 )
 
 type Cmd struct {
@@ -45,13 +46,16 @@ func New() *Cmd {
 }
 
 func (cmd *Cmd) Init() {
+	// enable generics v2 CTI by default
+	etoken.GENERICS = etoken.GENERICS_V2_CTI
+
 	ir := fast.New()
 	ir.SetDebugger(&debug.Debugger{})
 	ir.SetInspector(&inspect.Inspector{})
 
 	g := &ir.Comp.Globals
-	g.ParserMode = 0
-	g.Options = OptDebugger | OptCtrlCEnterDebugger | OptKeepUntyped | OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType
+	g.ParserMode = 0 // defaults
+	g.Options |= OptDebugger | OptCtrlCEnterDebugger | OptKeepUntyped | OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType
 	cmd.Interp = ir
 	cmd.WriteDeclsAndStmts = false
 	cmd.OverwriteFiles = false

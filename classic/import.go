@@ -21,6 +21,7 @@ import (
 	r "reflect"
 	"strings"
 
+	"github.com/cosmos72/gomacro/base"
 	bstrings "github.com/cosmos72/gomacro/base/strings"
 )
 
@@ -42,7 +43,7 @@ func (env *Env) evalImport(imp *ast.ImportSpec) (r.Value, []r.Value) {
 	if imp.Name != nil {
 		name = imp.Name.Name
 	}
-	pkg := env.Globals.Importer.ImportPackage(name, path)
+	pkg := env.Globals.Importer.ImportPackage(name, path, env.Globals.Options&base.OptModuleImport != 0)
 	if pkg != nil {
 		// if import appears *inside* a block, it is local for that block
 		if name == "." {
@@ -53,7 +54,7 @@ func (env *Env) evalImport(imp *ast.ImportSpec) (r.Value, []r.Value) {
 			// If the PackageName is omitted, it defaults to the identifier
 			// specified in the package clause of the imported package
 			if len(name) == 0 {
-				name = pkg.Name
+				name = pkg.DefaultName()
 			}
 			env.DefineConst(name, r.TypeOf(pkg), r.ValueOf(pkg))
 		}

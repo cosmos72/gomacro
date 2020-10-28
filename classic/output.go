@@ -31,8 +31,8 @@ import (
 )
 
 var (
-	nilEnv *Env
-	NilEnv = []r.Value{r.ValueOf(nilEnv)}
+	nilEnv  *Env
+	NilREnv = []r.Value{r.ValueOf(nilEnv)}
 )
 
 func (env *Env) showStack() {
@@ -119,10 +119,10 @@ const spaces15 = "               "
 
 func showValue(out io.Writer, name string, v r.Value) {
 	n := len(name) & 15
-	if !v.IsValid() || v == None {
+	if !v.IsValid() || v == NoneR {
 		fmt.Fprintf(out, "%s%s = nil\t// nil\n", name, spaces15[n:])
 	} else {
-		fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], v, reflect.Type(v))
+		fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], v, reflect.ValueTypeR(v))
 	}
 }
 

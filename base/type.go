@@ -31,6 +31,7 @@ const (
 	OptDebugger           // enable debugger support. "break" and _ = "break" are breakpoints and enter the debugger
 	OptKeepUntyped
 	OptMacroExpandOnly // do not compile or execute code, only parse and macroexpand it
+	OptModuleImport    // if built with Go >= 1.11, import "foo" will use modules
 	OptPanicStackTrace
 	OptTrapPanic
 	OptDebugCallStack
@@ -43,7 +44,7 @@ const (
 	OptDebugRecover
 	OptDebugQuasiquote
 	OptDebugSleepOnSwitch // to torture-test "switch" implementation for race conditions
-	OptDebugTemplate
+	OptDebugGenerics
 	OptShowCompile
 	OptShowEval
 	OptShowEvalType
@@ -66,19 +67,20 @@ var optNames = map[Options]string{
 	OptDebugger:            "Debugger",
 	OptKeepUntyped:         "Untyped.Keep",
 	OptMacroExpandOnly:     "MacroExpandOnly",
+	OptModuleImport:        "Import.Uses.Module",
 	OptPanicStackTrace:     "StackTrace.OnPanic",
 	OptTrapPanic:           "Trap.Panic",
 	OptDebugCallStack:      "?CallStack.Debug",
 	OptDebugDebugger:       "?Debugger.Debug",
 	OptDebugField:          "?Field.Debug",
 	OptDebugFromReflect:    "?FromReflect.Debug",
+	OptDebugGenerics:       "?Generics.Debug",
 	OptDebugMacroExpand:    "?MacroExpand.Debug",
 	OptDebugMethod:         "?Method.Debug",
 	OptDebugParse:          "?Parse.Debug",
 	OptDebugRecover:        "?Recover.Debug",
 	OptDebugQuasiquote:     "?Quasiquote.Debug",
 	OptDebugSleepOnSwitch:  "?SwitchSleep.Debug",
-	OptDebugTemplate:       "?Template.Debug",
 	OptShowCompile:         "Compile.Show",
 	OptShowEval:            "Eval.Show",
 	OptShowEvalType:        "Type.Eval.Show",

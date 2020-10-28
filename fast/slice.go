@@ -18,7 +18,8 @@ package fast
 
 import (
 	"go/ast"
-	r "reflect"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // SliceExpr compiles slice[lo:hi] and slice[lo:hi:max]
@@ -27,7 +28,7 @@ func (c *Comp) SliceExpr(node *ast.SliceExpr) *Expr {
 	if e.Const() {
 		e.ConstTo(e.DefaultType())
 	}
-	if e.Type.Kind() == r.Array {
+	if e.Type.Kind() == xr.Array {
 		c.sliceArrayMustBeAddressable(node, e)
 	}
 	lo := c.sliceIndex(node.Low)
@@ -66,18 +67,18 @@ func (c *Comp) sliceIndex(node ast.Expr) *Expr {
 func (c *Comp) slice2(node *ast.SliceExpr, e, lo, hi *Expr) *Expr {
 	t := e.Type
 	switch t.Kind() {
-	case r.String:
+	case xr.String:
 		return c.sliceString(e, lo, hi)
-	case r.Ptr:
-		if t.Elem().Kind() != r.Array {
+	case xr.Ptr:
+		if t.Elem().Kind() != xr.Array {
 			break
 		}
 		fallthrough
-	case r.Slice, r.Array:
-		if t.Kind() == r.Ptr {
+	case xr.Slice, xr.Array:
+		if t.Kind() == xr.Ptr {
 			t = t.Elem()
 			objfun := e.AsX1()
-			e = exprX1(t, func(env *Env) r.Value {
+			e = exprX1(t, func(env *Env) xr.Value {
 				return objfun(env).Elem()
 			})
 		}
@@ -85,23 +86,23 @@ func (c *Comp) slice2(node *ast.SliceExpr, e, lo, hi *Expr) *Expr {
 		if lo == nil {
 			lo = c.exprValue(c.TypeOfInt(), 0)
 		}
-		var fun func(env *Env) r.Value
+		var fun func(env *Env) xr.Value
 		if lo.Const() {
 			lo := lo.Value.(int)
 			if hi == nil {
-				fun = func(env *Env) r.Value {
+				fun = func(env *Env) xr.Value {
 					obj := objfun(env)
 					return obj.Slice(lo, obj.Len())
 				}
 			} else if hi.Const() {
 				hi := hi.Value.(int)
-				fun = func(env *Env) r.Value {
+				fun = func(env *Env) xr.Value {
 					obj := objfun(env)
 					return obj.Slice(lo, hi)
 				}
 			} else {
 				hifun := hi.WithFun().(func(*Env) int)
-				fun = func(env *Env) r.Value {
+				fun = func(env *Env) xr.Value {
 					obj := objfun(env)
 					hi := hifun(env)
 					return obj.Slice(lo, hi)
@@ -110,21 +111,21 @@ func (c *Comp) slice2(node *ast.SliceExpr, e, lo, hi *Expr) *Expr {
 		} else {
 			lofun := lo.WithFun().(func(*Env) int)
 			if hi == nil {
-				fun = func(env *Env) r.Value {
+				fun = func(env *Env) xr.Value {
 					obj := objfun(env)
 					lo := lofun(env)
 					return obj.Slice(lo, obj.Len())
 				}
 			} else if hi.Const() {
 				hi := hi.Value.(int)
-				fun = func(env *Env) r.Value {
+				fun = func(env *Env) xr.Value {
 					obj := objfun(env)
 					lo := lofun(env)
 					return obj.Slice(lo, hi)
 				}
 			} else {
 				hifun := hi.WithFun().(func(*Env) int)
-				fun = func(env *Env) r.Value {
+				fun = func(env *Env) xr.Value {
 					obj := objfun(env)
 					lo := lofun(env)
 					hi := hifun(env)
@@ -222,23 +223,23 @@ func (c *Comp) slice3(node *ast.SliceExpr, e, lo, hi, max *Expr) *Expr {
 	}
 	t := e.Type
 	switch t.Kind() {
-	case r.String:
+	case xr.String:
 		c.Errorf("invalid operation %v (3-index slice of string)", node)
 		return nil
-	case r.Ptr:
-		if t.Elem().Kind() != r.Array {
+	case xr.Ptr:
+		if t.Elem().Kind() != xr.Array {
 			break
 		}
 		fallthrough
-	case r.Slice, r.Array:
+	case xr.Slice, xr.Array:
 		objfun := e.AsX1()
 		lofun := lo.WithFun().(func(*Env) int)
 		hifun := hi.WithFun().(func(*Env) int)
 		maxfun := max.WithFun().(func(*Env) int)
-		var fun func(env *Env) r.Value
-		if t.Kind() == r.Ptr {
+		var fun func(env *Env) xr.Value
+		if t.Kind() == xr.Ptr {
 			t = t.Elem()
-			fun = func(env *Env) r.Value {
+			fun = func(env *Env) xr.Value {
 				obj := objfun(env).Elem()
 				lo := lofun(env)
 				hi := hifun(env)
@@ -246,7 +247,7 @@ func (c *Comp) slice3(node *ast.SliceExpr, e, lo, hi, max *Expr) *Expr {
 				return obj.Slice3(lo, hi, max)
 			}
 		} else {
-			fun = func(env *Env) r.Value {
+			fun = func(env *Env) xr.Value {
 				obj := objfun(env)
 				lo := lofun(env)
 				hi := hifun(env)

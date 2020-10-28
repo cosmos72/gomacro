@@ -20,15 +20,14 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"go/types"
 	"io"
 	"os"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/paths"
-	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/gls"
+	"github.com/cosmos72/gomacro/go/types"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -89,9 +88,9 @@ func newTopInterp(path string) *Interp {
 	universe.CachePackage(types.NewPackage("fast", "fast"))
 	universe.CachePackage(types.NewPackage("main", "main"))
 
-	// no need to scavenge for Builtin, Function, Macro, *Import, *TemplateFunc, *TemplateType and UntypedLit fields and methods.
+	// no need to scavenge for Builtin, Function, Macro, *Import, *GenericFunc, *GenericType and UntypedLit fields and methods.
 	// actually, making them opaque helps securing against malicious interpreted code.
-	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfMacro, rtypeOfPtrImport, rtypeOfPtrTemplateFunc, rtypeOfPtrTemplateType} {
+	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfMacro, rtypeOfPtrImport, rtypeOfPtrGenericFunc, rtypeOfPtrGenericType} {
 		cg.opaqueType(rtype, "fast")
 	}
 	cg.opaqueType(rtypeOfUntypedLit, "untyped")
@@ -138,7 +137,7 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 	}
 }
 
-func (ir *Interp) SetInspector(inspector Inspector) {
+func (ir *Interp) SetInspector(inspector base.Inspector) {
 	ir.Comp.Globals.Inspector = inspector
 }
 
@@ -154,7 +153,7 @@ func (ir *Interp) Interrupt(os.Signal) {
 
 // DeclConst compiles a constant declaration
 func (ir *Interp) DeclConst(name string, t xr.Type, value I) {
-	ir.Comp.DeclConst0(name, t, value)
+	ir.Comp.DeclConst0(name, t, value, nil)
 }
 
 // DeclFunc compiles a function declaration
@@ -204,10 +203,10 @@ func (ir *Interp) apply() {
 
 // AddressOfVar compiles the expression &name, then executes it
 // returns the zero value if name is not found or is not addressable
-func (ir *Interp) AddressOfVar(name string) (addr r.Value) {
+func (ir *Interp) AddressOfVar(name string) (addr xr.Value) {
 	c := ir.Comp
 	sym := c.TryResolve(name)
-	var v r.Value
+	var v xr.Value
 	if sym != nil {
 		switch sym.Desc.Class() {
 		case VarBind, IntBind:
@@ -228,10 +227,10 @@ func (ir *Interp) TypeOf(val interface{}) xr.Type {
 // in the current package.
 // The returned value is settable and addressable only for variables.
 // Returns the zero value if name is not found
-func (ir *Interp) ValueOf(name string) (value r.Value) {
+func (ir *Interp) ValueOf(name string) (value xr.Value) {
 	sym := ir.Comp.TryResolve(name)
 	if sym == nil {
-		return reflect.Nil
+		return xr.Value{}
 	}
 	switch sym.Desc.Class() {
 	case ConstBind:
@@ -254,12 +253,12 @@ func (ir *Interp) ValueOf(name string) (value r.Value) {
 // ===================== Eval(), EvalFile(), EvalReader() ============================
 
 // combined Parse + Compile + RunExpr1
-func (ir *Interp) Eval1(src string) (r.Value, xr.Type) {
+func (ir *Interp) Eval1(src string) (xr.Value, xr.Type) {
 	return ir.RunExpr1(ir.Compile(src))
 }
 
 // combined Parse + Compile + RunExpr
-func (ir *Interp) Eval(src string) ([]r.Value, []xr.Type) {
+func (ir *Interp) Eval(src string) ([]xr.Value, []xr.Type) {
 	return ir.RunExpr(ir.Compile(src))
 }
 
@@ -283,10 +282,10 @@ func (ir *Interp) EvalReader(src io.Reader) (comments string, err error) {
 	savein := g.Readline
 	saveopts := g.Options
 	g.Line = 0
-	in := MakeBufReadline(bufio.NewReader(src), g.Stdout)
+	in := base.MakeBufReadline(bufio.NewReader(src), g.Stdout)
 	g.Readline = in
 	// parsing a file: suppress prompt and printing expression results
-	g.Options &^= OptShowPrompt | OptShowEval | OptShowEvalType
+	g.Options &^= base.OptShowPrompt | base.OptShowEval | base.OptShowEvalType
 	defer func() {
 		g.Readline = savein
 		g.Options = saveopts
@@ -301,7 +300,7 @@ func (ir *Interp) EvalReader(src io.Reader) (comments string, err error) {
 	}()
 
 	// perform the first iteration manually, to collect comments
-	str, firstToken := g.ReadMultiline(ReadOptCollectAllComments, g.Prompt)
+	str, firstToken := g.ReadMultiline(base.ReadOptCollectAllComments, g.Prompt)
 	if firstToken >= 0 {
 		comments = str[0:firstToken]
 		if firstToken > 0 {

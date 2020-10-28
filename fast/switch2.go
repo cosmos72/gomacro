@@ -22,8 +22,7 @@
 package fast
 
 import (
-	r "reflect"
-	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
@@ -36,7 +35,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 	case func(*Env) bool:
 		m := [2]int{-1, -1}
 		for k, v := range seen.GotoMap {
-			if r.ValueOf(k).Bool() {
+			if xr.ValueOf(k).Bool() {
 				m[1] = v.IP
 			} else {
 				m[0] = v.IP
@@ -68,7 +67,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[int]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[int(r.ValueOf(k).Int())] = v.IP
+				m[int(xr.ValueOf(k).Int())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -91,7 +90,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[int8]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[int8(r.ValueOf(k).Int())] = v.IP
+				m[int8(xr.ValueOf(k).Int())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -114,7 +113,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[int16]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[int16(r.ValueOf(k).Int())] = v.IP
+				m[int16(xr.ValueOf(k).Int())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -137,7 +136,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[int32]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[int32(r.ValueOf(k).Int())] = v.IP
+				m[int32(xr.ValueOf(k).Int())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -160,7 +159,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[int64]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[r.ValueOf(k).Int()] = v.IP
+				m[xr.ValueOf(k).Int()] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -183,7 +182,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[uint]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[uint(r.ValueOf(k).Uint())] = v.IP
+				m[uint(xr.ValueOf(k).Uint())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -206,7 +205,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[uint8]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[uint8(r.ValueOf(k).Uint())] = v.IP
+				m[uint8(xr.ValueOf(k).Uint())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -229,7 +228,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[uint16]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[uint16(r.ValueOf(k).Uint())] = v.IP
+				m[uint16(xr.ValueOf(k).Uint())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -252,7 +251,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[uint32]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[uint32(r.ValueOf(k).Uint())] = v.IP
+				m[uint32(xr.ValueOf(k).Uint())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -275,7 +274,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[uint64]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[r.ValueOf(k).Uint()] = v.IP
+				m[xr.ValueOf(k).Uint()] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -298,7 +297,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[uintptr]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[uintptr(r.ValueOf(k).Uint())] = v.IP
+				m[uintptr(xr.ValueOf(k).Uint())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -321,7 +320,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[float32]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[float32(r.ValueOf(k).Float())] = v.IP
+				m[float32(xr.ValueOf(k).Float())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -344,7 +343,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[float64]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[r.ValueOf(k).Float()] = v.IP
+				m[xr.ValueOf(k).Float()] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -367,7 +366,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[complex64]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[complex64(r.ValueOf(k).Complex())] = v.IP
+				m[complex64(xr.ValueOf(k).Complex())] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -390,7 +389,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[complex128]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[r.ValueOf(k).Complex()] = v.IP
+				m[xr.ValueOf(k).Complex()] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -413,7 +412,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 
 			m := make(map[string]int, len(seen.GotoMap))
 			for k, v := range seen.GotoMap {
-				m[r.ValueOf(k).String()] = v.IP
+				m[xr.ValueOf(k).String()] = v.IP
 			}
 
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -427,7 +426,7 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 			}
 		}
 
-	case func(*Env) (r.Value, []r.Value):
+	case func(*Env) (xr.Value, []xr.Value):
 		m := make(map[interface{}]int, len(seen.GotoMap))
 		for k, v := range seen.GotoMap {
 			m[k] = v.IP
@@ -472,13 +471,13 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 		{
 			var min, max int
 			for k := range seen.GotoMap {
-				key := int(r.ValueOf(k).Int())
+				key := int(xr.ValueOf(k).Int())
 				min = key
 				max = key
 				break
 			}
 			for k := range seen.GotoMap {
-				key := int(r.ValueOf(k).Int())
+				key := int(xr.ValueOf(k).Int())
 				if min > key {
 					min = key
 				} else if max < key {
@@ -499,7 +498,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := int(r.ValueOf(k).Int())
+				key := int(xr.ValueOf(k).Int())
 
 				slice[key-min] = v.IP + 1
 			}
@@ -522,13 +521,13 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 		{
 			var min, max int8
 			for k := range seen.GotoMap {
-				key := int8(r.ValueOf(k).Int())
+				key := int8(xr.ValueOf(k).Int())
 				min = key
 				max = key
 				break
 			}
 			for k := range seen.GotoMap {
-				key := int8(r.ValueOf(k).Int())
+				key := int8(xr.ValueOf(k).Int())
 				if min > key {
 					min = key
 				} else if max < key {
@@ -549,7 +548,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := int8(r.ValueOf(k).Int())
+				key := int8(xr.ValueOf(k).Int())
 
 				slice[key-min] = v.IP + 1
 			}
@@ -572,13 +571,13 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 		{
 			var min, max int16
 			for k := range seen.GotoMap {
-				key := int16(r.ValueOf(k).Int())
+				key := int16(xr.ValueOf(k).Int())
 				min = key
 				max = key
 				break
 			}
 			for k := range seen.GotoMap {
-				key := int16(r.ValueOf(k).Int())
+				key := int16(xr.ValueOf(k).Int())
 				if min > key {
 					min = key
 				} else if max < key {
@@ -599,7 +598,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := int16(r.ValueOf(k).Int())
+				key := int16(xr.ValueOf(k).Int())
 
 				slice[key-min] = v.IP + 1
 			}
@@ -623,13 +622,13 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 			var min, max int32
 			for k := range seen.GotoMap {
 				key :=
-					int32(r.ValueOf(k).Int())
+					int32(xr.ValueOf(k).Int())
 				min = key
 				max = key
 				break
 			}
 			for k := range seen.GotoMap {
-				key := int32(r.ValueOf(k).Int())
+				key := int32(xr.ValueOf(k).Int())
 				if min > key {
 					min = key
 				} else if max < key {
@@ -650,7 +649,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := int32(r.ValueOf(k).Int())
+				key := int32(xr.ValueOf(k).Int())
 
 				slice[key-min] = v.IP + 1
 			}
@@ -673,13 +672,13 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 		{
 			var min, max int64
 			for k := range seen.GotoMap {
-				key := r.ValueOf(k).Int()
+				key := xr.ValueOf(k).Int()
 				min = key
 				max = key
 				break
 			}
 			for k := range seen.GotoMap {
-				key := r.ValueOf(k).Int()
+				key := xr.ValueOf(k).Int()
 				if min > key {
 					min = key
 				} else if max < key {
@@ -700,7 +699,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := r.ValueOf(k).Int()
+				key := xr.ValueOf(k).Int()
 
 				slice[key-min] = v.IP + 1
 			}
@@ -725,13 +724,13 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 			for k := range seen.GotoMap {
 				key :=
 
-					uint(r.ValueOf(k).Uint())
+					uint(xr.ValueOf(k).Uint())
 				min = key
 				max = key
 				break
 			}
 			for k := range seen.GotoMap {
-				key := uint(r.ValueOf(k).Uint())
+				key := uint(xr.ValueOf(k).Uint())
 				if min > key {
 					min = key
 				} else if max < key {
@@ -752,7 +751,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := uint(r.ValueOf(k).Uint())
+				key := uint(xr.ValueOf(k).Uint())
 
 				slice[key-min] = v.IP + 1
 			}
@@ -777,13 +776,13 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 			for k := range seen.GotoMap {
 				key :=
 
-					uint8(r.ValueOf(k).Uint())
+					uint8(xr.ValueOf(k).Uint())
 				min = key
 				max = key
 				break
 			}
 			for k := range seen.GotoMap {
-				key := uint8(r.ValueOf(k).Uint())
+				key := uint8(xr.ValueOf(k).Uint())
 				if min > key {
 					min = key
 				} else if max < key {
@@ -804,7 +803,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := uint8(r.ValueOf(k).Uint())
+				key := uint8(xr.ValueOf(k).Uint())
 
 				slice[key-min] = v.IP + 1
 			}
@@ -829,13 +828,13 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 			for k := range seen.GotoMap {
 				key :=
 
-					uint16(r.ValueOf(k).Uint())
+					uint16(xr.ValueOf(k).Uint())
 				min = key
 				max = key
 				break
 			}
 			for k := range seen.GotoMap {
-				key := uint16(r.ValueOf(k).Uint())
+				key := uint16(xr.ValueOf(k).Uint())
 				if min > key {
 					min = key
 				} else if max < key {
@@ -856,7 +855,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := uint16(r.ValueOf(k).Uint())
+				key := uint16(xr.ValueOf(k).Uint())
 
 				slice[key-min] = v.IP + 1
 			}
@@ -881,13 +880,13 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 			for k := range seen.GotoMap {
 				key :=
 
-					uint32(r.ValueOf(k).Uint())
+					uint32(xr.ValueOf(k).Uint())
 				min = key
 				max = key
 				break
 			}
 			for k := range seen.GotoMap {
-				key := uint32(r.ValueOf(k).Uint())
+				key := uint32(xr.ValueOf(k).Uint())
 				if min > key {
 					min = key
 				} else if max < key {
@@ -908,7 +907,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := uint32(r.ValueOf(k).Uint())
+				key := uint32(xr.ValueOf(k).Uint())
 
 				slice[key-min] = v.IP + 1
 			}
@@ -931,13 +930,13 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 		{
 			var min, max uint64
 			for k := range seen.GotoMap {
-				key := r.ValueOf(k).Uint()
+				key := xr.ValueOf(k).Uint()
 				min = key
 				max = key
 				break
 			}
 			for k := range seen.GotoMap {
-				key := r.ValueOf(k).Uint()
+				key := xr.ValueOf(k).Uint()
 				if min > key {
 					min = key
 				} else if max < key {
@@ -958,7 +957,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := r.ValueOf(k).Uint()
+				key := xr.ValueOf(k).Uint()
 
 				slice[key-min] = v.IP + 1
 			}
@@ -983,7 +982,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 			for k := range seen.GotoMap {
 				key :=
 
-					uintptr(r.ValueOf(k).Uint())
+					uintptr(xr.ValueOf(k).Uint())
 				min = key
 				max = key
 				break
@@ -991,7 +990,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 			for k := range seen.GotoMap {
 				key :=
 
-					uintptr(r.ValueOf(k).Uint())
+					uintptr(xr.ValueOf(k).Uint())
 				if min > key {
 					min = key
 				} else if max < key {
@@ -1012,7 +1011,7 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			slice := make([]int, fullrange)
 			for k, v := range seen.GotoMap {
-				key := uintptr(r.ValueOf(k).Uint())
+				key := uintptr(xr.ValueOf(k).Uint())
 
 				slice[key-min] = v.IP + 1
 			}

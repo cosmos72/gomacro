@@ -92,7 +92,8 @@ again:
 	case r.Interface:
 		// this can happen too... for example in "var foo interface{} = 7"
 		// and it requires to convert the untyped constant to its default type.
-		// obviously, untyped constants can only implement empty interfaces
+		// Obviously, untyped constants can only implement empty interfaces
+		// (TODO: unless CTI generics are enabled - they add methods to basic types)
 		if t.NumMethod() == 0 {
 			t = untyp.DefaultType()
 			goto again
@@ -393,7 +394,7 @@ func (untyp *Lit) extractNumber(src constant.Value, t xr.Type) interface{} {
 // ConvertLiteralCheckOverflow converts a literal to type t and returns the converted value.
 // panics if the conversion overflows the given type
 func ConvertLiteralCheckOverflow(src interface{}, to xr.Type) interface{} {
-	v := r.ValueOf(src)
+	v := xr.ValueOf(src)
 	rto := to.ReflectType()
 	vto := reflect.ConvertValue(v, rto)
 
@@ -405,7 +406,7 @@ func ConvertLiteralCheckOverflow(src interface{}, to xr.Type) interface{} {
 	if cto == r.Int || cto == r.Uint {
 		if c == r.Float64 || c == r.Complex128 {
 			// float-to-integer conversion. check for truncation
-			t1 := reflect.Type(v)
+			t1 := reflect.ValueType(v)
 			vback := reflect.ConvertValue(vto, t1)
 			if src != vback.Interface() {
 				output.Errorf("constant %v truncated to %v", src, to)
@@ -413,7 +414,7 @@ func ConvertLiteralCheckOverflow(src interface{}, to xr.Type) interface{} {
 			}
 		} else {
 			// integer-to-integer conversion. convert back and compare the interfaces for overflows
-			t1 := reflect.Type(v)
+			t1 := reflect.ValueType(v)
 			vback := vto.Convert(t1)
 			if src != vback.Interface() {
 				output.Errorf("constant %v overflows <%v>", src, to)

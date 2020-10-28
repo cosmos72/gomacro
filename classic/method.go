@@ -59,7 +59,7 @@ func (ir *ThreadGlobals) registerMethod(recvType r.Type, name string, typ r.Type
 func (ir *ThreadGlobals) ObjMethodByName(obj r.Value, name string) r.Value {
 	// search for methods known to the compiler
 	val := obj.MethodByName(name)
-	if val == Nil {
+	if val == NilR {
 		// search for methods known to the intepreter
 		t := obj.Type()
 		if method, ok := ir.AllMethods[t][name]; ok {

@@ -24,6 +24,8 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+:package fast
+
 :import (
 	r "reflect"
 	"go/ast"
@@ -49,26 +51,26 @@ import (
 	var bind ast.Node
 	if t == nil {
 		bind = ~"{
-			place := r.New(~,tident).Elem()
-			place.Set(r.ValueOf(~,name))
+			place := xr.New(~,tident).Elem()
+			place.Set(xr.ValueOf(~,name))
 			env.Vals[~,index] = place
 		}
 	} else {
 		typeident := maketypeident(t)
 		switch t.Kind() {
-			case r.Complex128:
+			case xr.Complex128:
 				bind = ~"{
-					place := r.New(~,typeident).Elem()
+					place := xr.New(~,typeident).Elem()
 					place.SetComplex(~,name)
 					env.Vals[~,index] = place
 				}
-			case r.String:
+			case xr.String:
 				bind = ~"{
-					place := r.New(~,typeident).Elem()
+					place := xr.New(~,typeident).Elem()
 					place.SetString(~,name)
 					env.Vals[~,index] = place
 				}
-			case r.Uint64:
+			case xr.Uint64:
 				bind = ~"{env.Ints[~,index] = ~,name}
 			default:
 				bind = ~"{*(*~,typ)(unsafe.Pointer(&env.Ints[~,index])) = ~,name}
@@ -84,15 +86,15 @@ import (
 		arg0bind := fsetarg(arg0typ, ~'targ0, ~'arg0, ~'param0index)
 		return ~"{
 			if funcbody == nil {
-				funv := r.ValueOf(func(~,arg0typ) {})
-				return func(env *Env) r.Value {
+				funv := xr.ValueOf(func(~,arg0typ) {})
+				return func(env *Env) xr.Value {
 					return funv
 				}
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				// function is closed over the env used to DECLARE it
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 ~,arg0typ) {
+				return xr.ValueOf(func(arg0 ~,arg0typ) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					// copy arg0 into allocated binds
 					~,arg0bind
@@ -108,24 +110,24 @@ import (
 	return ~"{
 		rtype := t.ReflectType()
 		if funcbody == nil {
-			funv := r.MakeFunc(rtype, func([]r.Value) []r.Value {
+			funv := xr.MakeFunc(rtype, func([]xr.Value) []xr.Value {
 					return nil
 			})
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				return funv
 			}
 		} else {
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 				// function is closed over the env used to DECLARE it
 				env.MarkUsedByClosure()
 				rtarg0 := targ0.ReflectType()
-				return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
+				return xr.MakeFunc(rtype, func(args []xr.Value) []xr.Value {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					// copy arg0 into allocated binds
 					if param0index != NoIndex {
-						place := r.New(rtarg0).Elem()
-						if arg0 := args[0]; arg0 != Nil && arg0 != None {
+						place := xr.New(rtarg0).Elem()
+						if arg0 := args[0]; arg0.IsValid() && arg0 != None {
 							place.Set(convert(arg0, rtarg0))
 						}
 						env.Vals[param0index] = place
@@ -140,7 +142,7 @@ import (
 	}
 }
 
-func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) xr.Value {
 	// do NOT keep a reference to funcMaker
 	nbind := m.nbind
 	nintbind := m.nintbind
@@ -155,23 +157,23 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	targ0 := t.In(0)
 	karg0 := targ0.Kind()
 	switch karg0 {
-	case r.Bool:      {mfunc1ret0; bool}
-	case r.Int:       {mfunc1ret0; int}
-	case r.Int8:      {mfunc1ret0; int8}
-	case r.Int16:     {mfunc1ret0; int16}
-	case r.Int32:     {mfunc1ret0; int32}
-	case r.Int64:     {mfunc1ret0; int64}
-	case r.Uint:      {mfunc1ret0; uint}
-	case r.Uint8:     {mfunc1ret0; uint8}
-	case r.Uint16:    {mfunc1ret0; uint16}
-	case r.Uint32:    {mfunc1ret0; uint32}
-	case r.Uint64:    {mfunc1ret0; uint64}
-	case r.Uintptr:   {mfunc1ret0; uintptr}
-	case r.Float32:   {mfunc1ret0; float32}
-	case r.Float64:   {mfunc1ret0; float64}
-	case r.Complex64: {mfunc1ret0; complex64}
-	case r.Complex128:{mfunc1ret0; complex128}
-	case r.String:    {mfunc1ret0; string}
+	case xr.Bool:      {mfunc1ret0; bool}
+	case xr.Int:       {mfunc1ret0; int}
+	case xr.Int8:      {mfunc1ret0; int8}
+	case xr.Int16:     {mfunc1ret0; int16}
+	case xr.Int32:     {mfunc1ret0; int32}
+	case xr.Int64:     {mfunc1ret0; int64}
+	case xr.Uint:      {mfunc1ret0; uint}
+	case xr.Uint8:     {mfunc1ret0; uint8}
+	case xr.Uint16:    {mfunc1ret0; uint16}
+	case xr.Uint32:    {mfunc1ret0; uint32}
+	case xr.Uint64:    {mfunc1ret0; uint64}
+	case xr.Uintptr:   {mfunc1ret0; uintptr}
+	case xr.Float32:   {mfunc1ret0; float32}
+	case xr.Float64:   {mfunc1ret0; float64}
+	case xr.Complex64: {mfunc1ret0; complex64}
+	case xr.Complex128:{mfunc1ret0; complex128}
+	case xr.String:    {mfunc1ret0; string}
 	default:          {mfunc1ret0; nil}
 	}
 }

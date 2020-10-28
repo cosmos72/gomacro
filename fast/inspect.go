@@ -19,7 +19,7 @@ package fast
 import (
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 func (ir *Interp) Inspect(src string) {
@@ -32,15 +32,11 @@ func (ir *Interp) Inspect(src string) {
 	}
 	// not ir.Compile because it only macroexpands if OptMacroExpandOnly is set
 	val, xtyp := ir.RunExpr1(c.Compile(c.Parse(src)))
-	var typ r.Type
-	if xtyp != nil {
-		typ = xtyp.ReflectType()
+	typ := xtyp.ReflectType()
+	if val.IsValid() && val.Kind() == r.Interface {
+		// extract concrete type
+		val = val.Elem()
+		typ = reflect.ValueType(val)
 	}
-	if val.IsValid() && val != None {
-		if val.Kind() == r.Interface {
-			val = val.Elem() // extract concrete type
-		}
-		typ = val.Type()
-	}
-	inspector.Inspect(src, val, typ, xtyp, &ir.Comp.Globals)
+	inspector.Inspect(src, val.ReflectValue(), typ, xtyp, &ir.Comp.Globals)
 }

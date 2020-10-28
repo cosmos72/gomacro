@@ -22,14 +22,13 @@
 package fast
 
 import (
-	r "reflect"
 	"unsafe"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) xr.Value {
 
 	nbind := m.nbind
 	nintbind := m.nintbind
@@ -37,26 +36,27 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	param0index := m.Param[0].Desc.Index()
 
 	var debugC *Comp
-	if c.Globals.Options&OptDebugger != 0 {
+	if c.Globals.Options&base.OptDebugger != 0 {
 		debugC = c
 	}
 
 	targ0 := t.In(0)
 	karg0 := targ0.Kind()
 	switch karg0 {
-	case r.Bool:
+	case xr.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					bool) {})
-				return func(env *Env) r.Value { return funv }
+					bool) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) {
+				return xr.ValueOf(func(arg0 bool) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -67,19 +67,20 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-	case r.Int:
+	case xr.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					int) {})
-				return func(env *Env) r.Value { return funv }
+					int) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) {
+				return xr.ValueOf(func(arg0 int) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -90,19 +91,20 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-	case r.Int8:
+	case xr.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					int8) {})
-				return func(env *Env) r.Value { return funv }
+					int8) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) {
+				return xr.ValueOf(func(arg0 int8) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -113,19 +115,20 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-	case r.Int16:
+	case xr.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					int16) {})
-				return func(env *Env) r.Value { return funv }
+					int16) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) {
+				return xr.ValueOf(func(arg0 int16) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -136,19 +139,20 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-	case r.Int32:
+	case xr.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					int32) {})
-				return func(env *Env) r.Value { return funv }
+					int32) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) {
+				return xr.ValueOf(func(arg0 int32) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -159,19 +163,20 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-	case r.Int64:
+	case xr.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					int64) {})
-				return func(env *Env) r.Value { return funv }
+					int64) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) {
+				return xr.ValueOf(func(arg0 int64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -182,19 +187,20 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-	case r.Uint:
+	case xr.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					uint) {})
-				return func(env *Env) r.Value { return funv }
+					uint) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) {
+				return xr.ValueOf(func(arg0 uint) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -205,19 +211,20 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					uint8) {})
-				return func(env *Env) r.Value { return funv }
+					uint8) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) {
+				return xr.ValueOf(func(arg0 uint8) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -228,19 +235,20 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					uint16) {})
-				return func(env *Env) r.Value { return funv }
+					uint16) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) {
+				return xr.ValueOf(func(arg0 uint16) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -251,19 +259,20 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					uint32) {})
-				return func(env *Env) r.Value { return funv }
+					uint32) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) {
+				return xr.ValueOf(func(arg0 uint32) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -274,19 +283,20 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					uint64) {})
-				return func(env *Env) r.Value { return funv }
+					uint64) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) {
+				return xr.ValueOf(func(arg0 uint64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					env.Ints[param0index] = arg0
@@ -296,21 +306,22 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
-	case r.Uintptr:
+		}
+	case xr.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					uintptr) {})
-				return func(env *Env) r.Value { return funv }
+					uintptr) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) {
+				return xr.ValueOf(func(arg0 uintptr) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -320,21 +331,22 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
-	case r.Float32:
+		}
+	case xr.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					float32) {})
-				return func(env *Env) r.Value { return funv }
+					float32) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) {
+				return xr.ValueOf(func(arg0 float32) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -344,21 +356,22 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
-	case r.Float64:
+		}
+	case xr.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					float64) {})
-				return func(env *Env) r.Value { return funv }
+					float64) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) {
+				return xr.ValueOf(func(arg0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -368,21 +381,22 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
-	case r.Complex64:
+		}
+	case xr.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					complex64) {})
-				return func(env *Env) r.Value { return funv }
+					complex64) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) {
+				return xr.ValueOf(func(arg0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[param0index])) = arg0
@@ -392,26 +406,26 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
-	case r.Complex128:
+		}
+	case xr.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					complex128) {})
-				return func(env *Env) r.Value { return funv }
+					complex128) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) {
+				return xr.ValueOf(func(arg0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
-						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place := xr.NewR(base.TypeOfComplex128).Elem()
+						place.SetComplex(arg0)
 						env.Vals[param0index] = place
 					}
 
@@ -420,27 +434,27 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
-	case r.String:
+		}
+	case xr.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(
+				funv := xr.ValueOf(func(
 
-					string) {})
-				return func(env *Env) r.Value { return funv }
+					string) {
+				})
+				return func(env *Env) xr.Value { return funv }
 
 			}
-			return func(env *Env) r.Value {
+			return func(env *Env) xr.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) {
+				return xr.ValueOf(func(arg0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					{
-						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place := xr.NewR(base.TypeOfString).Elem()
+						place.SetString(arg0)
 						env.Vals[param0index] = place
 					}
 					funcbody(env)
@@ -448,28 +462,25 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env.freeEnv4Func()
 				})
 			}
-		}
 
+		}
 	default:
 		{
-			rtype := t.ReflectType()
 			if funcbody == nil {
-				funv := r.MakeFunc(rtype, func([]r.Value) []r.Value { return nil },
-				)
-				return func(env *Env) r.Value { return funv }
+				funv := xr.MakeFunc(t, func([]xr.Value) []xr.Value { return nil })
+				return func(env *Env) xr.Value { return funv }
 
 			} else {
-				return func(env *Env) r.Value {
+				return func(env *Env) xr.Value {
 
 					env.MarkUsedByClosure()
-					rtarg0 := targ0.ReflectType()
-					return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
+					return xr.MakeFunc(t, func(args []xr.Value) []xr.Value {
 						env := newEnv4Func(env, nbind, nintbind, debugC)
 
 						if param0index != NoIndex {
-							place := r.New(rtarg0).Elem()
-							if arg0 := args[0]; arg0 != Nil && arg0 != None {
-								place.Set(convert(arg0, rtarg0))
+							place := xr.New(targ0).Elem()
+							if arg0 := args[0]; arg0.IsValid() && arg0 != None {
+								place.Set(convert(arg0, targ0.ReflectType()))
 							}
 
 							env.Vals[param0index] = place
@@ -480,7 +491,6 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					})
 				}
 			}
-
 		}
 	}
 }

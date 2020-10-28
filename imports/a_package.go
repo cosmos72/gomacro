@@ -19,12 +19,13 @@ package imports
 import (
 	. "reflect"
 
-	go1_11 "github.com/cosmos72/gomacro/imports/go1_11"
 	syscall "github.com/cosmos72/gomacro/imports/syscall"
 	thirdparty "github.com/cosmos72/gomacro/imports/thirdparty"
+	"github.com/cosmos72/gomacro/imports/util"
 )
 
 type PackageUnderlying = struct { // unnamed
+	Name    string
 	Binds   map[string]Value
 	Types   map[string]Type
 	Proxies map[string]Type
@@ -55,7 +56,6 @@ func init() {
 			"PackageUnderlying": TypeOf((*PackageUnderlying)(nil)).Elem(),
 		},
 	}
-	Packages.Merge(go1_11.Packages)
 	Packages.Merge(syscall.Packages)
 	Packages.Merge(thirdparty.Packages)
 }
@@ -74,12 +74,29 @@ func (pkgs PackageMap) MergePackage(path string, src PackageUnderlying) {
 		pkg.Merge(src)
 	} else {
 		pkg = Package(src)
-		pkg.LazyInit()
+		pkg.LazyInit(path)
 		pkgs[path] = pkg
 	}
 }
 
-func (pkg *Package) LazyInit() {
+/**
+ * return the default name to bind when importing Package
+ *
+ * https://golang.org/ref/spec#Package_clause states:
+ * If the PackageName is omitted, it defaults to the identifier
+ * specified in the package clause of the imported package
+ *
+ * So use that if known, otherwise extrapolate it from package path
+ */
+func (pkg *Package) DefaultName(path string) string {
+	if len(pkg.Name) == 0 {
+		pkg.Name = util.TailIdentifier(util.FileName(path))
+	}
+	return pkg.Name
+}
+
+func (pkg *Package) LazyInit(path string) {
+	pkg.DefaultName(path)
 	if pkg.Binds == nil {
 		pkg.Binds = make(map[string]Value)
 	}
@@ -98,6 +115,9 @@ func (pkg *Package) LazyInit() {
 }
 
 func (dst *Package) Merge(src PackageUnderlying) {
+	if len(src.Name) != 0 {
+		dst.Name = src.Name
+	}
 	for k, v := range src.Binds {
 		dst.Binds[k] = v
 	}

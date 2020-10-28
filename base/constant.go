@@ -19,6 +19,7 @@ package base
 import (
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
@@ -38,12 +39,14 @@ const (
 	MaxUint   = ^uint(0)
 	MaxInt    = int(MaxUint >> 1)
 	MinInt    = ^MaxInt
+
+	GoModuleSupported = genimport.GoModuleSupported // true if compiled with Go >= 1.11
 )
 
 var (
-	Nil = reflect.Nil
+	NilR = reflect.NilR
 
-	None = reflect.None // used to indicate "no value"
+	NoneR = reflect.NoneR // used to indicate "no value"
 
 	True  = r.ValueOf(true)
 	False = r.ValueOf(false)

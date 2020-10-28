@@ -80,40 +80,76 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 			c.DeclVars(decl)
 		}
 	case token.PACKAGE:
+		for _, decl := range node.Specs {
+			c.packageStub(decl)
+		}
+	default:
+		c.Errorf("unsupported declaration kind, expecting token.IMPORT, token.PACKAGE, token.CONST, token.TYPE or token.VAR, found %v: %v // %T",
+			node.Tok, node, node)
+	}
+}
+
+func (c *Comp) packageStub(spec ast.Spec) {
+	c.Pos = spec.Pos()
+	switch node := spec.(type) {
+	case *ast.ValueSpec:
 		/*
-			modified parser converts 'package foo' to:
+			modified parser converts `package foo` to:
 
 			ast.GenDecl{
 				Tok: token.PACKAGE,
 				Specs: []ast.Spec{
 					&ast.ValueSpec{
+						Names: []*ast.Ident{
+							&ast.Ident{
+								Name: "foo",
+							},
+						},
+					},
+				},
+			}
+
+			and converts `package "path/to/pkg"` to:
+
+			ast.GenDecl{
+				Tok: token.PACKAGE,
+				Specs: []ast.Spec{
+					&ast.ValueSpec{
+						Names: []*ast.Ident{
+							&ast.Ident{
+								Name: "",
+							},
+						},
 						Values: []ast.Expr{
 							&ast.BasicLit{
-								Kind:  token.String,
-								Value: "path/to/package",
+								Kind:     token.STRING,
+								Value:    "path/to/pkg",
 							},
 						},
 					},
 				},
 			}
 		*/
-		if len(node.Specs) == 1 {
-			if decl, ok := node.Specs[0].(*ast.ValueSpec); ok {
-				if len(decl.Values) == 1 {
-					if lit, ok := decl.Values[0].(*ast.BasicLit); ok {
-						if lit.Kind == token.STRING && (lit.Value == c.Name || strings.MaybeUnescapeString(lit.Value) == c.Path) {
-							break
-						}
-					}
-					// c.changePackage(name)
-					c.Debugf("cannot switch package from fast.Comp.Compile(), use Interp.ChangePackage() instead: %v // %T", node, node)
+		if len(node.Names) != 1 {
+			c.Errorf("unsupported package syntax, expecting a single package name, found: package %v // %T", node, node)
+			break
+		}
+		switch len(node.Values) {
+		case 0:
+			c.Debugf("ignoring directive `package %v`, please call Interp.ChangePackage() to change package", node)
+		case 1:
+			if lit, ok := node.Values[0].(*ast.BasicLit); ok {
+				if lit.Kind == token.STRING && (lit.Value == c.Name || strings.MaybeUnescapeString(lit.Value) == c.Path) {
+					break
 				}
 			}
+			fallthrough
+		default:
+			c.Debugf("ignoring directive `package %v`, please call Interp.ChangePackage() to change package", node.Values[0])
 		}
-		c.Errorf("unsupported package syntax, expecting a single package name, found: %v // %T", node, node)
+
 	default:
-		c.Errorf("unsupported declaration kind, expecting token.IMPORT, token.PACKAGE, token.CONST, token.TYPE or token.VAR, found %v: %v // %T",
-			node.Tok, node, node)
+		c.Errorf("unsupported package directive: expecting <*ast.ValueSpec>, found: package %v // %T", node, node)
 	}
 }
 
@@ -206,7 +242,7 @@ func (c *Comp) DeclConsts0(names []string, t xr.Type, inits []*Expr) {
 		if !init.Const() {
 			c.Errorf("const initializer for %q is not a constant", name)
 		}
-		c.DeclConst0(name, t, init.Value)
+		c.DeclConst0(name, t, init.Value, init.Type)
 	}
 }
 
@@ -234,12 +270,15 @@ func (c *Comp) DeclVars0(names []string, t xr.Type, inits []*Expr, pos []token.P
 }
 
 // DeclConst0 compiles a constant declaration
-func (c *Comp) DeclConst0(name string, t xr.Type, value I) {
+func (c *Comp) DeclConst0(name string, t xr.Type, value I, valueType xr.Type) {
 	if !isLiteral(value) {
 		c.Errorf("const initializer for %q is not a constant: %v <%T>", name, value, value)
 		return
 	}
-	lit := c.litValue(value)
+	if valueType == nil {
+		valueType = c.TypeOf(value)
+	}
+	lit := Lit{Type: valueType, Value: value}
 	if t == nil {
 		t = lit.Type
 	} else {
@@ -310,7 +349,7 @@ func (c *CompBinds) NewBind(o *base.Output, name string, class BindClass, t xr.T
 	}
 	// allocate a slot either in Binds or in IntBinds
 	switch class {
-	case ConstBind, TemplateFuncBind:
+	case ConstBind, GenericFuncBind:
 		index = NoIndex
 	default: // case FuncBind, VarBind:
 		if index == NoIndex {
@@ -442,10 +481,9 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
 		if init == nil {
 			// no initializer... use the zero-value of t
-			rtype := t.ReflectType()
 			c.append(func(env *Env) (Stmt, *Env) {
 				// base.Debugf("declaring %v", bind)
-				env.Vals[index] = r.New(rtype).Elem()
+				env.Vals[index] = xr.New(t).Elem()
 				env.IP++
 				return env.Code[env.IP], env
 			})
@@ -462,13 +500,12 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		}
 		var ret func(env *Env) (Stmt, *Env)
 		conv := c.Converter(init.Type, t)
-		rtype := t.ReflectType()
 		// optimization: no need to wrap multiple-valued function into a single-value function
-		if f, ok := init.Fun.(func(*Env) (r.Value, []r.Value)); ok {
+		if f, ok := init.Fun.(func(*Env) (xr.Value, []xr.Value)); ok {
 			if conv != nil {
 				ret = func(env *Env) (Stmt, *Env) {
 					ret, _ := f(env)
-					place := r.New(rtype).Elem()
+					place := xr.New(t).Elem()
 					place.Set(conv(ret))
 					env.Vals[index] = place
 					env.IP++
@@ -477,7 +514,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 			} else {
 				ret = func(env *Env) (Stmt, *Env) {
 					ret, _ := f(env)
-					place := r.New(rtype).Elem()
+					place := xr.New(t).Elem()
 					place.Set(ret)
 					env.Vals[index] = place
 					env.IP++
@@ -488,7 +525,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 			if conv != nil {
 				ret = func(env *Env) (Stmt, *Env) {
 					ret := fun(env)
-					place := r.New(rtype).Elem()
+					place := xr.New(t).Elem()
 					place.Set(conv(ret))
 					env.Vals[index] = place
 					env.IP++
@@ -497,7 +534,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 			} else {
 				ret = func(env *Env) (Stmt, *Env) {
 					ret := fun(env)
-					place := r.New(rtype).Elem()
+					place := xr.New(t).Elem()
 					place.Set(ret)
 					env.Vals[index] = place
 					env.IP++
@@ -511,7 +548,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 }
 
 // DeclBindRuntimeValue compiles a variable, function or constant declaration with a reflect.Value passed at runtime
-func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
+func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, xr.Value) {
 	desc := bind.Desc
 	index := desc.Index()
 	if index == NoIndex {
@@ -525,13 +562,13 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 		return nil
 	case FuncBind:
 		// declaring a function in Env.Binds[], the reflect.Value must not be addressable or settable
-		return func(env *Env, v r.Value) {
+		return func(env *Env, v xr.Value) {
 			env.Vals[index] = convert(v, rtype)
 		}
 	case VarBind:
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
-		return func(env *Env, v r.Value) {
-			place := r.New(rtype).Elem()
+		return func(env *Env, v xr.Value) {
+			place := xr.New(t).Elem()
 			if v.Type() != rtype {
 				v = convert(v, rtype)
 			}
@@ -566,7 +603,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr, pos []token.
 	} else if ni > n {
 		c.Warnf("declaring %d variables from expression returning %d values: %v", n, ni, names)
 	}
-	decls := make([]func(*Env, r.Value), n)
+	decls := make([]func(*Env, xr.Value), n)
 	for i, name := range names {
 		ti := init.Out(i)
 		if t != nil && !t.IdenticalTo(ti) {
@@ -585,7 +622,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr, pos []token.
 		c.Pos = pos[0]
 	}
 	c.append(func(env *Env) (Stmt, *Env) {
-		// call the multi-valued function. we know ni > 1, so just use the []r.Value
+		// call the multi-valued function. we know ni > 1, so just use the []xr.Value
 		_, rets := fun(env)
 
 		// declare and assign the variables one by one. we know n <= ni
@@ -601,7 +638,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr, pos []token.
 
 // DeclFunc0 compiles a function declaration. For caller's convenience, returns allocated Bind
 func (c *Comp) DeclFunc0(name string, fun I) *Bind {
-	funv := r.ValueOf(fun)
+	funv := xr.ValueOf(fun)
 	t := c.TypeOf(fun)
 	if t.Kind() != r.Func {
 		c.Errorf("DeclFunc0(%s): expecting a function, received %v <%v>", name, fun, t)

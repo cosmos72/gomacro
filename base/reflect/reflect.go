@@ -25,9 +25,11 @@ import (
 type none struct{}
 
 var (
-	Nil = r.Value{}
+	NilR = r.Value{}
+	Nil  = xr.MakeValue(NilR)
 
-	None = r.ValueOf(none{}) // used to indicate "no value"
+	NoneR = r.ValueOf(none{}) // used to indicate "no value"
+	None  = xr.MakeValue(NoneR)
 
 	TypeOfInt   = r.TypeOf(int(0))
 	TypeOfInt8  = r.TypeOf(int8(0))
@@ -117,8 +119,15 @@ func KindToType(k r.Kind) r.Type {
 // ConvertValue converts a value to type t and returns the converted value.
 // extends reflect.Value.Convert(t) by allowing conversions from/to complex numbers.
 // does not check for overflows or truncation.
-func ConvertValue(v r.Value, to r.Type) r.Value {
-	t := Type(v)
+func ConvertValue(v xr.Value, to r.Type) xr.Value {
+	return xr.MakeValue(ConvertValueR(v.ReflectValue(), to))
+}
+
+// ConvertValueR converts a value to type t and returns the converted value.
+// extends reflect.Value.Convert(t) by allowing conversions from/to complex numbers.
+// does not check for overflows or truncation.
+func ConvertValueR(v r.Value, to r.Type) r.Value {
+	t := ValueTypeR(v)
 	if t == to {
 		return v
 	}
@@ -141,9 +150,16 @@ func ConvertValue(v r.Value, to r.Type) r.Value {
 	return v.Convert(to)
 }
 
-func PackValues(val0 r.Value, values []r.Value) []r.Value {
-	if len(values) == 0 && val0 != None {
+func PackValuesR(val0 r.Value, values []r.Value) []r.Value {
+	if len(values) == 0 && val0 != NoneR {
 		values = []r.Value{val0}
+	}
+	return values
+}
+
+func PackValues(val0 xr.Value, values []xr.Value) []xr.Value {
+	if len(values) == 0 && val0 != None {
+		values = []xr.Value{val0}
 	}
 	return values
 }
@@ -156,23 +172,39 @@ func PackTypes(typ0 xr.Type, types []xr.Type) []xr.Type {
 }
 
 func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
-	val0 := None
+	val0 := NoneR
 	if len(vals) > 0 {
 		val0 = vals[0]
 	}
 	return val0, vals
 }
 
-// Interface() is a zero-value-safe version of reflect.Value.Interface()
-func Interface(v r.Value) interface{} {
+// ValueInterfaceR() is a zero-value-safe version of reflect.Value.Interface()
+func ValueInterfaceR(v r.Value) interface{} {
+	if !v.IsValid() || !v.CanInterface() || v == NoneR {
+		return nil
+	}
+	return v.Interface()
+}
+
+// ValueInterface() is a zero-value-safe version of xreflect.Value.Interface()
+func ValueInterface(v xr.Value) interface{} {
 	if !v.IsValid() || !v.CanInterface() || v == None {
 		return nil
 	}
 	return v.Interface()
 }
 
-// Type() is a zero-value-safe version of reflect.Value.Type()
-func Type(value r.Value) r.Type {
+// ValueTypeR() is a zero-value-safe version of reflect.Value.Type()
+func ValueTypeR(value r.Value) r.Type {
+	if !value.IsValid() || value == NoneR {
+		return nil
+	}
+	return value.Type()
+}
+
+// ValueType() is a zero-value-safe version of xreflect.Value.Type()
+func ValueType(value xr.Value) r.Type {
 	if !value.IsValid() || value == None {
 		return nil
 	}

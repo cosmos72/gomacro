@@ -183,8 +183,8 @@ func (c *Comp) Expr1OrType(expr ast.Expr) (e *Expr, t xr.Type) {
 			for o := c; o != nil; o = o.Outer {
 				bind, okb := o.Binds[name]
 				var okt bool
-				if okb {
-					_, okt = bind.Value.(*TemplateType) // template types are stored in Comp.Bind[]
+				if okb && (GENERICS_V1_CXX() || GENERICS_V2_CTI()) {
+					_, okt = bind.Value.(*GenericType) // generic types are stored in Comp.Bind[]
 					okb = !okt
 				}
 				if okb {
@@ -194,10 +194,12 @@ func (c *Comp) Expr1OrType(expr ast.Expr) (e *Expr, t xr.Type) {
 				}
 			}
 		case *ast.IndexExpr:
-			if lit, ok := n.Index.(*ast.CompositeLit); ok && lit.Type == nil {
-				// foo#[a, b...] can be a template function or a template type
-				node = n.X
-				continue
+			if GENERICS_V1_CXX() || GENERICS_V2_CTI() {
+				if lit, ok := n.Index.(*ast.CompositeLit); ok && lit.Type == nil {
+					// foo#[a, b...] can be a generic function or a generic type
+					node = n.X
+					continue
+				}
 			}
 		}
 		break
@@ -215,19 +217,23 @@ func (c *Comp) Expr1OrType(expr ast.Expr) (e *Expr, t xr.Type) {
 }
 
 // IndexExpr compiles a read operation on obj[idx]
-// or a template function name#[T1, T2...]
+// or a generic function name#[T1, T2...]
 func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
-	if e := c.TemplateFunc(node); e != nil {
-		return e
+	if GENERICS_V1_CXX() || GENERICS_V2_CTI() {
+		if e := c.GenericFunc(node); e != nil {
+			return e
+		}
 	}
 	return c.indexExpr(node, true)
 }
 
 // IndexExpr1 compiles a single-valued read operation on obj[idx]
-// or a template function name#[T1, T2...]
+// or a generic function name#[T1, T2...]
 func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr {
-	if e := c.TemplateFunc(node); e != nil {
-		return e
+	if GENERICS_V1_CXX() || GENERICS_V2_CTI() {
+		if e := c.GenericFunc(node); e != nil {
+			return e
+		}
 	}
 	return c.indexExpr(node, false)
 }

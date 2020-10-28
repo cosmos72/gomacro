@@ -26,26 +26,26 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base/reflect"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) placeShlConst(place *Place, val I) {
+func (c *Comp) placeShlConst(place *Place, val I) Stmt {
 	if isLiteralNumber(val, 0) {
-		c.placeForSideEffects(place)
-		return
+		return c.placeForSideEffects(place)
 	}
 
 	{
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
-		val := r.ValueOf(val).Uint()
+		val := xr.ValueOf(val).Uint()
 
 		t := place.Type
 		rt := t.ReflectType()
 		cat := reflect.Category(t.Kind())
 		if keyfun == nil {
 			switch cat {
-			case r.Int:
+			case xr.Int:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -57,7 +57,7 @@ func (c *Comp) placeShlConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case r.Uint:
+			case xr.Uint:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -72,14 +72,14 @@ func (c *Comp) placeShlConst(place *Place, val I) {
 			}
 		} else {
 			switch cat {
-			case r.Int:
+			case xr.Int:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						val,
 					)
 					if v.Type() != rt {
@@ -90,14 +90,14 @@ func (c *Comp) placeShlConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case r.Uint:
+			case xr.Uint:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						val,
 					)
 					if v.Type() != rt {
@@ -114,11 +114,10 @@ func (c *Comp) placeShlConst(place *Place, val I) {
 		if ret == nil {
 			c.Errorf("invalid operator %s= on <%v>", token.SHL, place.Type)
 		}
-
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) placeShlExpr(place *Place, fun I) {
+func (c *Comp) placeShlExpr(place *Place, fun I) Stmt {
 	var ret Stmt
 	lhsfun := place.Fun
 	keyfun := place.MapKey
@@ -127,7 +126,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 	cat := reflect.Category(t.Kind())
 	if keyfun == nil {
 		switch cat {
-		case r.Int:
+		case xr.Int:
 
 			switch fun := fun.(type) {
 			case func(*Env) uint:
@@ -203,7 +202,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 
 			switch fun := fun.(type) {
 			case func(*Env) uint:
@@ -283,7 +282,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 		}
 	} else {
 		switch cat {
-		case r.Int:
+		case xr.Int:
 			switch fun := fun.(type) {
 			case func(*Env) uint:
 
@@ -292,7 +291,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -310,7 +309,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -328,7 +327,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -346,7 +345,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -364,7 +363,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -382,7 +381,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -394,7 +393,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 			switch fun := fun.(type) {
 			case func(*Env) uint:
 
@@ -403,7 +402,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -421,7 +420,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -439,7 +438,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -457,7 +456,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -475,7 +474,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -493,7 +492,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result <<
+					v := xr.ValueOf(result <<
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -512,27 +511,25 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 	if ret == nil {
 		c.Errorf("invalid operator %s= on <%v>", token.SHL, place.Type)
 	}
-
-	c.append(ret)
+	return ret
 }
-func (c *Comp) placeShrConst(place *Place, val I) {
+func (c *Comp) placeShrConst(place *Place, val I) Stmt {
 	if isLiteralNumber(val, 0) {
-		c.placeForSideEffects(place)
-		return
+		return c.placeForSideEffects(place)
 	}
 
 	{
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
-		val := r.ValueOf(val).Uint()
+		val := xr.ValueOf(val).Uint()
 
 		t := place.Type
 		rt := t.ReflectType()
 		cat := reflect.Category(t.Kind())
 		if keyfun == nil {
 			switch cat {
-			case r.Int:
+			case xr.Int:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -544,7 +541,7 @@ func (c *Comp) placeShrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case r.Uint:
+			case xr.Uint:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -559,14 +556,14 @@ func (c *Comp) placeShrConst(place *Place, val I) {
 			}
 		} else {
 			switch cat {
-			case r.Int:
+			case xr.Int:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						val,
 					)
 					if v.Type() != rt {
@@ -577,14 +574,14 @@ func (c *Comp) placeShrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case r.Uint:
+			case xr.Uint:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						val,
 					)
 					if v.Type() != rt {
@@ -601,11 +598,10 @@ func (c *Comp) placeShrConst(place *Place, val I) {
 		if ret == nil {
 			c.Errorf("invalid operator %s= on <%v>", token.SHR, place.Type)
 		}
-
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) placeShrExpr(place *Place, fun I) {
+func (c *Comp) placeShrExpr(place *Place, fun I) Stmt {
 	var ret Stmt
 	lhsfun := place.Fun
 	keyfun := place.MapKey
@@ -614,7 +610,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 	cat := reflect.Category(t.Kind())
 	if keyfun == nil {
 		switch cat {
-		case r.Int:
+		case xr.Int:
 
 			switch fun := fun.(type) {
 			case func(*Env) uint:
@@ -690,7 +686,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 
 			switch fun := fun.(type) {
 			case func(*Env) uint:
@@ -770,7 +766,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 		}
 	} else {
 		switch cat {
-		case r.Int:
+		case xr.Int:
 			switch fun := fun.(type) {
 			case func(*Env) uint:
 
@@ -779,7 +775,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -797,7 +793,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -815,7 +811,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -833,7 +829,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -851,7 +847,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -869,7 +865,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Int()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -881,7 +877,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 			switch fun := fun.(type) {
 			case func(*Env) uint:
 
@@ -890,7 +886,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -908,7 +904,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -926,7 +922,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -944,7 +940,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -962,7 +958,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -980,7 +976,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						fun(env),
 					)
 					if v.Type() != rt {
@@ -999,24 +995,22 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 	if ret == nil {
 		c.Errorf("invalid operator %s= on <%v>", token.SHR, place.Type)
 	}
-
-	c.append(ret)
+	return ret
 }
-func (c *Comp) placeQuoPow2(place *Place, val I) bool {
+func (c *Comp) placeQuoPow2(place *Place, val I) Stmt {
 	if isLiteralNumber(val, 0) {
 		c.Errorf("division by %v <%v>", val, r.TypeOf(val))
-		return false
+		return nil
 	} else if isLiteralNumber(val, 1) {
-		c.placeForSideEffects(place)
-		return true
+		return c.placeForSideEffects(place)
 	}
 
 	ypositive := true
-	yv := r.ValueOf(val)
+	yv := xr.ValueOf(val)
 	ycat := reflect.Category(yv.Kind())
 	var y uint64
 	switch ycat {
-	case r.Int:
+	case xr.Int:
 		sy := yv.Int()
 		if sy < 0 {
 			ypositive = false
@@ -1025,19 +1019,19 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 			y = uint64(sy)
 		}
 
-	case r.Uint:
+	case xr.Uint:
 		y = yv.Uint()
 	default:
-		return false
+		return nil
 	}
 	if !isPowerOfTwo(y) {
-		return false
+		return nil
 	}
 
 	shift := integerLen(y) - 1
 
 	if !ypositive {
-		return false
+		return nil
 	}
 
 	var roundup int64
@@ -1055,7 +1049,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 		cat := reflect.Category(t.Kind())
 		if keyfun == nil {
 			switch cat {
-			case r.Int:
+			case xr.Int:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1071,7 +1065,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case r.Uint:
+			case xr.Uint:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1086,7 +1080,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 			}
 		} else {
 			switch cat {
-			case r.Int:
+			case xr.Int:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1097,7 +1091,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 						result += roundup
 					}
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						val,
 					)
 					if v.Type() != rt {
@@ -1108,14 +1102,14 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case r.Uint:
+			case xr.Uint:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
 					key := keyfun(env)
 					result := lhs.MapIndex(key).Uint()
 
-					v := r.ValueOf(result >>
+					v := xr.ValueOf(result >>
 						val,
 					)
 					if v.Type() != rt {
@@ -1132,8 +1126,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 		if ret == nil {
 			c.Errorf("invalid operator %s= on <%v>", token.QUO, place.Type)
 		}
-
-		c.append(ret)
+		return ret
 	}
-	return true
+
 }

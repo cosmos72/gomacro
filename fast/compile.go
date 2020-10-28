@@ -22,9 +22,10 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/dep"
 	"github.com/cosmos72/gomacro/gls"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func NewComp(outer *Comp, code *Code) *Comp {
@@ -66,7 +67,7 @@ func (c *Comp) FileComp() *Comp {
 func NewIrGlobals() *IrGlobals {
 	return &IrGlobals{
 		gls:     make(map[uintptr]*Run),
-		Globals: *NewGlobals(),
+		Globals: *base.NewGlobals(),
 	}
 }
 
@@ -126,7 +127,7 @@ func newEnv(run *Run, outer *Env, nbind int, nintbind int) *Env {
 	if cap(env.Vals) >= nbind {
 		env.Vals = env.Vals[0:nbind]
 	} else {
-		env.Vals = make([]r.Value, nbind)
+		env.Vals = make([]xr.Value, nbind)
 	}
 	if cap(env.Ints) >= nintbind {
 		env.Ints = env.Ints[0:nintbind]
@@ -159,7 +160,7 @@ func NewEnv(outer *Env, nbind int, nintbind int) *Env {
 		if cap(env.Vals) >= nbind {
 			env.Vals = env.Vals[0:nbind]
 		} else {
-			env.Vals = make([]r.Value, nbind)
+			env.Vals = make([]xr.Value, nbind)
 		}
 		if cap(env.Ints) >= nintbind {
 			env.Ints = env.Ints[0:nintbind]
@@ -205,7 +206,7 @@ func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
 		if cap(env.Vals) >= nbind {
 			env.Vals = env.Vals[0:nbind]
 		} else {
-			env.Vals = make([]r.Value, nbind)
+			env.Vals = make([]xr.Value, nbind)
 		}
 		if cap(env.Ints) >= nintbind {
 			env.Ints = env.Ints[0:nintbind]
@@ -252,7 +253,7 @@ func (env *Env) freeEnv4Func() {
 func (env *Env) freeEnv(run *Run) {
 	// DebugCallStack Debugf("FreeEnv(%p->%p), calldepth: %d->%d", env, caller, env.CallDepth, caller.CallDepth)
 	if env.UsedByClosure {
-		// in use, cannot recycle
+		// output.Debugf("freeEnv: used by closure, cannot reuse: %p %+v", env, env)
 		return
 	}
 	n := run.PoolSize
@@ -311,7 +312,7 @@ func (c *Comp) Parse(src string) Ast {
 	forms := anyToAst(nodes, "Parse")
 
 	forms, _ = c.MacroExpandCodewalk(forms)
-	if c.Options&OptShowMacroExpand != 0 {
+	if c.Options&base.OptShowMacroExpand != 0 {
 		c.Debugf("after macroexpansion: %v", forms.Interface())
 	}
 	return forms
@@ -443,6 +444,10 @@ func (c *Comp) compileNode(node ast.Node, kind dep.Kind) *Expr {
 		for _, decl := range node.Decls {
 			c.Decl(decl)
 		}
+	case *ast.ValueSpec:
+		// dep.Sorter.Some() returns naked *ast.ValueSpec for `package foo`
+		// instead of *ast.GenDecl containing one or more *ast.ValueSpec as parser does
+		c.packageStub(node)
 	default:
 		c.Errorf("unsupported node type, expecting <ast.Decl>, <ast.Expr>, <ast.Stmt> or <*ast.File>, found %v <%v>", node, r.TypeOf(node))
 		return nil

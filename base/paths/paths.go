@@ -21,12 +21,16 @@ import (
 	"go/build"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
+
+	"github.com/cosmos72/gomacro/imports"
+	"github.com/cosmos72/gomacro/imports/util"
 )
 
 // return the string after last '/' in path
 func FileName(path string) string {
-	return path[1+strings.LastIndexByte(path, '/'):]
+	return util.FileName(path)
 }
 
 // return the string up to (and including) last '/' in path
@@ -71,18 +75,50 @@ func Subdir(dirs ...string) string {
 }
 
 var (
-	GoPkg = filepath.Join("github.com", "cosmos72", "gomacro") // vendored copies of gomacro may need to change this
-
-	GoSrcDir = Subdir(filepath.SplitList(build.Default.GOPATH)[0], "src")
+	GoSrcDirs = goSrcDirs()
+	GoSrcDir  = GoSrcDirs[0]
 
 	// where to find the Go compiler used to compile gomacro.
 	// needed to build compatible plugins
 	GoRootDir = build.Default.GOROOT
 
-	GomacroDir = findGomacroDir(GoPkg)
+	// a value whose type is defined in the imports package.
+	// used to locate the source directory where to write import files.
+	SymbolFromImportsPackage interface{} = imports.Packages
+
+	// directory where to write import files - computed lazily.
+	// Current autodetection mechanism already supports vendored or cloned copies of gomacro.
+	// To change it, set the variable SymbolFromImportsPackage.
+	importsSrcDir string
 )
 
-func findGomacroDir(pkg string) string {
+func goSrcDirs() []string {
+	gopath := build.Default.GOPATH
+	if len(gopath) == 0 {
+		// GOARCH=wasm reports empty GOPATH
+		return []string{"src"}
+	}
+	var srcdirs []string
+	for _, path := range filepath.SplitList(gopath) {
+		srcdirs = append(srcdirs, filepath.Join(path, "src"))
+	}
+	return srcdirs
+}
+
+// lazily compute the directory where to write imports
+func GetImportsSrcDir() string {
+	if importsSrcDir == "" {
+		importsSrcDir = findPkgSrcDir(SymbolFromImportsPackage)
+	}
+	return importsSrcDir
+}
+
+// return the source directory inside GOPATH
+// where the package containing the declaration of x's type
+// should be located.
+func findPkgSrcDir(x interface{}) string {
+	pkg := reflect.TypeOf(x).PkgPath()
+	pkg = filepath.Join(strings.Split(pkg, "/")...)
 	gopath := build.Default.GOPATH
 	for _, dir := range filepath.SplitList(gopath) {
 		path := filepath.Join(dir, "src", pkg)
@@ -90,7 +126,13 @@ func findGomacroDir(pkg string) string {
 			return path
 		}
 	}
-	defaultDir := Subdir(GoSrcDir, pkg)
-	fmt.Printf("// warning: could not find package %q in $GOPATH = %q, assuming package is located in %q\n", pkg, gopath, defaultDir)
+	defaultDir := filepath.Join(GoSrcDir, pkg)
+	if false {
+		// disable this warning, it unnecessarily worries users
+		fmt.Printf(`// warning: could not find package %q in $GOPATH = %q
+//          command 'import _b "path/to/some/package"' may not work correctly.
+
+`, pkg, gopath)
+	}
 	return defaultDir
 }

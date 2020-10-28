@@ -51,6 +51,10 @@ func (k Kind) String() string {
 	return s
 }
 
+func (k Kind) Reflect() r.Kind {
+	return r.Kind(k)
+}
+
 func (k Kind) Category() r.Kind {
 	return reflect.Category(r.Kind(k))
 }

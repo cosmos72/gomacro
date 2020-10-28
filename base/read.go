@@ -24,7 +24,7 @@ import (
 	"io"
 
 	"github.com/cosmos72/gomacro/base/output"
-	mt "github.com/cosmos72/gomacro/token"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 func ReadBytes(src interface{}) []byte {
@@ -215,7 +215,8 @@ func ReadMultiline(in Readline, opts ReadOptions, prompt string) (src string, fi
 					continue  // no tokens yet
 				case '~':
 					m = mTilde
-				case '!', '%', '&', '*', ',', '.', '<', '=', '>', '^', '|':
+				case '!', '%', '&', '*', ',', '<', '=', '>', '^', '|':
+					// skip '.' because it could also be decimal point, not only field/method accessor
 					ignorenl = paren == 0
 				case '+':
 					ignorenl = false
@@ -293,6 +294,8 @@ func ReadMultiline(in Readline, opts ReadOptions, prompt string) (src string, fi
 					line[i-1] = '/'
 					line[i] = '/'
 					continue // no tokens
+				case '(', '[', '{':
+					paren++
 				default:
 					m = mNormal
 					foundtoken(i - 1)
@@ -398,7 +401,7 @@ func lastIsKeywordIgnoresNl(line []byte, first, last int) bool {
 		}
 	}
 	str := string(line[start:end])
-	tok := mt.Lookup(str)
+	tok := etoken.Lookup(str)
 	ignorenl := false
 	switch tok {
 	case token.IDENT, token.BREAK, token.CONTINUE, token.FALLTHROUGH, token.RETURN:

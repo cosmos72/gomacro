@@ -22,7 +22,7 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
-	mt "github.com/cosmos72/gomacro/token"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
 )
 
 type macroExpandCtx struct {
@@ -70,17 +70,17 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 	if expr, ok := in.(UnaryExpr); ok {
 		isBlockWithinExpr := false
 		switch expr.X.Op {
-		case mt.MACRO:
+		case etoken.MACRO:
 			isBlockWithinExpr = true
-		case mt.QUOTE:
+		case etoken.QUOTE:
 			// QUOTE prevents macroexpansion only if found outside any QUASIQUOTE
 			if quasiquoteDepth == 0 {
 				return saved, anythingExpanded
 			}
-		case mt.QUASIQUOTE:
+		case etoken.QUASIQUOTE:
 			// extract the body of QUASIQUOTE
 			quasiquoteDepth++
-		case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+		case etoken.UNQUOTE, etoken.UNQUOTE_SPLICE:
 			// extract the body of UNQUOTE or UNQUOTE_SPLICE
 			quasiquoteDepth--
 		default:
@@ -246,25 +246,33 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 		if env.Options&OptDebugMacroExpand != 0 {
 			env.Debugf("MacroExpand1: macro expanded to: %v", results)
 		}
-		var out Ast
-		switch len(results) {
-		default:
-			args = append([]r.Value{r.ValueOf(elt.Interface())}, args...)
-			env.Warnf("macroexpansion returned %d values, using only the first one: %v %v returned %v",
-				len(results), args, results)
-			fallthrough
-		case 1:
-			any := results[0].Interface()
-			if any != nil {
-				out = AnyToAst(any, "macroexpansion")
-				break
+		// a macro expansion can return multiple values.
+		// each value can be:
+		// * ast.Node or something that implements ast.Node
+		// * slice of: ast.Node or something that implements ast.Node
+		// * Ast or something that implements Ast
+		for _, result := range results {
+			if !result.IsValid() || !result.CanInterface() {
+				env.Warnf("MacroExpand1: cannot extract interface{} from reflect.Value: %v", result)
+				continue
 			}
-			fallthrough
-		case 0:
-			// do not insert nil nodes... they would wreak havok, convert them to the identifier nil
-			out = Ident{&ast.Ident{Name: "nil"}}
+			if result == NoneR {
+				continue
+			}
+			res := AnyToAst(result.Interface(), "macroexpansion")
+			switch res := res.(type) {
+			case AstWithSlice:
+				n := res.Size()
+				for i := 0; i < n; i++ {
+					outs = outs.Append(res.Get(i))
+				}
+			case Ast:
+				outs = outs.Append(res)
+			case nil:
+			default:
+				env.Warnf("MacroExpand1: cannot convert to Ast: %v", result)
+			}
 		}
-		outs = outs.Append(out)
 		i += argn
 		expanded = true
 	}

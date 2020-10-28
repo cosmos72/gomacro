@@ -22,8 +22,7 @@
 package fast
 
 import (
-	r "reflect"
-	"github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) call0ret1(call *Call, maxdepth int) I {
@@ -41,18 +40,17 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 	}
 	tret := expr.Type.Out(0)
 	kret := tret.Kind()
-	var cachedfunv r.Value
+	var cachedfunv xr.Value
 	var ret I
 	switch kret {
-	case r.Bool:
-
+	case xr.Bool:
 		{
-			if !tret.IdenticalTo(c.TypeOfBool(),
-			) {
+
+			if !tret.IdenticalTo(c.TypeOfBool()) {
 				ret = func(env *Env) bool {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return ret.Bool()
 
 				}
@@ -93,17 +91,15 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Int:
-
+	case xr.Int:
 		{
-			if !tret.IdenticalTo(c.TypeOfInt(),
-			) {
+
+			if !tret.IdenticalTo(c.TypeOfInt()) {
 				ret = func(env *Env) int {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return int(ret.Int())
 				}
 			} else if funsym != nil {
@@ -143,17 +139,15 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Int8:
-
+	case xr.Int8:
 		{
-			if !tret.IdenticalTo(c.TypeOfInt8(),
-			) {
+
+			if !tret.IdenticalTo(c.TypeOfInt8()) {
 				ret = func(env *Env) int8 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return int8(ret.Int())
 				}
 			} else if funsym != nil {
@@ -193,16 +187,15 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Int16:
+	case xr.Int16:
 		{
-			if !tret.IdenticalTo(c.TypeOfInt16(),
-			) {
+
+			if !tret.IdenticalTo(c.TypeOfInt16()) {
 				ret = func(env *Env) int16 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return int16(ret.Int())
 				}
 			} else if funsym != nil {
@@ -242,16 +235,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Int32:
+	case xr.Int32:
 		{
-			if !tret.IdenticalTo(c.TypeOfInt32(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfInt32()) {
 				ret = func(env *Env) int32 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return int32(ret.Int())
 				}
 			} else if funsym != nil {
@@ -291,16 +282,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Int64:
+	case xr.Int64:
 		{
-			if !tret.IdenticalTo(c.TypeOfInt64(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfInt64()) {
 				ret = func(env *Env) int64 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return ret.Int()
 
 				}
@@ -341,16 +330,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Uint:
+	case xr.Uint:
 		{
-			if !tret.IdenticalTo(c.TypeOfUint(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfUint()) {
 				ret = func(env *Env) uint {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return uint(ret.Uint())
 				}
 			} else if funsym != nil {
@@ -390,16 +377,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		{
-			if !tret.IdenticalTo(c.TypeOfUint8(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfUint8()) {
 				ret = func(env *Env) uint8 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return uint8(ret.Uint())
 				}
 			} else if funsym != nil {
@@ -439,16 +424,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		{
-			if !tret.IdenticalTo(c.TypeOfUint16(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfUint16()) {
 				ret = func(env *Env) uint16 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return uint16(ret.Uint())
 				}
 			} else if funsym != nil {
@@ -488,16 +471,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		{
-			if !tret.IdenticalTo(c.TypeOfUint32(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfUint32()) {
 				ret = func(env *Env) uint32 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return uint32(ret.Uint())
 				}
 			} else if funsym != nil {
@@ -537,16 +518,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		{
-			if !tret.IdenticalTo(c.TypeOfUint64(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfUint64()) {
 				ret = func(env *Env) uint64 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return ret.Uint()
 
 				}
@@ -587,16 +566,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		{
-			if !tret.IdenticalTo(c.TypeOfUintptr(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfUintptr()) {
 				ret = func(env *Env) uintptr {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return uintptr(ret.Uint())
 				}
 			} else if funsym != nil {
@@ -636,16 +613,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Float32:
+	case xr.Float32:
 		{
-			if !tret.IdenticalTo(c.TypeOfFloat32(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfFloat32()) {
 				ret = func(env *Env) float32 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return float32(ret.Float())
 				}
 			} else if funsym != nil {
@@ -685,16 +660,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Float64:
+	case xr.Float64:
 		{
-			if !tret.IdenticalTo(c.TypeOfFloat64(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfFloat64()) {
 				ret = func(env *Env) float64 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return ret.Float()
 
 				}
@@ -735,16 +708,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Complex64:
+	case xr.Complex64:
 		{
-			if !tret.IdenticalTo(c.TypeOfComplex64(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfComplex64()) {
 				ret = func(env *Env) complex64 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return complex64(ret.Complex())
 				}
 			} else if funsym != nil {
@@ -784,16 +755,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.Complex128:
+	case xr.Complex128:
 		{
-			if !tret.IdenticalTo(c.TypeOfComplex128(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfComplex128()) {
 				ret = func(env *Env) complex128 {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return ret.Complex()
 
 				}
@@ -833,16 +802,14 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
-	case r.String:
+	case xr.String:
 		{
-			if !tret.IdenticalTo(c.TypeOfString(),
-			) {
+			if !tret.IdenticalTo(c.TypeOfString()) {
 				ret = func(env *Env) string {
 					fun := exprfun(env)
 
-					ret := callxr(fun, base.ZeroValues)[0]
+					ret := callxr(fun, ZeroValues)[0]
 					return ret.String()
 
 				}
@@ -882,12 +849,11 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					return fun()
 				}
 			}
-
 		}
 	default:
-		ret = func(env *Env) r.Value {
+		ret = func(env *Env) xr.Value {
 			funv := exprfun(env)
-			return callxr(funv, base.ZeroValues)[0]
+			return callxr(funv, ZeroValues)[0]
 		}
 
 	}

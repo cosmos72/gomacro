@@ -270,6 +270,7 @@ var Commands Cmds
 
 func init() {
 	Commands.m = map[byte][]Cmd{
+		'c': []Cmd{{"copyright", (*Interp).cmdCopyright, `copyright         show copyright and license`}},
 		'd': []Cmd{{"debug", (*Interp).cmdDebug, `debug EXPR        debug expression or statement interactively`}},
 		'e': []Cmd{{"env", (*Interp).cmdEnv, `env [NAME]        show available functions, variables and constants
                    in current package, or from imported package NAME`}},
@@ -332,6 +333,15 @@ func (ir *Interp) cmdEnv(arg string, opt base.CmdOpt) (string, base.CmdOpt) {
 	return "", opt
 }
 
+func (ir *Interp) cmdCopyright(arg string, opt base.CmdOpt) (string, base.CmdOpt) {
+	g := &ir.Comp.Globals
+	g.Fprintf(g.Stdout, `// Copyright (C) 2018-2020 Massimiliano Ghilardi <https://github.com/cosmos72/gomacro>
+// License MPL v2.0+: Mozilla Public License version 2.0 or later <http://mozilla.org/MPL/2.0/>
+// This is free software with ABSOLUTELY NO WARRANTY.
+`)
+	return "", opt
+}
+
 func (ir *Interp) cmdHelp(arg string, opt base.CmdOpt) (string, base.CmdOpt) {
 	Commands.ShowHelp(&ir.Comp.Globals)
 	return "", opt
@@ -353,7 +363,10 @@ func (ir *Interp) cmdOptions(arg string, opt base.CmdOpt) (string, base.CmdOpt) 
 
 	if len(arg) != 0 {
 		g.Options ^= base.ParseOptions(arg)
-
+		if g.Options&base.OptModuleImport != 0 && !base.GoModuleSupported {
+			g.Warnf("cannot enable module support: gomacro compiled with go < 1.11")
+			g.Options &^= base.OptModuleImport
+		}
 		debugdepth := 0
 		if g.Options&base.OptDebugFromReflect != 0 {
 			debugdepth = 1

@@ -23,6 +23,8 @@ import (
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
+:package fast
+
 :import (
 	"go/ast"
 	r "reflect"
@@ -39,22 +41,22 @@ import (
 		bind = ~'{lhs(env).Set(val)}
 	} else {
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 			decl = ~'{val := v.Bool()}
 			bind = ~'{lhs(env).SetBool(val)}
-		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+		case xr.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 			decl = ~'{val := v.Int()}
 			bind = ~'{lhs(env).SetInt(val)}
-		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+		case xr.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 			decl = ~'{val := v.Uint()}
 			bind = ~'{lhs(env).SetUint(val)}
-		case r.Float32, r.Float64:
+		case xr.Float32, r.Float64:
 			decl = ~'{val := v.Float()}
 			bind = ~'{lhs(env).SetFloat(val)}
-		case r.Complex64, r.Complex128:
+		case xr.Complex64, r.Complex128:
 			decl = ~'{val := v.Complex()}
 			bind = ~'{lhs(env).SetComplex(val)}
-		case r.String:
+		case xr.String:
 			decl = ~'{val := v.String()}
 			bind = ~'{lhs(env).SetString(val)}
 		default:
@@ -84,7 +86,7 @@ import (
 			// force left-to-right evaluation order
 			place := lhs(env)
 			value := rhs(env)
-			if value == Nil || value == None {
+			if !value.IsValid() || value == None {
 				value = zero
 			} else if value.Type() != rt {
 				value = convert(value, rt)
@@ -93,7 +95,7 @@ import (
 		}
 		return ~"{
 			~,decl
-			zero := r.Zero(rt)
+			zero := xr.Zero(rt)
 			ret = func(env *Env) (Stmt, *Env) {
 				~,@bind
 				env.IP++
@@ -104,37 +106,37 @@ import (
 
 	decl = ~"{rhs := fun.(func (*Env) ~,typ)}
 	switch t.Kind() {
-	case r.Bool:
+	case xr.Bool:
 		bind = ~'{
 			place := lhs(env)
 			value := rhs(env)
 			place.SetBool(value)
 		}
-	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+	case xr.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 		bind = ~'{
 			place := lhs(env)
 			value := rhs(env)
 			place.SetInt(int64(value))
 		}
-	case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+	case xr.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 		bind = ~'{
 			place := lhs(env)
 			value := rhs(env)
 			place.SetUint(uint64(value))
 		}
-	case r.Float32, r.Float64:
+	case xr.Float32, r.Float64:
 		bind = ~'{
 			place := lhs(env)
 			value := rhs(env)
 			place.SetFloat(float64(value))
 		}
-	case r.Complex64, r.Complex128:
+	case xr.Complex64, r.Complex128:
 		bind = ~'{
 			place := lhs(env)
 			value := rhs(env)
 			place.SetComplex(complex128(value))
 		}
-	case r.String:
+	case xr.String:
 		bind = ~'{
 			place := lhs(env)
 			value := rhs(env)
@@ -164,12 +166,12 @@ import (
 :macro setplaces_const() ast.Node {
 	return ~"{
 		switch reflect.Category(rt.Kind()) {
-		case r.Bool:       setplace_const; bool
-		case r.Int:        setplace_const; int
-		case r.Uint:       setplace_const; uint
-		case r.Float64:    setplace_const; float64
-		case r.Complex128: setplace_const; complex128
-		case r.String:     setplace_const; string
+		case xr.Bool:       setplace_const; bool
+		case xr.Int:        setplace_const; int
+		case xr.Uint:       setplace_const; uint
+		case xr.Float64:    setplace_const; float64
+		case xr.Complex128: setplace_const; complex128
+		case xr.String:     setplace_const; string
 		default:           setplace_const; nil
 		}
 	}
@@ -178,41 +180,41 @@ import (
 :macro setplaces_expr() ast.Node {
 	return ~"{
 		switch rt.Kind() {
-		case r.Bool:       setplace_expr; bool;
-		case r.Int:        setplace_expr; int;
-		case r.Int8:       setplace_expr; int8;
-		case r.Int16:      setplace_expr; int16;
-		case r.Int32:      setplace_expr; int32;
-		case r.Int64:      setplace_expr; int64;
-		case r.Uint:       setplace_expr; uint;
-		case r.Uint8:      setplace_expr; uint8;
-		case r.Uint16:     setplace_expr; uint16;
-		case r.Uint32:     setplace_expr; uint32;
-		case r.Uint64:     setplace_expr; uint64;
-		case r.Uintptr:    setplace_expr; uintptr;
-		case r.Float32:    setplace_expr; float32;
-		case r.Float64:    setplace_expr; float64;
-		case r.Complex64:  setplace_expr; complex64;
-		case r.Complex128: setplace_expr; complex128;
-		case r.String:     setplace_expr; string;
+		case xr.Bool:       setplace_expr; bool;
+		case xr.Int:        setplace_expr; int;
+		case xr.Int8:       setplace_expr; int8;
+		case xr.Int16:      setplace_expr; int16;
+		case xr.Int32:      setplace_expr; int32;
+		case xr.Int64:      setplace_expr; int64;
+		case xr.Uint:       setplace_expr; uint;
+		case xr.Uint8:      setplace_expr; uint8;
+		case xr.Uint16:     setplace_expr; uint16;
+		case xr.Uint32:     setplace_expr; uint32;
+		case xr.Uint64:     setplace_expr; uint64;
+		case xr.Uintptr:    setplace_expr; uintptr;
+		case xr.Float32:    setplace_expr; float32;
+		case xr.Float64:    setplace_expr; float64;
+		case xr.Complex64:  setplace_expr; complex64;
+		case xr.Complex128: setplace_expr; complex128;
+		case xr.String:     setplace_expr; string;
 		default:           setplace_expr; nil;
 		}
 	}
 }
 
 // placeSetZero compiles 'place = 0'
-func (c *Comp) placeSetZero(place *Place) {
+func (c *Comp) placeSetZero(place *Place) Stmt {
 	rt := place.Type.ReflectType()
-	zero := r.Zero(rt).Interface()
-	c.placeSetConst(place, zero)
+	zero := xr.Zero(rt).Interface()
+	return c.placeSetConst(place, zero)
 }
 
 // placeSetConst compiles 'place = constant'
-func (c *Comp) placeSetConst(place *Place, val I) {
+func (c *Comp) placeSetConst(place *Place, val I) Stmt {
 	rt := place.Type.ReflectType()
-	v := r.ValueOf(val)
+	v := xr.ValueOf(val)
 	if reflect.Type(v) == nil {
-		v = r.Zero(rt)
+		v = xr.Zero(rt)
 	} else {
 		v = convert(v, rt)
 	}
@@ -227,15 +229,14 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-		c.append(ret)
-		return
+		return ret
 	}
 	setplaces_const
-	c.append(ret)
+	return ret
 }
 
 // placeSetExpr compiles 'place = expression'
-func (c *Comp) placeSetExpr(place *Place, fun I) {
+func (c *Comp) placeSetExpr(place *Place, fun I) Stmt {
 	rt := place.Type.ReflectType()
 	lhs := place.Fun
 	var ret Stmt
@@ -253,9 +254,8 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-		c.append(ret)
-		return
+		return ret
 	}
 	setplaces_expr
-	c.append(ret)
+	return ret
 }

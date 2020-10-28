@@ -39,7 +39,7 @@ type funcMaker struct {
 // For closure declarations, use FuncLit()
 //
 // This method is named DeclFunc instead of FuncDecl
-// for uniformity with DeclType, DeclConst*, DeclVar*, DeclTemplate*
+// for uniformity with DeclType, DeclConst*, DeclVar*, DeclGeneric*
 func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl) {
 	var ismacro bool
 	if funcdecl.Recv != nil {
@@ -50,8 +50,11 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl) {
 			c.methodDecl(funcdecl)
 			return
 		default:
-			c.DeclTemplateFunc(funcdecl)
-			return
+			if GENERICS_V1_CXX() || GENERICS_V2_CTI() {
+				c.DeclGenericFunc(funcdecl)
+				return
+			}
+			c.Errorf("invalid function/method declaration: found %d receivers, expecting at most one: %v", n, funcdecl)
 		}
 	}
 	functype := funcdecl.Type
@@ -198,14 +201,14 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 		}
 		methodname := funcdecl.Name
 		stmt = func(env *Env) (Stmt, *Env) {
-			(*methods)[methodindex] = f(env)
+			(*methods)[methodindex] = f(env).ReflectValue()
 			env.Run.Debugf("implemented method %s.%s", tname, methodname)
 			env.IP++
 			return env.Code[env.IP], env
 		}
 	} else {
 		stmt = func(env *Env) (Stmt, *Env) {
-			(*methods)[methodindex] = f(env)
+			(*methods)[methodindex] = f(env).ReflectValue()
 			env.IP++
 			return env.Code[env.IP], env
 		}
@@ -329,7 +332,7 @@ func (c *Comp) funcMaker(info *FuncInfo, resultfuns []I, funcbody func(*Env)) *f
 }
 
 // actually create the function
-func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) r.Value {
+func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) xr.Value {
 
 	m := c.funcMaker(info, resultfuns, funcbody)
 
@@ -350,7 +353,7 @@ func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody fu
 		optimize = reflect.IsOptimizedKind(k) && rt == c.Universe.BasicTypes[k].ReflectType()
 	}
 
-	var fun func(*Env) r.Value
+	var fun func(*Env) xr.Value
 	if optimize {
 		switch nin {
 		case 0:
@@ -380,56 +383,34 @@ func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody fu
 	return fun
 }
 
-var cacheSliceXrForward []r.Type
-
-func sliceOfXrForward(n int) []r.Type {
-	for len(cacheSliceXrForward) < n {
-		cacheSliceXrForward = append(cacheSliceXrForward, rtypeOfForward)
-	}
-	return cacheSliceXrForward[:n]
-}
-
-func funcOfXrForward(nin int, nout int, variadic bool) r.Type {
-	touts := sliceOfXrForward(nout)
-	if variadic {
-		touts = append([]r.Type{}, touts...) // make a copy
-		touts[nout-1] = r.SliceOf(rtypeOfForward)
-	}
-	return r.FuncOf(sliceOfXrForward(nin), touts, variadic)
-}
-
 // fallback: create a non-optimized function
-func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) xr.Value {
 
 	// do NOT keep a reference to funcMaker
 	nbinds := m.nbind
 	nintbinds := m.nintbind
 	funcbody := m.funcbody
-	rtype := t.ReflectType()
-	if rtype == rtypeOfForward {
-		rtype = funcOfXrForward(t.NumIn(), t.NumOut(), t.IsVariadic())
-	}
 
 	if funcbody == nil {
 		// pre-fill rets with zero values
-		rets := make([]r.Value, len(m.Result))
+		rets := make([]xr.Value, len(m.Result))
 		for i, bind := range m.Result {
 			rets[i] = xr.Zero(bind.Type)
 		}
-		return func(env *Env) r.Value {
-			return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
+		return func(env *Env) xr.Value {
+			return xr.MakeFunc(t, func(args []xr.Value) []xr.Value {
 				return rets
 			})
 		}
 	}
 
-	paramdecls := make([]func(*Env, r.Value), len(m.Param))
+	paramdecls := make([]func(*Env, xr.Value), len(m.Param))
 	for i, bind := range m.Param {
 		if bind.Desc.Index() != NoIndex {
 			paramdecls[i] = c.DeclBindRuntimeValue(bind)
 		}
 	}
-	resultexprs := make([]func(*Env) r.Value, len(m.resultfun))
+	resultexprs := make([]func(*Env) xr.Value, len(m.resultfun))
 	for i, resultfun := range m.resultfun {
 		resultexprs[i] = funAsX1(resultfun, m.Result[i].Type)
 	}
@@ -440,10 +421,10 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		debugC = c
 	}
 
-	return func(env *Env) r.Value {
+	return func(env *Env) xr.Value {
 		// function is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
-		return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
+		return xr.MakeFunc(t, func(args []xr.Value) []xr.Value {
 			env := newEnv4Func(env, nbinds, nintbinds, debugC)
 
 			// copy runtime arguments into allocated binds
@@ -457,7 +438,7 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			funcbody(env)
 
 			// read results from allocated binds and return them
-			rets := make([]r.Value, len(resultexprs))
+			rets := make([]xr.Value, len(resultexprs))
 			for i, expr := range resultexprs {
 				rets[i] = expr(env)
 			}
@@ -468,16 +449,16 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 }
 
 // create a macro
-func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) func(args []r.Value) []r.Value {
+func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) func(args []xr.Value) []xr.Value {
 	m := c.funcMaker(info, resultfuns, funcbody)
 
-	paramdecls := make([]func(*Env, r.Value), len(m.Param))
+	paramdecls := make([]func(*Env, xr.Value), len(m.Param))
 	for i, bind := range m.Param {
 		if bind.Desc.Index() != NoIndex {
 			paramdecls[i] = c.DeclBindRuntimeValue(bind)
 		}
 	}
-	resultexprs := make([]func(*Env) r.Value, len(m.resultfun))
+	resultexprs := make([]func(*Env) xr.Value, len(m.resultfun))
 	for i, resultfun := range m.resultfun {
 		resultexprs[i] = funAsX1(resultfun, m.Result[i].Type)
 	}
@@ -492,10 +473,10 @@ func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody f
 		debugC = c
 	}
 
-	return func(env *Env) func(args []r.Value) []r.Value {
+	return func(env *Env) func(args []xr.Value) []xr.Value {
 		// macro is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
-		return func(args []r.Value) []r.Value {
+		return func(args []xr.Value) []xr.Value {
 			env := newEnv4Func(env, nbinds, nintbinds, debugC)
 
 			if funcbody != nil {
@@ -510,7 +491,7 @@ func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody f
 				funcbody(env)
 			}
 			// read results from allocated binds and return them
-			rets := make([]r.Value, len(resultexprs))
+			rets := make([]xr.Value, len(resultexprs))
 			for i, expr := range resultexprs {
 				rets[i] = expr(env)
 			}
@@ -520,5 +501,5 @@ func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody f
 	}
 }
 
-func declBindRuntimeValueNop(*Env, r.Value) {
+func declBindRuntimeValueNop(*Env, xr.Value) {
 }

@@ -25,6 +25,8 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+:package fast
+
 :import (
 	"fmt"
 	"go/ast"
@@ -74,7 +76,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -105,7 +107,7 @@ import (
 		var expr *ast.BinaryExpr = ~"{x(env) && y} // quasiquote, we modify it destructively
 		expr.Op = optoken
 
-		converty := convertvalue1(typ, ~'{r.ValueOf(y)})
+		converty := convertvalue1(typ, ~'{xr.ValueOf(y)})
 		return ~"{
 			x := x.(func(*Env) ~,typ)
 			y := ~,converty
@@ -117,7 +119,7 @@ import (
 		var expr *ast.BinaryExpr = ~"{x && y(env)} // quasiquote, we modify it destructively
 		expr.Op = optoken
 
-		convertx := convertvalue1(typ, ~'{r.ValueOf(x)})
+		convertx := convertvalue1(typ, ~'{xr.ValueOf(x)})
 		return ~"{
 			x := ~,convertx
 			y := y.(func(*Env) ~,typ)
@@ -380,10 +382,10 @@ func (c *Comp) mulPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		return c.UnaryMinus(node1, xe)
 	}
 	ypositive := true
-	yv := r.ValueOf(ye.Value)
+	yv := xr.ValueOf(ye.Value)
 	var y uint64
 	switch reflect.Category(yv.Kind()) {
-	case r.Int:
+	case xr.Int:
 		sy := yv.Int()
 		if sy < 0 {
 			ypositive = false
@@ -391,7 +393,7 @@ func (c *Comp) mulPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		} else {
 			y = uint64(sy)
 		}
-	case r.Uint:
+	case xr.Uint:
 		y = yv.Uint()
 	default:
 		// floating point or complex multiplication
@@ -405,17 +407,17 @@ func (c *Comp) mulPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	x := xe.Fun
 	var fun I
 	switch xe.Type.Kind() {
-	case r.Int:     {mulpow2; int}
-	case r.Int8:    {mulpow2; int8}
-	case r.Int16:   {mulpow2; int16}
-	case r.Int32:   {mulpow2; int32}
-	case r.Int64:   {mulpow2; int64}
-	case r.Uint:    {mulpow2_u; uint}
-	case r.Uint8:   {mulpow2_u; uint8}
-	case r.Uint16:  {mulpow2_u; uint16}
-	case r.Uint32:  {mulpow2_u; uint32}
-	case r.Uint64:  {mulpow2_u; uint64}
-	case r.Uintptr: {mulpow2_u; uintptr}
+	case xr.Int:     {mulpow2; int}
+	case xr.Int8:    {mulpow2; int8}
+	case xr.Int16:   {mulpow2; int16}
+	case xr.Int32:   {mulpow2; int32}
+	case xr.Int64:   {mulpow2; int64}
+	case xr.Uint:    {mulpow2_u; uint}
+	case xr.Uint8:   {mulpow2_u; uint8}
+	case xr.Uint16:  {mulpow2_u; uint16}
+	case xr.Uint32:  {mulpow2_u; uint32}
+	case xr.Uint64:  {mulpow2_u; uint64}
+	case xr.Uintptr: {mulpow2_u; uintptr}
 	default:        return nil
 	}
 	return exprFun(xe.Type, fun)
@@ -472,10 +474,10 @@ func (c *Comp) quoPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		return c.UnaryMinus(node1, xe)
 	}
 	ypositive := true
-	yv := r.ValueOf(ye.Value)
+	yv := xr.ValueOf(ye.Value)
 	var y uint64
 	switch reflect.Category(yv.Kind()) {
-	case r.Int:
+	case xr.Int:
 		sy := yv.Int()
 		if sy < 0 {
 			ypositive = false
@@ -483,7 +485,7 @@ func (c *Comp) quoPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		} else {
 			y = uint64(sy)
 		}
-	case r.Uint:
+	case xr.Uint:
 		y = yv.Uint()
 	default:
 		// floating point or complex division
@@ -516,17 +518,17 @@ func (c *Comp) quoPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	x := xe.Fun
 	var fun I
 	switch xe.Type.Kind() {
-	case r.Int:     {quopow2; int}
-	case r.Int8:    {quopow2; int8}
-	case r.Int16:   {quopow2; int16}
-	case r.Int32:   {quopow2; int32}
-	case r.Int64:   {quopow2; int64}
-	case r.Uint:    {quopow2_u; uint}
-	case r.Uint8:   {quopow2_u; uint8}
-	case r.Uint16:  {quopow2_u; uint16}
-	case r.Uint32:  {quopow2_u; uint32}
-	case r.Uint64:  {quopow2_u; uint64}
-	case r.Uintptr: {quopow2_u; uintptr}
+	case xr.Int:     {quopow2; int}
+	case xr.Int8:    {quopow2; int8}
+	case xr.Int16:   {quopow2; int16}
+	case xr.Int32:   {quopow2; int32}
+	case xr.Int64:   {quopow2; int64}
+	case xr.Uint:    {quopow2_u; uint}
+	case xr.Uint8:   {quopow2_u; uint8}
+	case xr.Uint16:  {quopow2_u; uint16}
+	case xr.Uint32:  {quopow2_u; uint32}
+	case xr.Uint64:  {quopow2_u; uint64}
+	case xr.Uintptr: {quopow2_u; uintptr}
 	default:        return nil
 	}
 	return exprFun(xe.Type, fun)
@@ -570,17 +572,17 @@ func (c *Comp) remPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	} else if isLiteralNumber(ye.Value, 1) {
 		return c.exprZero(xe)
 	}
-	yv := r.ValueOf(ye.Value)
+	yv := xr.ValueOf(ye.Value)
 	var y uint64
 	switch reflect.Category(yv.Kind()) {
-	case r.Int:
+	case xr.Int:
 		sy := yv.Int()
 		if sy < 0 {
 			y = uint64(-sy)
 		} else {
 			y = uint64(sy)
 		}
-	case r.Uint:
+	case xr.Uint:
 		y = yv.Uint()
 	default:
 		// floating point or complex division
@@ -611,17 +613,17 @@ func (c *Comp) remPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	x := xe.Fun
 	var fun I
 	switch xe.Type.Kind() {
-	case r.Int:     {rempow2; int}
-	case r.Int8:    {rempow2; int8}
-	case r.Int16:   {rempow2; int16}
-	case r.Int32:   {rempow2; int32}
-	case r.Int64:   {rempow2; int64}
-	case r.Uint:    {rempow2_u; uint}
-	case r.Uint8:   {rempow2_u; uint8}
-	case r.Uint16:  {rempow2_u; uint16}
-	case r.Uint32:  {rempow2_u; uint32}
-	case r.Uint64:  {rempow2_u; uint64}
-	case r.Uintptr: {rempow2_u; uintptr}
+	case xr.Int:     {rempow2; int}
+	case xr.Int8:    {rempow2; int8}
+	case xr.Int16:   {rempow2; int16}
+	case xr.Int32:   {rempow2; int32}
+	case xr.Int64:   {rempow2; int64}
+	case xr.Uint:    {rempow2_u; uint}
+	case xr.Uint8:   {rempow2_u; uint8}
+	case xr.Uint16:  {rempow2_u; uint16}
+	case xr.Uint32:  {rempow2_u; uint32}
+	case xr.Uint64:  {rempow2_u; uint64}
+	case xr.Uintptr: {rempow2_u; uintptr}
 	default:        return nil
 	}
 	return exprFun(xe.Type, fun)
@@ -774,7 +776,7 @@ func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		return ~"{
 			zero := xr.Zero(t)
 			x := funAsX1(x, nil)
-			fun = func(env *Env) r.Value {
+			fun = func(env *Env) xr.Value {
 				x(env)
 				return zero
 			}

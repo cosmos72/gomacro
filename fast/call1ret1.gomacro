@@ -21,6 +21,8 @@ import (
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
+:package fast
+
 :import (
 	"go/ast"
 	"go/token"
@@ -65,7 +67,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -79,9 +81,9 @@ import (
 	if EvalType(rettyp) == nil {
 		// keep the arguments and result wrapped in a reflect.Value
 		return ~"{
-			ret = func(env *Env) r.Value {
+			ret = func(env *Env) xr.Value {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				return callxr(funv, argv)[0]
@@ -94,7 +96,7 @@ import (
 		return ~"{
 			ret = func(env *Env) ~,rettyp {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				// Debugf("calling %v with args [%v]", r.TypeOf(funv), argv)
@@ -111,7 +113,7 @@ import (
 		}
 	}
 
-	argconv := convertvalue1(argtyp, ~'{r.ValueOf(arg.Value)})
+	argconv := convertvalue1(argtyp, ~'{xr.ValueOf(arg.Value)})
 
 	return ~"{
 		// Debugf("compiling call to %v, funsym=%p, funupn=%v, maxdepth=%v", r.TypeOf((func(~,argtyp) ~,rettyp)(nil)), funsym, funupn, maxdepth)
@@ -183,23 +185,23 @@ import (
 :macro mcallx1ret1(rettyp ast.Node) ast.Node {
 	return ~"{
 		switch karg {
-			case r.Bool:      {mcall1ret1; bool;       ~,rettyp}
-			case r.Int:       {mcall1ret1; int;        ~,rettyp}
-			case r.Int8:      {mcall1ret1; int8;       ~,rettyp}
-			case r.Int16:     {mcall1ret1; int16;      ~,rettyp}
-			case r.Int32:     {mcall1ret1; int32;      ~,rettyp}
-			case r.Int64:     {mcall1ret1; int64;      ~,rettyp}
-			case r.Uint:      {mcall1ret1; uint;       ~,rettyp}
-			case r.Uint8:     {mcall1ret1; uint8;      ~,rettyp}
-			case r.Uint16:    {mcall1ret1; uint16;     ~,rettyp}
-			case r.Uint32:    {mcall1ret1; uint32;     ~,rettyp}
-			case r.Uint64:    {mcall1ret1; uint64;     ~,rettyp}
-			case r.Uintptr:   {mcall1ret1; uintptr;    ~,rettyp}
-			case r.Float32:   {mcall1ret1; float32;    ~,rettyp}
-			case r.Float64:   {mcall1ret1; float64;    ~,rettyp}
-			case r.Complex64: {mcall1ret1; complex64;  ~,rettyp}
-			case r.Complex128:{mcall1ret1; complex128; ~,rettyp}
-			case r.String:    {mcall1ret1; string;     ~,rettyp}
+			case xr.Bool:      {mcall1ret1; bool;       ~,rettyp}
+			case xr.Int:       {mcall1ret1; int;        ~,rettyp}
+			case xr.Int8:      {mcall1ret1; int8;       ~,rettyp}
+			case xr.Int16:     {mcall1ret1; int16;      ~,rettyp}
+			case xr.Int32:     {mcall1ret1; int32;      ~,rettyp}
+			case xr.Int64:     {mcall1ret1; int64;      ~,rettyp}
+			case xr.Uint:      {mcall1ret1; uint;       ~,rettyp}
+			case xr.Uint8:     {mcall1ret1; uint8;      ~,rettyp}
+			case xr.Uint16:    {mcall1ret1; uint16;     ~,rettyp}
+			case xr.Uint32:    {mcall1ret1; uint32;     ~,rettyp}
+			case xr.Uint64:    {mcall1ret1; uint64;     ~,rettyp}
+			case xr.Uintptr:   {mcall1ret1; uintptr;    ~,rettyp}
+			case xr.Float32:   {mcall1ret1; float32;    ~,rettyp}
+			case xr.Float64:   {mcall1ret1; float64;    ~,rettyp}
+			case xr.Complex64: {mcall1ret1; complex64;  ~,rettyp}
+			case xr.Complex128:{mcall1ret1; complex128; ~,rettyp}
+			case xr.String:    {mcall1ret1; string;     ~,rettyp}
 			default:          {mcall1ret1; nil;        ~,rettyp}
 		}
 	}
@@ -208,23 +210,23 @@ import (
 :macro mcallx1ret1compact(rettyp ast.Node) ast.Node {
 	return ~"{
 		switch karg {
-			case r.Bool:      {mcall1ret1compact; bool;       ~,rettyp}
-			case r.Int:       {mcall1ret1compact; int;        ~,rettyp}
-			case r.Int8:      {mcall1ret1compact; int8;       ~,rettyp}
-			case r.Int16:     {mcall1ret1compact; int16;      ~,rettyp}
-			case r.Int32:     {mcall1ret1compact; int32;      ~,rettyp}
-			case r.Int64:     {mcall1ret1compact; int64;      ~,rettyp}
-			case r.Uint:      {mcall1ret1compact; uint;       ~,rettyp}
-			case r.Uint8:     {mcall1ret1compact; uint8;      ~,rettyp}
-			case r.Uint16:    {mcall1ret1compact; uint16;     ~,rettyp}
-			case r.Uint32:    {mcall1ret1compact; uint32;     ~,rettyp}
-			case r.Uint64:    {mcall1ret1compact; uint64;     ~,rettyp}
-			case r.Uintptr:   {mcall1ret1compact; uintptr;    ~,rettyp}
-			case r.Float32:   {mcall1ret1compact; float32;    ~,rettyp}
-			case r.Float64:   {mcall1ret1compact; float64;    ~,rettyp}
-			case r.Complex64: {mcall1ret1compact; complex64;  ~,rettyp}
-			case r.Complex128:{mcall1ret1compact; complex128; ~,rettyp}
-			case r.String:    {mcall1ret1compact; string;     ~,rettyp}
+			case xr.Bool:      {mcall1ret1compact; bool;       ~,rettyp}
+			case xr.Int:       {mcall1ret1compact; int;        ~,rettyp}
+			case xr.Int8:      {mcall1ret1compact; int8;       ~,rettyp}
+			case xr.Int16:     {mcall1ret1compact; int16;      ~,rettyp}
+			case xr.Int32:     {mcall1ret1compact; int32;      ~,rettyp}
+			case xr.Int64:     {mcall1ret1compact; int64;      ~,rettyp}
+			case xr.Uint:      {mcall1ret1compact; uint;       ~,rettyp}
+			case xr.Uint8:     {mcall1ret1compact; uint8;      ~,rettyp}
+			case xr.Uint16:    {mcall1ret1compact; uint16;     ~,rettyp}
+			case xr.Uint32:    {mcall1ret1compact; uint32;     ~,rettyp}
+			case xr.Uint64:    {mcall1ret1compact; uint64;     ~,rettyp}
+			case xr.Uintptr:   {mcall1ret1compact; uintptr;    ~,rettyp}
+			case xr.Float32:   {mcall1ret1compact; float32;    ~,rettyp}
+			case xr.Float64:   {mcall1ret1compact; float64;    ~,rettyp}
+			case xr.Complex64: {mcall1ret1compact; complex64;  ~,rettyp}
+			case xr.Complex128:{mcall1ret1compact; complex128; ~,rettyp}
+			case xr.String:    {mcall1ret1compact; string;     ~,rettyp}
 			default:              {mcall1ret1compact; nil;        ~,rettyp}
 		}
 	}
@@ -261,27 +263,27 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 	}
 	arg := call.Args[0]
 	argfun := arg.AsX1()
-	var cachedfunv r.Value
+	var cachedfunv xr.Value
 
 	switch kret {
 		// do NOT optimize all cases... too many combinations
-		case r.Bool:      {mcallx1ret1;        bool}
-		case r.Int:       {mcallx1ret1;        int}
-		case r.Int8:      {mcallx1ret1minimal; int8}
-		case r.Int16:     {mcallx1ret1minimal; int16}
-		case r.Int32:     {mcallx1ret1minimal; int32}
-		case r.Int64:     {mcallx1ret1;        int64}
-		case r.Uint:      {mcallx1ret1;        uint}
-		case r.Uint8:     {mcallx1ret1minimal; uint8}
-		case r.Uint16:    {mcallx1ret1minimal; uint16}
-		case r.Uint32:    {mcallx1ret1minimal; uint32}
-		case r.Uint64:    {mcallx1ret1;        uint64}
-		case r.Uintptr:   {mcallx1ret1minimal; uintptr}
-		case r.Float32:   {mcallx1ret1minimal; float32}
-		case r.Float64:   {mcallx1ret1compact; float64}
-		case r.Complex64: {mcallx1ret1minimal; complex64}
-		case r.Complex128:{mcallx1ret1compact; complex128}
-		case r.String:    {mcallx1ret1;        string}
+		case xr.Bool:      {mcallx1ret1;        bool}
+		case xr.Int:       {mcallx1ret1;        int}
+		case xr.Int8:      {mcallx1ret1minimal; int8}
+		case xr.Int16:     {mcallx1ret1minimal; int16}
+		case xr.Int32:     {mcallx1ret1minimal; int32}
+		case xr.Int64:     {mcallx1ret1;        int64}
+		case xr.Uint:      {mcallx1ret1;        uint}
+		case xr.Uint8:     {mcallx1ret1minimal; uint8}
+		case xr.Uint16:    {mcallx1ret1minimal; uint16}
+		case xr.Uint32:    {mcallx1ret1minimal; uint32}
+		case xr.Uint64:    {mcallx1ret1;        uint64}
+		case xr.Uintptr:   {mcallx1ret1minimal; uintptr}
+		case xr.Float32:   {mcallx1ret1minimal; float32}
+		case xr.Float64:   {mcallx1ret1compact; float64}
+		case xr.Complex64: {mcallx1ret1minimal; complex64}
+		case xr.Complex128:{mcallx1ret1compact; complex128}
+		case xr.String:    {mcallx1ret1;        string}
 	}
 	if ret == nil {
 		{mcall1ret1;  nil; nil} // cannot optimize more this one...
@@ -295,7 +297,7 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 	return ~"{
 		ret = func(env *Env) ~,rettyp {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfun(env),
 			}
 			retv := callxr(funv, argv)[0]
@@ -314,23 +316,23 @@ func (c *Comp) call1ret1namedtype(call *Call, maxdepth int) I {
 	var ret I
 
 	switch kret {
-		case r.Bool:      {mcallx1ret1namedtype; bool}
-		case r.Int:       {mcallx1ret1namedtype; int}
-		case r.Int8:      {mcallx1ret1namedtype; int8}
-		case r.Int16:     {mcallx1ret1namedtype; int16}
-		case r.Int32:     {mcallx1ret1namedtype; int32}
-		case r.Int64:     {mcallx1ret1namedtype; int64}
-		case r.Uint:      {mcallx1ret1namedtype; uint}
-		case r.Uint8:     {mcallx1ret1namedtype; uint8}
-		case r.Uint16:    {mcallx1ret1namedtype; uint16}
-		case r.Uint32:    {mcallx1ret1namedtype; uint32}
-		case r.Uint64:    {mcallx1ret1namedtype; uint64}
-		case r.Uintptr:   {mcallx1ret1namedtype; uintptr}
-		case r.Float32:   {mcallx1ret1namedtype; float32}
-		case r.Float64:   {mcallx1ret1namedtype; float64}
-		case r.Complex64: {mcallx1ret1namedtype; complex64}
-		case r.Complex128:{mcallx1ret1namedtype; complex128}
-		case r.String:    {mcallx1ret1namedtype; string}
+		case xr.Bool:      {mcallx1ret1namedtype; bool}
+		case xr.Int:       {mcallx1ret1namedtype; int}
+		case xr.Int8:      {mcallx1ret1namedtype; int8}
+		case xr.Int16:     {mcallx1ret1namedtype; int16}
+		case xr.Int32:     {mcallx1ret1namedtype; int32}
+		case xr.Int64:     {mcallx1ret1namedtype; int64}
+		case xr.Uint:      {mcallx1ret1namedtype; uint}
+		case xr.Uint8:     {mcallx1ret1namedtype; uint8}
+		case xr.Uint16:    {mcallx1ret1namedtype; uint16}
+		case xr.Uint32:    {mcallx1ret1namedtype; uint32}
+		case xr.Uint64:    {mcallx1ret1namedtype; uint64}
+		case xr.Uintptr:   {mcallx1ret1namedtype; uintptr}
+		case xr.Float32:   {mcallx1ret1namedtype; float32}
+		case xr.Float64:   {mcallx1ret1namedtype; float64}
+		case xr.Complex64: {mcallx1ret1namedtype; complex64}
+		case xr.Complex128:{mcallx1ret1namedtype; complex128}
+		case xr.String:    {mcallx1ret1namedtype; string}
 	}
 	if ret == nil {
 		{mcall1ret1;  nil; nil} // cannot optimize more this one...

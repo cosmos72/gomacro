@@ -25,15 +25,13 @@ import (
 	r "reflect"
 	"strings"
 
-	"github.com/cosmos72/gomacro/base/reflect"
-
 	. "github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/output"
-	bstrings "github.com/cosmos72/gomacro/base/strings"
+	"github.com/cosmos72/gomacro/base/reflect"
+	etoken "github.com/cosmos72/gomacro/go/etoken"
+	mp "github.com/cosmos72/gomacro/go/parser"
 	"github.com/cosmos72/gomacro/imports"
-	mp "github.com/cosmos72/gomacro/parser"
-	mt "github.com/cosmos72/gomacro/token"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -47,7 +45,7 @@ const (
 )
 
 type Inspector interface {
-	Inspect(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *Globals)
+	Inspect(name string, val r.Value, rtyp r.Type, xtyp xr.Type, globals *Globals)
 }
 
 type Globals struct {
@@ -69,10 +67,15 @@ type Globals struct {
 }
 
 func NewGlobals() *Globals {
+	var options Options = OptTrapPanic // set by default
+	if GoModuleSupported {
+		options |= OptModuleImport
+	}
+
 	g := &Globals{
 		Output: Output{
 			Stringer: output.Stringer{
-				Fileset:    mt.NewFileSet(),
+				Fileset:    etoken.NewFileSet(),
 				NamedTypes: make(map[r.Type]string),
 			},
 			// using both os.Stdout and os.Stderr can interleave impredictably
@@ -80,7 +83,7 @@ func NewGlobals() *Globals {
 			Stdout: os.Stdout,
 			Stderr: os.Stdout,
 		},
-		Options:      OptTrapPanic, // set by default
+		Options:      options,
 		PackagePath:  "main",
 		Filepath:     "repl.go",
 		Imports:      nil,
@@ -174,8 +177,8 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	return nodes
 }
 
-// print phase
-func (g *Globals) Print(values []r.Value, types []xr.Type) {
+// print values
+func (g *Globals) PrintR(values []r.Value, types []xr.Type) {
 	opts := g.Options
 	if opts&OptShowEval != 0 {
 		if opts&OptShowEvalType != 0 {
@@ -184,13 +187,34 @@ func (g *Globals) Print(values []r.Value, types []xr.Type) {
 				if types != nil && i < len(types) {
 					ti = types[i]
 				} else {
-					ti = reflect.Type(vi)
+					ti = reflect.ValueTypeR(vi)
 				}
 				g.Fprintf(g.Stdout, "%v\t// %v\n", vi, ti)
 			}
 		} else {
 			for _, vi := range values {
 				g.Fprintf(g.Stdout, "%v\n", vi)
+			}
+		}
+	}
+}
+
+func (g *Globals) Print(values []xr.Value, types []xr.Type) {
+	opts := g.Options
+	if opts&OptShowEval != 0 {
+		if opts&OptShowEvalType != 0 {
+			for i, vi := range values {
+				var ti interface{}
+				if types != nil && i < len(types) {
+					ti = types[i]
+				} else {
+					ti = reflect.ValueType(vi)
+				}
+				g.Fprintf(g.Stdout, "%v\t// %v\n", vi.ReflectValue(), ti)
+			}
+		} else {
+			for _, vi := range values {
+				g.Fprintf(g.Stdout, "%v\n", vi.ReflectValue())
 			}
 		}
 	}
@@ -234,6 +258,8 @@ func (g *Globals) CollectAst(form Ast) {
 		for i := 0; i < n; i++ {
 			g.CollectAst(form.Get(i))
 		}
+	default:
+		g.Errorf("unable to collect AST type: %T", form)
 	}
 }
 
@@ -249,16 +275,15 @@ func (g *Globals) CollectNode(node ast.Node) {
 				g.Imports = append(g.Imports, node)
 			case token.PACKAGE:
 				/*
-					exception: modified parser converts 'package foo' to:
+					modified parser converts 'package foo' to:
 
 					ast.GenDecl{
 						Tok: token.PACKAGE,
 						Specs: []ast.Spec{
 							&ast.ValueSpec{
-								Values: []ast.Expr{
-									&ast.BasicLit{
-										Kind:  token.String,
-										Value: "path/to/package",
+								Names: []ast.Ident{
+									&ast.Ident{
+										Name:  "foo",
 									},
 								},
 							},
@@ -267,18 +292,15 @@ func (g *Globals) CollectNode(node ast.Node) {
 				*/
 				if len(node.Specs) == 1 {
 					if decl, ok := node.Specs[0].(*ast.ValueSpec); ok {
-						if len(decl.Values) == 1 {
-							if lit, ok := decl.Values[0].(*ast.BasicLit); ok {
-								if lit.Kind == token.STRING {
-									path := bstrings.MaybeUnescapeString(lit.Value)
-									g.PackagePath = path
-								}
-							}
+						if len(decl.Names) == 1 {
+							g.PackagePath = decl.Names[0].Name
 						}
 					}
 				}
-			default:
+			case token.TYPE, token.VAR, token.CONST:
 				g.Declarations = append(g.Declarations, node)
+			default:
+				g.Errorf("unable to collect AST declaration: %s", node.Tok)
 			}
 		}
 	case *ast.FuncDecl:
@@ -289,6 +311,23 @@ func (g *Globals) CollectNode(node ast.Node) {
 				g.Declarations = append(g.Declarations, node)
 			}
 		}
+	case ast.Spec:
+		decl := &ast.GenDecl{
+			TokPos: node.Pos(),
+			Specs:  []ast.Spec{node},
+		}
+		switch node.(type) {
+		case *ast.ImportSpec:
+			decl.Tok = token.IMPORT
+		case *ast.TypeSpec:
+			decl.Tok = token.TYPE
+		case *ast.ValueSpec:
+			decl.Tok = token.VAR
+		default:
+			g.Errorf("unable to collect AST spec type: %T", node)
+		}
+		g.CollectNode(decl)
+		return
 	case ast.Decl:
 		if collectDecl {
 			g.Declarations = append(g.Declarations, node)
@@ -335,6 +374,8 @@ func (g *Globals) CollectNode(node ast.Node) {
 			stmt := &ast.ExprStmt{X: node}
 			g.Statements = append(g.Statements, stmt)
 		}
+	default:
+		g.Errorf("unable to collect AST node type: %T", node)
 	}
 }
 

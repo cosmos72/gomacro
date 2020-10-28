@@ -17,7 +17,7 @@ func init() {
 			"New":              r.ValueOf(New),
 			"NewEnv":           r.ValueOf(NewEnv),
 			"NewThreadGlobals": r.ValueOf(NewThreadGlobals),
-			"NilEnv":           r.ValueOf(&NilEnv).Elem(),
+			"NilREnv":           r.ValueOf(&NilREnv).Elem(),
 		}, Types: map[string]r.Type{
 			"BindMap":       r.TypeOf((*BindMap)(nil)).Elem(),
 			"CallFrame":     r.TypeOf((*CallFrame)(nil)).Elem(),

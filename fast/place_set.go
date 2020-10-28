@@ -22,22 +22,19 @@
 package fast
 
 import (
-	r "reflect"
-
-	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/reflect"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) placeSetZero(place *Place) {
-	rt := place.Type.ReflectType()
-	zero := r.Zero(rt).Interface()
-	c.placeSetConst(place, zero)
+func (c *Comp) placeSetZero(place *Place) Stmt {
+	zero := xr.Zero(place.Type).Interface()
+	return c.placeSetConst(place, zero)
 }
-func (c *Comp) placeSetConst(place *Place, val I) {
+func (c *Comp) placeSetConst(place *Place, val I) Stmt {
 	rt := place.Type.ReflectType()
-	v := r.ValueOf(val)
-	if reflect.Type(v) == nil {
-		v = r.Zero(rt)
+	v := xr.ValueOf(val)
+	if reflect.ValueType(v) == nil {
+		v = xr.ZeroR(rt)
 	} else {
 		v = convert(v, rt)
 	}
@@ -53,11 +50,10 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-		c.append(ret)
-		return
+		return ret
 	}
 	switch reflect.Category(rt.Kind()) {
-	case r.Bool:
+	case xr.Bool:
 
 		{
 			val := v.Bool()
@@ -69,7 +65,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Int:
+	case xr.Int:
 
 		{
 			val := v.Int()
@@ -81,7 +77,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Uint:
+	case xr.Uint:
 
 		{
 			val := v.Uint()
@@ -93,7 +89,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Float64:
+	case xr.Float64:
 
 		{
 			val := v.Float()
@@ -105,7 +101,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Complex128:
+	case xr.Complex128:
 
 		{
 			val := v.Complex()
@@ -117,7 +113,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.String:
+	case xr.String:
 
 		{
 			val := v.String()
@@ -142,10 +138,9 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 			}
 		}
 	}
-
-	c.append(ret)
+	return ret
 }
-func (c *Comp) placeSetExpr(place *Place, fun I) {
+func (c *Comp) placeSetExpr(place *Place, fun I) Stmt {
 	rt := place.Type.ReflectType()
 	lhs := place.Fun
 	var ret Stmt
@@ -164,11 +159,10 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-		c.append(ret)
-		return
+		return ret
 	}
 	switch rt.Kind() {
-	case r.Bool:
+	case xr.Bool:
 
 		{
 			rhs := fun.(func(*Env) bool)
@@ -182,7 +176,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Int:
+	case xr.Int:
 
 		{
 			rhs := fun.(func(*Env) int)
@@ -196,7 +190,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Int8:
+	case xr.Int8:
 
 		{
 			rhs := fun.(func(*Env) int8)
@@ -210,7 +204,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Int16:
+	case xr.Int16:
 
 		{
 			rhs := fun.(func(*Env) int16)
@@ -224,7 +218,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Int32:
+	case xr.Int32:
 
 		{
 			rhs := fun.(func(*Env) int32)
@@ -238,7 +232,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Int64:
+	case xr.Int64:
 
 		{
 			rhs := fun.(func(*Env) int64)
@@ -252,7 +246,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Uint:
+	case xr.Uint:
 
 		{
 			rhs := fun.(func(*Env) uint)
@@ -266,7 +260,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Uint8:
+	case xr.Uint8:
 
 		{
 			rhs := fun.(func(*Env) uint8)
@@ -280,7 +274,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Uint16:
+	case xr.Uint16:
 
 		{
 			rhs := fun.(func(*Env) uint16)
@@ -294,7 +288,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Uint32:
+	case xr.Uint32:
 
 		{
 			rhs := fun.(func(*Env) uint32)
@@ -308,7 +302,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Uint64:
+	case xr.Uint64:
 
 		{
 			rhs := fun.(func(*Env) uint64)
@@ -322,7 +316,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 
 		{
 			rhs := fun.(func(*Env) uintptr)
@@ -336,7 +330,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Float32:
+	case xr.Float32:
 
 		{
 			rhs := fun.(func(*Env) float32)
@@ -350,7 +344,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Float64:
+	case xr.Float64:
 
 		{
 			rhs := fun.(func(*Env) float64)
@@ -364,7 +358,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Complex64:
+	case xr.Complex64:
 
 		{
 			rhs := fun.(func(*Env) complex64)
@@ -378,7 +372,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.Complex128:
+	case xr.Complex128:
 
 		{
 			rhs := fun.(func(*Env) complex128)
@@ -392,7 +386,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		}
-	case r.String:
+	case xr.String:
 
 		{
 			rhs := fun.(func(*Env) string)
@@ -410,11 +404,11 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 		{
 			rhs := funAsX1(fun, nil)
 
-			zero := r.Zero(rt)
+			zero := xr.ZeroR(rt)
 			ret = func(env *Env) (Stmt, *Env) {
 				place := lhs(env)
 				value := rhs(env)
-				if value == Nil || value == None {
+				if !value.IsValid() || value == None {
 					value = zero
 				} else if value.Type() != rt {
 					value = convert(value, rt)
@@ -427,5 +421,5 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 			}
 		}
 	}
-	c.append(ret)
+	return ret
 }

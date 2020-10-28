@@ -23,7 +23,8 @@ package fast
 
 import (
 	"go/ast"
-	r "reflect"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -32,2033 +33,271 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 
 	xc, yc := xe.Const(), ye.Const()
-	xk, yk := xe.Type.Kind(), ye.Type.Kind()
+	xk := xe.Type.Kind()
 
 	var fun I
 	if xc == yc {
-		x, y := xe.Fun, ye.Fun
+		x := xe.Fun
+		y := ye.AsUint64()
 
 		switch xk {
-		case r.Int:
+		case xr.Int:
+			x := x.(func(*Env) int)
 
-			{
-				x := x.(func(*Env) int)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int { return x(env) << y(env) }
-
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int { return x(env) << y(env) }
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int { return x(env) << y(env) }
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int { return x(env) << y(env) }
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int { return x(env) << y(env) }
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int { return x(env) << y(env) }
-
-					}
-
-				}
-
+			fun = func(env *Env) int {
+				return x(env) << y(env)
 			}
-		case r.Int8:
 
-			{
-				x := x.(func(*Env) int8)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int8 { return x(env) << y(env) }
+		case xr.Int8:
+			x := x.(func(*Env) int8)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int8 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int8 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int8 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int8 { return x(env) << y(env) }
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int8 { return x(env) << y(env) }
-
-					}
-
-				}
-
+			fun = func(env *Env) int8 {
+				return x(env) << y(env)
 			}
-		case r.Int16:
 
-			{
-				x := x.(func(*Env) int16)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int16 { return x(env) << y(env) }
+		case xr.Int16:
+			x := x.(func(*Env) int16)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int16 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int16 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int16 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int16 { return x(env) << y(env) }
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int16 { return x(env) << y(env) }
-
-					}
-
-				}
-
+			fun = func(env *Env) int16 {
+				return x(env) << y(env)
 			}
-		case r.Int32:
 
-			{
-				x := x.(func(*Env) int32)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int32 { return x(env) << y(env) }
+		case xr.Int32:
+			x := x.(func(*Env) int32)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int32 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int32 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int32 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int32 { return x(env) << y(env) }
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int32 { return x(env) << y(env) }
-
-					}
-
-				}
-
+			fun = func(env *Env) int32 {
+				return x(env) << y(env)
 			}
-		case r.Int64:
 
-			{
-				x := x.(func(*Env) int64)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int64 { return x(env) << y(env) }
+		case xr.Int64:
+			x := x.(func(*Env) int64)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int64 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int64 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int64 { return x(env) << y(env) }
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int64 { return x(env) << y(env) }
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int64 { return x(env) << y(env) }
-
-					}
-
-				}
-
+			fun = func(env *Env) int64 {
+				return x(env) << y(env)
 			}
-		case r.Uint:
 
-			{
-				x := x.(func(*Env) uint)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint {
-							return x(env) << y(env)
-						}
+		case xr.Uint:
+			x := x.(func(*Env) uint)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint {
-							return x(env) << y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uint {
+				return x(env) << y(env)
 			}
-		case r.Uint8:
 
-			{
-				x := x.(func(*Env) uint8)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint8 {
-							return x(env) << y(env)
-						}
+		case xr.Uint8:
+			x := x.(func(*Env) uint8)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint8 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint8 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint8 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint8 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint8 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uint8 {
+				return x(env) << y(env)
 			}
-		case r.Uint16:
 
-			{
-				x := x.(func(*Env) uint16)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint16 {
-							return x(env) << y(env)
-						}
+		case xr.Uint16:
+			x := x.(func(*Env) uint16)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint16 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint16 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint16 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint16 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint16 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uint16 {
+				return x(env) << y(env)
 			}
-		case r.Uint32:
 
-			{
-				x := x.(func(*Env) uint32)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint32 {
-							return x(env) << y(env)
-						}
+		case xr.Uint32:
+			x := x.(func(*Env) uint32)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint32 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint32 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint32 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint32 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint32 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uint32 {
+				return x(env) << y(env)
 			}
-		case r.Uint64:
 
-			{
-				x := x.(func(*Env) uint64)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint64 {
-							return x(env) << y(env)
-						}
+		case xr.Uint64:
+			x := x.(func(*Env) uint64)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint64 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint64 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint64 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint64 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint64 {
-							return x(env) << y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uint64 {
+				return x(env) << y(env)
 			}
-		case r.Uintptr:
 
-			{
-				x := x.(func(*Env) uintptr)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uintptr {
-							return x(env) << y(env)
-						}
+		case xr.Uintptr:
+			x := x.(func(*Env) uintptr)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uintptr {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uintptr {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uintptr {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uintptr {
-							return x(env) << y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uintptr {
-							return x(env) << y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uintptr {
+				return x(env) << y(env)
 			}
+
 		default:
 			return c.invalidBinaryExpr(node, xe, ye)
 
 		}
 	} else if yc {
 		x := xe.Fun
-		y := ye.Value
-		if isLiteralNumber(y, 0) {
+		y, ok := constAsUint64(ye.Value)
+		if !ok {
+			c.invalidBinaryExpr(node, xe, ye)
+		} else if y == 0 {
 			return xe
 		}
 
-		yv := r.ValueOf(y)
-
 		switch xk {
-		case r.Int:
+		case xr.Int:
+			x := x.(func(*Env) int)
 
-			{
-				x := x.(func(*Env) int)
-				switch yk {
-				case r.Uint:
-
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) int {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) int {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) int {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) int {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) int {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) int {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) int {
+				return x(env) << y
 			}
-		case r.Int8:
 
-			{
-				x := x.(func(*Env) int8)
-				switch yk {
-				case r.Uint:
+		case xr.Int8:
+			x := x.(func(*Env) int8)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) int8 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) int8 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) int8 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) int8 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) int8 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) int8 {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) int8 {
+				return x(env) << y
 			}
-		case r.Int16:
 
-			{
-				x := x.(func(*Env) int16)
-				switch yk {
-				case r.Uint:
+		case xr.Int16:
+			x := x.(func(*Env) int16)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) int16 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) int16 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) int16 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) int16 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) int16 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) int16 {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) int16 {
+				return x(env) << y
 			}
-		case r.Int32:
 
-			{
-				x := x.(func(*Env) int32)
-				switch yk {
-				case r.Uint:
+		case xr.Int32:
+			x := x.(func(*Env) int32)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) int32 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) int32 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) int32 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) int32 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) int32 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) int32 {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) int32 {
+				return x(env) << y
 			}
-		case r.Int64:
 
-			{
-				x := x.(func(*Env) int64)
-				switch yk {
-				case r.Uint:
+		case xr.Int64:
+			x := x.(func(*Env) int64)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) int64 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) int64 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) int64 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) int64 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) int64 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) int64 {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) int64 {
+				return x(env) << y
 			}
-		case r.Uint:
 
-			{
-				x := x.(func(*Env) uint)
-				switch yk {
-				case r.Uint:
+		case xr.Uint:
+			x := x.(func(*Env) uint)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uint {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uint {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uint {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uint {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uint {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uint {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uint {
+				return x(env) << y
 			}
-		case r.Uint8:
 
-			{
-				x := x.(func(*Env) uint8)
-				switch yk {
-				case r.Uint:
+		case xr.Uint8:
+			x := x.(func(*Env) uint8)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uint8 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uint8 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uint8 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uint8 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uint8 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uint8 {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uint8 {
+				return x(env) << y
 			}
-		case r.Uint16:
 
-			{
-				x := x.(func(*Env) uint16)
-				switch yk {
-				case r.Uint:
+		case xr.Uint16:
+			x := x.(func(*Env) uint16)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uint16 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uint16 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uint16 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uint16 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uint16 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uint16 {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uint16 {
+				return x(env) << y
 			}
-		case r.Uint32:
 
-			{
-				x := x.(func(*Env) uint32)
-				switch yk {
-				case r.Uint:
+		case xr.Uint32:
+			x := x.(func(*Env) uint32)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uint32 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uint32 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uint32 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uint32 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uint32 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uint32 {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uint32 {
+				return x(env) << y
 			}
-		case r.Uint64:
 
-			{
-				x := x.(func(*Env) uint64)
-				switch yk {
-				case r.Uint:
+		case xr.Uint64:
+			x := x.(func(*Env) uint64)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uint64 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uint64 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uint64 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uint64 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uint64 {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uint64 {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uint64 {
+				return x(env) << y
 			}
-		case r.Uintptr:
 
-			{
-				x := x.(func(*Env) uintptr)
-				switch yk {
-				case r.Uint:
+		case xr.Uintptr:
+			x := x.(func(*Env) uintptr)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uintptr {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uintptr {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uintptr {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uintptr {
-							return x(env) << y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uintptr {
-							return x(env) << y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uintptr {
-							return x(env) << y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uintptr {
+				return x(env) << y
 			}
+
 		default:
 			return c.invalidBinaryExpr(node, xe, ye)
 
 		}
 	} else {
-		xv := r.ValueOf(xe.Value)
-		y := ye.Fun
+		xv := xr.ValueOf(xe.Value)
+		y := ye.AsUint64()
 
 		switch xk {
-		case r.Int:
+		case xr.Int:
+			x :=
 
-			{
-				x := int(xv.Int())
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int {
-							return x << y(env)
-						}
-
-					}
-				}
-
+				int(xv.Int())
+			fun = func(env *Env) int {
+				return x << y(env)
 			}
-		case r.Int8:
+		case xr.Int8:
+			x :=
 
-			{
-				x := int8(xv.Int())
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int8 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int8 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int8 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int8 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int8 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int8 {
-							return x << y(env)
-						}
-
-					}
-				}
-
+				int8(xv.Int())
+			fun = func(env *Env) int8 {
+				return x << y(env)
 			}
-		case r.Int16:
+		case xr.Int16:
+			x :=
 
-			{
-				x := int16(xv.Int())
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int16 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int16 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int16 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int16 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int16 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int16 {
-							return x << y(env)
-						}
-
-					}
-				}
-
+				int16(xv.Int())
+			fun = func(env *Env) int16 {
+				return x << y(env)
 			}
-		case r.Int32:
+		case xr.Int32:
+			x :=
 
-			{
-				x := int32(xv.Int())
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int32 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int32 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int32 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int32 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int32 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int32 {
-							return x << y(env)
-						}
-
-					}
-				}
-
+				int32(xv.Int())
+			fun = func(env *Env) int32 {
+				return x << y(env)
 			}
-		case r.Int64:
-
-			{
-				x := xv.Int()
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int64 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int64 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int64 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int64 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int64 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int64 {
-							return x << y(env)
-						}
-
-					}
-				}
-
+		case xr.Int64:
+			x := xv.Int()
+			fun = func(env *Env) int64 {
+				return x << y(env)
 			}
-		case r.Uint:
 
-			{
-				x := uint(xv.Uint())
-				switch yk {
-				case r.Uint:
+		case xr.Uint:
+			x :=
 
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint {
-							return x << y(env)
-						}
-
-					}
-				}
-
+				uint(xv.Uint())
+			fun = func(env *Env) uint {
+				return x << y(env)
 			}
-		case r.Uint8:
 
-			{
-				x := uint8(xv.Uint())
-				switch yk {
-				case r.Uint:
+		case xr.Uint8:
+			x :=
 
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint8 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint8 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint8 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint8 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint8 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint8 {
-							return x << y(env)
-						}
-
-					}
-				}
-
+				uint8(xv.Uint())
+			fun = func(env *Env) uint8 {
+				return x << y(env)
 			}
-		case r.Uint16:
 
-			{
-				x := uint16(xv.Uint())
-				switch yk {
-				case r.Uint:
+		case xr.Uint16:
+			x :=
 
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint16 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint16 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint16 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint16 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint16 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint16 {
-							return x << y(env)
-						}
-
-					}
-				}
-
+				uint16(xv.Uint())
+			fun = func(env *Env) uint16 {
+				return x << y(env)
 			}
-		case r.Uint32:
 
-			{
-				x := uint32(xv.Uint())
-				switch yk {
-				case r.Uint:
+		case xr.Uint32:
+			x :=
 
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint32 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint32 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint32 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint32 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint32 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint32 {
-							return x << y(env)
-						}
-
-					}
-				}
-
+				uint32(xv.Uint())
+			fun = func(env *Env) uint32 {
+				return x << y(env)
 			}
-		case r.Uint64:
 
-			{
-				x := xv.Uint()
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint64 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint64 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint64 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint64 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint64 {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint64 {
-							return x << y(env)
-						}
-
-					}
-				}
-
+		case xr.Uint64:
+			x := xv.Uint()
+			fun = func(env *Env) uint64 {
+				return x << y(env)
 			}
-		case r.Uintptr:
 
-			{
-				x := uintptr(xv.Uint())
-				switch yk {
-				case r.Uint:
+		case xr.Uintptr:
+			x :=
 
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uintptr {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uintptr {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uintptr {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uintptr {
-							return x << y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uintptr {
-							return x << y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uintptr {
-							return x << y(env)
-						}
-
-					}
-				}
-
+				uintptr(xv.Uint())
+			fun = func(env *Env) uintptr {
+				return x << y(env)
 			}
+
 		default:
 			return c.invalidBinaryExpr(node, xe, ye)
 
@@ -2072,2033 +311,271 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 
 	xc, yc := xe.Const(), ye.Const()
-	xk, yk := xe.Type.Kind(), ye.Type.Kind()
+	xk := xe.Type.Kind()
 
 	var fun I
 	if xc == yc {
-		x, y := xe.Fun, ye.Fun
+		x := xe.Fun
+		y := ye.AsUint64()
 
 		switch xk {
-		case r.Int:
+		case xr.Int:
+			x := x.(func(*Env) int)
 
-			{
-				x := x.(func(*Env) int)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int { return x(env) >> y(env) }
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int { return x(env) >> y(env) }
-
-					}
-
-				}
-
+			fun = func(env *Env) int {
+				return x(env) >> y(env)
 			}
-		case r.Int8:
 
-			{
-				x := x.(func(*Env) int8)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int8 { return x(env) >> y(env) }
+		case xr.Int8:
+			x := x.(func(*Env) int8)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int8 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int8 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int8 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int8 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int8 { return x(env) >> y(env) }
-
-					}
-
-				}
-
+			fun = func(env *Env) int8 {
+				return x(env) >> y(env)
 			}
-		case r.Int16:
 
-			{
-				x := x.(func(*Env) int16)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int16 { return x(env) >> y(env) }
+		case xr.Int16:
+			x := x.(func(*Env) int16)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int16 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int16 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int16 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int16 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int16 { return x(env) >> y(env) }
-
-					}
-
-				}
-
+			fun = func(env *Env) int16 {
+				return x(env) >> y(env)
 			}
-		case r.Int32:
 
-			{
-				x := x.(func(*Env) int32)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int32 { return x(env) >> y(env) }
+		case xr.Int32:
+			x := x.(func(*Env) int32)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int32 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int32 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int32 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int32 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int32 { return x(env) >> y(env) }
-
-					}
-
-				}
-
+			fun = func(env *Env) int32 {
+				return x(env) >> y(env)
 			}
-		case r.Int64:
 
-			{
-				x := x.(func(*Env) int64)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int64 { return x(env) >> y(env) }
+		case xr.Int64:
+			x := x.(func(*Env) int64)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int64 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int64 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int64 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int64 { return x(env) >> y(env) }
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int64 { return x(env) >> y(env) }
-
-					}
-
-				}
-
+			fun = func(env *Env) int64 {
+				return x(env) >> y(env)
 			}
-		case r.Uint:
 
-			{
-				x := x.(func(*Env) uint)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint {
-							return x(env) >> y(env)
-						}
+		case xr.Uint:
+			x := x.(func(*Env) uint)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uint {
+				return x(env) >> y(env)
 			}
-		case r.Uint8:
 
-			{
-				x := x.(func(*Env) uint8)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint8 {
-							return x(env) >> y(env)
-						}
+		case xr.Uint8:
+			x := x.(func(*Env) uint8)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint8 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint8 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint8 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint8 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint8 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uint8 {
+				return x(env) >> y(env)
 			}
-		case r.Uint16:
 
-			{
-				x := x.(func(*Env) uint16)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint16 {
-							return x(env) >> y(env)
-						}
+		case xr.Uint16:
+			x := x.(func(*Env) uint16)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint16 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint16 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint16 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint16 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint16 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uint16 {
+				return x(env) >> y(env)
 			}
-		case r.Uint32:
 
-			{
-				x := x.(func(*Env) uint32)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint32 {
-							return x(env) >> y(env)
-						}
+		case xr.Uint32:
+			x := x.(func(*Env) uint32)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint32 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint32 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint32 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint32 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint32 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uint32 {
+				return x(env) >> y(env)
 			}
-		case r.Uint64:
 
-			{
-				x := x.(func(*Env) uint64)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint64 {
-							return x(env) >> y(env)
-						}
+		case xr.Uint64:
+			x := x.(func(*Env) uint64)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint64 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint64 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint64 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint64 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint64 {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uint64 {
+				return x(env) >> y(env)
 			}
-		case r.Uintptr:
 
-			{
-				x := x.(func(*Env) uintptr)
-				switch yk {
-				case r.Uint:
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uintptr {
-							return x(env) >> y(env)
-						}
+		case xr.Uintptr:
+			x := x.(func(*Env) uintptr)
 
-					}
-
-				case r.Uint8:
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uintptr {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint16:
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uintptr {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint32:
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uintptr {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uint64:
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uintptr {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				case r.Uintptr:
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uintptr {
-							return x(env) >> y(env)
-						}
-
-					}
-
-				}
-
+			fun = func(env *Env) uintptr {
+				return x(env) >> y(env)
 			}
+
 		default:
 			return c.invalidBinaryExpr(node, xe, ye)
 
 		}
 	} else if yc {
 		x := xe.Fun
-		y := ye.Value
-		if isLiteralNumber(y, 0) {
+		y, ok := constAsUint64(ye.Value)
+		if !ok {
+			c.invalidBinaryExpr(node, xe, ye)
+		} else if y == 0 {
 			return xe
 		}
 
-		yv := r.ValueOf(y)
-
 		switch xk {
-		case r.Int:
+		case xr.Int:
+			x := x.(func(*Env) int)
 
-			{
-				x := x.(func(*Env) int)
-				switch yk {
-				case r.Uint:
-
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) int {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) int {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) int {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) int {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) int {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) int {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) int {
+				return x(env) >> y
 			}
-		case r.Int8:
 
-			{
-				x := x.(func(*Env) int8)
-				switch yk {
-				case r.Uint:
+		case xr.Int8:
+			x := x.(func(*Env) int8)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) int8 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) int8 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) int8 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) int8 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) int8 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) int8 {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) int8 {
+				return x(env) >> y
 			}
-		case r.Int16:
 
-			{
-				x := x.(func(*Env) int16)
-				switch yk {
-				case r.Uint:
+		case xr.Int16:
+			x := x.(func(*Env) int16)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) int16 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) int16 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) int16 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) int16 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) int16 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) int16 {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) int16 {
+				return x(env) >> y
 			}
-		case r.Int32:
 
-			{
-				x := x.(func(*Env) int32)
-				switch yk {
-				case r.Uint:
+		case xr.Int32:
+			x := x.(func(*Env) int32)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) int32 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) int32 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) int32 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) int32 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) int32 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) int32 {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) int32 {
+				return x(env) >> y
 			}
-		case r.Int64:
 
-			{
-				x := x.(func(*Env) int64)
-				switch yk {
-				case r.Uint:
+		case xr.Int64:
+			x := x.(func(*Env) int64)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) int64 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) int64 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) int64 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) int64 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) int64 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) int64 {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) int64 {
+				return x(env) >> y
 			}
-		case r.Uint:
 
-			{
-				x := x.(func(*Env) uint)
-				switch yk {
-				case r.Uint:
+		case xr.Uint:
+			x := x.(func(*Env) uint)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uint {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uint {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uint {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uint {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uint {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uint {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uint {
+				return x(env) >> y
 			}
-		case r.Uint8:
 
-			{
-				x := x.(func(*Env) uint8)
-				switch yk {
-				case r.Uint:
+		case xr.Uint8:
+			x := x.(func(*Env) uint8)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uint8 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uint8 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uint8 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uint8 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uint8 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uint8 {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uint8 {
+				return x(env) >> y
 			}
-		case r.Uint16:
 
-			{
-				x := x.(func(*Env) uint16)
-				switch yk {
-				case r.Uint:
+		case xr.Uint16:
+			x := x.(func(*Env) uint16)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uint16 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uint16 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uint16 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uint16 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uint16 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uint16 {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uint16 {
+				return x(env) >> y
 			}
-		case r.Uint32:
 
-			{
-				x := x.(func(*Env) uint32)
-				switch yk {
-				case r.Uint:
+		case xr.Uint32:
+			x := x.(func(*Env) uint32)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uint32 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uint32 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uint32 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uint32 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uint32 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uint32 {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uint32 {
+				return x(env) >> y
 			}
-		case r.Uint64:
 
-			{
-				x := x.(func(*Env) uint64)
-				switch yk {
-				case r.Uint:
+		case xr.Uint64:
+			x := x.(func(*Env) uint64)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uint64 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uint64 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uint64 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uint64 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uint64 {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uint64 {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uint64 {
+				return x(env) >> y
 			}
-		case r.Uintptr:
 
-			{
-				x := x.(func(*Env) uintptr)
-				switch yk {
-				case r.Uint:
+		case xr.Uintptr:
+			x := x.(func(*Env) uintptr)
 
-					{
-						y := uint(yv.Uint())
-						fun = func(env *Env) uintptr {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := uint8(yv.Uint())
-						fun = func(env *Env) uintptr {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := uint16(yv.Uint())
-						fun = func(env *Env) uintptr {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := uint32(yv.Uint())
-						fun = func(env *Env) uintptr {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := yv.Uint()
-
-						fun = func(env *Env) uintptr {
-							return x(env) >> y
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := uintptr(yv.Uint())
-						fun = func(env *Env) uintptr {
-							return x(env) >> y
-						}
-
-					}
-				}
-
+			fun = func(env *Env) uintptr {
+				return x(env) >> y
 			}
+
 		default:
 			return c.invalidBinaryExpr(node, xe, ye)
 
 		}
 	} else {
-		xv := r.ValueOf(xe.Value)
-		y := ye.Fun
+		xv := xr.ValueOf(xe.Value)
+		y := ye.AsUint64()
 
 		switch xk {
-		case r.Int:
+		case xr.Int:
+			x :=
 
-			{
-				x := int(xv.Int())
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+				int(xv.Int())
+			fun = func(env *Env) int {
+				return x >> y(env)
 			}
-		case r.Int8:
+		case xr.Int8:
+			x :=
 
-			{
-				x := int8(xv.Int())
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int8 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int8 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int8 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int8 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int8 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int8 {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+				int8(xv.Int())
+			fun = func(env *Env) int8 {
+				return x >> y(env)
 			}
-		case r.Int16:
+		case xr.Int16:
+			x :=
 
-			{
-				x := int16(xv.Int())
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int16 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int16 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int16 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int16 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int16 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int16 {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+				int16(xv.Int())
+			fun = func(env *Env) int16 {
+				return x >> y(env)
 			}
-		case r.Int32:
+		case xr.Int32:
+			x :=
 
-			{
-				x := int32(xv.Int())
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int32 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int32 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int32 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int32 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int32 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int32 {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+				int32(xv.Int())
+			fun = func(env *Env) int32 {
+				return x >> y(env)
 			}
-		case r.Int64:
-
-			{
-				x := xv.Int()
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) int64 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) int64 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) int64 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) int64 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) int64 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) int64 {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+		case xr.Int64:
+			x := xv.Int()
+			fun = func(env *Env) int64 {
+				return x >> y(env)
 			}
-		case r.Uint:
 
-			{
-				x := uint(xv.Uint())
-				switch yk {
-				case r.Uint:
+		case xr.Uint:
+			x :=
 
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+				uint(xv.Uint())
+			fun = func(env *Env) uint {
+				return x >> y(env)
 			}
-		case r.Uint8:
 
-			{
-				x := uint8(xv.Uint())
-				switch yk {
-				case r.Uint:
+		case xr.Uint8:
+			x :=
 
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint8 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint8 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint8 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint8 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint8 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint8 {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+				uint8(xv.Uint())
+			fun = func(env *Env) uint8 {
+				return x >> y(env)
 			}
-		case r.Uint16:
 
-			{
-				x := uint16(xv.Uint())
-				switch yk {
-				case r.Uint:
+		case xr.Uint16:
+			x :=
 
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint16 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint16 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint16 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint16 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint16 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint16 {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+				uint16(xv.Uint())
+			fun = func(env *Env) uint16 {
+				return x >> y(env)
 			}
-		case r.Uint32:
 
-			{
-				x := uint32(xv.Uint())
-				switch yk {
-				case r.Uint:
+		case xr.Uint32:
+			x :=
 
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint32 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint32 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint32 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint32 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint32 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint32 {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+				uint32(xv.Uint())
+			fun = func(env *Env) uint32 {
+				return x >> y(env)
 			}
-		case r.Uint64:
 
-			{
-				x := xv.Uint()
-				switch yk {
-				case r.Uint:
-
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uint64 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uint64 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uint64 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uint64 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uint64 {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uint64 {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+		case xr.Uint64:
+			x := xv.Uint()
+			fun = func(env *Env) uint64 {
+				return x >> y(env)
 			}
-		case r.Uintptr:
 
-			{
-				x := uintptr(xv.Uint())
-				switch yk {
-				case r.Uint:
+		case xr.Uintptr:
+			x :=
 
-					{
-						y := y.(func(*Env) uint)
-						fun = func(env *Env) uintptr {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint8:
-
-					{
-						y := y.(func(*Env) uint8)
-						fun = func(env *Env) uintptr {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint16:
-
-					{
-						y := y.(func(*Env) uint16)
-						fun = func(env *Env) uintptr {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint32:
-
-					{
-						y := y.(func(*Env) uint32)
-						fun = func(env *Env) uintptr {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uint64:
-
-					{
-						y := y.(func(*Env) uint64)
-						fun = func(env *Env) uintptr {
-							return x >> y(env)
-						}
-
-					}
-				case r.Uintptr:
-
-					{
-						y := y.(func(*Env) uintptr)
-						fun = func(env *Env) uintptr {
-							return x >> y(env)
-						}
-
-					}
-				}
-
+				uintptr(xv.Uint())
+			fun = func(env *Env) uintptr {
+				return x >> y(env)
 			}
+
 		default:
 			return c.invalidBinaryExpr(node, xe, ye)
 

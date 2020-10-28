@@ -21,6 +21,8 @@ import (
 	r "reflect"
 )
 
+:package fast
+
 :import (
 	"go/ast"
 	"go/token"
@@ -70,7 +72,7 @@ import (
 	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
 
 	switch t.Kind() {
-	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
 		// result of reflect.Value.{tname} is already the correct type
 		val = ~"{~,sel ()}
 	default:
@@ -81,113 +83,70 @@ import (
 }
 
 // shift, x type and y type are fixed
-:macro shift(opnode, xconst, yconst, xtyp, ytyp ast.Node) ast.Node {
+:macro shift(opnode, xconst, yconst, xtyp ast.Node) ast.Node {
 
 	// the return type of Eval() and EvalType() varies. better check early.
 	xc, yc := Eval(xconst).(bool), Eval(yconst).(bool)
 	optoken := Eval(opnode).(token.Token)
 
+
+	var expr *ast.BinaryExpr
 	if xc == yc {
-		var expr *ast.BinaryExpr = ~"{x(env) && y(env)} // quasiquote, we modify it destructively
-		expr.Op = optoken
-
-		return ~"{
-			y := y.(func(*Env) ~,ytyp)
-			fun = func(env *Env) ~,xtyp {
-				return ~,expr
-			}
-		}
+		expr = ~"{x(env) && y(env)} // quasiquote, we modify it destructively
 	} else if yc {
-		var expr *ast.BinaryExpr = ~"{x(env) && y} // quasiquote, we modify it destructively
-		expr.Op = optoken
-
-		yconvert := ~'{{}}
-		if EvalType(ytyp) != nil {
-			yconv1 := convertvalue1(ytyp, ~'yv)
-			yconvert = ~"{{y := ~,yconv1}}
-		}
-
-		return ~"{
-			~,@yconvert
-			fun = func(env *Env) ~,xtyp {
-				return ~,expr
-			}
-		}
+		expr = ~"{x(env) && y} // quasiquote, we modify it destructively
 	} else {
-		var expr *ast.BinaryExpr = ~"{x && y(env)} // quasiquote, we modify it destructively
-		expr.Op = optoken
-
-		return ~"{
-			y := y.(func(*Env) ~,ytyp)
-			fun = func(env *Env) ~,xtyp {
-				return ~,expr
-			}
+		expr = ~"{x && y(env)} // quasiquote, we modify it destructively
+	}
+	expr.Op = optoken
+	return ~"{
+		fun = func(env *Env) ~,xtyp {
+			return ~,expr
 		}
 	}
 }
 
 // shift, x type is fixed. dispatch on y type
-:macro shifts(opnode, xconst, yconst, xtyp, ytypes ast.Node) ast.Node {
+:macro shifts(opnode, xconst, yconst, xtyp ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
 	xc, yc := Eval(xconst).(bool), Eval(yconst).(bool)
 
-	ytypelist := ytypes.(*ast.BlockStmt).List
-	caselist := make([]ast.Stmt, 0, len(ytypelist))
-	for _, ytyp := range ytypelist {
-		t := EvalType(ytyp)
-		if t.Kind() == r.Int {
-			// shortcut for all int* types
-			for _, ytyp := range []ast.Expr{~'int, ~'int8, ~'int16, ~'int32, ~'int64} {
-				kind := makekind(ytyp)
-				caselist = append(caselist, ~"{case ~,kind: shift; ~,opnode; ~,xconst; ~,yconst; ~,xtyp; ~,ytyp})
-			}
-		} else if t.Kind() == r.Uint {
-			// shortcut for all uint* types
-			for _, ytyp := range []ast.Expr{~'uint, ~'uint8, ~'uint16, ~'uint32, ~'uint64, ~'uintptr} {
-				kind := makekind(ytyp)
-				caselist = append(caselist, ~"{case ~,kind: shift; ~,opnode; ~,xconst; ~,yconst; ~,xtyp; ~,ytyp})
-			}
-		} else {
-			kind := makekind(ytyp)
-			caselist = append(caselist, ~"{case ~,kind: shift; ~,opnode; ~,xconst; ~,yconst; ~,xtyp; ~,ytyp})
-		}
-	}
+	ret := ~"{shift; ~,opnode; ~,xconst; ~,yconst; ~,xtyp}
 
-	swtch := ~"{ switch yk { ~,@caselist } }
 	if xc {
 		xconv1 := convertvalue1(xtyp, ~'xv)
-		return ~"{x := ~,xconv1; ~,swtch }
+		return ~"{x := ~,xconv1; ~,ret }
 	} else {
-		return ~"{x := x.(func(*Env) ~,xtyp); ~,swtch }
+		return ~"{x := x.(func(*Env) ~,xtyp); ~,ret }
 	}
 }
 
 // general shift - dispatch on x type, then on y type
-:macro shiftss(opnode, xconst, yconst, xtypes ast.Node, ytypes ast.Node) ast.Node {
+:macro shiftss(opnode, xconst, yconst, xtypes ast.Node) ast.Node {
 	xtypelist := xtypes.(*ast.BlockStmt).List
 	caselist := make([]ast.Stmt, 0, len(xtypelist))
 	foundnil := false
 	for _, typ := range xtypelist {
 		t := EvalType(typ)
 		if t == nil {
-			caselist = append(caselist, ~"{default: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ; ~,ytypes})
+			caselist = append(caselist, ~"{default: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 			foundnil = true
 
 		} else if t.Kind() == r.Int {
 			// shortcut for all int* types
 			for _, typ := range []ast.Expr{~'int, ~'int8, ~'int16, ~'int32, ~'int64} {
 				kind := makekind(typ)
-				caselist = append(caselist, ~"{case ~,kind: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ; ~,ytypes})
+				caselist = append(caselist, ~"{case ~,kind: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 			}
 		} else if t.Kind() == r.Uint {
 			// shortcut for all uint* types
 			for _, typ := range []ast.Expr{~'uint, ~'uint8, ~'uint16, ~'uint32, ~'uint64, ~'uintptr} {
 				kind := makekind(typ)
-				caselist = append(caselist, ~"{case ~,kind: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ; ~,ytypes})
+				caselist = append(caselist, ~"{case ~,kind: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 			}
 		} else {
 			kind := makekind(typ)
-			caselist = append(caselist, ~"{case ~,kind: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ; ~,ytypes})
+			caselist = append(caselist, ~"{case ~,kind: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 		}
 	}
 
@@ -203,25 +162,27 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		return ze
 	}
 	xc, yc := xe.Const(), ye.Const()
-	xk, yk := xe.Type.Kind(), ye.Type.Kind()
+	xk := xe.Type.Kind()
 	// if both x and y are constants, BinaryExpr will invoke EvalConst()
 	// on our return value. no need to optimize that.
 	var fun I
 	if xc == yc {
-		x, y := xe.Fun, ye.Fun
-		{shiftss; token.SHL; false; false; {int; uint}; {uint}}
+		x := xe.Fun
+		y := ye.AsUint64()
+		shiftss; token.SHL; false; false; {int; uint}
 	} else if yc {
 		x := xe.Fun
-		y := ye.Value
-		if isLiteralNumber(y, 0) {
+		y, ok := constAsUint64(ye.Value)
+		if !ok {
+			c.invalidBinaryExpr(node, xe, ye)
+		} else if y == 0 {
 			return xe
 		}
-		yv := r.ValueOf(y)
-		{shiftss; token.SHL; false; true; {int; uint}; {uint}}
+		shiftss; token.SHL; false; true; {int; uint}
 	} else {
-		xv := r.ValueOf(xe.Value)
-		y := ye.Fun
-		{shiftss; token.SHL; true; false; {int; uint}; {uint}}
+		xv := xr.ValueOf(xe.Value)
+		y := ye.AsUint64()
+		shiftss; token.SHL; true; false; {int; uint}
 	}
 	return exprFun(xe.Type, fun)
 }
@@ -231,25 +192,27 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		return ze
 	}
 	xc, yc := xe.Const(), ye.Const()
-	xk, yk := xe.Type.Kind(), ye.Type.Kind()
+	xk := xe.Type.Kind()
 	// if both x and y are constants, BinaryExpr will invoke EvalConst()
 	// on our return value. no need to optimize that.
 	var fun I
 	if xc == yc {
-		x, y := xe.Fun, ye.Fun
-		{shiftss; token.SHR; false; false; {int; uint}; {uint}}
+		x := xe.Fun
+		y := ye.AsUint64()
+		shiftss; token.SHR; false; false; {int; uint}
 	} else if yc {
 		x := xe.Fun
-		y := ye.Value
-		if isLiteralNumber(y, 0) {
+		y, ok := constAsUint64(ye.Value)
+		if !ok {
+			c.invalidBinaryExpr(node, xe, ye)
+		} else if y == 0 {
 			return xe
 		}
-		yv := r.ValueOf(y)
-		{shiftss; token.SHR; false; true; {int; uint}; {uint}}
+		shiftss; token.SHR; false; true; {int; uint}
 	} else {
-		xv := r.ValueOf(xe.Value)
-		y := ye.Fun
-		{shiftss; token.SHR; true; false; {int; uint}; {uint}}
+		xv := xr.ValueOf(xe.Value)
+		y := ye.AsUint64()
+		shiftss; token.SHR; true; false; {int; uint}
 	}
 	return exprFun(xe.Type, fun)
 }

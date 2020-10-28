@@ -18,15 +18,12 @@ package genimport
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
-	"go/importer"
+	"go/build"
 	"go/types"
 	"io/ioutil"
 	"os"
 	r "reflect"
-
-	"github.com/cosmos72/gomacro/base/strings"
 
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/paths"
@@ -49,32 +46,34 @@ const (
 	// 2. tell the user to recompile gomacro
 	ImThirdParty
 
-	// ImPlugin import mechanism is:
-	// 1. write a file $GOPATH/src/gomacro_imports/$PKGPATH/$PKGNAME.go containing a var Packages map[string]Package
-	//    and a single func init() to populate it
-	// 2. invoke "go build -buildmode=plugin" on the file to create a shared library
-	// 3. load such shared library with plugin.Open().Lookup("Packages")
-	ImPlugin
-
 	// ImInception import mechanism is:
 	// 1. write a file $GOPATH/src/$PKGPATH/x_package.go containing a single func init()
 	//    i.e. *inside* the package to be imported
 	// 2. tell the user to recompile $PKGPATH
 	ImInception
+
+	// ImPlugin import mechanism is:
+	// 1. write a file $GOPATH/src/gomacro.imports/$PKGPATH/$PKGNAME.go containing a var Packages map[string]Package
+	//    and a single func init() to populate it
+	// 2. invoke "go build -buildmode=plugin" on the file to create a shared library
+	// 3. load such shared library with plugin.Open().Lookup("Packages")
+	ImPlugin
 )
 
 type PackageRef struct {
 	imports.Package
-	Name, Path string
+	Path string
+}
+
+func (ref *PackageRef) DefaultName() string {
+	return ref.Package.DefaultName(ref.Path)
 }
 
 func (ref *PackageRef) String() string {
-	return fmt.Sprintf("{%s %q, %d binds, %d types}", ref.Name, ref.Path, len(ref.Binds), len(ref.Types))
+	return fmt.Sprintf("{%s %q, %d binds, %d types}", ref.DefaultName(), ref.Path, len(ref.Binds), len(ref.Types))
 }
 
 type Importer struct {
-	from       types.ImporterFrom
-	compat     types.Importer
 	srcDir     string
 	mode       types.ImportMode
 	PluginOpen r.Value // = reflect.ValueOf(plugin.Open)
@@ -82,74 +81,71 @@ type Importer struct {
 }
 
 func DefaultImporter(o *Output) *Importer {
-	imp := Importer{output: o}
-	compat := importer.Default()
-	if from, ok := compat.(types.ImporterFrom); ok {
-		imp.from = from
-	} else {
-		imp.compat = compat
-	}
-	return &imp
+	return &Importer{output: o}
 }
 
-func (imp *Importer) setPluginOpen() bool {
+func (imp *Importer) havePluginOpen() bool {
 	if !imp.PluginOpen.IsValid() {
 		imp.PluginOpen = imports.Packages["plugin"].Binds["Open"]
 		if !imp.PluginOpen.IsValid() {
-			imp.PluginOpen = reflect.None // cache the failure
+			imp.PluginOpen = reflect.NoneR // cache the failure
 		}
 	}
-	return imp.PluginOpen != reflect.None
-}
-
-func (imp *Importer) Import(path string) (*types.Package, error) {
-	return imp.ImportFrom(path, imp.srcDir, imp.mode)
-}
-
-func (imp *Importer) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
-	if imp.from != nil {
-		return imp.from.ImportFrom(path, srcDir, mode)
-	} else if imp.compat != nil {
-		return imp.compat.Import(path)
-	} else {
-		return nil, errors.New(fmt.Sprintf("importer.Default() returned nil, cannot import %q", path))
-	}
+	return imp.PluginOpen != reflect.NoneR
 }
 
 // LookupPackage returns a package if already present in cache
-func LookupPackage(name, path string) *PackageRef {
+func LookupPackage(alias, path string) *PackageRef {
 	pkg, found := imports.Packages[path]
 	if !found {
 		return nil
 	}
-	if len(name) == 0 {
-		name = strings.TailIdentifier(paths.FileName(path))
+	if len(pkg.Name) == 0 {
+		// missing pkg.Name, initialize it
+		pkg.DefaultName(path)
+		imports.Packages[path] = pkg
 	}
-	return &PackageRef{Package: pkg, Name: name, Path: path}
+	if len(alias) == 0 {
+		// import "foo" => get alias from package name
+		alias = pkg.DefaultName(path)
+	}
+	return &PackageRef{Package: pkg, Path: path}
 }
 
-func (imp *Importer) ImportPackage(name, path string) *PackageRef {
-	ref, err := imp.ImportPackageOrError(name, path)
+func (imp *Importer) wrapImportError(path string, enableModule bool, err error) output.RuntimeError {
+	if rerr, ok := err.(output.RuntimeError); ok {
+		return rerr
+	}
+	if enableModule {
+		return imp.output.MakeRuntimeError("error loading package %q metadata: %v", path, err)
+	}
+	return imp.output.MakeRuntimeError(
+		"error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v",
+		path, err)
+}
+
+func (imp *Importer) ImportPackage(alias, path string, enableModule bool) *PackageRef {
+	ref, err := imp.ImportPackageOrError(alias, path, enableModule)
 	if err != nil {
 		panic(err)
 	}
 	return ref
 }
 
-func (imp *Importer) ImportPackageOrError(name, pkgpath string) (*PackageRef, error) {
-	ref := LookupPackage(name, pkgpath)
+func (imp *Importer) ImportPackageOrError(alias, pkgpath string, enableModule bool) (*PackageRef, error) {
+	ref := LookupPackage(alias, pkgpath)
 	if ref != nil {
 		return ref, nil
 	}
+	paths.GetImportsSrcDir() // warns if GOPATH or paths.ImportsDir may be wrong
+
 	o := imp.output
-	gpkg, err := imp.Import(pkgpath) // loads names and types, not the values!
+	gpkg, err := imp.Load(pkgpath, enableModule) // loads names and types, not the values!
 	if err != nil {
-		return nil, o.MakeRuntimeError(
-			"error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v",
-			pkgpath, err)
+		return nil, imp.wrapImportError(pkgpath, enableModule, err)
 	}
 	var mode ImportMode
-	switch name {
+	switch alias {
 	case "_b":
 		mode = ImBuiltin
 	case "_i":
@@ -157,29 +153,28 @@ func (imp *Importer) ImportPackageOrError(name, pkgpath string) (*PackageRef, er
 	case "_3":
 		mode = ImThirdParty
 	default:
-		if len(name) == 0 {
-			name = gpkg.Name()
+		if len(alias) == 0 {
+			alias = gpkg.Name()
 		}
-		havePluginOpen := imp.setPluginOpen()
-		if havePluginOpen {
+		if imp.havePluginOpen() {
 			mode = ImPlugin
 		} else {
 			mode = ImThirdParty
 		}
 	}
 	file := createImportFile(imp.output, pkgpath, gpkg, mode)
-	ref = &PackageRef{Name: name, Path: pkgpath}
+	ref = &PackageRef{Path: pkgpath}
 	if len(file) == 0 || mode != ImPlugin {
 		// either the package exports nothing, or user must rebuild gomacro.
 		// in both cases, still cache it to avoid recreating the file.
 		imports.Packages[pkgpath] = ref.Package
 		return ref, nil
 	}
-	soname := compilePlugin(o, file, o.Stdout, o.Stderr)
+	soname := compilePlugin(o, file, enableModule, o.Stdout, o.Stderr)
 	ipkgs := imp.loadPluginSymbol(soname, "Packages")
 	pkgs := *ipkgs.(*map[string]imports.PackageUnderlying)
 
-	// cache *all* found packages for future use
+	// cache *all* packages found for future use
 	imports.Packages.Merge(pkgs)
 
 	// but return only requested one
@@ -194,7 +189,13 @@ func (imp *Importer) ImportPackageOrError(name, pkgpath string) (*PackageRef, er
 }
 
 func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode ImportMode) string {
-	file := computeImportFilename(pkgpath, mode)
+	dir := computeImportDir(o, pkgpath, mode)
+	if mode == ImPlugin {
+		createDir(o, dir)
+		removeAllFilesInDir(o, dir)
+	}
+	filepath := computeImportFilename(o, pkgpath, mode)
+	filepath = paths.Subdir(dir, filepath)
 
 	buf := bytes.Buffer{}
 	isEmpty := writeImportFile(o, &buf, pkgpath, pkg, mode)
@@ -203,54 +204,140 @@ func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode Import
 		return ""
 	}
 
-	err := ioutil.WriteFile(file, buf.Bytes(), os.FileMode(0666))
+	err := ioutil.WriteFile(filepath, buf.Bytes(), os.FileMode(0644))
 	if err != nil {
-		o.Errorf("error writing file %q: %v", file, err)
+		o.Errorf("error writing file %q: %v", filepath, err)
 	}
-	if mode == ImPlugin {
-		o.Debugf("created file %q...", file)
-	} else {
-		o.Warnf("created file %q, recompile gomacro to use it", file)
+	switch mode {
+	case ImBuiltin, ImThirdParty:
+		o.Warnf("created file %q, recompile gomacro to use it", filepath)
+	case ImInception:
+		o.Warnf("created file %q, recompile %s to use it", filepath, pkgpath)
+	case ImPlugin:
+		if GoModuleSupported {
+			createPluginGoModFile(o, pkgpath, dir)
+		}
 	}
-	return file
+	return filepath
 }
 
-func sanitizeIdentifier(str string) string {
-	return sanitizeIdentifier2(str, '_')
+func createDir(o *Output, dir string) {
+	err := os.MkdirAll(dir, 0700)
+	if err != nil {
+		o.Errorf("error creating directory %q: %v", dir, err)
+	}
 }
 
-func sanitizeIdentifier2(str string, replacement rune) string {
+func listDir(o *Output, dir string) []os.FileInfo {
+	d, err := os.Open(dir)
+	if err != nil {
+		o.Errorf("error opening directory %q: %v", dir, err)
+	}
+	defer d.Close()
+	infos, err := d.Readdir(0)
+	if err != nil {
+		o.Errorf("error listing directory %q: %v", dir, err)
+	}
+	return infos
+}
+
+func removeAllFilesInDir(o *Output, dir string) {
+	for _, info := range listDir(o, dir) {
+		if info.IsDir() {
+			continue
+		}
+		filepath := paths.Subdir(dir, info.Name())
+		if err := os.Remove(filepath); err != nil {
+			o.Errorf("error removing file %q: %v", filepath, err)
+		}
+	}
+}
+
+func createPluginGoModFile(o *Output, pkgpath string, dir string) string {
+	gomod := paths.Subdir(dir, "go.mod")
+	err := ioutil.WriteFile(gomod, []byte("module gomacro.imports/"+pkgpath+"\n"), os.FileMode(0644))
+	if err != nil {
+		o.Errorf("error writing file %q: %v", gomod, err)
+	}
+	return gomod
+}
+
+func packageSanitizedName(path string) string {
+	return sanitizeIdent(paths.FileName(path))
+}
+
+func sanitizeIdent(str string) string {
+	return sanitizeIdent2(str, '_')
+}
+
+func sanitizeIdent2(str string, replacement rune) string {
 	runes := []rune(str)
 	for i, ch := range runes {
-		if (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '_' ||
-			(i != 0 && ch >= '0' && ch <= '9') {
+		if ch >= 'a' && ch <= 'z' {
+			continue
+		} else if ch >= 'A' && ch <= 'Z' {
+			if i == 0 {
+				// first rune must be lowercase to avoid conflict
+				// with Packages, ValueOf, TypeOf
+				runes[i] = ch - 'A' + 'a'
+			}
+			continue
+		} else if i > 0 && (ch == '_' || (ch >= '0' && ch <= '9')) {
 			continue
 		}
 		runes[i] = replacement
 	}
-	return string(runes)
+	str = string(runes)
+	if isReservedKeyword(str) {
+		runes = append(runes, '_')
+		str = string(runes)
+	}
+	return str
 }
 
-func computeImportFilename(path string, mode ImportMode) string {
+func computeImportDir(o *Output, pkgpath string, mode ImportMode) string {
 	switch mode {
 	case ImBuiltin:
 		// user will need to recompile gomacro
-		return paths.Subdir(paths.GomacroDir, "imports", sanitizeIdentifier(path)+".go")
-	case ImInception:
-		// user will need to recompile gosrcdir / path
-		return paths.Subdir(paths.GoSrcDir, path, "x_package.go")
+		return paths.GetImportsSrcDir()
 	case ImThirdParty:
 		// either plugin.Open is not available, or user explicitly requested import _3 "package".
 		// In both cases, user will need to recompile gomacro
-		return paths.Subdir(paths.GomacroDir, "imports", "thirdparty", sanitizeIdentifier(path)+".go")
+		return paths.Subdir(paths.GetImportsSrcDir(), "thirdparty")
+	case ImInception:
+		// user will need to recompile the package being imported
+		for _, srcdir := range paths.GoSrcDirs {
+			dir := paths.Subdir(srcdir, pkgpath)
+			if _, err := os.Stat(dir); err == nil {
+				return paths.Subdir(srcdir, pkgpath)
+			}
+		}
+		o.Errorf("unable to locate package %q in $GOPATH/src ($GOPATH=%s)",
+			pkgpath, build.Default.GOPATH)
+	case ImPlugin:
+		return paths.Subdir(paths.GoSrcDir, "gomacro.imports", pkgpath)
+	default:
+		o.Errorf("unknown import mode: %v", mode)
 	}
+	return ""
+}
 
-	file := paths.FileName(path) + ".go"
-	file = paths.Subdir(paths.GoSrcDir, "gomacro_imports", path, file)
-	dir := paths.DirName(file)
-	err := os.MkdirAll(dir, 0700)
-	if err != nil {
-		output.Errorf("error creating directory %q: %v", dir, err)
+func computeImportFilename(o *Output, pkgpath string, mode ImportMode) string {
+	switch mode {
+	case ImBuiltin:
+		// user will need to recompile gomacro
+		return sanitizeIdent(pkgpath) + ".go"
+	case ImThirdParty:
+		// either plugin.Open is not available, or user explicitly requested import _3 "package".
+		// In both cases, user will need to recompile gomacro
+		return sanitizeIdent(pkgpath) + ".go"
+	case ImInception:
+		// user will need to recompile package being imported
+		return "x_package.go"
+	case ImPlugin:
+		return sanitizeIdent(paths.FileName(pkgpath)) + ".go"
+	default:
+		o.Errorf("unknown import mode: %v", mode)
+		return ""
 	}
-	return file
 }

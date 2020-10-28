@@ -26,10 +26,10 @@ package main
 	return ret
 }
 
-makefib; int
-makefib; int32
-makefib; int64
+makefib; fibonacci_int;    int
+makefib; fibonacci_int32;  int32
+makefib; fibonacci_int64;  int64
 
-makefib; uint
-makefib; uint32
-makefib; uint64
+makefib; fibonacci_uint;   uint
+makefib; fibonacci_uint32; uint32
+makefib; fibonacci_uint64; uint64

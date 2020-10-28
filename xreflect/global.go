@@ -17,9 +17,11 @@
 package xreflect
 
 import (
+	"fmt"
 	"go/ast"
-	"go/types"
-	"reflect"
+	r "reflect"
+
+	"github.com/cosmos72/gomacro/go/types"
 )
 
 type Package types.Package
@@ -29,18 +31,18 @@ type Forward interface{}
 // InterfaceHeader is the internal header of interpreted interfaces
 type InterfaceHeader struct {
 	// val and typ must be private! otherwise interpreted code may mess with them and break type safety
-	val reflect.Value
+	val Value
 	typ Type
 }
 
-func MakeInterfaceHeader(val reflect.Value, typ Type) InterfaceHeader {
+func MakeInterfaceHeader(val Value, typ Type) InterfaceHeader {
 	if val.IsValid() && val.CanSet() {
 		val = val.Convert(val.Type()) // make a copy
 	}
 	return InterfaceHeader{val, typ}
 }
 
-func (h InterfaceHeader) Value() reflect.Value {
+func (h InterfaceHeader) Value() Value {
 	return h.val
 }
 
@@ -51,11 +53,11 @@ func (h InterfaceHeader) Type() Type {
 type Method struct {
 	Name       string
 	Pkg        *Package
-	Type       Type             // method type
-	Funs       *[]reflect.Value // (*Funs)[Index] is the method, with receiver as first argument
-	Index      int              // index for Type.Method
-	FieldIndex []int            // embedded fields index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
-	GoFun      *types.Func      // for completeness
+	Type       Type        // method type
+	Funs       *[]r.Value  // (*Funs)[Index] is the method, with receiver as first argument
+	Index      int         // index for Type.Method
+	FieldIndex []int       // embedded fields index sequence for r.Type.FieldByIndex or r.Value.FieldByIndex
+	GoFun      *types.Func // for completeness
 }
 
 type StructField struct {
@@ -65,21 +67,66 @@ type StructField struct {
 	// field name. It may be nil for upper case (exported) field names.
 	// See https://golang.org/ref/spec#Uniqueness_of_identifiers
 	Pkg       *Package
-	Type      Type              // field type
-	Tag       reflect.StructTag // field tag string
-	Offset    uintptr           // offset within struct, in bytes. meaningful only if all Deref[] are false
-	Index     []int             // index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
-	Anonymous bool              // is an embedded field. If true, Name should be empty or equal to the type's name
+	Type      Type        // field type
+	Tag       r.StructTag // field tag string
+	Offset    uintptr     // offset within struct, in bytes. meaningful only if all Deref[] are false
+	Index     []int       // index sequence for r.Type.FieldByIndex or r.Value.FieldByIndex
+	Anonymous bool        // is an embedded field. If true, Name should be empty or equal to the type's name
+}
+
+type addmethods uint8
+
+const (
+	addmethodsNeeded addmethods = iota
+	addmethodsDone
+)
+
+type Option uint8
+
+const (
+	OptDefault Option = iota
+	// type is approximate because it's self-recursive
+	// or part of a recursive cycle
+	OptRecursive
+	// type is still being defined
+	OptIncomplete
+)
+
+func (o Option) String() string {
+	switch o {
+	case OptDefault:
+		return "OptDefault"
+	case OptRecursive:
+		return "OptDefault"
+	case OptIncomplete:
+		return "OptIncomplete"
+	default:
+		return fmt.Sprintf("Opt(%d)", uint8(o))
+	}
 }
 
 type xtype struct {
-	kind         reflect.Kind
-	gtype        types.Type
-	rtype        reflect.Type
-	universe     *Universe
-	methodvalues []reflect.Value
-	fieldcache   map[QName]StructField
-	methodcache  map[QName]Method
+	kind     r.Kind
+	gtype    types.Type
+	rtype    r.Type
+	universe *Universe
+	/*
+		// lazily computed information
+		lazy struct {
+			underlying Type           // underlying type,
+			elem       Type           // chan, pointer, slice, array, map: element type
+			key        Type           // map: key type
+			fields     *[]StructField // struct: fields
+		}
+	*/
+	cache struct {
+		field  map[QName]StructField
+		method map[QName]Method
+	}
+	methodvalue []r.Value
+	userdata    map[interface{}]interface{}
+	addmethods  addmethods
+	option      Option
 }
 
 // QName is a replacement for go/types.Id and implements accurate comparison
@@ -98,6 +145,13 @@ func (q QName) Name() string {
 
 func (q QName) PkgPath() string {
 	return q.pkgpath
+}
+
+func (q QName) String() string {
+	if len(q.pkgpath) == 0 {
+		return q.name
+	}
+	return q.pkgpath + "." + q.name
 }
 
 func QLess(p, q QName) bool {
@@ -148,9 +202,9 @@ func MakeKey(t Type) Key {
 	if xt == nil {
 		return Key{}
 	}
-	i := xt.universe.gmap.At(xt.gtype)
-	if i != nil {
-		xt = unwrap(i.(Type))
+	it := xt.resolve()
+	if it != nil {
+		xt = unwrap(it)
 	}
 	return Key{xt.universe, xt.gtype}
 }

@@ -21,14 +21,13 @@ import (
 	"go/ast"
 	"go/token"
 	"os"
-	r "reflect"
 	"runtime/debug"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/cosmos72/gomacro/ast2"
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/base/reflect"
 	bstrings "github.com/cosmos72/gomacro/base/strings"
@@ -39,10 +38,10 @@ import (
 // return "", -1 on EOF
 func (ir *Interp) Read() (string, int) {
 	g := &ir.Comp.Globals
-	var opts ReadOptions
+	var opts base.ReadOptions
 
-	if g.Options&OptShowPrompt != 0 {
-		opts |= ReadOptShowPrompt
+	if g.Options&base.OptShowPrompt != 0 {
+		opts |= base.ReadOptShowPrompt
 	}
 	src, firstToken := g.ReadMultiline(opts, ir.Comp.Prompt)
 	if firstToken < 0 {
@@ -64,7 +63,7 @@ func (ir *Interp) Parse(src string) ast2.Ast {
 	}
 	// collect phase
 	g := &ir.Comp.Globals
-	if g.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
+	if g.Options&(base.OptCollectDeclarations|base.OptCollectStatements) != 0 {
 		g.CollectAst(form)
 	}
 	return form
@@ -86,7 +85,7 @@ func (ir *Interp) CompileAst(form ast2.Ast) *Expr {
 	c := ir.Comp
 	g := c.CompGlobals
 
-	if g.Options&OptMacroExpandOnly != 0 {
+	if g.Options&base.OptMacroExpandOnly != 0 {
 		x := form.Interface()
 		return c.exprValue(c.TypeOf(x), x)
 	}
@@ -94,17 +93,17 @@ func (ir *Interp) CompileAst(form ast2.Ast) *Expr {
 	// compile phase
 	expr := c.Compile(form)
 
-	if g.Options&OptKeepUntyped == 0 && expr != nil && expr.Untyped() {
+	if g.Options&base.OptKeepUntyped == 0 && expr != nil && expr.Untyped() {
 		expr.ConstTo(expr.DefaultType())
 	}
-	if g.Options&OptShowCompile != 0 {
+	if g.Options&base.OptShowCompile != 0 {
 		g.Fprintf(g.Stdout, "%v\n", expr)
 	}
 	return expr
 }
 
 // run without debugging. to execute with single-step debugging, use Interp.DebugExpr() instead
-func (ir *Interp) RunExpr1(e *Expr) (r.Value, xr.Type) {
+func (ir *Interp) RunExpr1(e *Expr) (xr.Value, xr.Type) {
 	if e == nil {
 		return None, nil
 	}
@@ -115,13 +114,13 @@ func (ir *Interp) RunExpr1(e *Expr) (r.Value, xr.Type) {
 }
 
 // run without debugging. to execute with single-step debugging, use Interp.DebugExpr() instead
-func (ir *Interp) RunExpr(e *Expr) ([]r.Value, []xr.Type) {
+func (ir *Interp) RunExpr(e *Expr) ([]xr.Value, []xr.Type) {
 	if e == nil {
 		return nil, nil
 	}
 	env := ir.PrepareEnv()
 
-	if ir.Comp.Globals.Options&OptKeepUntyped == 0 && e.Untyped() {
+	if ir.Comp.Globals.Options&base.OptKeepUntyped == 0 && e.Untyped() {
 		e.ConstTo(e.DefaultType())
 	}
 	run := env.Run
@@ -135,7 +134,7 @@ func (ir *Interp) RunExpr(e *Expr) ([]r.Value, []xr.Type) {
 }
 
 // execute with single-step debugging. to run without debugging, use Interp.RunExpr() instead
-func (ir *Interp) DebugExpr1(e *Expr) (r.Value, xr.Type) {
+func (ir *Interp) DebugExpr1(e *Expr) (xr.Value, xr.Type) {
 	if e == nil {
 		return None, nil
 	}
@@ -146,13 +145,13 @@ func (ir *Interp) DebugExpr1(e *Expr) (r.Value, xr.Type) {
 }
 
 // execute with single-step debugging. to run without debugging, use Interp.RunExpr() instead
-func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
+func (ir *Interp) DebugExpr(e *Expr) ([]xr.Value, []xr.Type) {
 	if e == nil {
 		return nil, nil
 	}
 	env := ir.PrepareEnv()
 
-	if ir.Comp.Globals.Options&OptKeepUntyped == 0 && e.Untyped() {
+	if ir.Comp.Globals.Options&base.OptKeepUntyped == 0 && e.Untyped() {
 		e.ConstTo(e.DefaultType())
 	}
 	run := env.Run
@@ -165,7 +164,7 @@ func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
 }
 
 // combined Parse + Compile + DebugExpr
-func (ir *Interp) Debug(src string) ([]r.Value, []xr.Type) {
+func (ir *Interp) Debug(src string) ([]xr.Value, []xr.Type) {
 	return ir.DebugExpr(ir.Compile(src))
 }
 
@@ -206,7 +205,7 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 		if capacity-cap(env.Vals) < minValDelta {
 			capacity = cap(env.Vals) + minValDelta
 		}
-		binds := make([]r.Value, min, capacity)
+		binds := make([]xr.Value, min, capacity)
 		copy(binds, env.Vals)
 		env.Vals = binds
 	}
@@ -241,9 +240,9 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 	// do NOT set g.CurrEnv = env, it messes up the call stack. done by Interp.RunExpr* and Interp.DebugExpr*
 	// g.CurrEnv = env
 	// in case we received a SigInterrupt in the meantime
-	g.Signals.Sync = SigNone
-	g.Signals.Async = SigNone
-	if g.Options&OptDebugger != 0 {
+	g.Signals.Sync = base.SigNone
+	g.Signals.Async = base.SigNone
+	if g.Options&base.OptDebugger != 0 {
 		// for debugger
 		env.DebugComp = c
 	} else {
@@ -259,20 +258,16 @@ var historyfile = paths.Subdir(paths.UserHomeDir(), ".gomacro_history")
 func (ir *Interp) ReplStdin() {
 	g := ir.Comp.CompGlobals
 
-	if g.Options&OptShowPrompt != 0 {
-		g.Fprintf(g.Stdout, `// GOMACRO, an interactive Go interpreter with generics and macros
-// Copyright (C) 2018-2019 Massimiliano Ghilardi <https://github.com/cosmos72/gomacro>
-// License MPL v2.0+: Mozilla Public License version 2.0 or later <http://mozilla.org/MPL/2.0/>
+	if g.Options&base.OptShowPrompt != 0 {
+		g.Fprintf(g.Stdout, `// Welcome to gomacro. Type %chelp for help, %ccopy for copyright and license.
 // This is free software with ABSOLUTELY NO WARRANTY.
-//
-// Type %chelp for help
-`, g.ReplCmdChar)
+`, g.ReplCmdChar, g.ReplCmdChar)
 	}
-	tty, _ := MakeTtyReadline(historyfile)
+	tty, _ := base.MakeTtyReadline(historyfile)
 	defer tty.Close(historyfile) // restore normal tty mode
 
-	ch := StartSignalHandler(ir.Interrupt)
-	defer StopSignalHandler(ch)
+	ch := base.StartSignalHandler(ir.Interrupt)
+	defer base.StopSignalHandler(ch)
 
 	savetty := g.Readline
 	g.Readline = tty
@@ -291,10 +286,10 @@ func (ir *Interp) ReplStdin() {
 func (ir *Interp) Repl(in *bufio.Reader) {
 	g := ir.Comp.CompGlobals
 
-	r := MakeBufReadline(in, g.Stdout)
+	r := base.MakeBufReadline(in, g.Stdout)
 
-	ch := StartSignalHandler(ir.Interrupt)
-	defer StopSignalHandler(ch)
+	ch := base.StartSignalHandler(ir.Interrupt)
+	defer base.StopSignalHandler(ch)
 
 	savetty := g.Readline
 	g.Readline = r
@@ -325,7 +320,7 @@ func (ir *Interp) ParseEvalPrint(src string) (callAgain bool) {
 
 	src, opt := ir.Cmd(src)
 
-	callAgain = opt&CmdOptQuit == 0
+	callAgain = opt&base.CmdOptQuit == 0
 	if len(src) == 0 || !callAgain {
 		trap = false // no panic happened
 		return callAgain
@@ -358,8 +353,8 @@ func (ir *Interp) ParseEvalPrint(src string) (callAgain bool) {
 
 func (ir *Interp) beforeEval() (t1 time.Time, trap bool, duration bool) {
 	g := &ir.Comp.Globals
-	trap = g.Options&OptTrapPanic != 0
-	duration = g.Options&OptShowTime != 0
+	trap = g.Options&base.OptTrapPanic != 0
+	duration = g.Options&base.OptShowTime != 0
 	if duration {
 		t1 = time.Now()
 	}
@@ -371,7 +366,7 @@ func (ir *Interp) afterEval(src string, callAgain *bool, trap *bool, t1 time.Tim
 	g.IncLine(src)
 	if *trap {
 		rec := recover()
-		if g.Options&OptPanicStackTrace != 0 {
+		if g.Options&base.OptPanicStackTrace != 0 {
 			g.Fprintf(g.Stderr, "%v\n%s", rec, debug.Stack())
 		} else {
 			g.Fprintf(g.Stderr, "%v\n", rec)
@@ -384,11 +379,11 @@ func (ir *Interp) afterEval(src string, callAgain *bool, trap *bool, t1 time.Tim
 	}
 }
 
-func cmdOptForceEval(g *Globals, opt CmdOpt) (toenable Options) {
-	if opt&CmdOptForceEval != 0 {
+func cmdOptForceEval(g *base.Globals, opt base.CmdOpt) (toenable base.Options) {
+	if opt&base.CmdOptForceEval != 0 {
 		// temporarily disable collection of declarations and statements,
 		// and temporarily re-enable eval (i.e. disable macroexpandonly)
-		const todisable = OptMacroExpandOnly | OptCollectDeclarations | OptCollectStatements
+		const todisable = base.OptMacroExpandOnly | base.OptCollectDeclarations | base.OptCollectStatements
 		if g.Options&todisable != 0 {
 			g.Options &^= todisable
 			return todisable

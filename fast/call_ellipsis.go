@@ -17,7 +17,7 @@
 package fast
 
 import (
-	r "reflect"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // call a variadic function, when arguments CONTAIN '...'
@@ -30,33 +30,33 @@ func call_ellipsis_ret0(c *Call, maxdepth int) func(env *Env) {
 		argfun := argfunsX1[0]
 		call = func(env *Env) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfun(env),
 			}
 			callslicexr(funv, argv)
 		}
 	case 2:
-		argfuns := [2]func(env *Env) r.Value{
+		argfuns := [2]func(env *Env) xr.Value{
 			argfunsX1[0],
 			argfunsX1[1],
 		}
 		call = func(env *Env) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
 			callslicexr(funv, argv)
 		}
 	case 3:
-		argfuns := [3]func(env *Env) r.Value{
+		argfuns := [3]func(env *Env) xr.Value{
 			argfunsX1[0],
 			argfunsX1[1],
 			argfunsX1[2],
 		}
 		call = func(env *Env) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 				argfuns[2](env),
@@ -67,7 +67,7 @@ func call_ellipsis_ret0(c *Call, maxdepth int) func(env *Env) {
 	if call == nil {
 		call = func(env *Env) {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
+			argv := make([]xr.Value, len(argfunsX1))
 			for i, argfun := range argfunsX1 {
 				argv[i] = argfun(env)
 			}
@@ -88,338 +88,338 @@ func call_ellipsis_ret1(c *Call, maxdepth int) I {
 	case 1:
 		argfun := argfunsX1[0]
 		switch kout {
-		case r.Bool:
+		case xr.Bool:
 			call = func(env *Env) bool {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Bool()
 			}
-		case r.Int:
+		case xr.Int:
 			call = func(env *Env) int {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int(retv.Int())
 			}
-		case r.Int8:
+		case xr.Int8:
 			call = func(env *Env) int8 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int8(retv.Int())
 			}
-		case r.Int16:
+		case xr.Int16:
 			call = func(env *Env) int16 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int16(retv.Int())
 			}
-		case r.Int32:
+		case xr.Int32:
 			call = func(env *Env) int32 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int32(retv.Int())
 			}
-		case r.Int64:
+		case xr.Int64:
 			call = func(env *Env) int64 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Int()
 			}
-		case r.Uint:
+		case xr.Uint:
 			call = func(env *Env) uint {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint(retv.Uint())
 			}
-		case r.Uint8:
+		case xr.Uint8:
 			call = func(env *Env) uint8 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint8(retv.Uint())
 			}
-		case r.Uint16:
+		case xr.Uint16:
 			call = func(env *Env) uint16 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint16(retv.Uint())
 			}
-		case r.Uint32:
+		case xr.Uint32:
 			call = func(env *Env) uint32 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint32(retv.Uint())
 			}
-		case r.Uint64:
+		case xr.Uint64:
 			call = func(env *Env) uint64 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Uint()
 			}
-		case r.Uintptr:
+		case xr.Uintptr:
 			call = func(env *Env) uintptr {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uintptr(retv.Uint())
 			}
-		case r.Float32:
+		case xr.Float32:
 			call = func(env *Env) float32 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return float32(retv.Float())
 			}
-		case r.Float64:
+		case xr.Float64:
 			call = func(env *Env) float64 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Float()
 			}
-		case r.Complex64:
+		case xr.Complex64:
 			call = func(env *Env) complex64 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return complex64(retv.Complex())
 			}
-		case r.Complex128:
+		case xr.Complex128:
 			call = func(env *Env) complex128 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Complex()
 			}
-		case r.String:
+		case xr.String:
 			call = func(env *Env) string {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.String()
 			}
 		default:
-			call = func(env *Env) r.Value {
+			call = func(env *Env) xr.Value {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfun(env),
 				}
 				return callslicexr(funv, argv)[0]
 			}
 		}
 	case 2:
-		argfuns := [2]func(*Env) r.Value{
+		argfuns := [2]func(*Env) xr.Value{
 			argfunsX1[0],
 			argfunsX1[1],
 		}
 		switch kout {
-		case r.Bool:
+		case xr.Bool:
 			call = func(env *Env) bool {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Bool()
 			}
-		case r.Int:
+		case xr.Int:
 			call = func(env *Env) int {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int(retv.Int())
 			}
-		case r.Int8:
+		case xr.Int8:
 			call = func(env *Env) int8 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int8(retv.Int())
 			}
-		case r.Int16:
+		case xr.Int16:
 			call = func(env *Env) int16 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int16(retv.Int())
 			}
-		case r.Int32:
+		case xr.Int32:
 			call = func(env *Env) int32 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int32(retv.Int())
 			}
-		case r.Int64:
+		case xr.Int64:
 			call = func(env *Env) int64 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Int()
 			}
-		case r.Uint:
+		case xr.Uint:
 			call = func(env *Env) uint {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint(retv.Uint())
 			}
-		case r.Uint8:
+		case xr.Uint8:
 			call = func(env *Env) uint8 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint8(retv.Uint())
 			}
-		case r.Uint16:
+		case xr.Uint16:
 			call = func(env *Env) uint16 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint16(retv.Uint())
 			}
-		case r.Uint32:
+		case xr.Uint32:
 			call = func(env *Env) uint32 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint32(retv.Uint())
 			}
-		case r.Uint64:
+		case xr.Uint64:
 			call = func(env *Env) uint64 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Uint()
 			}
-		case r.Uintptr:
+		case xr.Uintptr:
 			call = func(env *Env) uintptr {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uintptr(retv.Uint())
 			}
-		case r.Float32:
+		case xr.Float32:
 			call = func(env *Env) float32 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return float32(retv.Float())
 			}
-		case r.Float64:
+		case xr.Float64:
 			call = func(env *Env) float64 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Float()
 			}
-		case r.Complex64:
+		case xr.Complex64:
 			call = func(env *Env) complex64 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return complex64(retv.Complex())
 			}
-		case r.Complex128:
+		case xr.Complex128:
 			call = func(env *Env) complex128 {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Complex()
 			}
-		case r.String:
+		case xr.String:
 			call = func(env *Env) string {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
@@ -427,9 +427,9 @@ func call_ellipsis_ret1(c *Call, maxdepth int) I {
 				return retv.String()
 			}
 		default:
-			call = func(env *Env) r.Value {
+			call = func(env *Env) xr.Value {
 				funv := exprfun(env)
-				argv := []r.Value{
+				argv := []xr.Value{
 					argfuns[0](env),
 					argfuns[1](env),
 				}
@@ -438,170 +438,170 @@ func call_ellipsis_ret1(c *Call, maxdepth int) I {
 		}
 	default:
 		switch kout {
-		case r.Bool:
+		case xr.Bool:
 			call = func(env *Env) bool {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Bool()
 			}
-		case r.Int:
+		case xr.Int:
 			call = func(env *Env) int {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int(retv.Int())
 			}
-		case r.Int8:
+		case xr.Int8:
 			call = func(env *Env) int8 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int8(retv.Int())
 			}
-		case r.Int16:
+		case xr.Int16:
 			call = func(env *Env) int16 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int16(retv.Int())
 			}
-		case r.Int32:
+		case xr.Int32:
 			call = func(env *Env) int32 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return int32(retv.Int())
 			}
-		case r.Int64:
+		case xr.Int64:
 			call = func(env *Env) int64 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Int()
 			}
-		case r.Uint:
+		case xr.Uint:
 			call = func(env *Env) uint {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint(retv.Uint())
 			}
-		case r.Uint8:
+		case xr.Uint8:
 			call = func(env *Env) uint8 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint8(retv.Uint())
 			}
-		case r.Uint16:
+		case xr.Uint16:
 			call = func(env *Env) uint16 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint16(retv.Uint())
 			}
-		case r.Uint32:
+		case xr.Uint32:
 			call = func(env *Env) uint32 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uint32(retv.Uint())
 			}
-		case r.Uint64:
+		case xr.Uint64:
 			call = func(env *Env) uint64 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Uint()
 			}
-		case r.Uintptr:
+		case xr.Uintptr:
 			call = func(env *Env) uintptr {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return uintptr(retv.Uint())
 			}
-		case r.Float32:
+		case xr.Float32:
 			call = func(env *Env) float32 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return float32(retv.Float())
 			}
-		case r.Float64:
+		case xr.Float64:
 			call = func(env *Env) float64 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Float()
 			}
-		case r.Complex64:
+		case xr.Complex64:
 			call = func(env *Env) complex64 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return complex64(retv.Complex())
 			}
-		case r.Complex128:
+		case xr.Complex128:
 			call = func(env *Env) complex128 {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
 				retv := callslicexr(funv, argv)[0]
 				return retv.Complex()
 			}
-		case r.String:
+		case xr.String:
 			call = func(env *Env) string {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
@@ -609,9 +609,9 @@ func call_ellipsis_ret1(c *Call, maxdepth int) I {
 				return retv.String()
 			}
 		default:
-			call = func(env *Env) r.Value {
+			call = func(env *Env) xr.Value {
 				funv := exprfun(env)
-				argv := make([]r.Value, len(argfunsX1))
+				argv := make([]xr.Value, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					argv[i] = argfun(env)
 				}
@@ -625,31 +625,31 @@ func call_ellipsis_ret1(c *Call, maxdepth int) I {
 
 // cannot optimize much here... fast_interpreter ASSUMES that expressions
 // returning multiple values actually return (reflect.Value, []reflect.Value)
-func call_ellipsis_ret2plus(callexpr *Call, maxdepth int) func(env *Env) (r.Value, []r.Value) {
+func call_ellipsis_ret2plus(callexpr *Call, maxdepth int) func(env *Env) (xr.Value, []xr.Value) {
 	expr := callexpr.Fun
 	exprfun := expr.AsX1()
 	argfunsX1 := callexpr.MakeArgfunsX1()
-	var call func(*Env) (r.Value, []r.Value)
+	var call func(*Env) (xr.Value, []xr.Value)
 
 	switch expr.Type.NumIn() {
 	case 1:
 		argfun := argfunsX1[0]
-		call = func(env *Env) (r.Value, []r.Value) {
+		call = func(env *Env) (xr.Value, []xr.Value) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfun(env),
 			}
 			retv := callslicexr(funv, argv)
 			return retv[0], retv
 		}
 	case 2:
-		argfuns := [2]func(*Env) r.Value{
+		argfuns := [2]func(*Env) xr.Value{
 			argfunsX1[0],
 			argfunsX1[1],
 		}
-		call = func(env *Env) (r.Value, []r.Value) {
+		call = func(env *Env) (xr.Value, []xr.Value) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 			}
@@ -657,14 +657,14 @@ func call_ellipsis_ret2plus(callexpr *Call, maxdepth int) func(env *Env) (r.Valu
 			return retv[0], retv
 		}
 	case 3:
-		argfuns := [3]func(*Env) r.Value{
+		argfuns := [3]func(*Env) xr.Value{
 			argfunsX1[0],
 			argfunsX1[1],
 			argfunsX1[2],
 		}
-		call = func(env *Env) (r.Value, []r.Value) {
+		call = func(env *Env) (xr.Value, []xr.Value) {
 			funv := exprfun(env)
-			argv := []r.Value{
+			argv := []xr.Value{
 				argfuns[0](env),
 				argfuns[1](env),
 				argfuns[2](env),
@@ -674,9 +674,9 @@ func call_ellipsis_ret2plus(callexpr *Call, maxdepth int) func(env *Env) (r.Valu
 		}
 	default:
 		// general case
-		call = func(env *Env) (r.Value, []r.Value) {
+		call = func(env *Env) (xr.Value, []xr.Value) {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
+			argv := make([]xr.Value, len(argfunsX1))
 			for i, argfun := range argfunsX1 {
 				argv[i] = argfun(env)
 			}

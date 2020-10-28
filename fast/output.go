@@ -18,14 +18,12 @@ package fast
 
 import (
 	"fmt"
-	"go/types"
 	"io"
-	r "reflect"
 	"sort"
 
-	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/paths"
+	"github.com/cosmos72/gomacro/go/types"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -173,13 +171,13 @@ func showType(out io.Writer, name string, t xr.Type, stringer func(xr.Type) stri
 	fmt.Fprintf(out, "%s%s = %v\t// %v\n", name, spaces15[n:], stringer(t), t.Kind())
 }
 
-func showValue(out io.Writer, name string, v r.Value, t xr.Type, stringer func(xr.Type) string) {
+func showValue(out io.Writer, name string, v xr.Value, t xr.Type, stringer func(xr.Type) string) {
 	n := len(name) & 15
 	fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], valueString(v, 0), stringer(t))
 }
 
 // convert a reflect.Value to string, intercepting any panic
-func valueString(v r.Value, depth int) (s string) {
+func valueString(v xr.Value, depth int) (s string) {
 	ok := false
 	defer func() {
 		if !ok {
@@ -187,7 +185,7 @@ func valueString(v r.Value, depth int) (s string) {
 			s = valueString2(v, depth)
 		}
 	}()
-	if !v.IsValid() || v == base.None {
+	if !v.IsValid() || v == None {
 		s = "nil"
 	} else {
 		s = fmt.Sprintf("%v", v)
@@ -196,13 +194,13 @@ func valueString(v r.Value, depth int) (s string) {
 	return s
 }
 
-func valueString2(v r.Value, depth int) (s string) {
+func valueString2(v xr.Value, depth int) (s string) {
 	ok := false
 	defer func() {
 		if !ok {
 			err := recover()
 			if depth == 0 {
-				s = "(error printing value: " + valueString(r.ValueOf(err), depth+1) + ")"
+				s = "(error printing value: " + valueString(xr.ValueOf(err), depth+1) + ")"
 			} else {
 				s = "(error printing error)"
 			}

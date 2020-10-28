@@ -49,14 +49,14 @@ func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
 			env.evalStatement(node.Post)
 		}
 	}
-	return None, nil
+	return NoneR, nil
 }
 
 func (env *Env) evalForRange(node *ast.RangeStmt) (r.Value, []r.Value) {
 	// Debugf("evalForRange() init = %#v, cond = %#v, post = %#v, body = %#v", node.Init, node.Cond, node.Post, node.Body)
 
 	container := env.evalExpr1(node.X)
-	if container == Nil || container == None {
+	if container == NilR || container == NoneR {
 		return env.Errorf("invalid for range: cannot iterate on nil: %v evaluated to %v", node.X, container)
 	}
 
@@ -92,10 +92,10 @@ func (env *Env) evalForRangeMap(obj r.Value, node *ast.RangeStmt) (r.Value, []r.
 		v := env.defineForIterVar(vnode, t.Elem())
 
 		for _, key := range obj.MapKeys() {
-			if k != Nil {
+			if k != NilR {
 				k.Set(key)
 			}
-			if v != Nil {
+			if v != NilR {
 				v.Set(obj.MapIndex(key))
 			}
 			if !env.evalForBodyOnce(node.Body) {
@@ -121,7 +121,7 @@ func (env *Env) evalForRangeMap(obj r.Value, node *ast.RangeStmt) (r.Value, []r.
 			}
 		}
 	}
-	return None, nil
+	return NoneR, nil
 }
 
 func (env *Env) evalForRangeChannel(obj r.Value, node *ast.RangeStmt) (r.Value, []r.Value) {
@@ -141,7 +141,7 @@ func (env *Env) evalForRangeChannel(obj r.Value, node *ast.RangeStmt) (r.Value, 
 			if !ok {
 				break
 			}
-			if k != Nil {
+			if k != NilR {
 				k.Set(recv)
 			}
 			if !env.evalForBodyOnce(node.Body) {
@@ -167,7 +167,7 @@ func (env *Env) evalForRangeChannel(obj r.Value, node *ast.RangeStmt) (r.Value, 
 			}
 		}
 	}
-	return None, nil
+	return NoneR, nil
 }
 
 func (env *Env) evalForRangeString(str string, node *ast.RangeStmt) (r.Value, []r.Value) {
@@ -181,10 +181,10 @@ func (env *Env) evalForRangeString(str string, node *ast.RangeStmt) (r.Value, []
 		v := env.defineForIterVar(vnode, TypeOfRune)
 
 		for i, rune := range str {
-			if k != Nil {
+			if k != NilR {
 				k.Set(r.ValueOf(i))
 			}
-			if v != Nil {
+			if v != NilR {
 				v.Set(r.ValueOf(rune))
 			}
 			if !env.evalForBodyOnce(node.Body) {
@@ -210,7 +210,7 @@ func (env *Env) evalForRangeString(str string, node *ast.RangeStmt) (r.Value, []
 			}
 		}
 	}
-	return None, nil
+	return NoneR, nil
 }
 
 func (env *Env) evalForRangeSlice(obj r.Value, node *ast.RangeStmt) (r.Value, []r.Value) {
@@ -225,10 +225,10 @@ func (env *Env) evalForRangeSlice(obj r.Value, node *ast.RangeStmt) (r.Value, []
 
 		n := obj.Len()
 		for i := 0; i < n; i++ {
-			if k != Nil {
+			if k != NilR {
 				k.Set(r.ValueOf(i))
 			}
-			if v != Nil {
+			if v != NilR {
 				v.Set(obj.Index(i))
 			}
 			if !env.evalForBodyOnce(node.Body) {
@@ -255,7 +255,7 @@ func (env *Env) evalForRangeSlice(obj r.Value, node *ast.RangeStmt) (r.Value, []
 			}
 		}
 	}
-	return None, nil
+	return NoneR, nil
 }
 
 func (env *Env) evalForBodyOnce(node *ast.BlockStmt) (cont bool) {
@@ -277,7 +277,7 @@ func (env *Env) evalForBodyOnce(node *ast.BlockStmt) (cont bool) {
 
 func (env *Env) defineForIterVar(node ast.Expr, t r.Type) r.Value {
 	if node == nil || t == nil {
-		return Nil
+		return NilR
 	}
 	name := node.(*ast.Ident).Name
 	env.DefineVar(name, t, r.Zero(t))

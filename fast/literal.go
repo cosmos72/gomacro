@@ -63,7 +63,7 @@ func isLiteral(x interface{}) bool {
 	}
 	rtype := r.TypeOf(x)
 	switch reflect.Category(rtype.Kind()) {
-	case r.Bool, r.Int, r.Uint, r.Float64, r.Complex128, r.String:
+	case xr.Bool, r.Int, r.Uint, r.Float64, r.Complex128, r.String:
 		return true
 	}
 	_, ok := x.(UntypedLit)
@@ -74,27 +74,27 @@ func isLiteralNumber(x I, n int64) bool {
 	if x == nil {
 		return false
 	}
-	v := r.ValueOf(x)
+	v := xr.ValueOf(x)
 	switch reflect.Category(v.Kind()) {
-	case r.Bool:
+	case xr.Bool:
 		return false
-	case r.Int:
+	case xr.Int:
 		return v.Int() == n
-	case r.Uint:
+	case xr.Uint:
 		// n == -1 means "unsigned integer equals its maximum value"
 		// similarly, n == -2 means "unsigned integer equals its maximum value minus 1"
 		// and so on...
 		return v.Uint() == uint64(n)
-	case r.Float64:
+	case xr.Float64:
 		return v.Float() == float64(n)
-	case r.Complex128:
+	case xr.Complex128:
 		return v.Complex() == complex(float64(n), 0)
-	case r.String:
+	case xr.String:
 		return false
 	}
 	// no luck yet... try harder
 	switch x := x.(type) {
-	case r.Value:
+	case xr.Value:
 		return false
 	case UntypedLit:
 		return x.EqualInt64(n)
@@ -132,7 +132,7 @@ func (e *Expr) ConstTo(t xr.Type) I {
 // actually performs type conversion (and subsequent overflow checks) ONLY on untyped constants.
 func (lit *Lit) ConstTo(t xr.Type) I {
 	value := lit.Value
-	// output.Debugf("Lit.ConstTo(): converting constant %v <%v> (stored as <%v>) to <%v>", value, TypeOf(value), lit.Type, t)
+	// output.Debugf("Lit.ConstTo(): converting constant %v <%v> (emulated type <%v>) to <%v>", value, r.TypeOf(value), lit.Type, t)
 	if t == nil {
 		// only literal nil has type nil
 		if value != nil {
@@ -150,21 +150,21 @@ func (lit *Lit) ConstTo(t xr.Type) I {
 		val := x.Convert(t)
 		lit.Type = t
 		lit.Value = val
-		// output.Debugf("UntypedLit.Convert(): converted untyped constant %v to %v <%v> (stored as <%v>)", x, val, TypeOf(val), t)
+		// output.Debugf("Lit.ConstTo(): converted untyped constant %v to %v <%v> (emulated type <%v>)", x, val, r.TypeOf(val), t)
 		return val
 	case nil:
 		// literal nil can only be converted to nillable types
 		if reflect.IsNillableKind(t.Kind()) {
 			lit.Type = t
 			return nil
-			// lit.Value = r.Zero(t).Interface()
+			// lit.Value = xr.Zero(t).Interface()
 			// return lit.Value
 		}
 	}
 	if tfrom != nil && t != nil && (tfrom.AssignableTo(t) || t.Kind() == r.Interface && tfrom.Implements(t)) {
 		lit.Type = t
 		// FIXME: use (*Comp).Converter(), requires a *Comp parameter
-		lit.Value = convert(r.ValueOf(value), t.ReflectType()).Interface()
+		lit.Value = convert(xr.ValueOf(value), t.ReflectType()).Interface()
 		return lit.Value
 	}
 	output.Errorf("cannot convert typed constant %v <%v> to <%v>%s", value, lit.Type, t, interfaceMissingMethod(lit.Type, t))
@@ -172,25 +172,25 @@ func (lit *Lit) ConstTo(t xr.Type) I {
 }
 
 // return a closure that duplicates at each invokation any *big.Int, *big.Rat, *big.Float passed as 'val'
-func makeMathBigFun(val I) func(*Env) r.Value {
+func makeMathBigFun(val I) func(*Env) xr.Value {
 	switch a := val.(type) {
 	case *big.Int:
-		return func(*Env) r.Value {
+		return func(*Env) xr.Value {
 			var b big.Int
 			b.Set(a)
-			return r.ValueOf(&b)
+			return xr.ValueOf(&b)
 		}
 	case *big.Rat:
-		return func(*Env) r.Value {
+		return func(*Env) xr.Value {
 			var b big.Rat
 			b.Set(a)
-			return r.ValueOf(&b)
+			return xr.ValueOf(&b)
 		}
 	case *big.Float:
-		return func(*Env) r.Value {
+		return func(*Env) xr.Value {
 			var b big.Float
 			b.Set(a)
-			return r.ValueOf(&b)
+			return xr.ValueOf(&b)
 		}
 	default:
 		return nil
@@ -281,11 +281,10 @@ func (e *Expr) To(c *Comp, t xr.Type) {
 		c.Errorf("internal error: cannot use <%v> as <%v> (should not happen, <%v> is assignable to <%v>", e.Type, t, e.Type, t)
 	}
 	fun := e.AsX1()
-	rtype := t.ReflectType()
-	zero := r.Zero(rtype)
+	zero := xr.Zero(t)
 
 	if conv := c.Converter(e.Type, t); conv == nil {
-		e.Fun = func(env *Env) r.Value {
+		e.Fun = func(env *Env) xr.Value {
 			v := fun(env)
 			if !v.IsValid() {
 				v = zero
@@ -293,7 +292,7 @@ func (e *Expr) To(c *Comp, t xr.Type) {
 			return v
 		}
 	} else {
-		e.Fun = func(env *Env) r.Value {
+		e.Fun = func(env *Env) xr.Value {
 			v := fun(env)
 			if !v.IsValid() {
 				v = zero
@@ -319,18 +318,18 @@ func (e *Expr) WithFun() I {
 	var fun I
 again:
 	value := e.Value
-	v := r.ValueOf(value)
+	v := xr.ValueOf(value)
 	t := e.Type
 	if t == nil {
-		e.Fun = eNil
-		return eNil
+		e.Fun = eNilR
+		return eNilR
 	}
 	if value == nil {
 		if !reflect.IsNillableKind(t.Kind()) {
 			output.Errorf("internal error: constant of type <%v> cannot be nil", t)
 		}
-		zero := r.Zero(t.ReflectType())
-		fun = func(*Env) r.Value {
+		zero := xr.Zero(t)
+		fun = func(*Env) xr.Value {
 			return zero
 		}
 		e.Fun = fun
@@ -346,90 +345,90 @@ again:
 		}
 	}
 	switch v.Kind() {
-	case r.Invalid:
-		fun = eNil
-	case r.Bool:
+	case xr.Invalid:
+		fun = eNilR
+	case xr.Bool:
 		if v.Bool() {
 			fun = eTrue
 		} else {
 			fun = eFalse
 		}
-	case r.Int:
+	case xr.Int:
 		x := int(v.Int())
 		fun = func(env *Env) int {
 			return x
 		}
-	case r.Int8:
+	case xr.Int8:
 		x := int8(v.Int())
 		fun = func(env *Env) int8 {
 			return x
 		}
-	case r.Int16:
+	case xr.Int16:
 		x := int16(v.Int())
 		fun = func(env *Env) int16 {
 			return x
 		}
-	case r.Int32:
+	case xr.Int32:
 		x := int32(v.Int())
 		fun = func(env *Env) int32 {
 			return x
 		}
-	case r.Int64:
+	case xr.Int64:
 		x := v.Int()
 		fun = func(env *Env) int64 {
 			return x
 		}
-	case r.Uint:
+	case xr.Uint:
 		x := uint(v.Uint())
 		fun = func(env *Env) uint {
 			return x
 		}
-	case r.Uint8:
+	case xr.Uint8:
 		x := uint8(v.Uint())
 		fun = func(env *Env) uint8 {
 			return x
 		}
-	case r.Uint16:
+	case xr.Uint16:
 		x := uint16(v.Uint())
 		fun = func(env *Env) uint16 {
 			return x
 		}
-	case r.Uint32:
+	case xr.Uint32:
 		x := uint32(v.Uint())
 		fun = func(env *Env) uint32 {
 			return x
 		}
-	case r.Uint64:
+	case xr.Uint64:
 		x := v.Uint()
 		fun = func(env *Env) uint64 {
 			return x
 		}
-	case r.Uintptr:
+	case xr.Uintptr:
 		x := uintptr(v.Uint())
 		fun = func(env *Env) uintptr {
 			return x
 		}
-	case r.Float32:
+	case xr.Float32:
 		x := float32(v.Float())
 		fun = func(env *Env) float32 {
 			return x
 		}
-	case r.Float64:
+	case xr.Float64:
 		x := v.Float()
 		fun = func(env *Env) float64 {
 			return x
 		}
-	case r.Complex64:
+	case xr.Complex64:
 		x := complex64(v.Complex())
 		fun = func(env *Env) complex64 {
 			return x
 		}
-	case r.Complex128:
+	case xr.Complex128:
 		x := v.Complex()
 		fun = func(env *Env) complex128 {
 			return x
 		}
-	case r.String:
+	case xr.String:
 		x := v.String()
 		fun = func(env *Env) string {
 			return x
@@ -439,7 +438,7 @@ again:
 			e.ConstTo(e.DefaultType())
 			goto again
 		}
-		fun = func(env *Env) r.Value {
+		fun = func(env *Env) xr.Value {
 			return v
 		}
 	}

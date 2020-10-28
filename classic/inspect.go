@@ -32,7 +32,7 @@ func (env *Env) Inspect(str string) {
 	form := env.Parse(str)
 	v := env.EvalAst1(form)
 	var t r.Type
-	if v.IsValid() && v != None {
+	if v.IsValid() && v != NoneR {
 		if v.Kind() == r.Interface {
 			v = v.Elem() // extract concrete type
 		}

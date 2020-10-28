@@ -22,6 +22,8 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+:package fast
+
 :import (
 	r "reflect"
 	"go/ast"
@@ -39,17 +41,17 @@ import (
 	}
 	return ~"{
 		if funcbody == nil {
-			return func(env *Env) r.Value {
-				return r.ValueOf(func() (ret0 ~,ret0typ) {
+			return func(env *Env) xr.Value {
+				return xr.ValueOf(func() (ret0 ~,ret0typ) {
 					return
 				})
 			}
 		}
 		resultfun := m.resultfun[0].(func (*Env) ~,ret0typ)
-		return func(env *Env) r.Value {
+		return func(env *Env) xr.Value {
 			// function is closed over the env used to DECLARE it
 			env.MarkUsedByClosure()
-			return r.ValueOf(func() (ret0 ~,ret0typ) {
+			return xr.ValueOf(func() (ret0 ~,ret0typ) {
 				env := newEnv4Func(env, nbind, nintbind, debugC)
 
 				// execute the body
@@ -64,7 +66,7 @@ import (
 	}
 }
 
-func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) xr.Value {
 	// do NOT keep a reference to funcMaker
 	nbind := m.nbind
 	nintbind := m.nintbind
@@ -78,23 +80,23 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	tret0 := t.Out(0)
 	kret0 := tret0.Kind()
 	switch kret0 {
-	case r.Bool:      {mfunc0ret1; bool}
-	case r.Int:       {mfunc0ret1; int}
-	case r.Int8:      {mfunc0ret1; int8}
-	case r.Int16:     {mfunc0ret1; int16}
-	case r.Int32:     {mfunc0ret1; int32}
-	case r.Int64:     {mfunc0ret1; int64}
-	case r.Uint:      {mfunc0ret1; uint}
-	case r.Uint8:     {mfunc0ret1; uint8}
-	case r.Uint16:    {mfunc0ret1; uint16}
-	case r.Uint32:    {mfunc0ret1; uint32}
-	case r.Uint64:    {mfunc0ret1; uint64}
-	case r.Uintptr:   {mfunc0ret1; uintptr}
-	case r.Float32:   {mfunc0ret1; float32}
-	case r.Float64:   {mfunc0ret1; float64}
-	case r.Complex64: {mfunc0ret1; complex64}
-	case r.Complex128:{mfunc0ret1; complex128}
-	case r.String:    {mfunc0ret1; string}
+	case xr.Bool:      {mfunc0ret1; bool}
+	case xr.Int:       {mfunc0ret1; int}
+	case xr.Int8:      {mfunc0ret1; int8}
+	case xr.Int16:     {mfunc0ret1; int16}
+	case xr.Int32:     {mfunc0ret1; int32}
+	case xr.Int64:     {mfunc0ret1; int64}
+	case xr.Uint:      {mfunc0ret1; uint}
+	case xr.Uint8:     {mfunc0ret1; uint8}
+	case xr.Uint16:    {mfunc0ret1; uint16}
+	case xr.Uint32:    {mfunc0ret1; uint32}
+	case xr.Uint64:    {mfunc0ret1; uint64}
+	case xr.Uintptr:   {mfunc0ret1; uintptr}
+	case xr.Float32:   {mfunc0ret1; float32}
+	case xr.Float64:   {mfunc0ret1; float64}
+	case xr.Complex64: {mfunc0ret1; complex64}
+	case xr.Complex128:{mfunc0ret1; complex128}
+	case xr.String:    {mfunc0ret1; string}
 	default:          return nil
 	}
 }

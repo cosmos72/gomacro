@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"math/big"
+	big "math/big"
 )
 
 // reflection: allow interpreted code to import "math/big"
 func init() {
 	Packages["math/big"] = Package{
+	Name: "big",
 	Binds: map[string]Value{
 		"Above":	ValueOf(big.Above),
 		"AwayFromZero":	ValueOf(big.AwayFromZero),
@@ -39,7 +40,7 @@ func init() {
 		"RoundingMode":	TypeOf((*big.RoundingMode)(nil)).Elem(),
 		"Word":	TypeOf((*big.Word)(nil)).Elem(),
 	}, Untypeds: map[string]string{
-		"MaxBase":	"rune:36",
+		"MaxBase":	"rune:62",
 		"MaxExp":	"int:2147483647",
 		"MaxPrec":	"int:4294967295",
 		"MinExp":	"int:-2147483648",

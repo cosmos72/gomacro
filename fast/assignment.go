@@ -25,10 +25,10 @@ import (
 )
 
 type Assign struct {
-	placefun func(*Env) r.Value
-	placekey func(*Env) r.Value
-	setvar   func(*Env, r.Value)
-	setplace func(r.Value, r.Value, r.Value)
+	placefun func(*Env) xr.Value
+	placekey func(*Env) xr.Value
+	setvar   func(*Env, xr.Value)
+	setplace func(xr.Value, xr.Value, xr.Value)
 }
 
 func (a *Assign) init(c *Comp, place *Place) {
@@ -102,9 +102,9 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 	//
 	// so a technique like the following is bugged,
 	// because it creates a *single* global location for the temporary copy:
-	//   var tmp r.Value
+	//   var tmp xr.Value
 	//   func set(env *Env) { tmp = places[i].Fun(env) }
-	//   func get(env *Env) r.Value { return tmp }
+	//   func get(env *Env) xr.Value { return tmp }
 
 	assign := make([]Assign, ln)
 	for i, place := range places {
@@ -121,11 +121,11 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 	}
 }
 
-func (c *Comp) assignPrepareRhs(node *ast.AssignStmt, places []*Place, exprs []*Expr) ([]func(*Env) r.Value, func(*Env) (r.Value, []r.Value)) {
+func (c *Comp) assignPrepareRhs(node *ast.AssignStmt, places []*Place, exprs []*Expr) ([]func(*Env) xr.Value, func(*Env) (xr.Value, []xr.Value)) {
 	lhs, rhs := node.Lhs, node.Rhs
 	ln, rn := len(lhs), len(rhs)
 	if ln == rn {
-		exprfuns := make([]func(*Env) r.Value, rn)
+		exprfuns := make([]func(*Env) xr.Value, rn)
 		for i, expr := range exprs {
 			tplace := places[i].Type
 			if expr.Const() {
@@ -147,7 +147,7 @@ func (c *Comp) assignPrepareRhs(node *ast.AssignStmt, places []*Place, exprs []*
 			c.Pos = node.Pos()
 			c.Errorf("invalid assignment: expression returns %d values, cannot assign them to %d places: %v", nexpr, ln, node)
 		}
-		convs := make([]func(r.Value) r.Value, nexpr)
+		convs := make([]func(xr.Value) xr.Value, nexpr)
 		needconvs := false
 		for i := 0; i < nexpr; i++ {
 			texpr := expr.Out(i)
@@ -162,7 +162,7 @@ func (c *Comp) assignPrepareRhs(node *ast.AssignStmt, places []*Place, exprs []*
 		}
 		f := expr.AsXV(COptDefaults)
 		if needconvs {
-			return nil, func(env *Env) (r.Value, []r.Value) {
+			return nil, func(env *Env) (xr.Value, []xr.Value) {
 				_, vs := f(env)
 				for i, conv := range convs {
 					if conv != nil {
@@ -179,16 +179,26 @@ func (c *Comp) assignPrepareRhs(node *ast.AssignStmt, places []*Place, exprs []*
 	return nil, nil
 }
 
+// make a shallow copy of reflect.Value
+// needed in multi-assignment statement
+// to read all rhs before setting the lhs
+func dup(v xr.Value) xr.Value {
+	if v.CanSet() {
+		v = v.Convert(v.Type())
+	}
+	return v
+}
+
 // assign2 compiles multiple assignment to two places
-func (c *Comp) assign2(assign []Assign, exprfuns []func(*Env) r.Value) {
-	efuns := [2]func(*Env) r.Value{exprfuns[0], exprfuns[1]}
+func (c *Comp) assign2(assign []Assign, exprfuns []func(*Env) xr.Value) {
+	efuns := [2]func(*Env) xr.Value{exprfuns[0], exprfuns[1]}
 	var stmt Stmt
 	if assign[0].placefun == nil {
 		if assign[1].placefun == nil {
-			setvars := [2]func(*Env, r.Value){assign[0].setvar, assign[1].setvar}
+			setvars := [2]func(*Env, xr.Value){assign[0].setvar, assign[1].setvar}
 			stmt = func(env *Env) (Stmt, *Env) {
-				val0 := efuns[0](env)
-				val1 := efuns[1](env)
+				val0 := dup(efuns[0](env))
+				val1 := dup(efuns[1](env))
 				setvars[0](env, val0)
 				setvars[1](env, val1)
 				env.IP++
@@ -197,8 +207,8 @@ func (c *Comp) assign2(assign []Assign, exprfuns []func(*Env) r.Value) {
 		} else {
 			stmt = func(env *Env) (Stmt, *Env) {
 				obj1 := assign[1].placefun(env)
-				val0 := efuns[0](env)
-				val1 := efuns[1](env)
+				val0 := dup(efuns[0](env))
+				val1 := dup(efuns[1](env))
 				assign[0].setvar(env, val0)
 				assign[1].setplace(obj1, obj1, val1)
 				env.IP++
@@ -209,8 +219,8 @@ func (c *Comp) assign2(assign []Assign, exprfuns []func(*Env) r.Value) {
 		if assign[1].placefun == nil {
 			stmt = func(env *Env) (Stmt, *Env) {
 				obj0 := assign[0].placefun(env)
-				val0 := efuns[0](env)
-				val1 := efuns[1](env)
+				val0 := dup(efuns[0](env))
+				val1 := dup(efuns[1](env))
 				assign[0].setplace(obj0, obj0, val0)
 				assign[1].setvar(env, val1)
 				env.IP++
@@ -220,8 +230,8 @@ func (c *Comp) assign2(assign []Assign, exprfuns []func(*Env) r.Value) {
 			stmt = func(env *Env) (Stmt, *Env) {
 				obj0 := assign[0].placefun(env)
 				obj1 := assign[1].placefun(env)
-				val0 := efuns[0](env)
-				val1 := efuns[1](env)
+				val0 := dup(efuns[0](env))
+				val1 := dup(efuns[1](env))
 				assign[0].setplace(obj0, obj0, val0)
 				assign[1].setplace(obj1, obj1, val1)
 				env.IP++
@@ -233,13 +243,13 @@ func (c *Comp) assign2(assign []Assign, exprfuns []func(*Env) r.Value) {
 }
 
 // assignMulti compiles multiple assignment to places
-func (c *Comp) assignMulti(assign []Assign, exprfuns []func(*Env) r.Value, exprxv func(*Env) (r.Value, []r.Value)) {
+func (c *Comp) assignMulti(assign []Assign, exprfuns []func(*Env) xr.Value, exprxv func(*Env) (xr.Value, []xr.Value)) {
 	stmt := func(env *Env) (Stmt, *Env) {
 		n := len(assign)
 		// these buffers must be allocated at runtime, per goroutine!
-		objs := make([]r.Value, n)
-		keys := make([]r.Value, n)
-		var tmp r.Value
+		objs := make([]xr.Value, n)
+		keys := make([]xr.Value, n)
+		var tmp xr.Value
 		var a *Assign
 		// evaluate all lhs
 		for i := range assign {
@@ -262,21 +272,23 @@ func (c *Comp) assignMulti(assign []Assign, exprfuns []func(*Env) r.Value, exprx
 			keys[i] = tmp
 		}
 		// evaluate all rhs
-		var vals []r.Value
+		var vals []xr.Value
 		if exprxv != nil {
 			_, vals = exprxv(env)
 		} else {
-			vals = make([]r.Value, n)
+			vals = make([]xr.Value, n)
 			for i, exprfun := range exprfuns {
-				vals[i] = exprfun(env)
+				vals[i] = dup(exprfun(env))
 			}
 		}
 		// execute assignments
 		for i := range assign {
 			a := &assign[i]
+			// both a.setvar and a.setplace may be nil
+			// if assigning _
 			if a.setvar != nil {
 				a.setvar(env, vals[i])
-			} else {
+			} else if a.setplace != nil {
 				a.setplace(objs[i], keys[i], vals[i])
 			}
 		}
@@ -300,12 +312,40 @@ func (c *Comp) assign1(lhs ast.Expr, op token.Token, rhs ast.Expr, place *Place,
 	c.Pos = lhs.Pos()
 	// c.Debugf("compiling assign1 at [% 3d] %s: %v // %T", c.Pos, c.Fileset.Position(c.Pos), lhs, lhs)
 
+	c.SetPlace(place, op, init)
+	panicking = false
+}
+
+// SetVar compiles an assignment to a variable:
+// 'variable op constant' and 'variable op expression'
+func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
+	// c.setVar() has the side effect of converting
+	// RHS untyped constants to the correct type,
+	// also needed by c.Jit.SetVar() below
+	stmt := c.setVar(va, op, init)
+	// c.Debugf("Comp.SetVar: %v %v %v", va, op, init)
+	if stmt == nil {
+		// optimized away.
+		return
+	}
+	if jstmt := c.Jit.SetVar(va, op, init); jstmt != nil {
+		// prefer jit-compiled statement
+		stmt = jstmt
+	}
+	c.append(stmt)
+}
+
+// SetPlace compiles an assignment to a place:
+// 'place op constant' and 'place op expression'
+func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {
 	if place.IsVar() {
 		c.SetVar(&place.Var, op, init)
-	} else {
-		c.SetPlace(place, op, init)
+		return
 	}
-	panicking = false
+	// c.setPlace() has the side effect of converting
+	// RHS untyped constants to the correct type
+	stmt := c.setPlace(place, op, init)
+	c.append(stmt)
 }
 
 // LookupVar compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
@@ -340,12 +380,12 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption, t xr.Type) *Place {
 			}
 			e := c.CompositeLit(node, t)
 			fun := e.AsX1()
-			var addr func(*Env) r.Value
+			var addr func(*Env) xr.Value
 			switch e.Type.Kind() {
-			case r.Array, r.Struct:
+			case xr.Array, r.Struct:
 				// array and struct composite literals are directly addressable
 				// because they are created with reflect.New(t).Elem()
-				addr = func(env *Env) r.Value {
+				addr = func(env *Env) xr.Value {
 					return fun(env).Addr()
 				}
 			default:
@@ -357,9 +397,9 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption, t xr.Type) *Place {
 				// but since the map or slice is freshly created each time
 				// and 'addr' below is the only one code accessing it,
 				// it's not a problem
-				addr = func(env *Env) r.Value {
+				addr = func(env *Env) xr.Value {
 					obj := fun(env)
-					place := r.New(obj.Type())
+					place := xr.NewR(obj.Type())
 					place.Elem().Set(obj)
 					return place
 				}
@@ -383,7 +423,7 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption, t xr.Type) *Place {
 			t := e.Type.Elem()
 			// c.Debugf("placeOrAddress: %v has type %v, transformed into: %v has type %v", node.X, e.Type, node, t)
 			addr := e.AsX1()
-			fun := func(env *Env) r.Value {
+			fun := func(env *Env) xr.Value {
 				return addr(env).Elem()
 			}
 			return &Place{Var: Var{Type: t}, Fun: fun, Addr: addr}
@@ -398,9 +438,9 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption, t xr.Type) *Place {
 
 // placeForSideEffects compiles the left-hand-side of a do-nothing assignment,
 // as for example *addressOfInt() += 0, in order to apply its side effects
-func (c *Comp) placeForSideEffects(place *Place) {
+func (c *Comp) placeForSideEffects(place *Place) Stmt {
 	if place.IsVar() {
-		return
+		return nil
 	}
 	var ret Stmt
 	fun := place.Fun
@@ -422,5 +462,5 @@ func (c *Comp) placeForSideEffects(place *Place) {
 			return env.Code[env.IP], env
 		}
 	}
-	c.append(ret)
+	return ret
 }

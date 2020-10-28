@@ -22,26 +22,25 @@
 package fast
 
 import (
-	r "reflect"
 	"unsafe"
 
 	"github.com/cosmos72/gomacro/base/reflect"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) varSetZero(va *Var) {
+func (c *Comp) varSetZero(va *Var) Stmt {
 	zero := xr.Zero(va.Type).Interface()
-	c.varSetConst(va, zero)
+	return c.varSetConst(va, zero)
 }
-func (c *Comp) varSetConst(va *Var, val I) {
+func (c *Comp) varSetConst(va *Var, val I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
 
-	v := r.ValueOf(val)
+	v := xr.ValueOf(val)
 	rt := t.ReflectType()
-	if reflect.Type(v) == nil {
-		v = r.Zero(rt)
+	if reflect.ValueType(v) == nil {
+		v = xr.ZeroR(rt)
 	} else {
 		v = convert(v, rt)
 	}
@@ -51,7 +50,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 	switch upn {
 	case 0:
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 
 			{
 				val := v.Bool()
@@ -67,15 +66,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetBool(val,
-						)
+							Vals[index].SetBool(val)
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int:
+		case xr.Int:
 
 			{
 				val := int(v.Int())
@@ -91,15 +89,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int8:
+		case xr.Int8:
 			{
 				val := int8(v.Int())
 
@@ -114,15 +111,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int16:
+		case xr.Int16:
 			{
 				val := int16(v.Int())
 
@@ -137,15 +133,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int32:
+		case xr.Int32:
 			{
 				val := int32(v.Int())
 
@@ -160,15 +155,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int64:
+		case xr.Int64:
 			{
 				val := v.Int()
 
@@ -183,15 +177,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetInt(val,
-						)
+							Vals[index].SetInt(val)
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 			{
 				val :=
 
@@ -208,15 +201,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint8:
+		case xr.Uint8:
 			{
 				val :=
 
@@ -233,8 +225,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -242,7 +233,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			{
 				val :=
 
@@ -259,8 +250,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -268,7 +258,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			{
 				val :=
 
@@ -285,8 +275,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -294,7 +283,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			{
 				val := v.Uint()
 
@@ -309,8 +298,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(val,
-						)
+							Vals[index].SetUint(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -318,7 +306,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			{
 				val :=
 
@@ -335,8 +323,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -344,7 +331,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Float32:
+		case xr.Float32:
 			{
 				val :=
 
@@ -361,8 +348,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetFloat(float64(val,
-						))
+							Vals[index].SetFloat(float64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -370,7 +356,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Float64:
+		case xr.Float64:
 			{
 				val := v.Float()
 
@@ -385,8 +371,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetFloat(val,
-						)
+							Vals[index].SetFloat(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -394,7 +379,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Complex64:
+		case xr.Complex64:
 			{
 				val :=
 
@@ -411,8 +396,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetComplex(complex128(val,
-						))
+							Vals[index].SetComplex(complex128(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -420,7 +404,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Complex128:
+		case xr.Complex128:
 			{
 				val := v.Complex()
 
@@ -435,8 +419,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetComplex(val,
-						)
+							Vals[index].SetComplex(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -444,14 +427,13 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.String:
+		case xr.String:
 			{
 				val := v.String()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
-						Vals[index].SetString(val,
-					)
+						Vals[index].SetString(val)
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -462,8 +444,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				env.
-					Vals[index].Set(v,
-				)
+					Vals[index].Set(v)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -471,7 +452,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 		}
 	case 1:
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 
 			{
 				val := v.Bool()
@@ -489,15 +470,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetBool(val,
-						)
+							Vals[index].SetBool(val)
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int:
+		case xr.Int:
 
 			{
 				val := int(v.Int())
@@ -515,15 +495,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int8:
+		case xr.Int8:
 			{
 				val := int8(v.Int())
 
@@ -540,15 +519,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int16:
+		case xr.Int16:
 			{
 				val := int16(v.Int())
 
@@ -565,15 +543,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int32:
+		case xr.Int32:
 			{
 				val := int32(v.Int())
 
@@ -590,15 +567,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int64:
+		case xr.Int64:
 			{
 				val := v.Int()
 
@@ -615,15 +591,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetInt(val,
-						)
+							Vals[index].SetInt(val)
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 			{
 				val :=
 
@@ -642,15 +617,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint8:
+		case xr.Uint8:
 			{
 				val :=
 
@@ -669,8 +643,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -678,7 +651,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			{
 				val :=
 
@@ -697,8 +670,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -706,7 +678,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			{
 				val :=
 
@@ -725,8 +697,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -734,7 +705,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			{
 				val := v.Uint()
 
@@ -751,8 +722,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(val,
-						)
+							Vals[index].SetUint(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -760,7 +730,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			{
 				val :=
 
@@ -779,8 +749,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -788,7 +757,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Float32:
+		case xr.Float32:
 			{
 				val :=
 
@@ -807,8 +776,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetFloat(float64(val,
-						))
+							Vals[index].SetFloat(float64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -816,7 +784,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Float64:
+		case xr.Float64:
 			{
 				val := v.Float()
 
@@ -833,8 +801,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetFloat(val,
-						)
+							Vals[index].SetFloat(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -842,7 +809,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Complex64:
+		case xr.Complex64:
 			{
 				val :=
 
@@ -861,8 +828,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetComplex(complex128(val,
-						))
+							Vals[index].SetComplex(complex128(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -870,7 +836,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Complex128:
+		case xr.Complex128:
 			{
 				val := v.Complex()
 
@@ -887,8 +853,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetComplex(val,
-						)
+							Vals[index].SetComplex(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -896,15 +861,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.String:
+		case xr.String:
 			{
 				val := v.String()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
 						Outer.
-						Vals[index].SetString(val,
-					)
+						Vals[index].SetString(val)
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -916,8 +880,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 			ret = func(env *Env) (Stmt, *Env) {
 				env.
 					Outer.
-					Vals[index].Set(v,
-				)
+					Vals[index].Set(v)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -925,7 +888,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 		}
 	case 2:
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 
 			{
 				val := v.Bool()
@@ -943,15 +906,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetBool(val,
-						)
+							Vals[index].SetBool(val)
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int:
+		case xr.Int:
 
 			{
 				val := int(v.Int())
@@ -969,15 +931,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int8:
+		case xr.Int8:
 			{
 				val := int8(v.Int())
 
@@ -994,15 +955,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int16:
+		case xr.Int16:
 			{
 				val := int16(v.Int())
 
@@ -1019,15 +979,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int32:
+		case xr.Int32:
 			{
 				val := int32(v.Int())
 
@@ -1044,15 +1003,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int64:
+		case xr.Int64:
 			{
 				val := v.Int()
 
@@ -1069,15 +1027,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetInt(val,
-						)
+							Vals[index].SetInt(val)
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 			{
 				val :=
 
@@ -1096,15 +1053,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint8:
+		case xr.Uint8:
 			{
 				val :=
 
@@ -1123,8 +1079,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1132,7 +1087,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			{
 				val :=
 
@@ -1151,8 +1106,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1160,7 +1114,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			{
 				val :=
 
@@ -1179,8 +1133,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1188,7 +1141,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			{
 				val := v.Uint()
 
@@ -1205,8 +1158,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(val,
-						)
+							Vals[index].SetUint(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1214,7 +1166,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			{
 				val :=
 
@@ -1233,8 +1185,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1242,7 +1193,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Float32:
+		case xr.Float32:
 			{
 				val :=
 
@@ -1261,8 +1212,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetFloat(float64(val,
-						))
+							Vals[index].SetFloat(float64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1270,7 +1220,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Float64:
+		case xr.Float64:
 			{
 				val := v.Float()
 
@@ -1287,8 +1237,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetFloat(val,
-						)
+							Vals[index].SetFloat(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1296,7 +1245,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Complex64:
+		case xr.Complex64:
 			{
 				val :=
 
@@ -1315,8 +1264,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetComplex(complex128(val,
-						))
+							Vals[index].SetComplex(complex128(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1324,7 +1272,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Complex128:
+		case xr.Complex128:
 			{
 				val := v.Complex()
 
@@ -1341,8 +1289,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetComplex(val,
-						)
+							Vals[index].SetComplex(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1350,15 +1297,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.String:
+		case xr.String:
 			{
 				val := v.String()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
 						Outer.Outer.
-						Vals[index].SetString(val,
-					)
+						Vals[index].SetString(val)
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -1370,8 +1316,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 			ret = func(env *Env) (Stmt, *Env) {
 				env.
 					Outer.Outer.
-					Vals[index].Set(v,
-				)
+					Vals[index].Set(v)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1379,7 +1324,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 		}
 	default:
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 
 			{
 				val := v.Bool()
@@ -1405,15 +1350,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetBool(val,
-						)
+							Vals[index].SetBool(val)
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int:
+		case xr.Int:
 
 			{
 				val := int(v.Int())
@@ -1439,15 +1383,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int8:
+		case xr.Int8:
 			{
 				val := int8(v.Int())
 
@@ -1472,15 +1415,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int16:
+		case xr.Int16:
 			{
 				val := int16(v.Int())
 
@@ -1505,15 +1447,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int32:
+		case xr.Int32:
 			{
 				val := int32(v.Int())
 
@@ -1538,15 +1479,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int64:
+		case xr.Int64:
 			{
 				val := v.Int()
 
@@ -1571,15 +1511,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetInt(val,
-						)
+							Vals[index].SetInt(val)
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 			{
 				val :=
 
@@ -1606,15 +1545,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint8:
+		case xr.Uint8:
 			{
 				val :=
 
@@ -1641,8 +1579,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1650,7 +1587,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			{
 				val :=
 
@@ -1677,8 +1614,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1686,7 +1622,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			{
 				val :=
 
@@ -1713,8 +1649,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1722,7 +1657,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			{
 				val := v.Uint()
 
@@ -1747,8 +1682,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetUint(val,
-						)
+							Vals[index].SetUint(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1756,7 +1690,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			{
 				val :=
 
@@ -1783,8 +1717,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1792,7 +1725,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Float32:
+		case xr.Float32:
 			{
 				val :=
 
@@ -1819,8 +1752,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetFloat(float64(val,
-						))
+							Vals[index].SetFloat(float64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1828,7 +1760,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Float64:
+		case xr.Float64:
 			{
 				val := v.Float()
 
@@ -1853,8 +1785,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetFloat(val,
-						)
+							Vals[index].SetFloat(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1862,7 +1793,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Complex64:
+		case xr.Complex64:
 			{
 				val :=
 
@@ -1889,8 +1820,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetComplex(complex128(val,
-						))
+							Vals[index].SetComplex(complex128(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1898,7 +1828,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Complex128:
+		case xr.Complex128:
 			{
 				val := v.Complex()
 
@@ -1923,8 +1853,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 						}
 
 						o.
-							Vals[index].SetComplex(val,
-						)
+							Vals[index].SetComplex(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -1932,7 +1861,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.String:
+		case xr.String:
 			{
 				val := v.String()
 
@@ -1943,8 +1872,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 					}
 
 					o.
-						Vals[index].SetString(val,
-					)
+						Vals[index].SetString(val)
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -1960,8 +1888,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 
 				o.
-					Vals[index].Set(v,
-				)
+					Vals[index].Set(v)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1969,7 +1896,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 		}
 	case c.Depth - 1:
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 
 			{
 				val := v.Bool()
@@ -1985,15 +1912,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetBool(val,
-						)
+							Vals[index].SetBool(val)
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int:
+		case xr.Int:
 
 			{
 				val := int(v.Int())
@@ -2009,15 +1935,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int8:
+		case xr.Int8:
 			{
 				val := int8(v.Int())
 
@@ -2032,15 +1957,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int16:
+		case xr.Int16:
 			{
 				val := int16(v.Int())
 
@@ -2055,15 +1979,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int32:
+		case xr.Int32:
 			{
 				val := int32(v.Int())
 
@@ -2078,15 +2001,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetInt(int64(val,
-						))
+							Vals[index].SetInt(int64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int64:
+		case xr.Int64:
 			{
 				val := v.Int()
 
@@ -2101,15 +2023,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetInt(val,
-						)
+							Vals[index].SetInt(val)
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 			{
 				val :=
 
@@ -2126,15 +2047,14 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint8:
+		case xr.Uint8:
 			{
 				val :=
 
@@ -2151,8 +2071,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2160,7 +2079,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint16:
+		case xr.Uint16:
 			{
 				val :=
 
@@ -2177,8 +2096,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2186,7 +2104,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint32:
+		case xr.Uint32:
 			{
 				val :=
 
@@ -2203,8 +2121,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2212,7 +2129,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uint64:
+		case xr.Uint64:
 			{
 				val := v.Uint()
 
@@ -2227,8 +2144,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(val,
-						)
+							Vals[index].SetUint(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2236,7 +2152,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Uintptr:
+		case xr.Uintptr:
 			{
 				val :=
 
@@ -2253,8 +2169,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(uint64(val,
-						))
+							Vals[index].SetUint(uint64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2262,7 +2177,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Float32:
+		case xr.Float32:
 			{
 				val :=
 
@@ -2279,8 +2194,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetFloat(float64(val,
-						))
+							Vals[index].SetFloat(float64(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2288,7 +2202,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Float64:
+		case xr.Float64:
 			{
 				val := v.Float()
 
@@ -2303,8 +2217,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetFloat(val,
-						)
+							Vals[index].SetFloat(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2312,7 +2225,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Complex64:
+		case xr.Complex64:
 			{
 				val :=
 
@@ -2329,8 +2242,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetComplex(complex128(val,
-						))
+							Vals[index].SetComplex(complex128(val))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2338,7 +2250,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.Complex128:
+		case xr.Complex128:
 			{
 				val := v.Complex()
 
@@ -2353,8 +2265,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetComplex(val,
-						)
+							Vals[index].SetComplex(val)
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2362,14 +2273,13 @@ func (c *Comp) varSetConst(va *Var, val I) {
 				}
 			}
 
-		case r.String:
+		case xr.String:
 			{
 				val := v.String()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.FileEnv.
-						Vals[index].SetString(val,
-					)
+						Vals[index].SetString(val)
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2380,17 +2290,16 @@ func (c *Comp) varSetConst(va *Var, val I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				env.FileEnv.
-					Vals[index].Set(v,
-				)
+					Vals[index].Set(v)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		}
 	}
-	c.append(ret)
+	return ret
 }
-func (c *Comp) varSetExpr(va *Var, e *Expr) {
+func (c *Comp) varSetExpr(va *Var, e *Expr) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -2401,7 +2310,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 	switch upn {
 	case 0:
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 
 			{
 				fun := fun.(func(*Env) bool)
@@ -2417,15 +2326,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetBool(fun(env),
-						)
+							Vals[index].SetBool(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int:
+		case xr.Int:
 
 			{
 				fun := fun.(func(*Env) int)
@@ -2441,15 +2349,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int8:
+		case xr.Int8:
 
 			{
 				fun := fun.(func(*Env) int8)
@@ -2465,15 +2372,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int16:
+		case xr.Int16:
 
 			{
 				fun := fun.(func(*Env) int16)
@@ -2489,15 +2395,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int32:
+		case xr.Int32:
 
 			{
 				fun := fun.(func(*Env) int32)
@@ -2513,15 +2418,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int64:
+		case xr.Int64:
 
 			{
 				fun := fun.(func(*Env) int64)
@@ -2537,15 +2441,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetInt(fun(env),
-						)
+							Vals[index].SetInt(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 
 			{
 				fun := fun.(func(*Env) uint)
@@ -2561,15 +2464,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint8:
+		case xr.Uint8:
 
 			{
 				fun := fun.(func(*Env) uint8)
@@ -2585,15 +2487,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint16:
+		case xr.Uint16:
 
 			{
 				fun := fun.(func(*Env) uint16)
@@ -2609,15 +2510,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint32:
+		case xr.Uint32:
 
 			{
 				fun := fun.(func(*Env) uint32)
@@ -2633,15 +2533,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint64:
+		case xr.Uint64:
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -2656,15 +2555,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(fun(env),
-						)
+							Vals[index].SetUint(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uintptr:
+		case xr.Uintptr:
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -2679,15 +2577,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Float32:
+		case xr.Float32:
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -2702,15 +2599,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetFloat(float64(fun(env),
-						))
+							Vals[index].SetFloat(float64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Float64:
+		case xr.Float64:
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -2725,15 +2621,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetFloat(fun(env),
-						)
+							Vals[index].SetFloat(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Complex64:
+		case xr.Complex64:
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -2748,15 +2643,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetComplex(complex128(fun(env),
-						))
+							Vals[index].SetComplex(complex128(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Complex128:
+		case xr.Complex128:
 			{
 				fun := fun.(func(*Env) complex128)
 
@@ -2771,8 +2665,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].SetComplex(fun(env),
-						)
+							Vals[index].SetComplex(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2780,14 +2673,13 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				}
 			}
 
-		case r.String:
+		case xr.String:
 			{
 				fun := fun.(func(*Env) string)
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
-						Vals[index].SetString(fun(env),
-					)
+						Vals[index].SetString(fun(env))
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2800,8 +2692,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				if conv := c.Converter(e.Type, t); conv == nil {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].Set(fun(env),
-						)
+							Vals[index].Set(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2809,8 +2700,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Vals[index].Set(conv(fun(env)),
-						)
+							Vals[index].Set(conv(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -2821,7 +2711,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 		}
 	case 1:
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 
 			{
 				fun := fun.(func(*Env) bool)
@@ -2839,15 +2729,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetBool(fun(env),
-						)
+							Vals[index].SetBool(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int:
+		case xr.Int:
 
 			{
 				fun := fun.(func(*Env) int)
@@ -2865,15 +2754,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int8:
+		case xr.Int8:
 
 			{
 				fun := fun.(func(*Env) int8)
@@ -2891,15 +2779,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int16:
+		case xr.Int16:
 
 			{
 				fun := fun.(func(*Env) int16)
@@ -2917,15 +2804,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int32:
+		case xr.Int32:
 
 			{
 				fun := fun.(func(*Env) int32)
@@ -2943,15 +2829,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int64:
+		case xr.Int64:
 
 			{
 				fun := fun.(func(*Env) int64)
@@ -2969,15 +2854,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetInt(fun(env),
-						)
+							Vals[index].SetInt(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 
 			{
 				fun := fun.(func(*Env) uint)
@@ -2995,15 +2879,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint8:
+		case xr.Uint8:
 
 			{
 				fun := fun.(func(*Env) uint8)
@@ -3021,15 +2904,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint16:
+		case xr.Uint16:
 
 			{
 				fun := fun.(func(*Env) uint16)
@@ -3047,15 +2929,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint32:
+		case xr.Uint32:
 
 			{
 				fun := fun.(func(*Env) uint32)
@@ -3073,15 +2954,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint64:
+		case xr.Uint64:
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -3098,15 +2978,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(fun(env),
-						)
+							Vals[index].SetUint(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uintptr:
+		case xr.Uintptr:
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -3123,15 +3002,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Float32:
+		case xr.Float32:
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -3148,15 +3026,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetFloat(float64(fun(env),
-						))
+							Vals[index].SetFloat(float64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Float64:
+		case xr.Float64:
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -3173,15 +3050,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetFloat(fun(env),
-						)
+							Vals[index].SetFloat(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Complex64:
+		case xr.Complex64:
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -3198,15 +3074,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetComplex(complex128(fun(env),
-						))
+							Vals[index].SetComplex(complex128(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Complex128:
+		case xr.Complex128:
 			{
 				fun := fun.(func(*Env) complex128)
 
@@ -3223,8 +3098,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].SetComplex(fun(env),
-						)
+							Vals[index].SetComplex(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -3232,15 +3106,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				}
 			}
 
-		case r.String:
+		case xr.String:
 			{
 				fun := fun.(func(*Env) string)
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
 						Outer.
-						Vals[index].SetString(fun(env),
-					)
+						Vals[index].SetString(fun(env))
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -3254,8 +3127,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].Set(fun(env),
-						)
+							Vals[index].Set(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -3264,8 +3136,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Vals[index].Set(conv(fun(env)),
-						)
+							Vals[index].Set(conv(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -3276,7 +3147,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 		}
 	case 2:
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 
 			{
 				fun := fun.(func(*Env) bool)
@@ -3294,15 +3165,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetBool(fun(env),
-						)
+							Vals[index].SetBool(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int:
+		case xr.Int:
 
 			{
 				fun := fun.(func(*Env) int)
@@ -3320,15 +3190,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int8:
+		case xr.Int8:
 
 			{
 				fun := fun.(func(*Env) int8)
@@ -3346,15 +3215,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int16:
+		case xr.Int16:
 
 			{
 				fun := fun.(func(*Env) int16)
@@ -3372,15 +3240,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int32:
+		case xr.Int32:
 
 			{
 				fun := fun.(func(*Env) int32)
@@ -3398,15 +3265,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int64:
+		case xr.Int64:
 
 			{
 				fun := fun.(func(*Env) int64)
@@ -3424,15 +3290,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetInt(fun(env),
-						)
+							Vals[index].SetInt(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 
 			{
 				fun := fun.(func(*Env) uint)
@@ -3450,15 +3315,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint8:
+		case xr.Uint8:
 
 			{
 				fun := fun.(func(*Env) uint8)
@@ -3476,15 +3340,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint16:
+		case xr.Uint16:
 
 			{
 				fun := fun.(func(*Env) uint16)
@@ -3502,15 +3365,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint32:
+		case xr.Uint32:
 
 			{
 				fun := fun.(func(*Env) uint32)
@@ -3528,15 +3390,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint64:
+		case xr.Uint64:
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -3553,15 +3414,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(fun(env),
-						)
+							Vals[index].SetUint(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uintptr:
+		case xr.Uintptr:
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -3578,15 +3438,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Float32:
+		case xr.Float32:
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -3603,15 +3462,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetFloat(float64(fun(env),
-						))
+							Vals[index].SetFloat(float64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Float64:
+		case xr.Float64:
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -3628,15 +3486,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetFloat(fun(env),
-						)
+							Vals[index].SetFloat(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Complex64:
+		case xr.Complex64:
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -3653,15 +3510,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetComplex(complex128(fun(env),
-						))
+							Vals[index].SetComplex(complex128(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Complex128:
+		case xr.Complex128:
 			{
 				fun := fun.(func(*Env) complex128)
 
@@ -3678,8 +3534,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].SetComplex(fun(env),
-						)
+							Vals[index].SetComplex(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -3687,15 +3542,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				}
 			}
 
-		case r.String:
+		case xr.String:
 			{
 				fun := fun.(func(*Env) string)
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
 						Outer.Outer.
-						Vals[index].SetString(fun(env),
-					)
+						Vals[index].SetString(fun(env))
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -3709,8 +3563,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].Set(fun(env),
-						)
+							Vals[index].Set(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -3719,8 +3572,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Vals[index].Set(conv(fun(env)),
-						)
+							Vals[index].Set(conv(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -3731,7 +3583,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 		}
 	default:
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 
 			{
 				fun := fun.(func(*Env) bool)
@@ -3757,15 +3609,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetBool(fun(env),
-						)
+							Vals[index].SetBool(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int:
+		case xr.Int:
 
 			{
 				fun := fun.(func(*Env) int)
@@ -3791,15 +3642,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int8:
+		case xr.Int8:
 
 			{
 				fun := fun.(func(*Env) int8)
@@ -3825,15 +3675,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int16:
+		case xr.Int16:
 
 			{
 				fun := fun.(func(*Env) int16)
@@ -3859,15 +3708,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int32:
+		case xr.Int32:
 
 			{
 				fun := fun.(func(*Env) int32)
@@ -3893,15 +3741,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int64:
+		case xr.Int64:
 
 			{
 				fun := fun.(func(*Env) int64)
@@ -3927,15 +3774,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetInt(fun(env),
-						)
+							Vals[index].SetInt(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 
 			{
 				fun := fun.(func(*Env) uint)
@@ -3961,15 +3807,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint8:
+		case xr.Uint8:
 
 			{
 				fun := fun.(func(*Env) uint8)
@@ -3995,15 +3840,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint16:
+		case xr.Uint16:
 
 			{
 				fun := fun.(func(*Env) uint16)
@@ -4029,15 +3873,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint32:
+		case xr.Uint32:
 
 			{
 				fun := fun.(func(*Env) uint32)
@@ -4063,15 +3906,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint64:
+		case xr.Uint64:
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -4096,15 +3938,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetUint(fun(env),
-						)
+							Vals[index].SetUint(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uintptr:
+		case xr.Uintptr:
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -4129,15 +3970,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Float32:
+		case xr.Float32:
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -4162,15 +4002,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetFloat(float64(fun(env),
-						))
+							Vals[index].SetFloat(float64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Float64:
+		case xr.Float64:
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -4195,15 +4034,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetFloat(fun(env),
-						)
+							Vals[index].SetFloat(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Complex64:
+		case xr.Complex64:
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -4228,15 +4066,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetComplex(complex128(fun(env),
-						))
+							Vals[index].SetComplex(complex128(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Complex128:
+		case xr.Complex128:
 			{
 				fun := fun.(func(*Env) complex128)
 
@@ -4261,8 +4098,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].SetComplex(fun(env),
-						)
+							Vals[index].SetComplex(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -4270,7 +4106,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				}
 			}
 
-		case r.String:
+		case xr.String:
 			{
 				fun := fun.(func(*Env) string)
 
@@ -4281,8 +4117,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 					}
 
 					o.
-						Vals[index].SetString(fun(env),
-					)
+						Vals[index].SetString(fun(env))
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4300,8 +4135,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].Set(fun(env),
-						)
+							Vals[index].Set(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -4314,8 +4148,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 						}
 
 						o.
-							Vals[index].Set(conv(fun(env)),
-						)
+							Vals[index].Set(conv(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -4326,7 +4159,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 		}
 	case c.Depth - 1:
 		switch t.Kind() {
-		case r.Bool:
+		case xr.Bool:
 
 			{
 				fun := fun.(func(*Env) bool)
@@ -4342,15 +4175,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetBool(fun(env),
-						)
+							Vals[index].SetBool(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int:
+		case xr.Int:
 
 			{
 				fun := fun.(func(*Env) int)
@@ -4366,15 +4198,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int8:
+		case xr.Int8:
 
 			{
 				fun := fun.(func(*Env) int8)
@@ -4390,15 +4221,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int16:
+		case xr.Int16:
 
 			{
 				fun := fun.(func(*Env) int16)
@@ -4414,15 +4244,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int32:
+		case xr.Int32:
 
 			{
 				fun := fun.(func(*Env) int32)
@@ -4438,15 +4267,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetInt(int64(fun(env),
-						))
+							Vals[index].SetInt(int64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Int64:
+		case xr.Int64:
 
 			{
 				fun := fun.(func(*Env) int64)
@@ -4462,15 +4290,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetInt(fun(env),
-						)
+							Vals[index].SetInt(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint:
+		case xr.Uint:
 
 			{
 				fun := fun.(func(*Env) uint)
@@ -4486,15 +4313,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint8:
+		case xr.Uint8:
 
 			{
 				fun := fun.(func(*Env) uint8)
@@ -4510,15 +4336,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint16:
+		case xr.Uint16:
 
 			{
 				fun := fun.(func(*Env) uint16)
@@ -4534,15 +4359,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint32:
+		case xr.Uint32:
 
 			{
 				fun := fun.(func(*Env) uint32)
@@ -4558,15 +4382,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uint64:
+		case xr.Uint64:
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -4581,15 +4404,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(fun(env),
-						)
+							Vals[index].SetUint(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Uintptr:
+		case xr.Uintptr:
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -4604,15 +4426,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetUint(uint64(fun(env),
-						))
+							Vals[index].SetUint(uint64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Float32:
+		case xr.Float32:
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -4627,15 +4448,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetFloat(float64(fun(env),
-						))
+							Vals[index].SetFloat(float64(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Float64:
+		case xr.Float64:
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -4650,15 +4470,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetFloat(fun(env),
-						)
+							Vals[index].SetFloat(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Complex64:
+		case xr.Complex64:
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -4673,15 +4492,14 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetComplex(complex128(fun(env),
-						))
+							Vals[index].SetComplex(complex128(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
 					}
 				}
 			}
-		case r.Complex128:
+		case xr.Complex128:
 			{
 				fun := fun.(func(*Env) complex128)
 
@@ -4696,8 +4514,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].SetComplex(fun(env),
-						)
+							Vals[index].SetComplex(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -4705,14 +4522,13 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				}
 			}
 
-		case r.String:
+		case xr.String:
 			{
 				fun := fun.(func(*Env) string)
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.FileEnv.
-						Vals[index].SetString(fun(env),
-					)
+						Vals[index].SetString(fun(env))
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4725,8 +4541,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				if conv := c.Converter(e.Type, t); conv == nil {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].Set(fun(env),
-						)
+							Vals[index].Set(fun(env))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -4734,8 +4549,7 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 				} else {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.FileEnv.
-							Vals[index].Set(conv(fun(env)),
-						)
+							Vals[index].Set(conv(fun(env)))
 
 						env.IP++
 						return env.Code[env.IP], env
@@ -4745,5 +4559,5 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 
 		}
 	}
-	c.append(ret)
+	return ret
 }
