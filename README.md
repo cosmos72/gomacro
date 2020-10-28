@@ -35,8 +35,8 @@ Gomacro can be used as:
 
 * an interactive tool to make science more productive and more fun.
   If you use compiled Go with scientific libraries (physics, bioinformatics, statistics...)
-  you can import the same libraries from gomacro REPL (immediate on Go 1.8+ and Linux
-  or Go 1.10.2+ and Mac OS X, requires restarting on other platforms,
+  you can import the same libraries from gomacro REPL (immediate on Linux and Mac OS X,
+  requires restarting on other platforms,
   see [Importing packages](#importing-packages) below), call them interactively,
   inspect the results, feed them to other functions/libraries, all in a single session.
   The imported libraries will be **compiled**, not interpreted,
@@ -100,7 +100,7 @@ Gomacro can be used as:
 
 ### Prerequites
 
-- [Go 1.9+](https://golang.org/doc/install)
+- [Go 1.13+](https://golang.org/doc/install)
 
 ### Supported platforms
 
@@ -258,7 +258,7 @@ gomacro> plot.New()
 ```
 
 Note: internally, gomacro will compile and load a Go plugin containing the package's exported declarations.
-Go plugins require Go 1.8+ on Linux and Go 1.10.2+ on Mac OS X.
+Go plugins are currently supported only on Linux and Mac OS X.
 
 **WARNING** On Mac OS X, **never** execute `strip gomacro`: it breaks plugin support,
             and loading third party packages stops working.
