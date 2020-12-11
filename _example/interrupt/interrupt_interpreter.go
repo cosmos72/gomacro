@@ -11,19 +11,20 @@ import (
 func main() {
 	interp := fast.New()
 
-	go run(interp)
+	go stop(interp)
 
+	// you should use interp in the same goroutine where it was created,
+	// otherwise interp.Interrupt() may not work
+	run(interp)
+}
+
+func stop(interp *fast.Interp) {
 	fmt.Println("sleeping 3 seconds")
 	time.Sleep(3 * time.Second)
 
 	fmt.Println("slept. stopping interpreter..")
 	// tell interpreter to exit the infinite loop
 	interp.Interrupt(nil)
-
-	fmt.Println("sleeping 3 more seconds")
-	time.Sleep(3 * time.Second)
-
-	fmt.Println("slept. now exiting.")
 }
 
 func run(interp *fast.Interp) {
@@ -34,5 +35,8 @@ func run(interp *fast.Interp) {
 	fmt.Println("interpreter: entering infinite loop")
 
 	// this is an infinite loop
-	interp.Eval("for {}")
+	interp.Eval(`
+			func main() { for {} }
+			main()
+	`)
 }
