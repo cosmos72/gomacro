@@ -58,7 +58,7 @@ Gomacro can be used as:
 		interp := fast.New()
 		vals, _ := interp.Eval(toeval)
 		// for simplicity, only use the first returned value
-		return vals[0]
+		return vals[0].ReflectValue()
 	}
 	func main() {
 		fmt.Println(RunGomacro("1+1"))
