@@ -36,7 +36,9 @@ func run(interp *fast.Interp) {
 
 	// this is an infinite loop
 	interp.Eval(`
-			func main() { for {} }
-			main()
+		func main() {
+			for {}
+		}
+		main()
 	`)
 }
