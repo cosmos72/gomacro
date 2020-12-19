@@ -857,6 +857,7 @@ var testcases = []TestCase{
 	TestCase{A, "builtin_make_8", "vbs = make([]byte, 5); vbs", make([]byte, 5), nil},
 	TestCase{A, "builtin_copy_1", "copy(vbs, vs)", 5, nil},
 	TestCase{A, "builtin_copy_2", "vbs", []byte("8y57r"), nil},
+	TestCase{A, "builtin_copy_3", "ints1 := []int{1,2,3}; ints2 := []int{0,0,0}; copy(ints2,ints1); ints2", []int{1, 2, 3}, nil},
 	TestCase{A, "builtin_delete_1", "delete(mi,64); mi", map[rune]byte{'a': 7}, nil},
 	TestCase{A, "builtin_real_1", "real(0.5+1.75i)", real(0.5 + 1.75i), nil},
 	TestCase{A, "builtin_real_2", "const cplx complex64 = 1.5+0.25i; real(cplx)", real(complex64(1.5 + 0.25i)), nil},
