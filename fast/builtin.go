@@ -341,6 +341,10 @@ func copyStringToBytes(dst []byte, src string) int {
 	return copy(dst, src)
 }
 
+func callCopy(dst xr.Value, src xr.Value) {
+	r.Copy(dst.ReflectValue(), src.ReflectValue())
+}
+
 func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	args := []*Expr{
 		c.expr1(node.Args[0], nil),
@@ -351,7 +355,7 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		args[1].ConstTo(args[1].DefaultType())
 	}
 	t0, t1 := args[0].Type, args[1].Type
-	var funCopy I = r.Copy
+	var funCopy I = callCopy
 	if t0 == nil || t0.Kind() != r.Slice || !t0.AssignableTo(c.Universe.SliceOf(t0.Elem())) {
 		// https://golang.org/ref/spec#Appending_and_copying_slices
 		// copy [...] arguments must have identical element type T and must be assignable to a slice of type []T.
