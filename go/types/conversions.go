@@ -7,6 +7,7 @@
 package types
 
 import "go/constant"
+import "unicode/utf8"
 
 // Conversion type-checks the conversion T(x).
 // The result is in x.
@@ -28,7 +29,11 @@ func (check *Checker) conversion(x *operand, T Type) {
 			// If codepoint < 0 the absolute value is too large (or unknown) for
 			// conversion. This is the same as converting any other out-of-range
 			// value - let string(codepoint) do the work.
-			x.val = constant.MakeString(string(codepoint))
+			r := rune(codepoint)
+			if int64(r) != codepoint {
+				r = utf8.RuneError
+			}
+			x.val = constant.MakeString(string(r))
 			ok = true
 		}
 	case x.convertibleTo(check, T):
