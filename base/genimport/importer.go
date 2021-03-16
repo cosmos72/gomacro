@@ -133,6 +133,7 @@ func (imp *Importer) ImportPackage(alias, path string, enableModule bool) *Packa
 }
 
 func (imp *Importer) ImportPackageOrError(alias, pkgpath string, enableModule bool) (*PackageRef, error) {
+
 	ref := LookupPackage(alias, pkgpath)
 	if ref != nil {
 		return ref, nil
@@ -192,7 +193,7 @@ func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode Import
 	dir := computeImportDir(o, pkgpath, mode)
 	if mode == ImPlugin {
 		createDir(o, dir)
-		removeAllFilesInDir(o, dir)
+		removeAllFilesInDirExcept(o, dir, []string{"go.mod", "go.sum"})
 	}
 	filepath := computeImportFilename(o, pkgpath, mode)
 	filepath = paths.Subdir(dir, filepath)
@@ -214,9 +215,7 @@ func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode Import
 	case ImInception:
 		o.Warnf("created file %q, recompile %s to use it", filepath, pkgpath)
 	case ImPlugin:
-		if GoModuleSupported {
-			createPluginGoModFile(o, pkgpath, dir)
-		}
+		// if needed, go.mod file was created already by Importer.Load()
 	}
 	return filepath
 }
@@ -242,11 +241,25 @@ func listDir(o *Output, dir string) []os.FileInfo {
 }
 
 func removeAllFilesInDir(o *Output, dir string) {
+	removeAllFilesInDirExcept(o, dir, nil)
+}
+
+func removeAllFilesInDirExcept(o *Output, dir string, except_list []string) {
 	for _, info := range listDir(o, dir) {
 		if info.IsDir() {
 			continue
 		}
-		filepath := paths.Subdir(dir, info.Name())
+		name := info.Name()
+		for _, except_name := range except_list {
+			if name == except_name {
+				name = ""
+				break
+			}
+		}
+		if name == "" {
+			continue
+		}
+		filepath := paths.Subdir(dir, name)
 		if err := os.Remove(filepath); err != nil {
 			o.Errorf("error removing file %q: %v", filepath, err)
 		}

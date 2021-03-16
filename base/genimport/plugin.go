@@ -26,14 +26,7 @@ import (
 	"github.com/cosmos72/gomacro/base/paths"
 )
 
-func compilePlugin(o *Output, filePath string, enableModule bool, stdout io.Writer, stderr io.Writer) string {
-	gosrcdir := paths.GoSrcDir
-	gosrclen := len(gosrcdir)
-	filelen := len(filePath)
-	if filelen < gosrclen || filePath[0:gosrclen] != gosrcdir {
-		o.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filePath, gosrcdir)
-	}
-
+func chooseGoCmd() string {
 	gocmd := "go"
 
 	// prefer to use $GOROOT/bin/go, where $GOROOT is the Go installation that compiled gomacro
@@ -44,6 +37,18 @@ func compilePlugin(o *Output, filePath string, enableModule bool, stdout io.Writ
 			gocmd = gocmdabs
 		}
 	}
+	return gocmd
+}
+
+func compilePlugin(o *Output, filePath string, enableModule bool, stdout io.Writer, stderr io.Writer) string {
+	gosrcdir := paths.GoSrcDir
+	gosrclen := len(gosrcdir)
+	filelen := len(filePath)
+	if filelen < gosrclen || filePath[0:gosrclen] != gosrcdir {
+		o.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filePath, gosrcdir)
+	}
+	gocmd := chooseGoCmd()
+
 	cmd := exec.Command(gocmd, "build", "-buildmode=plugin")
 	cmd.Dir = paths.DirName(filePath)
 	cmd.Env = environForCompiler(enableModule)
