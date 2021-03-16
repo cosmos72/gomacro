@@ -163,7 +163,7 @@ func (imp *Importer) ImportPackageOrError(alias, pkgpath string, enableModule bo
 			mode = ImThirdParty
 		}
 	}
-	file := createImportFile(imp.output, pkgpath, gpkg, mode)
+	file := createImportFile(imp.output, pkgpath, gpkg, mode, enableModule)
 	ref = &PackageRef{Path: pkgpath}
 	if len(file) == 0 || mode != ImPlugin {
 		// either the package exports nothing, or user must rebuild gomacro.
@@ -189,7 +189,7 @@ func (imp *Importer) ImportPackageOrError(alias, pkgpath string, enableModule bo
 	return ref, nil
 }
 
-func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode ImportMode) string {
+func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode ImportMode, enableModule bool) string {
 	dir := computeImportDir(o, pkgpath, mode)
 	if mode == ImPlugin {
 		createDir(o, dir)
@@ -216,6 +216,8 @@ func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode Import
 		o.Warnf("created file %q, recompile %s to use it", filepath, pkgpath)
 	case ImPlugin:
 		// if needed, go.mod file was created already by Importer.Load()
+		env := environForCompiler(enableModule)
+		runGoModTidyIfNeeded(o, pkgpath, dir, env)
 	}
 	return filepath
 }

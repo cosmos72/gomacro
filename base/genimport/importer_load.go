@@ -55,6 +55,7 @@ func (imp *Importer) Load(pkgpath string, enableModule bool) (p *types.Package, 
 	env := environForCompiler(enableModule)
 
 	// Go >= 1.16 usually requires running "go get ..." before "go list ..."
+	// to start updating go.mod
 	if err := runGoGetIfNeeded(o, pkgpath, dir, env); err != nil {
 		return nil, err
 	}
@@ -75,10 +76,6 @@ func (imp *Importer) Load(pkgpath string, enableModule bool) (p *types.Package, 
 				err = errorList{pkg.Errors, mergeErrorMessages(pkg.Errors)}
 				return nil, err
 			}
-			// TODO also return list of modules required by pkg:
-			// in ImPlugin mode, we must add them to go.mod before compiling the plugin
-			//
-			// this is needed to fix issue #108
 			return pkg.Types, nil
 		}
 	}

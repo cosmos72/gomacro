@@ -29,7 +29,7 @@ import (
 // We cannot know the version beforehand, so we always run "go get ..."
 func runGoGetIfNeeded(output *Output, pkgpath string, dir string, env []string) error {
 
-	output.Debugf("downloading package %q ...", pkgpath)
+	output.Debugf("running \"go get %s\" ...", pkgpath)
 
 	gocmd := chooseGoCmd()
 
@@ -43,6 +43,28 @@ func runGoGetIfNeeded(output *Output, pkgpath string, dir string, env []string) 
 	err := cmd.Run()
 	if err != nil {
 		return fmt.Errorf("error executing \"%s get %s\" in directory %q: %v", gocmd, pkgpath, dir, err)
+	}
+	return nil
+}
+
+// Go >= 1.16 requires to run "go mod tidy" before "go build ..."
+// in order to update go.mod with the dependencies of the module being imported
+func runGoModTidyIfNeeded(output *Output, pkgpath string, dir string, env []string) error {
+
+	output.Debugf("running \"go mod tidy\" ...")
+
+	gocmd := chooseGoCmd()
+
+	cmd := exec.Command(gocmd, "mod", "tidy")
+	cmd.Dir = dir
+	cmd.Env = env
+	cmd.Stdin = nil
+	cmd.Stdout = output.Stdout
+	cmd.Stderr = output.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("error executing \"%s mod tidy\" in directory %q: %v", gocmd, dir, err)
 	}
 	return nil
 }

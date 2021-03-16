@@ -25,3 +25,8 @@ func runGoGetIfNeeded(output *Output, pkgpath string, dir string, env []string) 
 	output.Debugf("looking for package %q ...", pkgpath)
 	return nil
 }
+
+// Go < 1.16 does not require to run "go mod tidy" before "go build ..."
+func runGoModTidyIfNeeded(output *Output, pkgpath string, dir string, env []string) error {
+	return nil
+}
