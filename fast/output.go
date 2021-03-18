@@ -188,7 +188,7 @@ func valueString(v xr.Value, depth int) (s string) {
 	if !v.IsValid() || v == None {
 		s = "nil"
 	} else {
-		s = fmt.Sprintf("%v", v)
+		s = fmt.Sprintf("%v", v.ReflectValue())
 	}
 	ok = true
 	return s
@@ -206,7 +206,7 @@ func valueString2(v xr.Value, depth int) (s string) {
 			}
 		}
 	}()
-	s = fmt.Sprintf("%#v", v)
+	s = fmt.Sprintf("%#v", v.ReflectValue())
 	ok = true
 	return s
 }
