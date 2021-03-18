@@ -107,7 +107,7 @@ func ToExpr(x Ast) ast.Expr {
 		block := &ast.BlockStmt{List: list}
 		return BlockStmtToExpr(block)
 	default:
-		errorf("unimplemented conversion from %v to ast.Expr: %v <%v>",
+		errorf("cannot convert from %v to ast.Expr: %v <%v>",
 			r.TypeOf(node), node, r.TypeOf(node))
 	}
 	return nil
@@ -127,7 +127,7 @@ func ToExprSlice(x Ast) []ast.Expr {
 		}
 		return ret
 	default:
-		errorf("unimplemented conversion from %v <%v> to []ast.Expr", x, r.TypeOf(x))
+		errorf("cannot convert from %v <%v> to []ast.Expr", x, r.TypeOf(x))
 	}
 	return nil
 }

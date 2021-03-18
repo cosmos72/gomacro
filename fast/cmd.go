@@ -275,7 +275,7 @@ func init() {
 		'e': []Cmd{{"env", (*Interp).cmdEnv, `env [NAME]        show available functions, variables and constants
                    in current package, or from imported package NAME`}},
 		'h': []Cmd{{"help", (*Interp).cmdHelp, `help              show this help`}},
-		'i': []Cmd{{"inspect", (*Interp).cmdInspect, `inspect EXPR      inspect expression interactively`}},
+		'i': []Cmd{{"inspect", (*Interp).cmdInspect, `inspect EXPR|TYPE inspect expression or type interactively`}},
 		'o': []Cmd{{"options", (*Interp).cmdOptions, `options [OPTS]    show or toggle interpreter options`}},
 		'p': []Cmd{{"package", (*Interp).cmdPackage, `package "PKGPATH" switch to package PKGPATH, importing it if possible`}},
 		'q': []Cmd{{"quit", (*Interp).cmdQuit, `quit              quit the interpreter`}},

@@ -19,7 +19,9 @@ package fast
 import (
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base/reflect"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (ir *Interp) Inspect(src string) {
@@ -30,8 +32,18 @@ func (ir *Interp) Inspect(src string) {
 		c.Errorf("no inspector set: call Interp.SetInspector() first")
 		return
 	}
-	// not ir.Compile because it only macroexpands if OptMacroExpandOnly is set
-	val, xtyp := ir.RunExpr1(c.Compile(c.Parse(src)))
+	form := c.Parse(src)
+	if _, ok := form.(ast2.AstWithSlice); ok && form.Size() == 1 {
+		form = form.Get(0)
+	}
+	expr, xtyp := c.Expr1OrType(ast2.ToExpr(form))
+	var val xr.Value
+	if expr != nil {
+		val, xtyp = ir.RunExpr1(expr)
+	} else {
+		// attempt to inspect a type: inspect the zero value of the type
+		val = xr.Zero(xtyp)
+	}
 	typ := xtyp.ReflectType()
 	if val.IsValid() && val.Kind() == r.Interface {
 		// extract concrete type

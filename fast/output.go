@@ -176,7 +176,7 @@ func showValue(out io.Writer, name string, v xr.Value, t xr.Type, stringer func(
 	fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], valueString(v, 0), stringer(t))
 }
 
-// convert a reflect.Value to string, intercepting any panic
+// convert an xreflect.Value to string, intercepting any panic
 func valueString(v xr.Value, depth int) (s string) {
 	ok := false
 	defer func() {
