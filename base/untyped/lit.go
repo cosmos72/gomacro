@@ -21,7 +21,6 @@ import (
 	"go/token"
 	"math/big"
 	r "reflect"
-	"unsafe"
 
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/reflect"
@@ -306,23 +305,18 @@ func (untyp *Lit) Float64() (float64, bool) {
 
 // attempt to unwrap an untyped literal. Returns at most one of *big.Int, *big.Rat, *big.Float
 func (untyp *Lit) rawBignum() (*big.Int, *big.Rat, *big.Float) {
-	switch untyp.Val.Kind() {
-	case constant.Int, constant.Float:
-		break
-	default:
+	k := untyp.Val.Kind()
+	if k != constant.Int && k != constant.Float {
 		return nil, nil, nil
 	}
-	v := r.ValueOf(untyp.Val)
-	if v.Kind() == r.Struct {
-		v = v.Field(0)
-	}
-	switch v.Type() {
-	case rtypeOfPtrBigInt:
-		return (*big.Int)(unsafe.Pointer(v.Pointer())), nil, nil
-	case rtypeOfPtrBigRat:
-		return nil, (*big.Rat)(unsafe.Pointer(v.Pointer())), nil
-	case rtypeOfPtrBigFloat:
-		return nil, nil, (*big.Float)(unsafe.Pointer(v.Pointer()))
+	x := constant.Val(untyp.Val) // requires Go 1.13
+	switch x := x.(type) {
+	case *big.Int:
+		return x, nil, nil
+	case *big.Rat:
+		return nil, x, nil
+	case *big.Float:
+		return nil, nil, x
 	default:
 		return nil, nil, nil
 	}
