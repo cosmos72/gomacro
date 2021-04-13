@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	// "os/signal"
 
 	"github.com/peterh/liner"
 )
@@ -33,13 +32,13 @@ type Readline interface {
 
 // -------------------- BufReadline --------------------
 
+// a line-at-time reader wrapping a *bufio.Reader
 type BufReadline struct {
-	in  *bufio.Reader
-	out io.Writer
+	in *bufio.Reader
 }
 
-func MakeBufReadline(in *bufio.Reader, out io.Writer) BufReadline {
-	return BufReadline{in, out}
+func MakeBufReadline(in *bufio.Reader) BufReadline {
+	return BufReadline{in}
 }
 
 var (

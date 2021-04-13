@@ -286,7 +286,7 @@ func (ir *Interp) ReplStdin() {
 func (ir *Interp) Repl(in *bufio.Reader) {
 	g := ir.Comp.CompGlobals
 
-	r := base.MakeBufReadline(in, g.Stdout)
+	r := base.MakeBufReadline(in)
 
 	ch := base.StartSignalHandler(ir.Interrupt)
 	defer base.StopSignalHandler(ch)

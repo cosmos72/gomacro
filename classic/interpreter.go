@@ -77,7 +77,7 @@ func (ir *Interp) ReplStdin() {
 }
 
 func (ir *Interp) Repl(in *bufio.Reader) {
-	r := MakeBufReadline(in, ir.Stdout)
+	r := MakeBufReadline(in)
 
 	c := StartSignalHandler(ir.Interrupt)
 	defer StopSignalHandler(c)

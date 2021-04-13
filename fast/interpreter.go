@@ -282,7 +282,7 @@ func (ir *Interp) EvalReader(src io.Reader) (comments string, err error) {
 	savein := g.Readline
 	saveopts := g.Options
 	g.Line = 0
-	in := base.MakeBufReadline(bufio.NewReader(src), g.Stdout)
+	in := base.MakeBufReadline(bufio.NewReader(src))
 	g.Readline = in
 	// parsing a file: suppress prompt and printing expression results
 	g.Options &^= base.OptShowPrompt | base.OptShowEval | base.OptShowEvalType
