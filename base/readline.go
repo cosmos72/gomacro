@@ -32,7 +32,7 @@ type Readline interface {
 
 // -------------------- BufReadline --------------------
 
-// a line-at-time reader wrapping a *bufio.Reader
+// a Readline implementation that reads from a *bufio.Reader
 type BufReadline struct {
 	in *bufio.Reader
 }

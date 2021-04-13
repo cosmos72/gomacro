@@ -358,7 +358,7 @@ func ReadMultiline(in Readline, opts ReadOptions, prompt string) (src string, fi
 	}
 	if err != nil {
 		if err == io.EOF && paren > 0 {
-			err = errors.New("unexpected EOF")
+			err = io.ErrUnexpectedEOF
 		}
 		return string(buf), firstToken, err
 	}
