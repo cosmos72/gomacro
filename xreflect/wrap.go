@@ -166,6 +166,7 @@ func fillForwardInterface(rv r.Value, t Type) r.Value {
 }
 
 func fillForwardSlice(rv r.Value, t Type) {
+	// debugf("fillForwardSlice: %+v type %v", rv.Interface(), t)
 	telem := t.Elem()
 	for i, n := 0, rv.Len(); i < n; i++ {
 		rvi := rv.Index(i)
