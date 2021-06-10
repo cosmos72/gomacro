@@ -95,7 +95,7 @@ func (v Value) isfwd() bool {
 
 func (v Value) fwd() r.Value {
 	rv := v.rv
-	if rv.Kind() == r.Interface && rv.Type() == rTypeOfForward {
+	if isfwd(rv) {
 		rv = rv.Elem()
 	}
 	return rv
@@ -278,23 +278,12 @@ func (v Value) Send(x Value) {
 	v.fwd().Send(x.fwd())
 }
 
-func (v Value) setr(rx r.Value) {
-	if v.isfwd() {
-		rxtyp := rx.Type()
-		rtyp := v.Type()
-		if rxtyp != rtyp && rxtyp.ConvertibleTo(rtyp) {
-			rx = rx.Convert(rtyp)
-		}
-	}
-	v.rv.Set(rx)
-}
-
 func (v Value) set(x interface{}) {
-	v.setr(r.ValueOf(x))
+	v.rv.Set(r.ValueOf(x))
 }
 
 func (v Value) Set(x Value) {
-	v.setr(x.fwd())
+	v.rv.Set(x.fwd())
 }
 
 func (v Value) SetBool(x bool) {
