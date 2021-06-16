@@ -59,7 +59,9 @@ type TtyReadline struct {
 }
 
 func MakeTtyReadline(historyfile string) (TtyReadline, error) {
-	tty := TtyReadline{liner.NewLiner()}
+	line := liner.NewLiner()
+	line.SetTabCompletionStyle(liner.TabPrints)
+	tty := TtyReadline{line}
 
 	/*
 		go func() {
