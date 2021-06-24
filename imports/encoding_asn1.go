@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "encoding/asn1"
 func init() {
 	Packages["encoding/asn1"] = Package{
+	Name: "asn1",
 	Binds: map[string]Value{
 		"ClassApplication":	ValueOf(asn1.ClassApplication),
 		"ClassContextSpecific":	ValueOf(asn1.ClassContextSpecific),

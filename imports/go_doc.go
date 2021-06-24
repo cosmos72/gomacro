@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"go/doc"
+	doc "go/doc"
 )
 
 // reflection: allow interpreted code to import "go/doc"
 func init() {
 	Packages["go/doc"] = Package{
+	Name: "doc",
 	Binds: map[string]Value{
 		"AllDecls":	ValueOf(doc.AllDecls),
 		"AllMethods":	ValueOf(doc.AllMethods),
@@ -18,6 +19,7 @@ func init() {
 		"IllegalPrefixes":	ValueOf(&doc.IllegalPrefixes).Elem(),
 		"IsPredeclared":	ValueOf(doc.IsPredeclared),
 		"New":	ValueOf(doc.New),
+		"PreserveAST":	ValueOf(doc.PreserveAST),
 		"Synopsis":	ValueOf(doc.Synopsis),
 		"ToHTML":	ValueOf(doc.ToHTML),
 		"ToText":	ValueOf(doc.ToText),

@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"mime/quotedprintable"
+	quotedprintable "mime/quotedprintable"
 )
 
 // reflection: allow interpreted code to import "mime/quotedprintable"
 func init() {
 	Packages["mime/quotedprintable"] = Package{
+	Name: "quotedprintable",
 	Binds: map[string]Value{
 		"NewReader":	ValueOf(quotedprintable.NewReader),
 		"NewWriter":	ValueOf(quotedprintable.NewWriter),

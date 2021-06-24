@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"testing/iotest"
+	iotest "testing/iotest"
 )
 
 // reflection: allow interpreted code to import "testing/iotest"
 func init() {
 	Packages["testing/iotest"] = Package{
+	Name: "iotest",
 	Binds: map[string]Value{
 		"DataErrReader":	ValueOf(iotest.DataErrReader),
 		"ErrTimeout":	ValueOf(&iotest.ErrTimeout).Elem(),

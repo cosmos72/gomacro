@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"sync/atomic"
+	atomic "sync/atomic"
 )
 
 // reflection: allow interpreted code to import "sync/atomic"
 func init() {
 	Packages["sync/atomic"] = Package{
+	Name: "atomic",
 	Binds: map[string]Value{
 		"AddInt32":	ValueOf(atomic.AddInt32),
 		"AddInt64":	ValueOf(atomic.AddInt64),

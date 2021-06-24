@@ -5,13 +5,14 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/elliptic"
-	"math/big"
+	elliptic "crypto/elliptic"
+	big "math/big"
 )
 
 // reflection: allow interpreted code to import "crypto/elliptic"
 func init() {
 	Packages["crypto/elliptic"] = Package{
+	Name: "elliptic",
 	Binds: map[string]Value{
 		"GenerateKey":	ValueOf(elliptic.GenerateKey),
 		"Marshal":	ValueOf(elliptic.Marshal),

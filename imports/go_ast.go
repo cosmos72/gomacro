@@ -5,13 +5,14 @@ package imports
 
 import (
 	. "reflect"
-	"go/ast"
-	"go/token"
+	ast "go/ast"
+	token "go/token"
 )
 
 // reflection: allow interpreted code to import "go/ast"
 func init() {
 	Packages["go/ast"] = Package{
+	Name: "ast",
 	Binds: map[string]Value{
 		"Bad":	ValueOf(ast.Bad),
 		"Con":	ValueOf(ast.Con),

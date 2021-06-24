@@ -5,14 +5,15 @@ package imports
 
 import (
 	. "reflect"
-	"image"
-	"image/color"
-	"image/draw"
+	color "image/color"
+	draw "image/draw"
+	image "image"
 )
 
 // reflection: allow interpreted code to import "image/draw"
 func init() {
 	Packages["image/draw"] = Package{
+	Name: "draw",
 	Binds: map[string]Value{
 		"Draw":	ValueOf(draw.Draw),
 		"DrawMask":	ValueOf(draw.DrawMask),

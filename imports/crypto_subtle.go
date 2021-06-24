@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/subtle"
+	subtle "crypto/subtle"
 )
 
 // reflection: allow interpreted code to import "crypto/subtle"
 func init() {
 	Packages["crypto/subtle"] = Package{
+	Name: "subtle",
 	Binds: map[string]Value{
 		"ConstantTimeByteEq":	ValueOf(subtle.ConstantTimeByteEq),
 		"ConstantTimeCompare":	ValueOf(subtle.ConstantTimeCompare),

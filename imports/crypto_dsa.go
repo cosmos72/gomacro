@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/dsa"
+	dsa "crypto/dsa"
 )
 
 // reflection: allow interpreted code to import "crypto/dsa"
 func init() {
 	Packages["crypto/dsa"] = Package{
+	Name: "dsa",
 	Binds: map[string]Value{
 		"ErrInvalidPublicKey":	ValueOf(&dsa.ErrInvalidPublicKey).Elem(),
 		"GenerateKey":	ValueOf(dsa.GenerateKey),

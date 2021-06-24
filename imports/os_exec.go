@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"os/exec"
+	exec "os/exec"
 )
 
 // reflection: allow interpreted code to import "os/exec"
 func init() {
 	Packages["os/exec"] = Package{
+	Name: "exec",
 	Binds: map[string]Value{
 		"Command":	ValueOf(exec.Command),
 		"CommandContext":	ValueOf(exec.CommandContext),
@@ -21,7 +22,7 @@ func init() {
 		"Error":	TypeOf((*exec.Error)(nil)).Elem(),
 		"ExitError":	TypeOf((*exec.ExitError)(nil)).Elem(),
 	}, Wrappers: map[string][]string{
-		"ExitError":	[]string{"Exited","Pid","String","Success","Sys","SysUsage","SystemTime","UserTime",},
+		"ExitError":	[]string{"ExitCode","Exited","Pid","String","Success","Sys","SysUsage","SystemTime","UserTime",},
 	}, 
 	}
 }

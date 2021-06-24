@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"reflect"
+	reflect "reflect"
 )
 
 // reflection: allow interpreted code to import "reflect"
 func init() {
 	Packages["reflect"] = Package{
+	Name: "reflect",
 	Binds: map[string]Value{
 		"Append":	ValueOf(reflect.Append),
 		"AppendSlice":	ValueOf(reflect.AppendSlice),
@@ -72,6 +73,7 @@ func init() {
 	}, Types: map[string]Type{
 		"ChanDir":	TypeOf((*reflect.ChanDir)(nil)).Elem(),
 		"Kind":	TypeOf((*reflect.Kind)(nil)).Elem(),
+		"MapIter":	TypeOf((*reflect.MapIter)(nil)).Elem(),
 		"Method":	TypeOf((*reflect.Method)(nil)).Elem(),
 		"SelectCase":	TypeOf((*reflect.SelectCase)(nil)).Elem(),
 		"SelectDir":	TypeOf((*reflect.SelectDir)(nil)).Elem(),

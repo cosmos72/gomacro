@@ -5,14 +5,15 @@ package imports
 
 import (
 	. "reflect"
-	reflect "reflect"
 	context "context"
 	driver "database/sql/driver"
+	reflect "reflect"
 )
 
 // reflection: allow interpreted code to import "database/sql/driver"
 func init() {
 	Packages["database/sql/driver"] = Package{
+	Name: "driver",
 	Binds: map[string]Value{
 		"Bool":	ValueOf(&driver.Bool).Elem(),
 		"DefaultParameterConverter":	ValueOf(&driver.DefaultParameterConverter).Elem(),

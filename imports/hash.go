@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"hash"
+	hash "hash"
 )
 
 // reflection: allow interpreted code to import "hash"
 func init() {
 	Packages["hash"] = Package{
+	Name: "hash",
 	Types: map[string]Type{
 		"Hash":	TypeOf((*hash.Hash)(nil)).Elem(),
 		"Hash32":	TypeOf((*hash.Hash32)(nil)).Elem(),

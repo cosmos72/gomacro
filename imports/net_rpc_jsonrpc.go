@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/rpc/jsonrpc"
+	jsonrpc "net/rpc/jsonrpc"
 )
 
 // reflection: allow interpreted code to import "net/rpc/jsonrpc"
 func init() {
 	Packages["net/rpc/jsonrpc"] = Package{
+	Name: "jsonrpc",
 	Binds: map[string]Value{
 		"Dial":	ValueOf(jsonrpc.Dial),
 		"NewClient":	ValueOf(jsonrpc.NewClient),

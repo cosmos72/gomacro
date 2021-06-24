@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "archive/tar"
 func init() {
 	Packages["archive/tar"] = Package{
+	Name: "tar",
 	Binds: map[string]Value{
 		"ErrFieldTooLong":	ValueOf(&tar.ErrFieldTooLong).Elem(),
 		"ErrHeader":	ValueOf(&tar.ErrHeader).Elem(),

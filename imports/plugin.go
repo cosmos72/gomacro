@@ -7,12 +7,13 @@ package imports
 
 import (
 	. "reflect"
-	"plugin"
+	plugin "plugin"
 )
 
 // reflection: allow interpreted code to import "plugin"
 func init() {
 	Packages["plugin"] = Package{
+	Name: "plugin",
 	Binds: map[string]Value{
 		"Open":	ValueOf(plugin.Open),
 	}, Types: map[string]Type{

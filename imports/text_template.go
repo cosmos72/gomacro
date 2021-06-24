@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"text/template"
+	template "text/template"
 )
 
 // reflection: allow interpreted code to import "text/template"
 func init() {
 	Packages["text/template"] = Package{
+	Name: "template",
 	Binds: map[string]Value{
 		"HTMLEscape":	ValueOf(template.HTMLEscape),
 		"HTMLEscapeString":	ValueOf(template.HTMLEscapeString),

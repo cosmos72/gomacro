@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"mime/multipart"
+	multipart "mime/multipart"
 )
 
 // reflection: allow interpreted code to import "mime/multipart"
 func init() {
 	Packages["mime/multipart"] = Package{
+	Name: "multipart",
 	Binds: map[string]Value{
 		"ErrMessageTooLarge":	ValueOf(&multipart.ErrMessageTooLarge).Elem(),
 		"NewReader":	ValueOf(multipart.NewReader),

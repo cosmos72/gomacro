@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"container/heap"
+	heap "container/heap"
 )
 
 // reflection: allow interpreted code to import "container/heap"
 func init() {
 	Packages["container/heap"] = Package{
+	Name: "heap",
 	Binds: map[string]Value{
 		"Fix":	ValueOf(heap.Fix),
 		"Init":	ValueOf(heap.Init),

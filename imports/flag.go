@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"flag"
+	flag "flag"
 )
 
 // reflection: allow interpreted code to import "flag"
 func init() {
 	Packages["flag"] = Package{
+	Name: "flag",
 	Binds: map[string]Value{
 		"Arg":	ValueOf(flag.Arg),
 		"Args":	ValueOf(flag.Args),

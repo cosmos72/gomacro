@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "debug/elf"
 func init() {
 	Packages["debug/elf"] = Package{
+	Name: "elf",
 	Binds: map[string]Value{
 		"ARM_MAGIC_TRAMP_NUMBER":	ValueOf(elf.ARM_MAGIC_TRAMP_NUMBER),
 		"COMPRESS_HIOS":	ValueOf(elf.COMPRESS_HIOS),
@@ -956,6 +957,7 @@ func init() {
 		"R_PPC_UADDR16":	ValueOf(elf.R_PPC_UADDR16),
 		"R_PPC_UADDR32":	ValueOf(elf.R_PPC_UADDR32),
 		"R_RISCV_32":	ValueOf(elf.R_RISCV_32),
+		"R_RISCV_32_PCREL":	ValueOf(elf.R_RISCV_32_PCREL),
 		"R_RISCV_64":	ValueOf(elf.R_RISCV_64),
 		"R_RISCV_ADD16":	ValueOf(elf.R_RISCV_ADD16),
 		"R_RISCV_ADD32":	ValueOf(elf.R_RISCV_ADD32),

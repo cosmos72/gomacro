@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"runtime"
+	runtime "runtime"
 )
 
 // reflection: allow interpreted code to import "runtime"
 func init() {
 	Packages["runtime"] = Package{
+	Name: "runtime",
 	Binds: map[string]Value{
 		"BlockProfile":	ValueOf(runtime.BlockProfile),
 		"Breakpoint":	ValueOf(runtime.Breakpoint),
@@ -40,7 +41,7 @@ func init() {
 		"ReadTrace":	ValueOf(runtime.ReadTrace),
 		"SetBlockProfileRate":	ValueOf(runtime.SetBlockProfileRate),
 		"SetCPUProfileRate":	ValueOf(runtime.SetCPUProfileRate),
-		// "SetCgoTraceback":      ValueOf(runtime.SetCgoTraceback), // missing in gccgo!
+		// "SetCgoTraceback":	ValueOf(runtime.SetCgoTraceback), // missing in gccgo!
 		"SetFinalizer":	ValueOf(runtime.SetFinalizer),
 		"SetMutexProfileFraction":	ValueOf(runtime.SetMutexProfileFraction),
 		"Stack":	ValueOf(runtime.Stack),

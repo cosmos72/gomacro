@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"fmt"
+	fmt "fmt"
 )
 
 // reflection: allow interpreted code to import "fmt"
 func init() {
 	Packages["fmt"] = Package{
+	Name: "fmt",
 	Binds: map[string]Value{
 		"Errorf":	ValueOf(fmt.Errorf),
 		"Fprint":	ValueOf(fmt.Fprint),

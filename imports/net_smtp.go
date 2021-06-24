@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/smtp"
+	smtp "net/smtp"
 )
 
 // reflection: allow interpreted code to import "net/smtp"
 func init() {
 	Packages["net/smtp"] = Package{
+	Name: "smtp",
 	Binds: map[string]Value{
 		"CRAMMD5Auth":	ValueOf(smtp.CRAMMD5Auth),
 		"Dial":	ValueOf(smtp.Dial),

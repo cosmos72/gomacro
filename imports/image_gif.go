@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"image/gif"
+	gif "image/gif"
 )
 
 // reflection: allow interpreted code to import "image/gif"
 func init() {
 	Packages["image/gif"] = Package{
+	Name: "gif",
 	Binds: map[string]Value{
 		"Decode":	ValueOf(gif.Decode),
 		"DecodeAll":	ValueOf(gif.DecodeAll),

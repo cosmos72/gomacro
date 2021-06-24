@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"path"
+	path "path"
 )
 
 // reflection: allow interpreted code to import "path"
 func init() {
 	Packages["path"] = Package{
+	Name: "path",
 	Binds: map[string]Value{
 		"Base":	ValueOf(path.Base),
 		"Clean":	ValueOf(path.Clean),

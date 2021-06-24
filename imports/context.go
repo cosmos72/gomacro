@@ -5,13 +5,14 @@ package imports
 
 import (
 	. "reflect"
-	"context"
-	"time"
+	context "context"
+	time "time"
 )
 
 // reflection: allow interpreted code to import "context"
 func init() {
 	Packages["context"] = Package{
+	Name: "context",
 	Binds: map[string]Value{
 		"Background":	ValueOf(context.Background),
 		"Canceled":	ValueOf(&context.Canceled).Elem(),

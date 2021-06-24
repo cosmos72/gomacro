@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"go/build"
+	build "go/build"
 )
 
 // reflection: allow interpreted code to import "go/build"
 func init() {
 	Packages["go/build"] = Package{
+	Name: "build",
 	Binds: map[string]Value{
 		"AllowBinary":	ValueOf(build.AllowBinary),
 		"ArchChar":	ValueOf(build.ArchChar),

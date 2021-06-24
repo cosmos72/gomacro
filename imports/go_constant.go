@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"go/constant"
+	constant "go/constant"
 )
 
 // reflection: allow interpreted code to import "go/constant"
 func init() {
 	Packages["go/constant"] = Package{
+	Name: "constant",
 	Binds: map[string]Value{
 		"BinaryOp":	ValueOf(constant.BinaryOp),
 		"BitLen":	ValueOf(constant.BitLen),
@@ -26,6 +27,7 @@ func init() {
 		"Imag":	ValueOf(constant.Imag),
 		"Int":	ValueOf(constant.Int),
 		"Int64Val":	ValueOf(constant.Int64Val),
+		"Make":	ValueOf(constant.Make),
 		"MakeBool":	ValueOf(constant.MakeBool),
 		"MakeFloat64":	ValueOf(constant.MakeFloat64),
 		"MakeFromBytes":	ValueOf(constant.MakeFromBytes),
@@ -47,6 +49,7 @@ func init() {
 		"Uint64Val":	ValueOf(constant.Uint64Val),
 		"UnaryOp":	ValueOf(constant.UnaryOp),
 		"Unknown":	ValueOf(constant.Unknown),
+		"Val":	ValueOf(constant.Val),
 	}, Types: map[string]Type{
 		"Kind":	TypeOf((*constant.Kind)(nil)).Elem(),
 		"Value":	TypeOf((*constant.Value)(nil)).Elem(),

@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/http/httptrace"
+	httptrace "net/http/httptrace"
 )
 
 // reflection: allow interpreted code to import "net/http/httptrace"
 func init() {
 	Packages["net/http/httptrace"] = Package{
+	Name: "httptrace",
 	Binds: map[string]Value{
 		"ContextClientTrace":	ValueOf(httptrace.ContextClientTrace),
 		"WithClientTrace":	ValueOf(httptrace.WithClientTrace),

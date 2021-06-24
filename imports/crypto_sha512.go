@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/sha512"
+	sha512 "crypto/sha512"
 )
 
 // reflection: allow interpreted code to import "crypto/sha512"
 func init() {
 	Packages["crypto/sha512"] = Package{
+	Name: "sha512",
 	Binds: map[string]Value{
 		"BlockSize":	ValueOf(sha512.BlockSize),
 		"New":	ValueOf(sha512.New),

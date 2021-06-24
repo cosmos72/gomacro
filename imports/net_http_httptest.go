@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/http/httptest"
+	httptest "net/http/httptest"
 )
 
 // reflection: allow interpreted code to import "net/http/httptest"
 func init() {
 	Packages["net/http/httptest"] = Package{
+	Name: "httptest",
 	Binds: map[string]Value{
 		"DefaultRemoteAddr":	ValueOf(httptest.DefaultRemoteAddr),
 		"NewRecorder":	ValueOf(httptest.NewRecorder),

@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"encoding/hex"
+	hex "encoding/hex"
 )
 
 // reflection: allow interpreted code to import "encoding/hex"
 func init() {
 	Packages["encoding/hex"] = Package{
+	Name: "hex",
 	Binds: map[string]Value{
 		"Decode":	ValueOf(hex.Decode),
 		"DecodeString":	ValueOf(hex.DecodeString),
@@ -21,6 +22,8 @@ func init() {
 		"EncodeToString":	ValueOf(hex.EncodeToString),
 		"EncodedLen":	ValueOf(hex.EncodedLen),
 		"ErrLength":	ValueOf(&hex.ErrLength).Elem(),
+		"NewDecoder":	ValueOf(hex.NewDecoder),
+		"NewEncoder":	ValueOf(hex.NewEncoder),
 	}, Types: map[string]Type{
 		"InvalidByteError":	TypeOf((*hex.InvalidByteError)(nil)).Elem(),
 	}, 

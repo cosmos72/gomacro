@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"encoding/base32"
+	base32 "encoding/base32"
 )
 
 // reflection: allow interpreted code to import "encoding/base32"
 func init() {
 	Packages["encoding/base32"] = Package{
+	Name: "base32",
 	Binds: map[string]Value{
 		"HexEncoding":	ValueOf(&base32.HexEncoding).Elem(),
 		"NewDecoder":	ValueOf(base32.NewDecoder),

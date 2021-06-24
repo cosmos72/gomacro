@@ -5,16 +5,17 @@ package imports
 
 import (
 	. "reflect"
+	net "net"
 	http "net/http"
 	url "net/url"
 	os "os"
 	bufio "bufio"
-	net "net"
 )
 
 // reflection: allow interpreted code to import "net/http"
 func init() {
 	Packages["net/http"] = Package{
+	Name: "http",
 	Binds: map[string]Value{
 		"CanonicalHeaderKey":	ValueOf(http.CanonicalHeaderKey),
 		"DefaultClient":	ValueOf(&http.DefaultClient).Elem(),
@@ -65,6 +66,7 @@ func init() {
 		"MethodTrace":	ValueOf(http.MethodTrace),
 		"NewFileTransport":	ValueOf(http.NewFileTransport),
 		"NewRequest":	ValueOf(http.NewRequest),
+		"NewRequestWithContext":	ValueOf(http.NewRequestWithContext),
 		"NewServeMux":	ValueOf(http.NewServeMux),
 		"NoBody":	ValueOf(&http.NoBody).Elem(),
 		"NotFound":	ValueOf(http.NotFound),
@@ -81,6 +83,7 @@ func init() {
 		"RedirectHandler":	ValueOf(http.RedirectHandler),
 		"SameSiteDefaultMode":	ValueOf(http.SameSiteDefaultMode),
 		"SameSiteLaxMode":	ValueOf(http.SameSiteLaxMode),
+		"SameSiteNoneMode":	ValueOf(http.SameSiteNoneMode),
 		"SameSiteStrictMode":	ValueOf(http.SameSiteStrictMode),
 		"Serve":	ValueOf(http.Serve),
 		"ServeContent":	ValueOf(http.ServeContent),
@@ -100,6 +103,7 @@ func init() {
 		"StatusConflict":	ValueOf(http.StatusConflict),
 		"StatusContinue":	ValueOf(http.StatusContinue),
 		"StatusCreated":	ValueOf(http.StatusCreated),
+		"StatusEarlyHints":	ValueOf(http.StatusEarlyHints),
 		"StatusExpectationFailed":	ValueOf(http.StatusExpectationFailed),
 		"StatusFailedDependency":	ValueOf(http.StatusFailedDependency),
 		"StatusForbidden":	ValueOf(http.StatusForbidden),
@@ -146,6 +150,7 @@ func init() {
 		"StatusTeapot":	ValueOf(http.StatusTeapot),
 		"StatusTemporaryRedirect":	ValueOf(http.StatusTemporaryRedirect),
 		"StatusText":	ValueOf(http.StatusText),
+		"StatusTooEarly":	ValueOf(http.StatusTooEarly),
 		"StatusTooManyRequests":	ValueOf(http.StatusTooManyRequests),
 		"StatusUnauthorized":	ValueOf(http.StatusUnauthorized),
 		"StatusUnavailableForLegalReasons":	ValueOf(http.StatusUnavailableForLegalReasons),
@@ -213,6 +218,7 @@ func init() {
 		"StatusConflict":	"int:409",
 		"StatusContinue":	"int:100",
 		"StatusCreated":	"int:201",
+		"StatusEarlyHints":	"int:103",
 		"StatusExpectationFailed":	"int:417",
 		"StatusFailedDependency":	"int:424",
 		"StatusForbidden":	"int:403",
@@ -258,6 +264,7 @@ func init() {
 		"StatusSwitchingProtocols":	"int:101",
 		"StatusTeapot":	"int:418",
 		"StatusTemporaryRedirect":	"int:307",
+		"StatusTooEarly":	"int:425",
 		"StatusTooManyRequests":	"int:429",
 		"StatusUnauthorized":	"int:401",
 		"StatusUnavailableForLegalReasons":	"int:451",

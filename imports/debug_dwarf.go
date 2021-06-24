@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"debug/dwarf"
+	dwarf "debug/dwarf"
 )
 
 // reflection: allow interpreted code to import "debug/dwarf"
 func init() {
 	Packages["debug/dwarf"] = Package{
+	Name: "dwarf",
 	Binds: map[string]Value{
 		"AttrAbstractOrigin":	ValueOf(dwarf.AttrAbstractOrigin),
 		"AttrAccessibility":	ValueOf(dwarf.AttrAccessibility),
@@ -198,6 +199,7 @@ func init() {
 		"UcharType":	TypeOf((*dwarf.UcharType)(nil)).Elem(),
 		"UintType":	TypeOf((*dwarf.UintType)(nil)).Elem(),
 		"UnspecifiedType":	TypeOf((*dwarf.UnspecifiedType)(nil)).Elem(),
+		"UnsupportedType":	TypeOf((*dwarf.UnsupportedType)(nil)).Elem(),
 		"VoidType":	TypeOf((*dwarf.VoidType)(nil)).Elem(),
 	}, Proxies: map[string]Type{
 		"Type":	TypeOf((*P_debug_dwarf_Type)(nil)).Elem(),
@@ -220,6 +222,7 @@ func init() {
 		"UcharType":	[]string{"Basic","Common","Size","String",},
 		"UintType":	[]string{"Basic","Common","Size","String",},
 		"UnspecifiedType":	[]string{"Basic","Common","Size","String",},
+		"UnsupportedType":	[]string{"Common","Size",},
 		"VoidType":	[]string{"Common","Size",},
 	}, 
 	}

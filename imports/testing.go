@@ -5,17 +5,19 @@ package imports
 
 import (
 	. "reflect"
-	"testing"
+	testing "testing"
 )
 
 // reflection: allow interpreted code to import "testing"
 func init() {
 	Packages["testing"] = Package{
+	Name: "testing",
 	Binds: map[string]Value{
 		"AllocsPerRun":	ValueOf(testing.AllocsPerRun),
 		"Benchmark":	ValueOf(testing.Benchmark),
 		"CoverMode":	ValueOf(testing.CoverMode),
 		"Coverage":	ValueOf(testing.Coverage),
+		"Init":	ValueOf(testing.Init),
 		"Main":	ValueOf(testing.Main),
 		"MainStart":	ValueOf(testing.MainStart),
 		"RegisterCover":	ValueOf(testing.RegisterCover),

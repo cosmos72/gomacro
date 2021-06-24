@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"encoding"
+	encoding "encoding"
 )
 
 // reflection: allow interpreted code to import "encoding"
 func init() {
 	Packages["encoding"] = Package{
+	Name: "encoding",
 	Types: map[string]Type{
 		"BinaryMarshaler":	TypeOf((*encoding.BinaryMarshaler)(nil)).Elem(),
 		"BinaryUnmarshaler":	TypeOf((*encoding.BinaryUnmarshaler)(nil)).Elem(),

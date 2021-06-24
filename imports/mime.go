@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"mime"
+	mime "mime"
 )
 
 // reflection: allow interpreted code to import "mime"
 func init() {
 	Packages["mime"] = Package{
+	Name: "mime",
 	Binds: map[string]Value{
 		"AddExtensionType":	ValueOf(mime.AddExtensionType),
 		"BEncoding":	ValueOf(mime.BEncoding),

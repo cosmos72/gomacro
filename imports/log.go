@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"log"
+	log "log"
 )
 
 // reflection: allow interpreted code to import "log"
 func init() {
 	Packages["log"] = Package{
+	Name: "log",
 	Binds: map[string]Value{
 		"Fatal":	ValueOf(log.Fatal),
 		"Fatalf":	ValueOf(log.Fatalf),
@@ -35,6 +36,7 @@ func init() {
 		"SetFlags":	ValueOf(log.SetFlags),
 		"SetOutput":	ValueOf(log.SetOutput),
 		"SetPrefix":	ValueOf(log.SetPrefix),
+		"Writer":	ValueOf(log.Writer),
 	}, Types: map[string]Type{
 		"Logger":	TypeOf((*log.Logger)(nil)).Elem(),
 	}, Untypeds: map[string]string{

@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "math/rand"
 func init() {
 	Packages["math/rand"] = Package{
+	Name: "rand",
 	Binds: map[string]Value{
 		"ExpFloat64":	ValueOf(rand.ExpFloat64),
 		"Float32":	ValueOf(rand.Float32),

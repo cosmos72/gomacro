@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"compress/lzw"
+	lzw "compress/lzw"
 )
 
 // reflection: allow interpreted code to import "compress/lzw"
 func init() {
 	Packages["compress/lzw"] = Package{
+	Name: "lzw",
 	Binds: map[string]Value{
 		"LSB":	ValueOf(lzw.LSB),
 		"MSB":	ValueOf(lzw.MSB),

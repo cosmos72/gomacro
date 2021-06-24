@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"text/tabwriter"
+	tabwriter "text/tabwriter"
 )
 
 // reflection: allow interpreted code to import "text/tabwriter"
 func init() {
 	Packages["text/tabwriter"] = Package{
+	Name: "tabwriter",
 	Binds: map[string]Value{
 		"AlignRight":	ValueOf(tabwriter.AlignRight),
 		"Debug":	ValueOf(tabwriter.Debug),

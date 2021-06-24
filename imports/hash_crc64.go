@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"hash/crc64"
+	crc64 "hash/crc64"
 )
 
 // reflection: allow interpreted code to import "hash/crc64"
 func init() {
 	Packages["hash/crc64"] = Package{
+	Name: "crc64",
 	Binds: map[string]Value{
 		"Checksum":	ValueOf(crc64.Checksum),
 		"ECMA":	ValueOf(uint64(crc64.ECMA)),

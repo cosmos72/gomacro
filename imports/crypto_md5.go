@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/md5"
+	md5 "crypto/md5"
 )
 
 // reflection: allow interpreted code to import "crypto/md5"
 func init() {
 	Packages["crypto/md5"] = Package{
+	Name: "md5",
 	Binds: map[string]Value{
 		"BlockSize":	ValueOf(md5.BlockSize),
 		"New":	ValueOf(md5.New),

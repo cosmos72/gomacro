@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"encoding/gob"
+	gob "encoding/gob"
 )
 
 // reflection: allow interpreted code to import "encoding/gob"
 func init() {
 	Packages["encoding/gob"] = Package{
+	Name: "gob",
 	Binds: map[string]Value{
 		"NewDecoder":	ValueOf(gob.NewDecoder),
 		"NewEncoder":	ValueOf(gob.NewEncoder),

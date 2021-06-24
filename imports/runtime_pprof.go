@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"runtime/pprof"
+	pprof "runtime/pprof"
 )
 
 // reflection: allow interpreted code to import "runtime/pprof"
 func init() {
 	Packages["runtime/pprof"] = Package{
+	Name: "pprof",
 	Binds: map[string]Value{
 		"Do":	ValueOf(pprof.Do),
 		"ForLabels":	ValueOf(pprof.ForLabels),

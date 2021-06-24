@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"bytes"
+	bytes "bytes"
 )
 
 // reflection: allow interpreted code to import "bytes"
 func init() {
 	Packages["bytes"] = Package{
+	Name: "bytes",
 	Binds: map[string]Value{
 		"Compare":	ValueOf(bytes.Compare),
 		"Contains":	ValueOf(bytes.Contains),
@@ -41,6 +42,7 @@ func init() {
 		"NewReader":	ValueOf(bytes.NewReader),
 		"Repeat":	ValueOf(bytes.Repeat),
 		"Replace":	ValueOf(bytes.Replace),
+		"ReplaceAll":	ValueOf(bytes.ReplaceAll),
 		"Runes":	ValueOf(bytes.Runes),
 		"Split":	ValueOf(bytes.Split),
 		"SplitAfter":	ValueOf(bytes.SplitAfter),
@@ -53,6 +55,7 @@ func init() {
 		"ToTitleSpecial":	ValueOf(bytes.ToTitleSpecial),
 		"ToUpper":	ValueOf(bytes.ToUpper),
 		"ToUpperSpecial":	ValueOf(bytes.ToUpperSpecial),
+		"ToValidUTF8":	ValueOf(bytes.ToValidUTF8),
 		"Trim":	ValueOf(bytes.Trim),
 		"TrimFunc":	ValueOf(bytes.TrimFunc),
 		"TrimLeft":	ValueOf(bytes.TrimLeft),

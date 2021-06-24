@@ -5,13 +5,14 @@ package imports
 
 import (
 	. "reflect"
-	"compress/zlib"
-	"io"
+	zlib "compress/zlib"
+	io "io"
 )
 
 // reflection: allow interpreted code to import "compress/zlib"
 func init() {
 	Packages["compress/zlib"] = Package{
+	Name: "zlib",
 	Binds: map[string]Value{
 		"BestCompression":	ValueOf(zlib.BestCompression),
 		"BestSpeed":	ValueOf(zlib.BestSpeed),

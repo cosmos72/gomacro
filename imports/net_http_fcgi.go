@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/http/fcgi"
+	fcgi "net/http/fcgi"
 )
 
 // reflection: allow interpreted code to import "net/http/fcgi"
 func init() {
 	Packages["net/http/fcgi"] = Package{
+	Name: "fcgi",
 	Binds: map[string]Value{
 		"ErrConnClosed":	ValueOf(&fcgi.ErrConnClosed).Elem(),
 		"ErrRequestAborted":	ValueOf(&fcgi.ErrRequestAborted).Elem(),

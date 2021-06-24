@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/rsa"
+	rsa "crypto/rsa"
 )
 
 // reflection: allow interpreted code to import "crypto/rsa"
 func init() {
 	Packages["crypto/rsa"] = Package{
+	Name: "rsa",
 	Binds: map[string]Value{
 		"DecryptOAEP":	ValueOf(rsa.DecryptOAEP),
 		"DecryptPKCS1v15":	ValueOf(rsa.DecryptPKCS1v15),
@@ -39,6 +40,8 @@ func init() {
 	}, Untypeds: map[string]string{
 		"PSSSaltLengthAuto":	"int:0",
 		"PSSSaltLengthEqualsHash":	"int:-1",
+	}, Wrappers: map[string][]string{
+		"PrivateKey":	[]string{"Size",},
 	}, 
 	}
 }

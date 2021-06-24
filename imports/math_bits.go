@@ -5,13 +5,20 @@ package imports
 
 import (
 	. "reflect"
-	"math/bits"
+	bits "math/bits"
 )
 
 // reflection: allow interpreted code to import "math/bits"
 func init() {
 	Packages["math/bits"] = Package{
+	Name: "bits",
 	Binds: map[string]Value{
+		"Add":	ValueOf(bits.Add),
+		"Add32":	ValueOf(bits.Add32),
+		"Add64":	ValueOf(bits.Add64),
+		"Div":	ValueOf(bits.Div),
+		"Div32":	ValueOf(bits.Div32),
+		"Div64":	ValueOf(bits.Div64),
 		"LeadingZeros":	ValueOf(bits.LeadingZeros),
 		"LeadingZeros16":	ValueOf(bits.LeadingZeros16),
 		"LeadingZeros32":	ValueOf(bits.LeadingZeros32),
@@ -22,6 +29,9 @@ func init() {
 		"Len32":	ValueOf(bits.Len32),
 		"Len64":	ValueOf(bits.Len64),
 		"Len8":	ValueOf(bits.Len8),
+		"Mul":	ValueOf(bits.Mul),
+		"Mul32":	ValueOf(bits.Mul32),
+		"Mul64":	ValueOf(bits.Mul64),
 		"OnesCount":	ValueOf(bits.OnesCount),
 		"OnesCount16":	ValueOf(bits.OnesCount16),
 		"OnesCount32":	ValueOf(bits.OnesCount32),
@@ -41,6 +51,9 @@ func init() {
 		"RotateLeft32":	ValueOf(bits.RotateLeft32),
 		"RotateLeft64":	ValueOf(bits.RotateLeft64),
 		"RotateLeft8":	ValueOf(bits.RotateLeft8),
+		"Sub":	ValueOf(bits.Sub),
+		"Sub32":	ValueOf(bits.Sub32),
+		"Sub64":	ValueOf(bits.Sub64),
 		"TrailingZeros":	ValueOf(bits.TrailingZeros),
 		"TrailingZeros16":	ValueOf(bits.TrailingZeros16),
 		"TrailingZeros32":	ValueOf(bits.TrailingZeros32),

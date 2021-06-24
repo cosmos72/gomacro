@@ -5,13 +5,14 @@ package imports
 
 import (
 	. "reflect"
-	"time"
-	"net"
+	net "net"
+	time "time"
 )
 
 // reflection: allow interpreted code to import "net"
 func init() {
 	Packages["net"] = Package{
+	Name: "net",
 	Binds: map[string]Value{
 		"CIDRMask":	ValueOf(net.CIDRMask),
 		"DefaultResolver":	ValueOf(&net.DefaultResolver).Elem(),
@@ -93,6 +94,7 @@ func init() {
 		"IPNet":	TypeOf((*net.IPNet)(nil)).Elem(),
 		"Interface":	TypeOf((*net.Interface)(nil)).Elem(),
 		"InvalidAddrError":	TypeOf((*net.InvalidAddrError)(nil)).Elem(),
+		"ListenConfig":	TypeOf((*net.ListenConfig)(nil)).Elem(),
 		"Listener":	TypeOf((*net.Listener)(nil)).Elem(),
 		"MX":	TypeOf((*net.MX)(nil)).Elem(),
 		"NS":	TypeOf((*net.NS)(nil)).Elem(),
@@ -217,11 +219,11 @@ type P_net_PacketConn struct {
 	Object	interface{}
 	Close_	func(interface{}) error
 	LocalAddr_	func(interface{}) net.Addr
-	ReadFrom_	func(_proxy_obj_ interface{}, b []byte) (n int, addr net.Addr, err error)
+	ReadFrom_	func(_proxy_obj_ interface{}, p []byte) (n int, addr net.Addr, err error)
 	SetDeadline_	func(_proxy_obj_ interface{}, t time.Time) error
 	SetReadDeadline_	func(_proxy_obj_ interface{}, t time.Time) error
 	SetWriteDeadline_	func(_proxy_obj_ interface{}, t time.Time) error
-	WriteTo_	func(_proxy_obj_ interface{}, b []byte, addr net.Addr) (n int, err error)
+	WriteTo_	func(_proxy_obj_ interface{}, p []byte, addr net.Addr) (n int, err error)
 }
 func (P *P_net_PacketConn) Close() error {
 	return P.Close_(P.Object)
@@ -229,8 +231,8 @@ func (P *P_net_PacketConn) Close() error {
 func (P *P_net_PacketConn) LocalAddr() net.Addr {
 	return P.LocalAddr_(P.Object)
 }
-func (P *P_net_PacketConn) ReadFrom(b []byte) (n int, addr net.Addr, err error) {
-	return P.ReadFrom_(P.Object, b)
+func (P *P_net_PacketConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
+	return P.ReadFrom_(P.Object, p)
 }
 func (P *P_net_PacketConn) SetDeadline(t time.Time) error {
 	return P.SetDeadline_(P.Object, t)
@@ -241,6 +243,6 @@ func (P *P_net_PacketConn) SetReadDeadline(t time.Time) error {
 func (P *P_net_PacketConn) SetWriteDeadline(t time.Time) error {
 	return P.SetWriteDeadline_(P.Object, t)
 }
-func (P *P_net_PacketConn) WriteTo(b []byte, addr net.Addr) (n int, err error) {
-	return P.WriteTo_(P.Object, b, addr)
+func (P *P_net_PacketConn) WriteTo(p []byte, addr net.Addr) (n int, err error) {
+	return P.WriteTo_(P.Object, p, addr)
 }

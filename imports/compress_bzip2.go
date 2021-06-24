@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"compress/bzip2"
+	bzip2 "compress/bzip2"
 )
 
 // reflection: allow interpreted code to import "compress/bzip2"
 func init() {
 	Packages["compress/bzip2"] = Package{
+	Name: "bzip2",
 	Binds: map[string]Value{
 		"NewReader":	ValueOf(bzip2.NewReader),
 	}, Types: map[string]Type{

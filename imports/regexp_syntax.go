@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"regexp/syntax"
+	syntax "regexp/syntax"
 )
 
 // reflection: allow interpreted code to import "regexp/syntax"
 func init() {
 	Packages["regexp/syntax"] = Package{
+	Name: "syntax",
 	Binds: map[string]Value{
 		"ClassNL":	ValueOf(syntax.ClassNL),
 		"Compile":	ValueOf(syntax.Compile),

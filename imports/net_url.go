@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/url"
+	url "net/url"
 )
 
 // reflection: allow interpreted code to import "net/url"
 func init() {
 	Packages["net/url"] = Package{
+	Name: "url",
 	Binds: map[string]Value{
 		"Parse":	ValueOf(url.Parse),
 		"ParseQuery":	ValueOf(url.ParseQuery),

@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"hash/fnv"
+	fnv "hash/fnv"
 )
 
 // reflection: allow interpreted code to import "hash/fnv"
 func init() {
 	Packages["hash/fnv"] = Package{
+	Name: "fnv",
 	Binds: map[string]Value{
 		"New128":	ValueOf(fnv.New128),
 		"New128a":	ValueOf(fnv.New128a),

@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/x509/pkix"
+	pkix "crypto/x509/pkix"
 )
 
 // reflection: allow interpreted code to import "crypto/x509/pkix"
 func init() {
 	Packages["crypto/x509/pkix"] = Package{
+	Name: "pkix",
 	Types: map[string]Type{
 		"AlgorithmIdentifier":	TypeOf((*pkix.AlgorithmIdentifier)(nil)).Elem(),
 		"AttributeTypeAndValue":	TypeOf((*pkix.AttributeTypeAndValue)(nil)).Elem(),

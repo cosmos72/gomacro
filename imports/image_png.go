@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"image/png"
+	png "image/png"
 )
 
 // reflection: allow interpreted code to import "image/png"
 func init() {
 	Packages["image/png"] = Package{
+	Name: "png",
 	Binds: map[string]Value{
 		"BestCompression":	ValueOf(png.BestCompression),
 		"BestSpeed":	ValueOf(png.BestSpeed),

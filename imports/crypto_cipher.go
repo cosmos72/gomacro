@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/cipher"
+	cipher "crypto/cipher"
 )
 
 // reflection: allow interpreted code to import "crypto/cipher"
 func init() {
 	Packages["crypto/cipher"] = Package{
+	Name: "cipher",
 	Binds: map[string]Value{
 		"NewCBCDecrypter":	ValueOf(cipher.NewCBCDecrypter),
 		"NewCBCEncrypter":	ValueOf(cipher.NewCBCEncrypter),
@@ -19,6 +20,7 @@ func init() {
 		"NewCTR":	ValueOf(cipher.NewCTR),
 		"NewGCM":	ValueOf(cipher.NewGCM),
 		"NewGCMWithNonceSize":	ValueOf(cipher.NewGCMWithNonceSize),
+		"NewGCMWithTagSize":	ValueOf(cipher.NewGCMWithTagSize),
 		"NewOFB":	ValueOf(cipher.NewOFB),
 	}, Types: map[string]Type{
 		"AEAD":	TypeOf((*cipher.AEAD)(nil)).Elem(),

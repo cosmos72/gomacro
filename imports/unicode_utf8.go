@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"unicode/utf8"
+	utf8 "unicode/utf8"
 )
 
 // reflection: allow interpreted code to import "unicode/utf8"
 func init() {
 	Packages["unicode/utf8"] = Package{
+	Name: "utf8",
 	Binds: map[string]Value{
 		"DecodeLastRune":	ValueOf(utf8.DecodeLastRune),
 		"DecodeLastRuneInString":	ValueOf(utf8.DecodeLastRuneInString),

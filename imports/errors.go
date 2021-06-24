@@ -5,14 +5,18 @@ package imports
 
 import (
 	. "reflect"
-	"errors"
+	errors "errors"
 )
 
 // reflection: allow interpreted code to import "errors"
 func init() {
 	Packages["errors"] = Package{
+	Name: "errors",
 	Binds: map[string]Value{
+		"As":	ValueOf(errors.As),
+		"Is":	ValueOf(errors.Is),
 		"New":	ValueOf(errors.New),
+		"Unwrap":	ValueOf(errors.Unwrap),
 	}, 
 	}
 }

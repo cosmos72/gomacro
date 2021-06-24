@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "database/sql"
 func init() {
 	Packages["database/sql"] = Package{
+	Name: "sql",
 	Binds: map[string]Value{
 		"Drivers":	ValueOf(sql.Drivers),
 		"ErrConnDone":	ValueOf(&sql.ErrConnDone).Elem(),
@@ -37,8 +38,10 @@ func init() {
 		"NamedArg":	TypeOf((*sql.NamedArg)(nil)).Elem(),
 		"NullBool":	TypeOf((*sql.NullBool)(nil)).Elem(),
 		"NullFloat64":	TypeOf((*sql.NullFloat64)(nil)).Elem(),
+		"NullInt32":	TypeOf((*sql.NullInt32)(nil)).Elem(),
 		"NullInt64":	TypeOf((*sql.NullInt64)(nil)).Elem(),
 		"NullString":	TypeOf((*sql.NullString)(nil)).Elem(),
+		"NullTime":	TypeOf((*sql.NullTime)(nil)).Elem(),
 		"Out":	TypeOf((*sql.Out)(nil)).Elem(),
 		"RawBytes":	TypeOf((*sql.RawBytes)(nil)).Elem(),
 		"Result":	TypeOf((*sql.Result)(nil)).Elem(),

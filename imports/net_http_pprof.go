@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/http/pprof"
+	pprof "net/http/pprof"
 )
 
 // reflection: allow interpreted code to import "net/http/pprof"
 func init() {
 	Packages["net/http/pprof"] = Package{
+	Name: "pprof",
 	Binds: map[string]Value{
 		"Cmdline":	ValueOf(pprof.Cmdline),
 		"Handler":	ValueOf(pprof.Handler),

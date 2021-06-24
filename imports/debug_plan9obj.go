@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"debug/plan9obj"
+	plan9obj "debug/plan9obj"
 )
 
 // reflection: allow interpreted code to import "debug/plan9obj"
 func init() {
 	Packages["debug/plan9obj"] = Package{
+	Name: "plan9obj",
 	Binds: map[string]Value{
 		"Magic386":	ValueOf(plan9obj.Magic386),
 		"Magic64":	ValueOf(plan9obj.Magic64),

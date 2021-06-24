@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/rand"
+	rand "crypto/rand"
 )
 
 // reflection: allow interpreted code to import "crypto/rand"
 func init() {
 	Packages["crypto/rand"] = Package{
+	Name: "rand",
 	Binds: map[string]Value{
 		"Int":	ValueOf(rand.Int),
 		"Prime":	ValueOf(rand.Prime),

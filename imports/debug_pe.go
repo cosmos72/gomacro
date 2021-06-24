@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "debug/pe"
 func init() {
 	Packages["debug/pe"] = Package{
+	Name: "pe",
 	Binds: map[string]Value{
 		"COFFSymbolSize":	ValueOf(pe.COFFSymbolSize),
 		"IMAGE_DIRECTORY_ENTRY_ARCHITECTURE":	ValueOf(pe.IMAGE_DIRECTORY_ENTRY_ARCHITECTURE),
@@ -32,6 +33,7 @@ func init() {
 		"IMAGE_FILE_MACHINE_AMD64":	ValueOf(pe.IMAGE_FILE_MACHINE_AMD64),
 		"IMAGE_FILE_MACHINE_ARM":	ValueOf(pe.IMAGE_FILE_MACHINE_ARM),
 		"IMAGE_FILE_MACHINE_ARM64":	ValueOf(pe.IMAGE_FILE_MACHINE_ARM64),
+		"IMAGE_FILE_MACHINE_ARMNT":	ValueOf(pe.IMAGE_FILE_MACHINE_ARMNT),
 		"IMAGE_FILE_MACHINE_EBC":	ValueOf(pe.IMAGE_FILE_MACHINE_EBC),
 		"IMAGE_FILE_MACHINE_I386":	ValueOf(pe.IMAGE_FILE_MACHINE_I386),
 		"IMAGE_FILE_MACHINE_IA64":	ValueOf(pe.IMAGE_FILE_MACHINE_IA64),
@@ -87,6 +89,7 @@ func init() {
 		"IMAGE_FILE_MACHINE_AMD64":	"int:34404",
 		"IMAGE_FILE_MACHINE_ARM":	"int:448",
 		"IMAGE_FILE_MACHINE_ARM64":	"int:43620",
+		"IMAGE_FILE_MACHINE_ARMNT":	"int:452",
 		"IMAGE_FILE_MACHINE_EBC":	"int:3772",
 		"IMAGE_FILE_MACHINE_I386":	"int:332",
 		"IMAGE_FILE_MACHINE_IA64":	"int:512",

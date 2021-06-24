@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"encoding/ascii85"
+	ascii85 "encoding/ascii85"
 )
 
 // reflection: allow interpreted code to import "encoding/ascii85"
 func init() {
 	Packages["encoding/ascii85"] = Package{
+	Name: "ascii85",
 	Binds: map[string]Value{
 		"Decode":	ValueOf(ascii85.Decode),
 		"Encode":	ValueOf(ascii85.Encode),

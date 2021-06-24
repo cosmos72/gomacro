@@ -5,14 +5,16 @@ package imports
 
 import (
 	. "reflect"
-	"os/signal"
+	signal "os/signal"
 )
 
 // reflection: allow interpreted code to import "os/signal"
 func init() {
 	Packages["os/signal"] = Package{
+	Name: "signal",
 	Binds: map[string]Value{
 		"Ignore":	ValueOf(signal.Ignore),
+		"Ignored":	ValueOf(signal.Ignored),
 		"Notify":	ValueOf(signal.Notify),
 		"Reset":	ValueOf(signal.Reset),
 		"Stop":	ValueOf(signal.Stop),

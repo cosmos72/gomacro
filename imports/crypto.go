@@ -5,13 +5,14 @@ package imports
 
 import (
 	. "reflect"
-	"crypto"
-	"io"
+	crypto "crypto"
+	io "io"
 )
 
 // reflection: allow interpreted code to import "crypto"
 func init() {
 	Packages["crypto"] = Package{
+	Name: "crypto",
 	Binds: map[string]Value{
 		"BLAKE2b_256":	ValueOf(crypto.BLAKE2b_256),
 		"BLAKE2b_384":	ValueOf(crypto.BLAKE2b_384),

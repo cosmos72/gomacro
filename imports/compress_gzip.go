@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"compress/gzip"
+	gzip "compress/gzip"
 )
 
 // reflection: allow interpreted code to import "compress/gzip"
 func init() {
 	Packages["compress/gzip"] = Package{
+	Name: "gzip",
 	Binds: map[string]Value{
 		"BestCompression":	ValueOf(gzip.BestCompression),
 		"BestSpeed":	ValueOf(gzip.BestSpeed),

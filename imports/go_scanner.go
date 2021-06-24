@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"go/scanner"
+	scanner "go/scanner"
 )
 
 // reflection: allow interpreted code to import "go/scanner"
 func init() {
 	Packages["go/scanner"] = Package{
+	Name: "scanner",
 	Binds: map[string]Value{
 		"PrintError":	ValueOf(scanner.PrintError),
 		"ScanComments":	ValueOf(scanner.ScanComments),

@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"go/printer"
+	printer "go/printer"
 )
 
 // reflection: allow interpreted code to import "go/printer"
 func init() {
 	Packages["go/printer"] = Package{
+	Name: "printer",
 	Binds: map[string]Value{
 		"Fprint":	ValueOf(printer.Fprint),
 		"RawFormat":	ValueOf(printer.RawFormat),

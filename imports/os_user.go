@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"os/user"
+	user "os/user"
 )
 
 // reflection: allow interpreted code to import "os/user"
 func init() {
 	Packages["os/user"] = Package{
+	Name: "user",
 	Binds: map[string]Value{
 		"Current":	ValueOf(user.Current),
 		"Lookup":	ValueOf(user.Lookup),

@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"encoding/csv"
+	csv "encoding/csv"
 )
 
 // reflection: allow interpreted code to import "encoding/csv"
 func init() {
 	Packages["encoding/csv"] = Package{
+	Name: "csv",
 	Binds: map[string]Value{
 		"ErrBareQuote":	ValueOf(&csv.ErrBareQuote).Elem(),
 		"ErrFieldCount":	ValueOf(&csv.ErrFieldCount).Elem(),

@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"bufio"
+	bufio "bufio"
 )
 
 // reflection: allow interpreted code to import "bufio"
 func init() {
 	Packages["bufio"] = Package{
+	Name: "bufio",
 	Binds: map[string]Value{
 		"ErrAdvanceTooFar":	ValueOf(&bufio.ErrAdvanceTooFar).Elem(),
 		"ErrBufferFull":	ValueOf(&bufio.ErrBufferFull).Elem(),
@@ -40,7 +41,7 @@ func init() {
 	}, Untypeds: map[string]string{
 		"MaxScanTokenSize":	"int:65536",
 	}, Wrappers: map[string][]string{
-		"ReadWriter":	[]string{"Available","Buffered","Discard","Flush","Peek","Read","ReadByte","ReadBytes","ReadFrom","ReadLine","ReadRune","ReadSlice","ReadString","Reset","UnreadByte","UnreadRune","Write","WriteByte","WriteRune","WriteString","WriteTo",},
+		"ReadWriter":	[]string{"Available","Buffered","Discard","Flush","Peek","Read","ReadByte","ReadBytes","ReadFrom","ReadLine","ReadRune","ReadSlice","ReadString","Reset","Size","UnreadByte","UnreadRune","Write","WriteByte","WriteRune","WriteString","WriteTo",},
 	}, 
 	}
 }

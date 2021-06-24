@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"archive/zip"
+	zip "archive/zip"
 )
 
 // reflection: allow interpreted code to import "archive/zip"
 func init() {
 	Packages["archive/zip"] = Package{
+	Name: "zip",
 	Binds: map[string]Value{
 		"Deflate":	ValueOf(zip.Deflate),
 		"ErrAlgorithm":	ValueOf(&zip.ErrAlgorithm).Elem(),

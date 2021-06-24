@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"container/list"
+	list "container/list"
 )
 
 // reflection: allow interpreted code to import "container/list"
 func init() {
 	Packages["container/list"] = Package{
+	Name: "list",
 	Binds: map[string]Value{
 		"New":	ValueOf(list.New),
 	}, Types: map[string]Type{

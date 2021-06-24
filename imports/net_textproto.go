@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/textproto"
+	textproto "net/textproto"
 )
 
 // reflection: allow interpreted code to import "net/textproto"
 func init() {
 	Packages["net/textproto"] = Package{
+	Name: "textproto",
 	Binds: map[string]Value{
 		"CanonicalMIMEHeaderKey":	ValueOf(textproto.CanonicalMIMEHeaderKey),
 		"Dial":	ValueOf(textproto.Dial),

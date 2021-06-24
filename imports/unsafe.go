@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"unsafe"
+	unsafe "unsafe"
 )
 
 // reflection: allow interpreted code to import "unsafe"
 func init() {
 	Packages["unsafe"] = Package{
+	Name: "unsafe",
 	Types: map[string]Type{
 		"Pointer":	TypeOf((*unsafe.Pointer)(nil)).Elem(),
 	}, 

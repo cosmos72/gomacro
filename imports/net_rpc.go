@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/rpc"
+	rpc "net/rpc"
 )
 
 // reflection: allow interpreted code to import "net/rpc"
 func init() {
 	Packages["net/rpc"] = Package{
+	Name: "rpc",
 	Binds: map[string]Value{
 		"Accept":	ValueOf(rpc.Accept),
 		"DefaultDebugPath":	ValueOf(rpc.DefaultDebugPath),

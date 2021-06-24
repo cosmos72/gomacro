@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"sync"
+	sync "sync"
 )
 
 // reflection: allow interpreted code to import "sync"
 func init() {
 	Packages["sync"] = Package{
+	Name: "sync",
 	Binds: map[string]Value{
 		"NewCond":	ValueOf(sync.NewCond),
 	}, Types: map[string]Type{

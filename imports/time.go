@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "time"
 func init() {
 	Packages["time"] = Package{
+	Name: "time",
 	Binds: map[string]Value{
 		"ANSIC":	ValueOf(time.ANSIC),
 		"After":	ValueOf(time.After),

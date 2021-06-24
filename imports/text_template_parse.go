@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"text/template/parse"
+	parse "text/template/parse"
 )
 
 // reflection: allow interpreted code to import "text/template/parse"
 func init() {
 	Packages["text/template/parse"] = Package{
+	Name: "parse",
 	Binds: map[string]Value{
 		"IsEmptyTree":	ValueOf(parse.IsEmptyTree),
 		"New":	ValueOf(parse.New),

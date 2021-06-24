@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"sort"
+	sort "sort"
 )
 
 // reflection: allow interpreted code to import "sort"
 func init() {
 	Packages["sort"] = Package{
+	Name: "sort",
 	Binds: map[string]Value{
 		"Float64s":	ValueOf(sort.Float64s),
 		"Float64sAreSorted":	ValueOf(sort.Float64sAreSorted),

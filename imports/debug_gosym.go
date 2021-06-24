@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"debug/gosym"
+	gosym "debug/gosym"
 )
 
 // reflection: allow interpreted code to import "debug/gosym"
 func init() {
 	Packages["debug/gosym"] = Package{
+	Name: "gosym",
 	Binds: map[string]Value{
 		"NewLineTable":	ValueOf(gosym.NewLineTable),
 		"NewTable":	ValueOf(gosym.NewTable),

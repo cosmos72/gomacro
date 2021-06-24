@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/tls"
+	tls "crypto/tls"
 )
 
 // reflection: allow interpreted code to import "crypto/tls"
 func init() {
 	Packages["crypto/tls"] = Package{
+	Name: "tls",
 	Binds: map[string]Value{
 		"Client":	ValueOf(tls.Client),
 		"CurveP256":	ValueOf(tls.CurveP256),
@@ -21,6 +22,8 @@ func init() {
 		"ECDSAWithP256AndSHA256":	ValueOf(tls.ECDSAWithP256AndSHA256),
 		"ECDSAWithP384AndSHA384":	ValueOf(tls.ECDSAWithP384AndSHA384),
 		"ECDSAWithP521AndSHA512":	ValueOf(tls.ECDSAWithP521AndSHA512),
+		"ECDSAWithSHA1":	ValueOf(tls.ECDSAWithSHA1),
+		"Ed25519":	ValueOf(tls.Ed25519),
 		"Listen":	ValueOf(tls.Listen),
 		"LoadX509KeyPair":	ValueOf(tls.LoadX509KeyPair),
 		"NewLRUClientSessionCache":	ValueOf(tls.NewLRUClientSessionCache),
@@ -40,6 +43,9 @@ func init() {
 		"RequireAndVerifyClientCert":	ValueOf(tls.RequireAndVerifyClientCert),
 		"RequireAnyClientCert":	ValueOf(tls.RequireAnyClientCert),
 		"Server":	ValueOf(tls.Server),
+		"TLS_AES_128_GCM_SHA256":	ValueOf(tls.TLS_AES_128_GCM_SHA256),
+		"TLS_AES_256_GCM_SHA384":	ValueOf(tls.TLS_AES_256_GCM_SHA384),
+		"TLS_CHACHA20_POLY1305_SHA256":	ValueOf(tls.TLS_CHACHA20_POLY1305_SHA256),
 		"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA":	ValueOf(tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA),
 		"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256":	ValueOf(tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256),
 		"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256":	ValueOf(tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256),
@@ -68,6 +74,7 @@ func init() {
 		"VersionTLS10":	ValueOf(tls.VersionTLS10),
 		"VersionTLS11":	ValueOf(tls.VersionTLS11),
 		"VersionTLS12":	ValueOf(tls.VersionTLS12),
+		"VersionTLS13":	ValueOf(tls.VersionTLS13),
 		"X25519":	ValueOf(tls.X25519),
 		"X509KeyPair":	ValueOf(tls.X509KeyPair),
 	}, Types: map[string]Type{
@@ -91,6 +98,7 @@ func init() {
 		"VersionTLS10":	"int:769",
 		"VersionTLS11":	"int:770",
 		"VersionTLS12":	"int:771",
+		"VersionTLS13":	"int:772",
 	}, 
 	}
 }

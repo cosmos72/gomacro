@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"go/parser"
+	parser "go/parser"
 )
 
 // reflection: allow interpreted code to import "go/parser"
 func init() {
 	Packages["go/parser"] = Package{
+	Name: "parser",
 	Binds: map[string]Value{
 		"AllErrors":	ValueOf(parser.AllErrors),
 		"DeclarationErrors":	ValueOf(parser.DeclarationErrors),

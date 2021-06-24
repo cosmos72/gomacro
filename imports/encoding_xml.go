@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "encoding/xml"
 func init() {
 	Packages["encoding/xml"] = Package{
+	Name: "xml",
 	Binds: map[string]Value{
 		"CopyToken":	ValueOf(xml.CopyToken),
 		"Escape":	ValueOf(xml.Escape),

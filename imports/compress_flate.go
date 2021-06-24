@@ -5,13 +5,14 @@ package imports
 
 import (
 	. "reflect"
-	"compress/flate"
-	"io"
+	flate "compress/flate"
+	io "io"
 )
 
 // reflection: allow interpreted code to import "compress/flate"
 func init() {
 	Packages["compress/flate"] = Package{
+	Name: "flate",
 	Binds: map[string]Value{
 		"BestCompression":	ValueOf(flate.BestCompression),
 		"BestSpeed":	ValueOf(flate.BestSpeed),

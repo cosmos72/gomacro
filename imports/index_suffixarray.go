@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"index/suffixarray"
+	suffixarray "index/suffixarray"
 )
 
 // reflection: allow interpreted code to import "index/suffixarray"
 func init() {
 	Packages["index/suffixarray"] = Package{
+	Name: "suffixarray",
 	Binds: map[string]Value{
 		"New":	ValueOf(suffixarray.New),
 	}, Types: map[string]Type{

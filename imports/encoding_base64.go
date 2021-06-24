@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"encoding/base64"
+	base64 "encoding/base64"
 )
 
 // reflection: allow interpreted code to import "encoding/base64"
 func init() {
 	Packages["encoding/base64"] = Package{
+	Name: "base64",
 	Binds: map[string]Value{
 		"NewDecoder":	ValueOf(base64.NewDecoder),
 		"NewEncoder":	ValueOf(base64.NewEncoder),

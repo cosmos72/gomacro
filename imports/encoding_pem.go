@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"encoding/pem"
+	pem "encoding/pem"
 )
 
 // reflection: allow interpreted code to import "encoding/pem"
 func init() {
 	Packages["encoding/pem"] = Package{
+	Name: "pem",
 	Binds: map[string]Value{
 		"Decode":	ValueOf(pem.Decode),
 		"Encode":	ValueOf(pem.Encode),

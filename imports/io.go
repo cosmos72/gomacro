@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"io"
+	io "io"
 )
 
 // reflection: allow interpreted code to import "io"
 func init() {
 	Packages["io"] = Package{
+	Name: "io",
 	Binds: map[string]Value{
 		"Copy":	ValueOf(io.Copy),
 		"CopyBuffer":	ValueOf(io.CopyBuffer),
@@ -53,6 +54,7 @@ func init() {
 		"RuneScanner":	TypeOf((*io.RuneScanner)(nil)).Elem(),
 		"SectionReader":	TypeOf((*io.SectionReader)(nil)).Elem(),
 		"Seeker":	TypeOf((*io.Seeker)(nil)).Elem(),
+		"StringWriter":	TypeOf((*io.StringWriter)(nil)).Elem(),
 		"WriteCloser":	TypeOf((*io.WriteCloser)(nil)).Elem(),
 		"WriteSeeker":	TypeOf((*io.WriteSeeker)(nil)).Elem(),
 		"Writer":	TypeOf((*io.Writer)(nil)).Elem(),
@@ -74,6 +76,7 @@ func init() {
 		"RuneReader":	TypeOf((*P_io_RuneReader)(nil)).Elem(),
 		"RuneScanner":	TypeOf((*P_io_RuneScanner)(nil)).Elem(),
 		"Seeker":	TypeOf((*P_io_Seeker)(nil)).Elem(),
+		"StringWriter":	TypeOf((*P_io_StringWriter)(nil)).Elem(),
 		"WriteCloser":	TypeOf((*P_io_WriteCloser)(nil)).Elem(),
 		"WriteSeeker":	TypeOf((*P_io_WriteSeeker)(nil)).Elem(),
 		"Writer":	TypeOf((*P_io_Writer)(nil)).Elem(),
@@ -256,6 +259,15 @@ type P_io_Seeker struct {
 }
 func (P *P_io_Seeker) Seek(offset int64, whence int) (int64, error) {
 	return P.Seek_(P.Object, offset, whence)
+}
+
+// --------------- proxy for io.StringWriter ---------------
+type P_io_StringWriter struct {
+	Object	interface{}
+	WriteString_	func(_proxy_obj_ interface{}, s string) (n int, err error)
+}
+func (P *P_io_StringWriter) WriteString(s string) (n int, err error) {
+	return P.WriteString_(P.Object, s)
 }
 
 // --------------- proxy for io.WriteCloser ---------------

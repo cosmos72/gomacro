@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"encoding/binary"
+	binary "encoding/binary"
 )
 
 // reflection: allow interpreted code to import "encoding/binary"
 func init() {
 	Packages["encoding/binary"] = Package{
+	Name: "binary",
 	Binds: map[string]Value{
 		"BigEndian":	ValueOf(&binary.BigEndian).Elem(),
 		"LittleEndian":	ValueOf(&binary.LittleEndian).Elem(),

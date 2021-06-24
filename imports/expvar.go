@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"expvar"
+	expvar "expvar"
 )
 
 // reflection: allow interpreted code to import "expvar"
 func init() {
 	Packages["expvar"] = Package{
+	Name: "expvar",
 	Binds: map[string]Value{
 		"Do":	ValueOf(expvar.Do),
 		"Get":	ValueOf(expvar.Get),

@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"strconv"
+	strconv "strconv"
 )
 
 // reflection: allow interpreted code to import "strconv"
 func init() {
 	Packages["strconv"] = Package{
+	Name: "strconv",
 	Binds: map[string]Value{
 		"AppendBool":	ValueOf(strconv.AppendBool),
 		"AppendFloat":	ValueOf(strconv.AppendFloat),

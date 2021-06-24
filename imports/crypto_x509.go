@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "crypto/x509"
 func init() {
 	Packages["crypto/x509"] = Package{
+	Name: "x509",
 	Binds: map[string]Value{
 		"CANotAuthorizedForExtKeyUsage":	ValueOf(x509.CANotAuthorizedForExtKeyUsage),
 		"CANotAuthorizedForThisName":	ValueOf(x509.CANotAuthorizedForThisName),
@@ -25,6 +26,7 @@ func init() {
 		"ECDSAWithSHA256":	ValueOf(x509.ECDSAWithSHA256),
 		"ECDSAWithSHA384":	ValueOf(x509.ECDSAWithSHA384),
 		"ECDSAWithSHA512":	ValueOf(x509.ECDSAWithSHA512),
+		"Ed25519":	ValueOf(x509.Ed25519),
 		"EncryptPEMBlock":	ValueOf(x509.EncryptPEMBlock),
 		"ErrUnsupportedAlgorithm":	ValueOf(&x509.ErrUnsupportedAlgorithm).Elem(),
 		"Expired":	ValueOf(x509.Expired),
@@ -80,6 +82,7 @@ func init() {
 		"ParsePKCS1PublicKey":	ValueOf(x509.ParsePKCS1PublicKey),
 		"ParsePKCS8PrivateKey":	ValueOf(x509.ParsePKCS8PrivateKey),
 		"ParsePKIXPublicKey":	ValueOf(x509.ParsePKIXPublicKey),
+		"PureEd25519":	ValueOf(x509.PureEd25519),
 		"RSA":	ValueOf(x509.RSA),
 		"SHA1WithRSA":	ValueOf(x509.SHA1WithRSA),
 		"SHA256WithRSA":	ValueOf(x509.SHA256WithRSA),

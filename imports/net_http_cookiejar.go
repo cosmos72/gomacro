@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/http/cookiejar"
+	cookiejar "net/http/cookiejar"
 )
 
 // reflection: allow interpreted code to import "net/http/cookiejar"
 func init() {
 	Packages["net/http/cookiejar"] = Package{
+	Name: "cookiejar",
 	Binds: map[string]Value{
 		"New":	ValueOf(cookiejar.New),
 	}, Types: map[string]Type{

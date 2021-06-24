@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"go/token"
+	token "go/token"
 )
 
 // reflection: allow interpreted code to import "go/token"
 func init() {
 	Packages["go/token"] = Package{
+	Name: "token",
 	Binds: map[string]Value{
 		"ADD":	ValueOf(token.ADD),
 		"ADD_ASSIGN":	ValueOf(token.ADD_ASSIGN),
@@ -54,6 +55,9 @@ func init() {
 		"INC":	ValueOf(token.INC),
 		"INT":	ValueOf(token.INT),
 		"INTERFACE":	ValueOf(token.INTERFACE),
+		"IsExported":	ValueOf(token.IsExported),
+		"IsIdentifier":	ValueOf(token.IsIdentifier),
+		"IsKeyword":	ValueOf(token.IsKeyword),
 		"LAND":	ValueOf(token.LAND),
 		"LBRACE":	ValueOf(token.LBRACE),
 		"LBRACK":	ValueOf(token.LBRACK),

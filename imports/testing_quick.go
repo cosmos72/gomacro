@@ -5,14 +5,15 @@ package imports
 
 import (
 	. "reflect"
-	"math/rand"
-	"reflect"
-	"testing/quick"
+	quick "testing/quick"
+	rand "math/rand"
+	reflect "reflect"
 )
 
 // reflection: allow interpreted code to import "testing/quick"
 func init() {
 	Packages["testing/quick"] = Package{
+	Name: "quick",
 	Binds: map[string]Value{
 		"Check":	ValueOf(quick.Check),
 		"CheckEqual":	ValueOf(quick.CheckEqual),

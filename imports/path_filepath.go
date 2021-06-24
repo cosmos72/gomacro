@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"path/filepath"
+	filepath "path/filepath"
 )
 
 // reflection: allow interpreted code to import "path/filepath"
 func init() {
 	Packages["path/filepath"] = Package{
+	Name: "filepath",
 	Binds: map[string]Value{
 		"Abs":	ValueOf(filepath.Abs),
 		"Base":	ValueOf(filepath.Base),

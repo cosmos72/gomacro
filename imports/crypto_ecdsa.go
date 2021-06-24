@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/ecdsa"
+	ecdsa "crypto/ecdsa"
 )
 
 // reflection: allow interpreted code to import "crypto/ecdsa"
 func init() {
 	Packages["crypto/ecdsa"] = Package{
+	Name: "ecdsa",
 	Binds: map[string]Value{
 		"GenerateKey":	ValueOf(ecdsa.GenerateKey),
 		"Sign":	ValueOf(ecdsa.Sign),

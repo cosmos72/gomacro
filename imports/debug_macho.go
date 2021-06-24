@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "debug/macho"
 func init() {
 	Packages["debug/macho"] = Package{
+	Name: "macho",
 	Binds: map[string]Value{
 		"ARM64_RELOC_ADDEND":	ValueOf(macho.ARM64_RELOC_ADDEND),
 		"ARM64_RELOC_BRANCH26":	ValueOf(macho.ARM64_RELOC_BRANCH26),

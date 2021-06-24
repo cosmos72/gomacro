@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"io/ioutil"
+	ioutil "io/ioutil"
 )
 
 // reflection: allow interpreted code to import "io/ioutil"
 func init() {
 	Packages["io/ioutil"] = Package{
+	Name: "ioutil",
 	Binds: map[string]Value{
 		"Discard":	ValueOf(&ioutil.Discard).Elem(),
 		"NopCloser":	ValueOf(ioutil.NopCloser),

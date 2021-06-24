@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "html/template"
 func init() {
 	Packages["html/template"] = Package{
+	Name: "template",
 	Binds: map[string]Value{
 		"ErrAmbigContext":	ValueOf(template.ErrAmbigContext),
 		"ErrBadHTML":	ValueOf(template.ErrBadHTML),

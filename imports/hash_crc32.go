@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"hash/crc32"
+	crc32 "hash/crc32"
 )
 
 // reflection: allow interpreted code to import "hash/crc32"
 func init() {
 	Packages["hash/crc32"] = Package{
+	Name: "crc32",
 	Binds: map[string]Value{
 		"Castagnoli":	ValueOf(uint32(crc32.Castagnoli)),
 		"Checksum":	ValueOf(crc32.Checksum),

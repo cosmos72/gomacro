@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/mail"
+	mail "net/mail"
 )
 
 // reflection: allow interpreted code to import "net/mail"
 func init() {
 	Packages["net/mail"] = Package{
+	Name: "mail",
 	Binds: map[string]Value{
 		"ErrHeaderNotPresent":	ValueOf(&mail.ErrHeaderNotPresent).Elem(),
 		"ParseAddress":	ValueOf(mail.ParseAddress),

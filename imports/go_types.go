@@ -5,17 +5,19 @@ package imports
 
 import (
 	. "reflect"
-	"go/types"
+	types "go/types"
 )
 
 // reflection: allow interpreted code to import "go/types"
 func init() {
 	Packages["go/types"] = Package{
+	Name: "types",
 	Binds: map[string]Value{
 		"AssertableTo":	ValueOf(types.AssertableTo),
 		"AssignableTo":	ValueOf(types.AssignableTo),
 		"Bool":	ValueOf(types.Bool),
 		"Byte":	ValueOf(types.Byte),
+		"CheckExpr":	ValueOf(types.CheckExpr),
 		"Comparable":	ValueOf(types.Comparable),
 		"Complex128":	ValueOf(types.Complex128),
 		"Complex64":	ValueOf(types.Complex64),
@@ -59,6 +61,7 @@ func init() {
 		"NewField":	ValueOf(types.NewField),
 		"NewFunc":	ValueOf(types.NewFunc),
 		"NewInterface":	ValueOf(types.NewInterface),
+		"NewInterfaceType":	ValueOf(types.NewInterfaceType),
 		"NewLabel":	ValueOf(types.NewLabel),
 		"NewMap":	ValueOf(types.NewMap),
 		"NewMethodSet":	ValueOf(types.NewMethodSet),

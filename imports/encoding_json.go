@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"encoding/json"
+	json "encoding/json"
 )
 
 // reflection: allow interpreted code to import "encoding/json"
 func init() {
 	Packages["encoding/json"] = Package{
+	Name: "json",
 	Binds: map[string]Value{
 		"Compact":	ValueOf(json.Compact),
 		"HTMLEscape":	ValueOf(json.HTMLEscape),

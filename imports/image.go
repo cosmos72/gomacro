@@ -5,13 +5,14 @@ package imports
 
 import (
 	. "reflect"
-	"image"
-	"image/color"
+	image "image"
+	color "image/color"
 )
 
 // reflection: allow interpreted code to import "image"
 func init() {
 	Packages["image"] = Package{
+	Name: "image",
 	Binds: map[string]Value{
 		"Black":	ValueOf(&image.Black).Elem(),
 		"Decode":	ValueOf(image.Decode),

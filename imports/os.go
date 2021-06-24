@@ -12,6 +12,7 @@ import (
 // reflection: allow interpreted code to import "os"
 func init() {
 	Packages["os"] = Package{
+	Name: "os",
 	Binds: map[string]Value{
 		"Args":	ValueOf(&os.Args).Elem(),
 		"Chdir":	ValueOf(os.Chdir),
@@ -106,6 +107,8 @@ func init() {
 		"Truncate":	ValueOf(os.Truncate),
 		"Unsetenv":	ValueOf(os.Unsetenv),
 		"UserCacheDir":	ValueOf(os.UserCacheDir),
+		"UserConfigDir":	ValueOf(os.UserConfigDir),
+		"UserHomeDir":	ValueOf(os.UserHomeDir),
 	}, Types: map[string]Type{
 		"File":	TypeOf((*os.File)(nil)).Elem(),
 		"FileInfo":	TypeOf((*os.FileInfo)(nil)).Elem(),

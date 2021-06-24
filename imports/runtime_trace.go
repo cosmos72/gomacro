@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "runtime/trace"
 func init() {
 	Packages["runtime/trace"] = Package{
+	Name: "trace",
 	Binds: map[string]Value{
 		"IsEnabled":	ValueOf(trace.IsEnabled),
 		"Log":	ValueOf(trace.Log),

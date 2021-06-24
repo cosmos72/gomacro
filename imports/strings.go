@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "strings"
 func init() {
 	Packages["strings"] = Package{
+	Name: "strings",
 	Binds: map[string]Value{
 		"Compare":	ValueOf(strings.Compare),
 		"Contains":	ValueOf(strings.Contains),
@@ -37,6 +38,7 @@ func init() {
 		"NewReplacer":	ValueOf(strings.NewReplacer),
 		"Repeat":	ValueOf(strings.Repeat),
 		"Replace":	ValueOf(strings.Replace),
+		"ReplaceAll":	ValueOf(strings.ReplaceAll),
 		"Split":	ValueOf(strings.Split),
 		"SplitAfter":	ValueOf(strings.SplitAfter),
 		"SplitAfterN":	ValueOf(strings.SplitAfterN),
@@ -48,6 +50,7 @@ func init() {
 		"ToTitleSpecial":	ValueOf(strings.ToTitleSpecial),
 		"ToUpper":	ValueOf(strings.ToUpper),
 		"ToUpperSpecial":	ValueOf(strings.ToUpperSpecial),
+		"ToValidUTF8":	ValueOf(strings.ToValidUTF8),
 		"Trim":	ValueOf(strings.Trim),
 		"TrimFunc":	ValueOf(strings.TrimFunc),
 		"TrimLeft":	ValueOf(strings.TrimLeft),

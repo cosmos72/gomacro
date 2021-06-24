@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"crypto/hmac"
+	hmac "crypto/hmac"
 )
 
 // reflection: allow interpreted code to import "crypto/hmac"
 func init() {
 	Packages["crypto/hmac"] = Package{
+	Name: "hmac",
 	Binds: map[string]Value{
 		"Equal":	ValueOf(hmac.Equal),
 		"New":	ValueOf(hmac.New),

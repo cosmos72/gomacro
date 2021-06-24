@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "math"
 func init() {
 	Packages["math"] = Package{
+	Name: "math",
 	Binds: map[string]Value{
 		"Abs":	ValueOf(math.Abs),
 		"Acos":	ValueOf(math.Acos),

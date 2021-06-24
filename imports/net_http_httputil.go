@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"net/http/httputil"
+	httputil "net/http/httputil"
 )
 
 // reflection: allow interpreted code to import "net/http/httputil"
 func init() {
 	Packages["net/http/httputil"] = Package{
+	Name: "httputil",
 	Binds: map[string]Value{
 		"DumpRequest":	ValueOf(httputil.DumpRequest),
 		"DumpRequestOut":	ValueOf(httputil.DumpRequestOut),

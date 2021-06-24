@@ -11,6 +11,7 @@ import (
 // reflection: allow interpreted code to import "unicode"
 func init() {
 	Packages["unicode"] = Package{
+	Name: "unicode",
 	Binds: map[string]Value{
 		"ASCII_Hex_Digit":	ValueOf(&unicode.ASCII_Hex_Digit).Elem(),
 		"Adlam":	ValueOf(&unicode.Adlam).Elem(),
@@ -56,6 +57,7 @@ func init() {
 		"Devanagari":	ValueOf(&unicode.Devanagari).Elem(),
 		"Diacritic":	ValueOf(&unicode.Diacritic).Elem(),
 		"Digit":	ValueOf(&unicode.Digit).Elem(),
+		"Dogra":	ValueOf(&unicode.Dogra).Elem(),
 		"Duployan":	ValueOf(&unicode.Duployan).Elem(),
 		"Egyptian_Hieroglyphs":	ValueOf(&unicode.Egyptian_Hieroglyphs).Elem(),
 		"Elbasan":	ValueOf(&unicode.Elbasan).Elem(),
@@ -70,9 +72,11 @@ func init() {
 		"GraphicRanges":	ValueOf(&unicode.GraphicRanges).Elem(),
 		"Greek":	ValueOf(&unicode.Greek).Elem(),
 		"Gujarati":	ValueOf(&unicode.Gujarati).Elem(),
+		"Gunjala_Gondi":	ValueOf(&unicode.Gunjala_Gondi).Elem(),
 		"Gurmukhi":	ValueOf(&unicode.Gurmukhi).Elem(),
 		"Han":	ValueOf(&unicode.Han).Elem(),
 		"Hangul":	ValueOf(&unicode.Hangul).Elem(),
+		"Hanifi_Rohingya":	ValueOf(&unicode.Hanifi_Rohingya).Elem(),
 		"Hanunoo":	ValueOf(&unicode.Hanunoo).Elem(),
 		"Hatran":	ValueOf(&unicode.Hatran).Elem(),
 		"Hebrew":	ValueOf(&unicode.Hebrew).Elem(),
@@ -133,6 +137,7 @@ func init() {
 		"Lydian":	ValueOf(&unicode.Lydian).Elem(),
 		"M":	ValueOf(&unicode.M).Elem(),
 		"Mahajani":	ValueOf(&unicode.Mahajani).Elem(),
+		"Makasar":	ValueOf(&unicode.Makasar).Elem(),
 		"Malayalam":	ValueOf(&unicode.Malayalam).Elem(),
 		"Mandaic":	ValueOf(&unicode.Mandaic).Elem(),
 		"Manichaean":	ValueOf(&unicode.Manichaean).Elem(),
@@ -145,6 +150,7 @@ func init() {
 		"MaxRune":	ValueOf(unicode.MaxRune),
 		"Mc":	ValueOf(&unicode.Mc).Elem(),
 		"Me":	ValueOf(&unicode.Me).Elem(),
+		"Medefaidrin":	ValueOf(&unicode.Medefaidrin).Elem(),
 		"Meetei_Mayek":	ValueOf(&unicode.Meetei_Mayek).Elem(),
 		"Mende_Kikakui":	ValueOf(&unicode.Mende_Kikakui).Elem(),
 		"Meroitic_Cursive":	ValueOf(&unicode.Meroitic_Cursive).Elem(),
@@ -174,6 +180,7 @@ func init() {
 		"Old_North_Arabian":	ValueOf(&unicode.Old_North_Arabian).Elem(),
 		"Old_Permic":	ValueOf(&unicode.Old_Permic).Elem(),
 		"Old_Persian":	ValueOf(&unicode.Old_Persian).Elem(),
+		"Old_Sogdian":	ValueOf(&unicode.Old_Sogdian).Elem(),
 		"Old_South_Arabian":	ValueOf(&unicode.Old_South_Arabian).Elem(),
 		"Old_Turkic":	ValueOf(&unicode.Old_Turkic).Elem(),
 		"Oriya":	ValueOf(&unicode.Oriya).Elem(),
@@ -231,6 +238,7 @@ func init() {
 		"Sm":	ValueOf(&unicode.Sm).Elem(),
 		"So":	ValueOf(&unicode.So).Elem(),
 		"Soft_Dotted":	ValueOf(&unicode.Soft_Dotted).Elem(),
+		"Sogdian":	ValueOf(&unicode.Sogdian).Elem(),
 		"Sora_Sompeng":	ValueOf(&unicode.Sora_Sompeng).Elem(),
 		"Soyombo":	ValueOf(&unicode.Soyombo).Elem(),
 		"Space":	ValueOf(&unicode.Space).Elem(),
@@ -292,7 +300,7 @@ func init() {
 		"TitleCase":	"int:2",
 		"UpperCase":	"int:0",
 		"UpperLower":	"rune:1114112",
-		"Version":	"string:10.0.0",
+		"Version":	"string:11.0.0",
 	}, 
 	}
 }

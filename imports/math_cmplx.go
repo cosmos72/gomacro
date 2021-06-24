@@ -5,12 +5,13 @@ package imports
 
 import (
 	. "reflect"
-	"math/cmplx"
+	cmplx "math/cmplx"
 )
 
 // reflection: allow interpreted code to import "math/cmplx"
 func init() {
 	Packages["math/cmplx"] = Package{
+	Name: "cmplx",
 	Binds: map[string]Value{
 		"Abs":	ValueOf(cmplx.Abs),
 		"Acos":	ValueOf(cmplx.Acos),
