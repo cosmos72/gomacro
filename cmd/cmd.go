@@ -68,6 +68,15 @@ func (cmd *Cmd) Main(args []string) (err error) {
 	ir := cmd.Interp
 	g := &ir.Comp.Globals
 
+	for _, arg := range args {
+		if arg == "-V" || arg == "--version" {
+			return cmd.Version()
+		}
+		if arg == "-h" || arg == "--help" {
+			return cmd.Usage()
+		}
+	}
+
 	var set, clear Options
 	var repl, forcerepl = true, false
 	cmd.WriteDeclsAndStmts = false
@@ -102,8 +111,6 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			if err != nil {
 				return err
 			}
-		case "-h", "--help":
-			return cmd.Usage()
 		case "-i", "--repl":
 			forcerepl = true
 		case "-m", "--macro-only":
@@ -151,6 +158,15 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		g.Options = (g.Options | set) &^ clear
 		ir.ReplStdin()
 	}
+	return nil
+}
+
+// Version of current build of the software, may be substituted at compile time
+var Version = "v2.7"
+
+func (cmd *Cmd) Version() error {
+	g := &cmd.Interp.Comp.Globals
+	fmt.Fprintf(g.Stdout, "gomacro %s\n", Version)
 	return nil
 }
 
