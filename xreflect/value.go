@@ -159,7 +159,14 @@ func (v Value) Complex() complex128 {
 }
 
 func (v Value) Convert(rt r.Type) Value {
-	return Value{v.fwd().Convert(rt)}
+	rv := v.fwd()
+	// allow conversion from nil (represented as invalid r.Value) to interface types
+	if !rv.IsValid() && rt.Kind() == r.Interface {
+		rv = r.Zero(rt)
+	} else {
+		rv = rv.Convert(rt)
+	}
+	return Value{rv}
 }
 
 func (v Value) Elem() Value {

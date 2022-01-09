@@ -949,6 +949,10 @@ var testcases = []TestCase{
 	// tricky because Comp.compileObjGetMethod() asks for the package path of 'error', which has nil package
 	TestCase{A, "interface_0", `errors.New("abc").Error()`, "abc", nil},
 
+	TestCase{A, "nil_to_interface", `interface{}(nil)`, nil, nil},
+	TestCase{A, "nil_to_error", `error(nil)`, nil, nil},
+	TestCase{A, "nil_to_pointer", `(*int)(nil)`, (*int)(nil), nil},
+
 	TestCase{A, "interface_1", "var st fmt.Stringer = time.Second; st", time.Second, nil},
 	TestCase{A, "interface_method_to_closure_1", "bind := st.String; bind()", "1s", nil},
 	TestCase{F, "interface_2", "st = pair; nil", nil, nil},
