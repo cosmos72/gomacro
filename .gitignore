@@ -1,4 +1,5 @@
 /gomacro
+/gomacro.debug
 a.out
 *~
 *.o

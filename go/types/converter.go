@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"go/types"
 	"reflect"
+
+	"golang.org/x/tools/go/types/typeutil"
 )
 
 type Converter struct {
-	pkg map[string]*Package
-	// use pointer identity to compare types, not types.Identical.
-	// faster although less accurate.
-	cache        map[types.Type]Type
+	pkg          map[string]*Package
+	cache        typeutil.Map
 	toaddmethods map[*Named]*types.Named
 	tocomplete   []*Interface
 }
@@ -26,6 +26,8 @@ type funcOption bool
 const (
 	funcIgnoreRecv funcOption = false
 	funcSetRecv    funcOption = true
+
+	debugConverter = false // set to true to enable debug messages
 )
 
 // should be called with argument Universe
@@ -50,46 +52,58 @@ func (c *Converter) Package(g *types.Package) *Package {
 	if g == nil {
 		return nil
 	}
-	c.cache = nil
+	c.cache = typeutil.Map{}
 	p := c.mkpackage(g)
 	scope := g.Scope()
 	for _, name := range scope.Names() {
-		obj := c.Object(scope.Lookup(name))
+		obj := c.object(scope.Lookup(name))
 		if obj != nil {
 			p.scope.Insert(obj)
 		}
 	}
+	// complete all interfaces
+	for _, t := range c.tocomplete {
+		t.Complete()
+	}
+	c.tocomplete = c.tocomplete[0:0:cap(c.tocomplete)]
+
+	// add methods to named types
+	for t, g := range c.toaddmethods {
+		c.addmethods(t, g)
+		delete(c.toaddmethods, t)
+	}
+
 	return p
 }
 
 // convert go/types.Object -> github.com/cosmos72/gomacro/go/types.Object
-func (c *Converter) Object(g types.Object) Object {
+func (c *Converter) object(g types.Object) Object {
 	switch g := g.(type) {
 	case *types.Const:
-		return c.Const(g)
+		return c.constant(g)
 	case *types.Func:
-		return c.Func(g)
+		return c.function(g)
 	case *types.TypeName:
-		return c.TypeName(g)
+		return c.typename(g)
 	case *types.Var:
-		return c.Var(g)
+		return c.variable(g)
 	default:
 		return nil
 	}
 }
 
 // convert *go/types.Const -> *github.com/cosmos72/gomacro/go/types.Const
-func (c *Converter) Const(g *types.Const) *Const {
-	return NewConst(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.Type(g.Type()), g.Val())
+func (c *Converter) constant(g *types.Const) *Const {
+	return NewConst(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.typ(g.Type()), g.Val())
 }
 
 // convert *go/types.Func -> *github.com/cosmos72/gomacro/go/types.Func
-func (c *Converter) Func(g *types.Func) *Func {
-	return NewFunc(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.Type(g.Type()).(*Signature))
+func (c *Converter) function(g *types.Func) *Func {
+	return NewFunc(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.typ(g.Type()).(*Signature))
 }
 
 // convert *go/types.TypeName -> *github.com/cosmos72/gomacro/go/types.TypeName
-func (c *Converter) TypeName(g *types.TypeName) *TypeName {
+func (c *Converter) typename(g *types.TypeName) *TypeName {
 	ret, _ := c.mktypename(g)
 	if ret.typ == nil {
 		ret.typ = c.typ(g.Type())
@@ -98,27 +112,15 @@ func (c *Converter) TypeName(g *types.TypeName) *TypeName {
 }
 
 // convert *go/types.Var -> *github.com/cosmos72/gomacro/go/types.Var
-func (c *Converter) Var(g *types.Var) *Var {
-	return NewVar(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.Type(g.Type()))
-}
-
-// convert go/types.Type -> github.com/cosmos72/gomacro/go/types.Type
-func (c *Converter) Type(g types.Type) Type {
-	ret := c.typ(g)
-	for _, t := range c.tocomplete {
-		t.Complete()
-	}
-	c.tocomplete = c.tocomplete[0:0:cap(c.tocomplete)]
-
-	for t, g := range c.toaddmethods {
-		c.addmethods(t, g)
-		delete(c.toaddmethods, t)
-	}
-	return ret
+func (c *Converter) variable(g *types.Var) *Var {
+	return NewVar(g.Pos(), c.mkpackage(g.Pkg()), g.Name(), c.typ(g.Type()))
 }
 
 func (c *Converter) typ(g types.Type) Type {
-	t := c.cache[g]
+	if g == nil {
+		return nil
+	}
+	t, _ := c.cache.At(g).(Type)
 	if t != nil {
 		return t
 	}
@@ -150,10 +152,14 @@ func (c *Converter) typ(g types.Type) Type {
 	default:
 		panic(fmt.Errorf("Converter.Type(): unsupported types.Type: %T", g))
 	}
-	if c.cache == nil {
-		c.cache = make(map[types.Type]Type)
+	c.cache.Set(g, t)
+	if debugConverter {
+		fmt.Print("scanned type ", t, " has ", t.NumMethods(), " methods")
+		if u := t.Underlying(); u != nil {
+			fmt.Print(", and its underlying type ", u, " has ", u.NumMethods(), " methods")
+		}
+		fmt.Println()
 	}
-	c.cache[g] = t
 	return t
 }
 
@@ -177,11 +183,17 @@ func (c *Converter) mkinterface(g *types.Interface) *Interface {
 	fs := make([]*Func, n)
 	for i := 0; i < n; i++ {
 		fs[i] = c.mkfunc(g.ExplicitMethod(i), funcIgnoreRecv)
+		if debugConverter {
+			fmt.Println("added interface method", fs[i].Name())
+		}
 	}
 	n = g.NumEmbeddeds()
 	es := make([]Type, n)
 	for i := 0; i < n; i++ {
 		es[i] = c.typ(getEmbeddedType(g, i))
+		if debugConverter {
+			fmt.Println("added embedded interface", es[i])
+		}
 	}
 	t := NewInterfaceType(fs, es)
 	c.tocomplete = append(c.tocomplete, t)
@@ -200,6 +212,11 @@ func (c *Converter) mknamed(g *types.Named) *Named {
 		return typename.Type().(*Named)
 	}
 	t := NewNamed(typename, nil, nil)
+	// cache t early, in case it's part of a cycle in a recursive type
+	c.cache.Set(g, t)
+	if debugConverter {
+		fmt.Println("scanning underlying type of", typename.Name())
+	}
 	u := c.typ(g.Underlying())
 	t.SetUnderlying(u)
 	if g.NumMethods() != 0 {
