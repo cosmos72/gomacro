@@ -9,7 +9,6 @@ package types
 import (
 	"fmt"
 	"go/types"
-	"reflect"
 
 	"golang.org/x/tools/go/types/typeutil"
 )
@@ -163,21 +162,6 @@ func (c *Converter) typ(g types.Type) Type {
 	return t
 }
 
-var getEmbeddedType func(*types.Interface, int) types.Type
-
-func init() {
-	t := reflect.TypeOf((*types.Interface)(nil))
-	m, ok := t.MethodByName("EmbeddedType")
-	if ok {
-		getEmbeddedType = m.Func.Interface().(func(*types.Interface, int) types.Type)
-	} else {
-		// types.Interface.EmbeddedType() does not exist in go 1.9
-		getEmbeddedType = func(g *types.Interface, i int) types.Type {
-			return g.Embedded(i)
-		}
-	}
-}
-
 func (c *Converter) mkinterface(g *types.Interface) *Interface {
 	n := g.NumExplicitMethods()
 	fs := make([]*Func, n)
@@ -190,7 +174,7 @@ func (c *Converter) mkinterface(g *types.Interface) *Interface {
 	n = g.NumEmbeddeds()
 	es := make([]Type, n)
 	for i := 0; i < n; i++ {
-		es[i] = c.typ(getEmbeddedType(g, i))
+		es[i] = c.typ(g.EmbeddedType(i))
 		if debugConverter {
 			fmt.Println("added embedded interface", es[i])
 		}

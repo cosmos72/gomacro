@@ -1,6 +1,6 @@
 ## typeutil - patched versions of `go/types.Identical` and `golang.org/x/tools/go/type/typeutil.Map`
 
-typeutil contains patched version of some Go utilities to handle `go/types.Type`
+typeutil contains patched version of some Go utilities to handle `github.com/cosmos72/gomacro/go/types.Type`
 
 1. an Identical() function with a stricter definition of type identity:
 
@@ -17,13 +17,13 @@ typeutil contains patched version of some Go utilities to handle `go/types.Type`
 2. Map: a mapping from `go/types.Type` to `interface{}` values,
    using the stricter definition of type identity defined above.
 
-   Since `go/types.Type` are not canonical, i.e. not unique, comparing
-   them with == does not give the expected results, as explained in
-   https://github.com/golang/example/tree/master/gotypes#types
+   Since `github.com/cosmos72/gomacro/go/types.Type` are not canonical,
+   i.e. not unique, comparing them with == does not give the expected results,
+   as explained in https://github.com/golang/example/tree/master/gotypes#types
 
    So a specialized map is needed to use them as keys - either
    `golang.org/x/tools/go/type/typeutil.Map`, or this patched version
-   `github.com/cosmos72/gomacro/typeutil/Map`, or something analogous
+   `github.com/cosmos72/gomacro/go/typeutil/Map`, or something analogous
 
 They are useful as type canonicalizing tools for the Go interpreter gomacro,
 and not necessarily suitable for other purpouses.

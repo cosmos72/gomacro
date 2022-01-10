@@ -7,5 +7,5 @@ func fibonacci(n uint) uint {
 	return fibonacci(n-1) + fibonacci(n-2)
 }
 
-println(fibonacci(30))
+println(fibonacci(40))
 
