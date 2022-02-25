@@ -308,6 +308,23 @@ func (t *xtype) Implements(u Type) bool {
 		xerrorf(t, "Type.Implements of non-interface type: %v", u)
 	}
 	xu := unwrap(u)
+
+	// fix #119: reflect.Type.Method() hides unexported methods of non-interfaces,
+	// thus any Type injected into the interpreter by compiled code
+	// does not list unexported methods, and may spuriously fail to implement an interface.
+	//
+	// Solution: call reflect.Type.Implements() first, and only if that returns false
+	// proceed by calling our types.Implements()
+	//
+	// Note: types loaded with interpreter's 'import' work around this issue
+	// by merging two sources of information:
+	// 1. reflection
+	// 2. go/types.Type loaded by golang.org/x/tools/go/packages
+	if rt, ru := t.rtype, xu.rtype; rt != nil && ru != nil &&
+		ru.Kind() == r.Interface && rt.Implements(ru) {
+
+		return true
+	}
 	return t.gtype == xu.gtype ||
 		(types.Implements(t.gtype, xu.gunderlying().(*types.Interface)) &&
 			matchReceiverType(t, xu))
@@ -346,16 +363,31 @@ func (t *xtype) identicalTo(u *xtype) bool {
 // AssignableTo reports whether a value of the type is assignable to type u.
 func (t *xtype) AssignableTo(u Type) bool {
 	// debugf("AssignableTo: <%v> <%v>", t, u)
-	return t.gtype == u.GoType() ||
-		(types.AssignableTo(t.gtype, u.GoType()) &&
-			matchReceiverType(t, unwrap(u)))
+	xu := unwrap(u)
+
+	// fix #119 - see comment in Implements() above
+	if rt, ru := t.rtype, xu.rtype; rt != nil && ru != nil && rt.AssignableTo(ru) {
+		return true
+	}
+
+	return t.gtype == xu.gtype ||
+		(types.AssignableTo(t.gtype, xu.gtype) &&
+			matchReceiverType(t, xu))
 }
 
 // ConvertibleTo reports whether a value of the type is convertible to type u.
 func (t *xtype) ConvertibleTo(u Type) bool {
-	return t.gtype == u.GoType() ||
-		(types.ConvertibleTo(t.gtype, u.GoType()) &&
-			matchReceiverType(t, unwrap(u)))
+	// debugf("ConvertibleTo: <%v> <%v>", t, u)
+	xu := unwrap(u)
+
+	// fix #119 - see comment in Implements() above
+	if rt, ru := t.rtype, xu.rtype; rt != nil && ru != nil && rt.ConvertibleTo(ru) {
+		return true
+	}
+
+	return t.gtype == xu.gtype ||
+		(types.ConvertibleTo(t.gtype, xu.gtype) &&
+			matchReceiverType(t, xu))
 }
 
 // Comparable reports whether values of this type are comparable.
