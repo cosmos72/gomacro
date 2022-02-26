@@ -695,7 +695,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			}
 		} else if tin.Implements(tout) {
 			// type assertion to interface.
-			// expression type implements such interface, can only fail if value is nil
+			// expression type implements such interface, can only fail if value is untyped nil
 			ret = func(env *Env) xr.Value {
 				v, _ := extractor(fun(env))
 				// nil is not a valid tout, check for it.
@@ -728,9 +728,8 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			// type assertion to concrete (nillable) type
 			ret = func(env *Env) xr.Value {
 				v, t := extractor(fun(env))
-				// nil is not a valid tout, check for it.
-				// IsNil() can be invoked only on nillable types...
-				if reflect.IsNillableKind(v.Kind()) && (!v.IsValid() || v.IsNil()) {
+				if !v.IsValid() {
+					// untyped nil cannot be converted to concrete type
 					typeassertpanic(nil, nil, tin, tout)
 				}
 				rt := rtypeof(v, t)
