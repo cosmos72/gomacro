@@ -481,10 +481,11 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	case kout == r.Interface:
 		if tout.NumMethod() == 0 {
 			// type assertion to empty interface.
-			// everything, excluding nil, implements an empty interface
+			// everything, excluding untyped nil, implements an empty interface
 			ret = func(env *Env) (xr.Value, []xr.Value) {
 				v, _ := extractor(fun(env))
 				if !v.IsValid() {
+					// type assertion of untyped nil must fail
 					return fail[0], fail
 				}
 				v = convert(v, rtout)
@@ -494,12 +495,11 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 		}
 		if tin.Implements(tout) {
 			// type assertion to interface.
-			// expression type implements such interface, can only fail if value is nil
+			// expression type implements such interface, can only fail if value is untyped nil
 			ret = func(env *Env) (xr.Value, []xr.Value) {
 				v, _ := extractor(fun(env))
-				// nil is not a valid tout, check for it.
-				// IsNil() can be invoked only on nillable types...
-				if reflect.IsNillableKind(v.Kind()) && (!v.IsValid() || v.IsNil()) {
+				if !v.IsValid() {
+					// type assertion of untyped nil must fail
 					return fail[0], fail
 				}
 				v = convert(v, rtout)
@@ -511,9 +511,8 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 		// must check at runtime whether concrete type implements asserted interface
 		ret = func(env *Env) (xr.Value, []xr.Value) {
 			v, t := extractor(fun(env))
-			// nil is not a valid tout, check for it.
-			// IsNil() can be invoked only on nillable types...
-			if reflect.IsNillableKind(v.Kind()) && (!v.IsValid() || v.IsNil()) {
+			if !v.IsValid() {
+				// type assertion of untyped nil must fail
 				return fail[0], fail
 			}
 			rt := rtypeof(v, t)
@@ -529,9 +528,8 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 		// type assertion to concrete (nillable) type
 		ret = func(env *Env) (xr.Value, []xr.Value) {
 			v, t := extractor(fun(env))
-			// nil is not a valid tout, check for it.
-			// IsNil() can be invoked only on nillable types...
-			if reflect.IsNillableKind(v.Kind()) && (!v.IsValid() || v.IsNil()) {
+			if !v.IsValid() {
+				// type assertion of untyped nil must fail
 				return fail[0], fail
 			}
 			rt := rtypeof(v, t)
@@ -544,6 +542,10 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 		// type assertion to concrete (non-nillable) type
 		ret = func(env *Env) (xr.Value, []xr.Value) {
 			v, t := extractor(fun(env))
+			if !v.IsValid() {
+				// type assertion of untyped nil must fail
+				return fail[0], fail
+			}
 			rt := rtypeof(v, t)
 			if rt != rtout || (t != nil && !t.IdenticalTo(tout)) {
 				return fail[0], fail
