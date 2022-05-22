@@ -60,6 +60,21 @@ const (
 	ImPlugin
 )
 
+func (mode ImportMode) String() string {
+	switch mode {
+	case ImBuiltin:
+		return "Builtin"
+	case ImThirdParty:
+		return "ThirdParty"
+	case ImInception:
+		return "Inception"
+	case ImPlugin:
+		return "Plugin"
+	default:
+		return fmt.Sprintf("ImportMode(%d)", int(mode))
+	}
+}
+
 type PackageName = imports.PackageName // package default name, or package alias
 
 type PackageRef struct {
@@ -104,7 +119,7 @@ func LookupPackage(alias PackageName, pkgpath string) *PackageRef {
 	}
 	if len(pkg.Name) == 0 {
 		// missing pkg.Name, initialize it
-		pkg.DefaultName(pkgpath)
+		_ = pkg.DefaultName(pkgpath)
 		imports.Packages[pkgpath] = pkg
 	}
 	if len(alias) == 0 {
@@ -135,49 +150,75 @@ func (imp *Importer) ImportPackage(alias PackageName, pkgpath string, enableModu
 }
 
 func (imp *Importer) ImportPackagesOrError(pkgpaths map[string]PackageName, enableModule bool) (map[string]*PackageRef, error) {
+	paths.GetImportsSrcDir() // warns if GOPATH or paths.ImportsDir may be wrong
+
 	refs := make(map[string]*PackageRef)
 	for pkgpath, alias := range pkgpaths {
-		ref, err := imp.importPackageOrError(alias, pkgpath, enableModule)
-		if err != nil {
-			return nil, err
+		ref := LookupPackage(alias, pkgpath)
+		if ref != nil {
+			// found in package cache, no need to compile and load this package
+			refs[pkgpath] = ref
+			delete(pkgpaths, pkgpath)
 		}
-		refs[pkgpath] = ref
+	}
+	if len(pkgpaths) != 0 {
+		mode := imp.importModeFor(pkgpaths)
+		for pkgpath, alias := range pkgpaths {
+			ref, err := imp.importPackageOrError(alias, pkgpath, mode, enableModule)
+			if err != nil {
+				return nil, err
+			}
+			refs[pkgpath] = ref
+		}
 	}
 	return refs, nil
 }
 
-func (imp *Importer) importPackageOrError(alias PackageName, pkgpath string, enableModule bool) (*PackageRef, error) {
-	ref := LookupPackage(alias, pkgpath)
-	if ref != nil {
-		return ref, nil
+func (imp *Importer) importModeFor(pkgpaths map[string]PackageName) ImportMode {
+	var curr ImportMode
+	havemode := false
+	for _, alias := range pkgpaths {
+		var mode ImportMode
+		switch alias {
+		case "_b":
+			mode = ImBuiltin
+		case "_i":
+			mode = ImInception
+		case "_3":
+			mode = ImThirdParty
+		default:
+			if imp.havePluginOpen() {
+				mode = ImPlugin
+			} else {
+				mode = ImThirdParty
+			}
+		}
+		highest := mode
+		if havemode && mode != curr {
+			if highest < curr {
+				highest = curr
+			}
+			imp.output.Warnf("attempt to import multiple packages with conflicting modes %v and %v - numerically higher mode %v will be used",
+				curr, mode, highest)
+		}
+		curr = highest
+		havemode = true
 	}
-	paths.GetImportsSrcDir() // warns if GOPATH or paths.ImportsDir may be wrong
+	return curr
+}
+
+func (imp *Importer) importPackageOrError(alias PackageName, pkgpath string, mode ImportMode, enableModule bool) (*PackageRef, error) {
 
 	o := imp.output
 	gpkg, err := imp.Load(pkgpath, enableModule) // loads names and types, not the values!
 	if err != nil {
 		return nil, imp.wrapImportError(pkgpath, enableModule, err)
 	}
-	var mode ImportMode
-	switch alias {
-	case "_b":
-		mode = ImBuiltin
-	case "_i":
-		mode = ImInception
-	case "_3":
-		mode = ImThirdParty
-	default:
-		if len(alias) == 0 {
-			alias = PackageName(gpkg.Name())
-		}
-		if imp.havePluginOpen() {
-			mode = ImPlugin
-		} else {
-			mode = ImThirdParty
-		}
+	if len(alias) == 0 {
+		alias = PackageName(gpkg.Name())
 	}
 	file := createImportFile(imp.output, pkgpath, gpkg, mode, enableModule)
-	ref = &PackageRef{Path: pkgpath}
+	ref := &PackageRef{Path: pkgpath}
 	if len(file) == 0 || mode != ImPlugin {
 		// either the package exports nothing, or user must rebuild gomacro.
 		// in both cases, still cache it to avoid recreating the file.
