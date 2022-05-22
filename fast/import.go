@@ -18,6 +18,7 @@ package fast
 
 import (
 	"go/ast"
+	"go/token"
 	r "reflect"
 	"strconv"
 	"strings"
@@ -56,7 +57,7 @@ func (ir *Interp) ChangePackage(alias PackageName, path string) {
 		return
 	}
 	// load requested package if it exists, but do not define any binding in current one
-	newp, err := c.ImportPackageOrError("_", path)
+	newp, err := c.importPackageOrError("_", path)
 	if err != nil {
 		c.Debugf("%v", err)
 	}
@@ -116,91 +117,121 @@ func (imp *Import) asInterpreter(outer *Interp) Interp {
 
 // =========================== import package =================================
 
-// ImportPackage imports a package. Panics if the import fails.
+// ImportPackage imports a single package. Panics if the import fails.
 // If alias is the empty string, it defaults to the identifier
-// specified in the package clause of the imported package
+// specified in the package clause of the package being imported
 func (ir *Interp) ImportPackage(alias PackageName, path string) *Import {
-	return ir.Comp.ImportPackage(alias, path)
-}
-
-// ImportPackageOrError imports a package.
-// If alias is the empty string, it defaults to the identifier
-// specified in the package clause of the imported package
-func (ir *Interp) ImportPackageOrError(alias PackageName, path string) (*Import, error) {
-	return ir.Comp.ImportPackageOrError(alias, path)
-}
-
-// ImportPackage imports a package. Panics if the import fails.
-// Usually invoked as Comp.FileComp().ImportPackage(alias, path)
-// because imports are usually top-level statements in a source file.
-// But we also support local imports, i.e. import statements inside a function or block.
-func (c *Comp) ImportPackage(alias PackageName, path string) *Import {
-	imp, err := c.ImportPackageOrError(alias, path)
+	imp, err := ir.Comp.importPackageOrError(alias, path)
 	if err != nil {
 		panic(err)
 	}
 	return imp
 }
 
-// ImportPackageOrError imports a package.
-// If name is the empty string, it defaults to the identifier
-// specified in the package clause of the imported package
-func (c *Comp) ImportPackageOrError(alias PackageName, path string) (*Import, error) {
-	g := c.CompGlobals
-	imp := g.KnownImports[path]
-	if imp == nil {
-		pkgref, err := g.Importer.ImportPackageOrError(
-			alias, path, g.Options&base.OptModuleImport != 0)
+// ImportPackagesOrError imports multiple packages.
+// If alias is the empty string, it defaults to the name
+// specified in the package clause of the package being imported
+func (ir *Interp) ImportPackagesOrError(paths map[string]PackageName) (map[string]*Import, error) {
+	return ir.Comp.ImportPackagesOrError(paths)
+}
+
+// importPackageOrError imports a single.
+// If alias is the empty string, it defaults to the name
+// specified in the package clause of the package being imported
+func (c *Comp) importPackageOrError(alias PackageName, path string) (*Import, error) {
+	imported, err := c.ImportPackagesOrError(map[string]PackageName{path: alias})
+	return imported[path], err
+}
+
+// ImportPackagesOrError imports multiple packages.
+// If a PackageName is the empty string, it defaults to the name
+// specified in the package clause of the package being imported
+func (c *Comp) ImportPackagesOrError(paths map[string]PackageName) (map[string]*Import, error) {
+	imported := make(map[string]*Import)
+	toimport := make(map[string]PackageName)
+	cg := c.CompGlobals
+	for path, alias := range paths {
+		imp := cg.KnownImports[path]
+		if imp != nil {
+			imported[path] = imp
+		} else {
+			toimport[path] = alias
+		}
+	}
+	if len(toimport) != 0 {
+		// compile as plugin and load the packages to be imported
+		pkgrefs, err := cg.Importer.ImportPackagesOrError(
+			toimport, cg.Options&base.OptModuleImport != 0)
+
 		if err != nil {
 			return nil, err
 		}
-		imp = g.NewImport(pkgref)
-	}
-	if alias == "." {
-		c.declDotImport0(imp)
-	} else if alias != "_" {
-		// https://golang.org/ref/spec#Package_clause states:
-		// If the PackageName is omitted, it defaults to the identifier
-		// specified in the package clause of the imported package
-		if len(alias) == 0 {
-			alias = PackageName(imp.Name)
+		for path, pkgref := range pkgrefs {
+			imp := cg.NewImport(pkgref)
+			cg.KnownImports[path] = imp
+			imported[path] = imp
 		}
-		c.declImport0(alias, imp)
 	}
-	g.KnownImports[path] = imp
-	return imp, nil
+	for path, alias := range paths {
+		imp := imported[path]
+		if alias == "." {
+			c.declDotImport0(imp)
+		} else if alias != "_" {
+			// https://golang.org/ref/spec#Package_clause states:
+			// If the PackageName is omitted, it defaults to the identifier
+			// specified in the package clause of the imported package
+			if len(alias) == 0 {
+				alias = PackageName(imp.Name)
+			}
+			c.declImport0(alias, imp)
+		}
+	}
+	return imported, nil
 }
 
-// Import compiles an import statement
+// MultiImport compiles an 'import ( ... )' declaration, importing zero or more packages
+func (c *Comp) MultiImport(node *ast.GenDecl) {
+	if node.Tok != token.IMPORT {
+		c.Errorf("unimplemented MultiImport: %v", node)
+	}
+	paths := make(map[string]PackageName)
+	for _, spec := range node.Specs {
+		switch node := spec.(type) {
+		case *ast.ImportSpec:
+			str := node.Path.Value
+			path, err := strconv.Unquote(str)
+			if err != nil {
+				c.Errorf("error unescaping import path %q: %v", str, err)
+			}
+			path = c.sanitizeImportPath(path)
+			var name PackageName
+			if node.Name != nil {
+				name = PackageName(node.Name.Name)
+			}
+			paths[path] = name
+		default:
+			c.Errorf("unimplemented import: %v", node)
+		}
+	}
+	c.ImportPackagesOrError(paths)
+}
+
+// Import compiles a single import statement
 func (c *Comp) Import(node ast.Spec) {
-	switch node := node.(type) {
-	case *ast.ImportSpec:
-		str := node.Path.Value
-		path, err := strconv.Unquote(str)
-		if err != nil {
-			c.Errorf("error unescaping import path %q: %v", str, err)
-		}
-		path = c.sanitizeImportPath(path)
-		var name PackageName
-		if node.Name != nil {
-			name = PackageName(node.Name.Name)
-		}
-		// yes, we support scoped imports
-		// i.e. a function or block can import packages
-		c.ImportPackage(name, path)
-	default:
-		c.Errorf("unimplemented import: %v", node)
-	}
+	c.MultiImport(&ast.GenDecl{
+		Tok:   token.IMPORT,
+		Specs: []ast.Spec{node},
+	})
 }
 
-func (g *CompGlobals) sanitizeImportPath(path string) string {
+func (cg *CompGlobals) sanitizeImportPath(path string) string {
 	path = strings.Replace(path, "\\", "/", -1)
 	l := len(path)
 	if path == ".." || l >= 3 && (path[:3] == "../" || path[l-3:] == "/..") || strings.Contains(path, "/../") {
-		g.Errorf("invalid import %q: contains \"..\"", path)
+		cg.Errorf("invalid import %q: contains \"..\"", path)
 	}
 	if path == "." || l >= 2 && (path[:2] == "./" || path[l-2:] == "/.") || strings.Contains(path, "/./") {
-		g.Errorf("invalid import %q: contains \".\"", path)
+		cg.Errorf("invalid import %q: contains \".\"", path)
 	}
 	return path
 }
@@ -279,7 +310,7 @@ func (c *Comp) declDotImport0(imp *Import) {
 	}
 }
 
-func (g *CompGlobals) NewImport(pkgref *genimport.PackageRef) *Import {
+func (cg *CompGlobals) NewImport(pkgref *genimport.PackageRef) *Import {
 	env := &Env{
 		UsedByClosure: true, // do not try to recycle this Env
 	}
@@ -290,20 +321,20 @@ func (g *CompGlobals) NewImport(pkgref *genimport.PackageRef) *Import {
 	if pkgref != nil {
 		imp.Name = pkgref.Name
 		imp.Path = pkgref.Path
-		imp.loadTypes(g, pkgref)
-		imp.loadBinds(g, pkgref)
-		g.loadProxies(pkgref.Proxies, imp.Types)
+		imp.loadTypes(cg, pkgref)
+		imp.loadBinds(cg, pkgref)
+		cg.loadProxies(pkgref.Proxies, imp.Types)
 	}
 	return imp
 }
 
-func (imp *Import) loadBinds(g *CompGlobals, pkgref *genimport.PackageRef) {
+func (imp *Import) loadBinds(cg *CompGlobals, pkgref *genimport.PackageRef) {
 	vals := make([]xr.Value, len(pkgref.Binds))
 	untypeds := pkgref.Untypeds
-	o := &g.Output
+	o := &cg.Output
 	for name, val := range pkgref.Binds {
 		if untyped, ok := untypeds[name]; ok {
-			untypedlit, typ := g.parseUntyped(untyped)
+			untypedlit, typ := cg.parseUntyped(untyped)
 			if typ != nil {
 				bind := imp.CompBinds.NewBind(o, name, ConstBind, typ)
 				bind.Value = untypedlit
@@ -318,7 +349,7 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *genimport.PackageRef) {
 		} else if k == r.Invalid || (reflect.IsOptimizedKind(k) && val.CanInterface()) {
 			class = ConstBind
 		}
-		typ := g.Universe.FromReflectType(val.Type())
+		typ := cg.Universe.FromReflectType(val.Type())
 		bind := imp.CompBinds.NewBind(o, name, class, typ)
 		if class == ConstBind && k != r.Invalid {
 			bind.Value = val.Interface()
@@ -337,17 +368,17 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *genimport.PackageRef) {
 	imp.Vals = vals
 }
 
-func (g *CompGlobals) parseUntyped(untypedstr string) (UntypedLit, xr.Type) {
+func (cg *CompGlobals) parseUntyped(untypedstr string) (UntypedLit, xr.Type) {
 	kind, value := untyped.Unmarshal(untypedstr)
 	if kind == untyped.None {
 		return UntypedLit{}, nil
 	}
-	lit := untyped.MakeLit(kind, value, &g.Universe.BasicTypes)
-	return lit, g.TypeOfUntypedLit()
+	lit := untyped.MakeLit(kind, value, &cg.Universe.BasicTypes)
+	return lit, cg.TypeOfUntypedLit()
 }
 
-func (imp *Import) loadTypes(g *CompGlobals, pkgref *genimport.PackageRef) {
-	v := g.Universe
+func (imp *Import) loadTypes(cg *CompGlobals, pkgref *genimport.PackageRef) {
+	v := cg.Universe
 	types := make(map[string]xr.Type)
 	wrappers := pkgref.Wrappers
 	for name, rtype := range pkgref.Types {
@@ -362,34 +393,34 @@ func (imp *Import) loadTypes(g *CompGlobals, pkgref *genimport.PackageRef) {
 }
 
 // loadProxies adds to thread-global maps the proxies found in import
-func (g *CompGlobals) loadProxies(proxies map[string]r.Type, types map[string]xr.Type) {
+func (cg *CompGlobals) loadProxies(proxies map[string]r.Type, types map[string]xr.Type) {
 	for name, proxy := range proxies {
-		g.loadProxy(name, proxy, types[name])
+		cg.loadProxy(name, proxy, types[name])
 	}
 }
 
 // loadProxy adds to thread-global maps the specified proxy that allows interpreted types
 // to implement an interface
-func (g *CompGlobals) loadProxy(name string, proxy r.Type, xtype xr.Type) {
+func (cg *CompGlobals) loadProxy(name string, proxy r.Type, xtype xr.Type) {
 	if proxy == nil && xtype == nil {
-		g.Errorf("cannot load nil proxy")
+		cg.Errorf("cannot load nil proxy")
 		return
 	}
 	if xtype == nil {
-		g.Warnf("import %q: type not found for proxy <%v>", proxy.PkgPath(), proxy)
+		cg.Warnf("import %q: type not found for proxy <%v>", proxy.PkgPath(), proxy)
 		return
 	}
 	if xtype.Kind() != r.Interface {
-		g.Warnf("import %q: type for proxy <%v> is not an interface: %v", proxy.PkgPath(), proxy, xtype)
+		cg.Warnf("import %q: type for proxy <%v> is not an interface: %v", proxy.PkgPath(), proxy, xtype)
 		return
 	}
 	if proxy == nil {
-		g.Errorf("import %q: nil proxy for type <%v>", xtype.PkgPath(), xtype)
+		cg.Errorf("import %q: nil proxy for type <%v>", xtype.PkgPath(), xtype)
 		return
 	}
 	rtype := xtype.ReflectType()
-	g.interf2proxy[rtype] = proxy
-	g.proxy2interf[proxy] = xtype
+	cg.interf2proxy[rtype] = proxy
+	cg.proxy2interf[proxy] = xtype
 }
 
 // ======================== use package symbols ===============================

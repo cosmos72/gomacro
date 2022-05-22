@@ -318,6 +318,25 @@ func (c *Comp) Parse(src string) Ast {
 	return forms
 }
 
+// find all import statements in decls, remove them and return them separately
+func extractImports(decls dep.DeclList) (*ast.GenDecl, dep.DeclList) {
+	var imports []ast.Spec
+	var nonimports dep.DeclList
+	for _, decl := range decls {
+		if decl.Kind == dep.Import {
+			if node, _ := decl.Node.(*ast.ImportSpec); node != nil {
+				imports = append(imports, node)
+			}
+		} else {
+			nonimports = append(nonimports, decl)
+		}
+	}
+	return &ast.GenDecl{
+		Tok:   token.IMPORT,
+		Specs: imports,
+	}, nonimports
+}
+
 // compile code. support out-of-order declarations
 func (c *Comp) Compile(in Ast) *Expr {
 	if in == nil {
@@ -342,7 +361,16 @@ func (c *Comp) Compile(in Ast) *Expr {
 	case 1:
 		return c.compileDecl(decls[0])
 	default:
-		exprs := make([]*Expr, 0, n)
+		// sorter.All() returns a list that may contain naked *ast.ImportSpec,
+		// instead of wrapping []*ast.ImportSpec in a single *ast.GenDecl as parser does.
+		//
+		// So we collect and execute all import statements first:
+		// different imports may depend on different versions of the same package,
+		// and we need 'go mod tidy' to resolve any version conflict
+		imports, decls := extractImports(decls)
+		c.MultiImport(imports)
+
+		exprs := make([]*Expr, 0, len(decls))
 		for _, decl := range decls {
 			e := c.compileDecl(decl)
 			if e != nil {
@@ -422,8 +450,7 @@ func (c *Comp) compileNode(node ast.Node, kind dep.Kind) *Expr {
 	case ast.Expr:
 		return c.Expr(node, nil)
 	case *ast.ImportSpec:
-		// dep.Sorter.Some() returns naked *ast.ImportSpec,
-		// instead of *ast.GenDecl containing one or more *ast.ImportSpec as parser does
+		// may happen if we are compiling a single import declaration
 		c.Import(node)
 	case *ast.TypeSpec:
 		// dep.Sorter.Some() returns naked *ast.TypeSpec,

@@ -97,45 +97,56 @@ func (imp *Importer) havePluginOpen() bool {
 }
 
 // LookupPackage returns a package if already present in cache
-func LookupPackage(alias PackageName, path string) *PackageRef {
-	pkg, found := imports.Packages[path]
+func LookupPackage(alias PackageName, pkgpath string) *PackageRef {
+	pkg, found := imports.Packages[pkgpath]
 	if !found {
 		return nil
 	}
 	if len(pkg.Name) == 0 {
 		// missing pkg.Name, initialize it
-		pkg.DefaultName(path)
-		imports.Packages[path] = pkg
+		pkg.DefaultName(pkgpath)
+		imports.Packages[pkgpath] = pkg
 	}
 	if len(alias) == 0 {
 		// import "foo" => get alias from package name
-		alias = pkg.DefaultName(path)
+		alias = pkg.DefaultName(pkgpath)
 	}
-	return &PackageRef{Package: pkg, Path: path}
+	return &PackageRef{Package: pkg, Path: pkgpath}
 }
 
-func (imp *Importer) wrapImportError(path string, enableModule bool, err error) output.RuntimeError {
+func (imp *Importer) wrapImportError(pkgpath string, enableModule bool, err error) output.RuntimeError {
 	if rerr, ok := err.(output.RuntimeError); ok {
 		return rerr
 	}
 	if enableModule {
-		return imp.output.MakeRuntimeError("error loading package %q metadata: %v", path, err)
+		return imp.output.MakeRuntimeError("error loading package %q metadata: %v", pkgpath, err)
 	}
 	return imp.output.MakeRuntimeError(
 		"error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v",
-		path, err)
+		pkgpath, err)
 }
 
-func (imp *Importer) ImportPackage(alias PackageName, path string, enableModule bool) *PackageRef {
-	ref, err := imp.ImportPackageOrError(alias, path, enableModule)
+func (imp *Importer) ImportPackage(alias PackageName, pkgpath string, enableModule bool) *PackageRef {
+	refs, err := imp.ImportPackagesOrError(map[string]PackageName{pkgpath: alias}, enableModule)
 	if err != nil {
 		panic(err)
 	}
-	return ref
+	return refs[pkgpath]
 }
 
-func (imp *Importer) ImportPackageOrError(alias PackageName, pkgpath string, enableModule bool) (*PackageRef, error) {
+func (imp *Importer) ImportPackagesOrError(pkgpaths map[string]PackageName, enableModule bool) (map[string]*PackageRef, error) {
+	refs := make(map[string]*PackageRef)
+	for pkgpath, alias := range pkgpaths {
+		ref, err := imp.importPackageOrError(alias, pkgpath, enableModule)
+		if err != nil {
+			return nil, err
+		}
+		refs[pkgpath] = ref
+	}
+	return refs, nil
+}
 
+func (imp *Importer) importPackageOrError(alias PackageName, pkgpath string, enableModule bool) (*PackageRef, error) {
 	ref := LookupPackage(alias, pkgpath)
 	if ref != nil {
 		return ref, nil
@@ -279,8 +290,8 @@ func createPluginGoModFile(o *Output, pkgpath string, dir string) string {
 	return gomod
 }
 
-func packageSanitizedName(path string) string {
-	return sanitizeIdent(paths.FileName(path))
+func packageSanitizedName(pkgpath string) string {
+	return sanitizeIdent(paths.FileName(pkgpath))
 }
 
 func sanitizeIdent(str string) string {

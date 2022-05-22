@@ -48,9 +48,9 @@ func (c *Comp) Decl(node ast.Decl) {
 func (c *Comp) GenDecl(node *ast.GenDecl) {
 	switch node.Tok {
 	case token.IMPORT:
-		for _, decl := range node.Specs {
-			c.Import(decl)
-		}
+		// yes, we also support scoped imports
+		// i.e. 'import' appearing inside a function or block
+		c.MultiImport(node)
 	case token.CONST:
 		var defaultType ast.Expr
 		var defaultExprs []ast.Expr
