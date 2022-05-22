@@ -246,18 +246,26 @@ it will automatically download, compile and import a package. Example:
 $ gomacro
 [greeting message...]
 
-gomacro> import "gonum.org/v1/plot"
-// debug: looking for package "gonum.org/v1/plot" ...
-// debug: compiling "/home/max/go/src/gomacro.imports/gonum.org/v1/plot/plot.go" ...
-go: finding module for package gonum.org/v1/plot/vg/draw
-go: finding module for package gonum.org/v1/plot
-go: found gonum.org/v1/plot in gonum.org/v1/plot v0.0.0-20200226011204-b25252b0d522
+gomacro> import ( "gonum.org/v1/floats"; "gonum.org/v1/plot" )
+// debug: running "go get gonum.org/v1/gonum/floats gonum.org/v1/plot" ...
+go: downloading gonum.org/v1/plot v0.11.0
+[... more messages from go toolchain ...]
+// debug: running "go mod tidy" ...
+go: downloading github.com/go-fonts/latin-modern v0.2.0
+go: downloading rsc.io/pdf v0.1.1
+go: downloading github.com/go-fonts/dejavu v0.1.0
+// debug: compiling plugin "/home/max/go/src/gomacro.imports/gomacro_pid_187824/import_1" ...
 gomacro> plot.New()
-&{...} // *plot.Plot
-<nil>  // error
+&{...} // *gonum.org/v1/plot.Plot
 ```
 
-Note: internally, gomacro will compile and load a Go plugin containing the package's exported declarations.
+Note: internally, gomacro will compile and load a **single** Go plugin containing the exported declarations
+of all the packages listed in `import ( ... )`.
+
+The command `go mod tidy` is automatically executed before compiling the plugin, and it tries - among other things -
+to resolve version conflicts in case multiple versions of the same package are imported directly
+(i.e. listed in `import ( ... )`) or indirectly (i.e. as a required dependency).
+
 Go plugins are currently supported only on Linux and Mac OS X.
 
 **WARNING** On Mac OS X, **never** execute `strip gomacro`: it breaks plugin support,
