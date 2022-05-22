@@ -1,3 +1,4 @@
+//go:build go1.16
 // +build go1.16
 
 /*
@@ -21,19 +22,22 @@ package genimport
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 // if the package and the version to import is NOT listed in go.mod,
 // Go >= 1.16 requires to run "go get pkg/to/be/imported" or "go install ..."
 // before "go list ..." in order to update go.mod
 // We cannot know the version beforehand, so we always run "go get ..."
-func runGoGetIfNeeded(output *Output, pkgpath string, dir string, env []string) error {
+func runGoGetIfNeeded(output *Output, dir string, pkgpaths []string, env []string) error {
 
-	output.Debugf("running \"go get %s\" ...", pkgpath)
+	pkgpathSpaces := strings.Join(pkgpaths, " ")
+	output.Debugf("running \"go get %s\" ...", pkgpathSpaces)
 
 	gocmd := chooseGoCmd()
+	args := append([]string{"get"}, pkgpaths...)
 
-	cmd := exec.Command(gocmd, "get", pkgpath)
+	cmd := exec.Command(gocmd, args...)
 	cmd.Dir = dir
 	cmd.Env = env
 	cmd.Stdin = nil
@@ -42,14 +46,14 @@ func runGoGetIfNeeded(output *Output, pkgpath string, dir string, env []string) 
 
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf("error executing \"%s get %s\" in directory %q: %v", gocmd, pkgpath, dir, err)
+		return fmt.Errorf("error executing \"%s get %s\" in directory %q: %v", gocmd, pkgpathSpaces, dir, err)
 	}
 	return nil
 }
 
 // Go >= 1.16 requires to run "go mod tidy" before "go build ..."
 // in order to update go.mod with the dependencies of the module being imported
-func runGoModTidyIfNeeded(output *Output, pkgpath string, dir string, env []string) error {
+func runGoModTidyIfNeeded(output *Output, dir string, env []string) error {
 
 	output.Debugf("running \"go mod tidy\" ...")
 

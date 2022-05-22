@@ -1,3 +1,4 @@
+//go:build !go1.16
 // +build !go1.16
 
 /*
@@ -19,7 +20,7 @@
 package genimport
 
 // Go < 1.16 does not require to run "go get ..." before "go list ..."
-func runGoGetIfNeeded(output *Output, pkgpath string, dir string, env []string) error {
+func runGoGetIfNeeded(output *Output, dir string, pkgpaths []string, env []string) error {
 	_ = dir
 	_ = env
 	output.Debugf("looking for package %q ...", pkgpath)
@@ -27,6 +28,6 @@ func runGoGetIfNeeded(output *Output, pkgpath string, dir string, env []string) 
 }
 
 // Go < 1.16 does not require to run "go mod tidy" before "go build ..."
-func runGoModTidyIfNeeded(output *Output, pkgpath string, dir string, env []string) error {
+func runGoModTidyIfNeeded(output *Output, dir string, env []string) error {
 	return nil
 }

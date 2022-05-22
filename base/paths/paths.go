@@ -29,18 +29,20 @@ import (
 )
 
 // return the string after last '/' in path
+// If path contains no '/', return path itself
 func FileName(path string) string {
 	return util.FileName(path)
 }
 
-// return the string up to (and including) last '/' in path
+// return the string up to (but excluding) last '/' in path
+// If path contains no '/', return empty string
 func DirName(path string) string {
-	return path[0 : 1+strings.LastIndexByte(path, '/')]
+	return RemoveFinalSlash(path[0 : 1+strings.LastIndexByte(path, '/')])
 }
 
-// remove last byte from string
-func RemoveLastByte(s string) string {
-	if n := len(s); n != 0 {
+// remove final '/' from string, if present
+func RemoveFinalSlash(s string) string {
+	if n := len(s); n != 0 && s[n-1] == '/' {
 		s = s[:n-1]
 	}
 	return s

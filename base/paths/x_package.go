@@ -17,7 +17,7 @@ func init() {
 			"FileName":                 r.ValueOf(FileName),
 			"GetImportsSrcDir":         r.ValueOf(GetImportsSrcDir),
 			"GoSrcDir":                 r.ValueOf(&GoSrcDir).Elem(),
-			"RemoveLastByte":           r.ValueOf(RemoveLastByte),
+			"RemoveFinalSlash":         r.ValueOf(RemoveFinalSlash),
 			"Subdir":                   r.ValueOf(Subdir),
 			"SymbolFromImportsPackage": r.ValueOf(&SymbolFromImportsPackage).Elem(),
 			"UserHomeDir":              r.ValueOf(UserHomeDir),

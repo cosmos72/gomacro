@@ -21,11 +21,14 @@ import (
 	"fmt"
 	"go/constant"
 	"go/types"
+	"io/ioutil"
 	"math"
+	"os"
 	"strconv"
 	"strings"
 
 	"github.com/cosmos72/gomacro/base/output"
+	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/base/untyped"
 )
 
@@ -43,6 +46,31 @@ type genimport struct {
 	name, name_ string
 	proxyprefix string
 	reflect     string
+}
+
+var pluginMainFileContent = []byte(`
+package main
+
+import . "reflect"
+
+type Package = struct {
+	Name     string
+	Binds    map[string]Value
+	Types    map[string]Type
+	Proxies  map[string]Type
+	Untypeds map[string]string
+	Wrappers map[string][]string
+}
+
+var Packages = make(map[string]Package)
+
+func main() {
+}
+`)
+
+func writePluginMainFile(dir string) (string, error) {
+	filepath := paths.Subdir(dir, "main.go")
+	return filepath, ioutil.WriteFile(filepath, pluginMainFileContent, os.FileMode(0644))
 }
 
 func writeImportFile(o *Output, out *bytes.Buffer, path string, gpkg *types.Package, mode ImportMode) (isEmpty bool) {
@@ -195,25 +223,6 @@ import (`, alias, gen.path, filepkg)
 
 	if mode == ImInception {
 		gen.pkgrenames[gen.path] = "" // writing inside the package: remove the package prefix
-	}
-
-	if mode == ImPlugin {
-		fmt.Fprint(out, `
-type Package = struct {
-	Name     string
-	Binds    map[string]Value
-	Types    map[string]Type
-	Proxies  map[string]Type
-	Untypeds map[string]string
-	Wrappers map[string][]string
-}
-
-var Packages = make(map[string]Package)
-
-func main() {
-}
-
-`)
 	}
 
 	fmt.Fprintf(out, `

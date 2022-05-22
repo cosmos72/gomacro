@@ -27,36 +27,45 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
+// Go >= 1.14 requires a valid go.mod file in the directory used for packages.Config.Dir
+//dir := computeImportDir(o, []string{pkgpath}, ImPlugin)
+
 const GoModuleSupported bool = true
 
-func (imp *Importer) Load(pkgpath string, enableModule bool) (p *types.Package, err error) {
-	if !enableModule {
-		return importer.Default().Import(pkgpath)
-	}
-
+func (imp *Importer) Load(dir string, pkgpaths []string, enableModule bool) (ret_pkgs map[string]*types.Package, ret_err error) {
 	defer func() {
-		if p == nil && err == nil {
+		if ret_pkgs == nil && ret_err == nil {
 			r := recover()
 			if rerr, ok := r.(error); ok {
-				err = rerr
+				ret_err = rerr
 			} else {
-				err = fmt.Errorf("%v", r)
+				ret_err = fmt.Errorf("%v", r)
 			}
 		}
 	}()
+	pkgs := make(map[string]*types.Package, len(pkgpaths))
+
+	if !enableModule {
+		for _, pkgpath := range pkgpaths {
+			pkg, err := importer.Default().Import(pkgpath)
+			if err != nil {
+				return nil, err
+			}
+			pkgs[pkgpath] = pkg
+		}
+		return pkgs, nil
+	}
 
 	o := imp.output
-	// Go >= 1.14 requires a valid go.mod file in the directory used for packages.Config.Dir
-	dir := computeImportDir(o, pkgpath, ImPlugin)
 	createDir(o, dir)
 	removeAllFilesInDir(o, dir)
-	createPluginGoModFile(o, pkgpath, dir)
+	createPluginGoModFile(o, dir)
 
 	env := environForCompiler(enableModule)
 
 	// Go >= 1.16 usually requires running "go get ..." before "go list ..."
 	// to start updating go.mod
-	if err := runGoGetIfNeeded(o, pkgpath, dir, env); err != nil {
+	if err := runGoGetIfNeeded(o, dir, pkgpaths, env); err != nil {
 		return nil, err
 	}
 
@@ -66,17 +75,28 @@ func (imp *Importer) Load(pkgpath string, enableModule bool) (p *types.Package, 
 		Dir:  dir,
 		Logf: nil, // imp.output.Debugf,
 	}
-	list, err := packages.Load(&cfg, "pattern="+pkgpath)
-	if err != nil {
-		return nil, err
+	for _, pkgpath := range pkgpaths {
+		list, err := packages.Load(&cfg, "pattern="+pkgpath)
+		if err != nil {
+			return nil, err
+		}
+		pkg, err := findPackage(pkgpath, list)
+		if err != nil {
+			return nil, err
+		}
+		pkgs[pkgpath] = pkg
 	}
+	return pkgs, nil
+}
+
+func findPackage(pkgpath string, list []*packages.Package) (*types.Package, error) {
 	for _, pkg := range list {
 		if pkg.PkgPath == pkgpath {
 			if len(pkg.Errors) != 0 {
-				err = errorList{pkg.Errors, mergeErrorMessages(pkg.Errors)}
-				return nil, err
+				return nil, errorList{pkg.Errors, mergeErrorMessages(pkg.Errors)}
+			} else {
+				return pkg.Types, nil
 			}
-			return pkg.Types, nil
 		}
 	}
 	return nil, fmt.Errorf("packages.Load() could not find package %q", pkgpath)

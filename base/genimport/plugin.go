@@ -40,29 +40,27 @@ func chooseGoCmd() string {
 	return gocmd
 }
 
-func compilePlugin(o *Output, filePath string, enableModule bool, stdout io.Writer, stderr io.Writer) string {
+func compilePlugin(o *Output, dir string, enableModule bool, stdout io.Writer, stderr io.Writer) string {
 	gosrcdir := paths.GoSrcDir
 	gosrclen := len(gosrcdir)
-	filelen := len(filePath)
-	if filelen < gosrclen || filePath[0:gosrclen] != gosrcdir {
-		o.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filePath, gosrcdir)
+	dirlen := len(dir)
+	if dirlen < gosrclen || dir[0:gosrclen] != gosrcdir {
+		o.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", dir, gosrcdir)
 	}
 	gocmd := chooseGoCmd()
 
 	cmd := exec.Command(gocmd, "build", "-buildmode=plugin")
-	cmd.Dir = paths.DirName(filePath)
+	cmd.Dir = dir
 	cmd.Env = environForCompiler(enableModule)
 	cmd.Stdin = nil
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	o.Debugf("compiling %q ...", filePath)
+	o.Debugf("compiling plugin %q ...", dir)
 	err := cmd.Run()
 	if err != nil {
 		o.Errorf("error executing \"%s build -buildmode=plugin\" in directory %q: %v", gocmd, cmd.Dir, err)
 	}
-
-	dir := paths.RemoveLastByte(paths.DirName(filePath))
 
 	return findSharedObject(o, dir)
 }
