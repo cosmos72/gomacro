@@ -32,6 +32,8 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+type PackageName = genimport.PackageName
+
 // =========================== forget package ==================================
 
 // remove package 'path' from the list of known packages.
@@ -43,11 +45,11 @@ func (cg *CompGlobals) UnloadPackage(path string) {
 
 // ========================== switch to package ================================
 
-func (ir *Interp) ChangePackage(name, path string) {
+func (ir *Interp) ChangePackage(alias PackageName, path string) {
 	if len(path) == 0 {
-		path = name
-	} else {
-		name = paths.FileName(path)
+		path = alias.String()
+	} else if len(alias) == 0 {
+		alias = PackageName(paths.FileName(path))
 	}
 	c := ir.Comp
 	if path == c.Path {
@@ -65,7 +67,7 @@ func (ir *Interp) ChangePackage(name, path string) {
 	trace := c.Globals.Options&base.OptShowPrompt != 0
 	top := &Interp{c.TopComp(), ir.env.Top()}
 	if newp != nil {
-		newp.Name = name
+		newp.Name = alias.String()
 		*ir = newp.asInterpreter(top)
 		if trace {
 			c.Debugf("switched to package %v", newp)
@@ -77,7 +79,7 @@ func (ir *Interp) ChangePackage(name, path string) {
 		if c.Globals.Options&base.OptDebugger != 0 {
 			ir.env.DebugComp = ir.Comp
 		}
-		ir.Comp.Name = name
+		ir.Comp.Name = alias.String()
 		ir.Comp.Path = path
 		if trace {
 			c.Debugf("switched to new package %v", path)
@@ -117,14 +119,14 @@ func (imp *Import) asInterpreter(outer *Interp) Interp {
 // ImportPackage imports a package. Panics if the import fails.
 // If alias is the empty string, it defaults to the identifier
 // specified in the package clause of the imported package
-func (ir *Interp) ImportPackage(alias, path string) *Import {
+func (ir *Interp) ImportPackage(alias PackageName, path string) *Import {
 	return ir.Comp.ImportPackage(alias, path)
 }
 
 // ImportPackageOrError imports a package.
 // If alias is the empty string, it defaults to the identifier
 // specified in the package clause of the imported package
-func (ir *Interp) ImportPackageOrError(alias, path string) (*Import, error) {
+func (ir *Interp) ImportPackageOrError(alias PackageName, path string) (*Import, error) {
 	return ir.Comp.ImportPackageOrError(alias, path)
 }
 
@@ -132,7 +134,7 @@ func (ir *Interp) ImportPackageOrError(alias, path string) (*Import, error) {
 // Usually invoked as Comp.FileComp().ImportPackage(alias, path)
 // because imports are usually top-level statements in a source file.
 // But we also support local imports, i.e. import statements inside a function or block.
-func (c *Comp) ImportPackage(alias, path string) *Import {
+func (c *Comp) ImportPackage(alias PackageName, path string) *Import {
 	imp, err := c.ImportPackageOrError(alias, path)
 	if err != nil {
 		panic(err)
@@ -143,7 +145,7 @@ func (c *Comp) ImportPackage(alias, path string) *Import {
 // ImportPackageOrError imports a package.
 // If name is the empty string, it defaults to the identifier
 // specified in the package clause of the imported package
-func (c *Comp) ImportPackageOrError(alias, path string) (*Import, error) {
+func (c *Comp) ImportPackageOrError(alias PackageName, path string) (*Import, error) {
 	g := c.CompGlobals
 	imp := g.KnownImports[path]
 	if imp == nil {
@@ -161,7 +163,7 @@ func (c *Comp) ImportPackageOrError(alias, path string) (*Import, error) {
 		// If the PackageName is omitted, it defaults to the identifier
 		// specified in the package clause of the imported package
 		if len(alias) == 0 {
-			alias = imp.Name
+			alias = PackageName(imp.Name)
 		}
 		c.declImport0(alias, imp)
 	}
@@ -179,11 +181,11 @@ func (c *Comp) Import(node ast.Spec) {
 			c.Errorf("error unescaping import path %q: %v", str, err)
 		}
 		path = c.sanitizeImportPath(path)
-		var name string
+		var name PackageName
 		if node.Name != nil {
-			name = node.Name.Name
+			name = PackageName(node.Name.Name)
 		}
-		// yes, we support local imports
+		// yes, we support scoped imports
 		// i.e. a function or block can import packages
 		c.ImportPackage(name, path)
 	default:
@@ -205,11 +207,11 @@ func (g *CompGlobals) sanitizeImportPath(path string) string {
 
 // declDotImport0 compiles an import declaration.
 // Note: does not loads proxies, use ImportPackage for that
-func (c *Comp) declImport0(name string, imp *Import) {
+func (c *Comp) declImport0(name PackageName, imp *Import) {
 	// treat imported package as a constant,
 	// because to compile code we need the declarations it contains:
 	// importing them at runtime would be too late.
-	bind := c.NewBind(name, ConstBind, c.TypeOfPtrImport())
+	bind := c.NewBind(name.String(), ConstBind, c.TypeOfPtrImport())
 	bind.Value = imp // Comp.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 }
 

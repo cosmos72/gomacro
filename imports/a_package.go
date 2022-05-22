@@ -38,11 +38,17 @@ type PackageUnderlying = struct { // unnamed
 	Wrappers map[string][]string
 }
 
+type PackageName string // package default name, or package alias
+
 type Package PackageUnderlying // named, can have methods
 
 type PackageMap map[string]Package // named, can have methods
 
 var Packages = make(PackageMap)
+
+func (name PackageName) String() string {
+	return string(name)
+}
 
 // reflection: allow interpreted code to import "github.com/cosmos72/gomacro/imports"
 func init() {
@@ -53,6 +59,7 @@ func init() {
 		Types: map[string]Type{
 			"Package":           TypeOf((*Package)(nil)).Elem(),
 			"PackageMap":        TypeOf((*PackageMap)(nil)).Elem(),
+			"PackageName":       TypeOf((*PackageName)(nil)).Elem(),
 			"PackageUnderlying": TypeOf((*PackageUnderlying)(nil)).Elem(),
 		},
 	}
@@ -88,11 +95,11 @@ func (pkgs PackageMap) MergePackage(path string, src PackageUnderlying) {
  *
  * So use that if known, otherwise extrapolate it from package path
  */
-func (pkg *Package) DefaultName(path string) string {
+func (pkg *Package) DefaultName(path string) PackageName {
 	if len(pkg.Name) == 0 {
 		pkg.Name = util.TailIdentifier(util.FileName(path))
 	}
-	return pkg.Name
+	return PackageName(pkg.Name)
 }
 
 func (pkg *Package) LazyInit(path string) {

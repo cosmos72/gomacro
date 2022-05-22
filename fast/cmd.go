@@ -391,7 +391,7 @@ func (ir *Interp) cmdPackage(path string, cmdopt base.CmdOpt) (string, base.CmdO
 		g.Fprintf(g.Stdout, "// current package: %s %q\n", c.Name, c.Path)
 	} else if n > 2 && path[0] == '"' && path[n-1] == '"' {
 		path = path[1 : n-1]
-		ir.ChangePackage(paths.FileName(path), path)
+		ir.ChangePackage(PackageName(paths.FileName(path)), path)
 	} else if g.Options&base.OptShowPrompt != 0 {
 		g.Debugf(`package %s has no effect. To switch to a different package, use package "PACKAGE/FULL/PATH" - note the quotes`, path)
 	}

@@ -60,12 +60,14 @@ const (
 	ImPlugin
 )
 
+type PackageName = imports.PackageName // package default name, or package alias
+
 type PackageRef struct {
 	imports.Package
 	Path string
 }
 
-func (ref *PackageRef) DefaultName() string {
+func (ref *PackageRef) DefaultName() PackageName {
 	return ref.Package.DefaultName(ref.Path)
 }
 
@@ -95,7 +97,7 @@ func (imp *Importer) havePluginOpen() bool {
 }
 
 // LookupPackage returns a package if already present in cache
-func LookupPackage(alias, path string) *PackageRef {
+func LookupPackage(alias PackageName, path string) *PackageRef {
 	pkg, found := imports.Packages[path]
 	if !found {
 		return nil
@@ -124,7 +126,7 @@ func (imp *Importer) wrapImportError(path string, enableModule bool, err error) 
 		path, err)
 }
 
-func (imp *Importer) ImportPackage(alias, path string, enableModule bool) *PackageRef {
+func (imp *Importer) ImportPackage(alias PackageName, path string, enableModule bool) *PackageRef {
 	ref, err := imp.ImportPackageOrError(alias, path, enableModule)
 	if err != nil {
 		panic(err)
@@ -132,7 +134,7 @@ func (imp *Importer) ImportPackage(alias, path string, enableModule bool) *Packa
 	return ref
 }
 
-func (imp *Importer) ImportPackageOrError(alias, pkgpath string, enableModule bool) (*PackageRef, error) {
+func (imp *Importer) ImportPackageOrError(alias PackageName, pkgpath string, enableModule bool) (*PackageRef, error) {
 
 	ref := LookupPackage(alias, pkgpath)
 	if ref != nil {
@@ -155,7 +157,7 @@ func (imp *Importer) ImportPackageOrError(alias, pkgpath string, enableModule bo
 		mode = ImThirdParty
 	default:
 		if len(alias) == 0 {
-			alias = gpkg.Name()
+			alias = PackageName(gpkg.Name())
 		}
 		if imp.havePluginOpen() {
 			mode = ImPlugin

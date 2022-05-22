@@ -21,9 +21,13 @@ import (
 	r "reflect"
 	"strings"
 
+	"github.com/cosmos72/gomacro/base/genimport"
+
 	"github.com/cosmos72/gomacro/base"
 	bstrings "github.com/cosmos72/gomacro/base/strings"
 )
+
+type PackageName = genimport.PackageName
 
 // eval a single import
 func (env *Env) evalImportDecl(decl ast.Spec) (r.Value, []r.Value) {
@@ -39,9 +43,9 @@ func (env *Env) evalImportDecl(decl ast.Spec) (r.Value, []r.Value) {
 func (env *Env) evalImport(imp *ast.ImportSpec) (r.Value, []r.Value) {
 	path := bstrings.UnescapeString(imp.Path.Value)
 	path = env.sanitizeImportPath(path)
-	var name string
+	var name PackageName
 	if imp.Name != nil {
-		name = imp.Name.Name
+		name = PackageName(imp.Name.Name)
 	}
 	pkg := env.Globals.Importer.ImportPackage(name, path, env.Globals.Options&base.OptModuleImport != 0)
 	if pkg != nil {
@@ -56,10 +60,10 @@ func (env *Env) evalImport(imp *ast.ImportSpec) (r.Value, []r.Value) {
 			if len(name) == 0 {
 				name = pkg.DefaultName()
 			}
-			env.DefineConst(name, r.TypeOf(pkg), r.ValueOf(pkg))
+			env.DefineConst(name.String(), r.TypeOf(pkg), r.ValueOf(pkg))
 		}
 	}
-	return r.ValueOf(name), nil
+	return r.ValueOf(name.String()), nil
 }
 
 func (ir *ThreadGlobals) sanitizeImportPath(path string) string {
