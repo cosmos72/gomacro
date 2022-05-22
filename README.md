@@ -231,10 +231,9 @@ import (
     r "reflect"
 )
 ```
-Third party packages - i.e. packages not in Go standard library - can also be imported
-with the same syntax, as long as the package is **already** installed.
+Third party packages - i.e. packages not in Go standard library - can also be imported with the same syntax.
 
-To install a package, follow its installation procedure: quite often it is the command `go get PACKAGE-PATH`
+For the import to work, you usually need to follow its installation procedure: sometimes there are additional prerequisites to install, and the typical command `go get PACKAGE-PATH` may or may not be needed.
 
 The next steps depend on the system you are running gomacro on:
 
@@ -263,7 +262,7 @@ Note: internally, gomacro will compile and load a **single** Go plugin containin
 of all the packages listed in `import ( ... )`.
 
 The command `go mod tidy` is automatically executed before compiling the plugin, and it tries - among other things -
-to resolve version conflicts in case multiple versions of the same package are imported directly
+to resolve any version conflict due to different versions of the same package being imported directly
 (i.e. listed in `import ( ... )`) or indirectly (i.e. as a required dependency).
 
 Go plugins are currently supported only on Linux and Mac OS X.
