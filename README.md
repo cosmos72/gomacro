@@ -233,7 +233,16 @@ import (
 ```
 Third party packages - i.e. packages not in Go standard library - can also be imported with the same syntax.
 
-For the import to work, you usually need to follow its installation procedure: sometimes there are additional prerequisites to install, and the typical command `go get PACKAGE-PATH` may or may not be needed.
+Extension: unpublished packages can also be imported from a local filesystem directory (implemented on 2022-05-28). Supported syntaxes are:
+```go
+import (
+     "./some/relative/path"          // "./"  means relative to current directory
+     "../some/other/relative/path"   // "../" means relative to parent directory 
+     "/some/absolute/path"           // "/"   means absolute
+)
+```
+
+For an import to work, you usually need to follow its installation procedure: sometimes there are additional prerequisites to install, and the typical command `go get PACKAGE-PATH` may or may not be needed.
 
 The next steps depend on the system you are running gomacro on:
 
