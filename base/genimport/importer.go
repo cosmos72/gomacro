@@ -33,65 +33,6 @@ import (
 	"github.com/cosmos72/gomacro/imports"
 )
 
-type ImportMode int
-
-const (
-	// ImBuiltin import mechanism is:
-	// 1. write a file $GOPATH/src/github.com/cosmos72/gomacro/imports/$PKGPATH.go containing a single func init()
-	//    i.e. *inside* gomacro sources
-	// 2. tell the user to recompile gomacro
-	ImBuiltin ImportMode = iota
-
-	// ImThirdParty import mechanism is the same as ImBuiltin, except that files are created in a thirdparty/ subdirectory:
-	// 1. write a file $GOPATH/src/github.com/cosmos72/gomacro/imports/thirdparty/$PKGPATH.go containing a single func init()
-	//    i.e. *inside* gomacro sources
-	// 2. tell the user to recompile gomacro
-	ImThirdParty
-
-	// ImInception import mechanism is:
-	// 1. write a file $GOPATH/src/$PKGPATH/x_package.go containing a single func init()
-	//    i.e. *inside* the package to be imported
-	// 2. tell the user to recompile $PKGPATH
-	ImInception
-
-	// ImPlugin import mechanism is:
-	// 1. write a file $GOPATH/src/gomacro.imports/.../ containing a var Packages map[string]Package
-	//    and a single func init() to populate it
-	// 2. invoke "go build -buildmode=plugin" on the file to create a shared library
-	// 3. load such shared library with plugin.Open().Lookup("Packages")
-	ImPlugin
-)
-
-func (mode ImportMode) String() string {
-	switch mode {
-	case ImBuiltin:
-		return "Builtin"
-	case ImThirdParty:
-		return "ThirdParty"
-	case ImInception:
-		return "Inception"
-	case ImPlugin:
-		return "Plugin"
-	default:
-		return fmt.Sprintf("ImportMode(%d)", int(mode))
-	}
-}
-
-type PackageName = imports.PackageName // package default name, or package alias
-
-type PackageRef struct {
-	imports.Package
-	Path string
-}
-
-func (ref *PackageRef) DefaultName() PackageName {
-	return ref.Package.DefaultName(ref.Path)
-}
-
-func (ref *PackageRef) String() string {
-	return fmt.Sprintf("{%s %q, %d binds, %d types}", ref.DefaultName(), ref.Path, len(ref.Binds), len(ref.Types))
-}
-
 type Importer struct {
 	srcDir     string
 	mode       types.ImportMode
@@ -147,61 +88,65 @@ func (imp *Importer) wrapImportError(pkgpaths []string, enableModule bool, err e
 		pkgpaths, err)
 }
 
-func (imp *Importer) ImportPackage(alias PackageName, pkgpath string, enableModule bool) *PackageRef {
-	refs, err := imp.ImportPackagesOrError(map[string]PackageName{pkgpath: alias}, enableModule)
+// path can be a Go package path or and absolute filesystem path
+func (imp *Importer) ImportPackage(alias PackageName, path string, enableModule bool) *PackageRef {
+	refs, err := imp.ImportPackagesOrError(map[string]PackageName{path: alias}, enableModule)
 	if err != nil {
 		panic(err)
 	}
-	return refs[pkgpath]
+	return refs[path]
 }
 
-func (imp *Importer) ImportPackagesOrError(pkgpathMap map[string]PackageName, enableModule bool) (map[string]*PackageRef, error) {
+// pathMap is a map (Go package path or absolute filesystem path) -> package alias
+func (imp *Importer) ImportPackagesOrError(pathMap map[string]PackageName, enableModule bool) (map[string]*PackageRef, error) {
 
 	refs := make(map[string]*PackageRef)
-	for pkgpath, alias := range pkgpathMap {
-		ref := LookupPackage(alias, pkgpath)
+	pathMap = clone(pathMap)
+	for path, alias := range pathMap {
+		ref := LookupPackage(alias, path)
 		if ref != nil {
 			// found in package cache, no need to compile and load this package
-			refs[pkgpath] = ref
-			delete(pkgpathMap, pkgpath)
+			refs[path] = ref
+			delete(pathMap, path)
 		}
 	}
-	if len(pkgpathMap) != 0 {
-		imported, err := imp.doImportPackagesOrError(pkgpathMap, enableModule)
+	if len(pathMap) != 0 {
+		imported, err := imp.doImportPackagesOrError(pathMap, enableModule)
 		if err != nil {
 			return nil, err
 		}
-		for pkgpath, ref := range imported {
-			refs[pkgpath] = ref
+		for path, ref := range imported {
+			refs[path] = ref
 		}
 	}
 	return refs, nil
 }
 
-func (imp *Importer) doImportPackagesOrError(pkgpathMap map[string]PackageName, enableModule bool) (map[string]*PackageRef, error) {
+func (imp *Importer) doImportPackagesOrError(pathMap map[string]PackageName, enableModule bool) (map[string]*PackageRef, error) {
 	paths.GetImportsSrcDir() // warns if GOPATH or paths.ImportsDir may be wrong
 
-	pkgpaths := pkgpathKeys(pkgpathMap)
-	mode := imp.importModeFor(pkgpathMap)
+	paths := pathKeys(pathMap)
+	mode := imp.importModeFor(pathMap)
 	o := imp.output
-	dir := computeImportDir(o, pkgpaths, mode)
+	dir := computeImportDir(o, paths, mode)
 
 	// o.Debugf("compiling plugin in directory %q...", dir)
 
-	pkginfos, err := imp.Load(dir, pkgpaths, enableModule) // loads names and types, not the values!
+	// loads names and types, not the values!
+	pkginfos, err := imp.Load(dir, paths, enableModule)
 	if err != nil {
-		return nil, imp.wrapImportError(pkgpaths, enableModule, err)
+		return nil, imp.wrapImportError(paths, enableModule, err)
 	}
 	ok := createImportFiles(imp.output, dir, pkginfos, mode, enableModule)
-	refs := make(map[string]*PackageRef, len(pkgpathMap))
+	refs := make(map[string]*PackageRef, len(paths))
 
 	if !ok || mode != ImPlugin {
 		// either the packages export nothing, or user must rebuild gomacro.
 		// in both cases, still cache them to avoid recreating the files.
-		for pkgpath := range pkgpathMap {
-			ref := &PackageRef{Path: pkgpath}
-			refs[pkgpath] = ref
-			imports.Packages[pkgpath] = ref.Package
+		for _, path := range paths {
+			ref := &PackageRef{Path: path}
+			refs[path] = ref
+			imports.Packages[path] = ref.Package
 		}
 		return refs, nil
 	}
@@ -213,7 +158,7 @@ func (imp *Importer) doImportPackagesOrError(pkgpathMap map[string]PackageName, 
 	imports.Packages.Merge(pkgs)
 
 	// but return only requested ones
-	for pkgpath := range pkgpathMap {
+	for _, pkgpath := range paths {
 		pkg, found := imports.Packages[pkgpath]
 		if !found {
 			return nil, imp.output.MakeRuntimeError(
@@ -225,10 +170,18 @@ func (imp *Importer) doImportPackagesOrError(pkgpathMap map[string]PackageName, 
 	return refs, nil
 }
 
-func (imp *Importer) importModeFor(pkgpathMap map[string]PackageName) ImportMode {
+func clone(pathMap map[string]PackageName) map[string]PackageName {
+	ret := make(map[string]PackageName, len(pathMap))
+	for k, v := range pathMap {
+		ret[k] = v
+	}
+	return ret
+}
+
+func (imp *Importer) importModeFor(pathMap map[string]PackageName) ImportMode {
 	var curr ImportMode
 	havemode := false
-	for _, alias := range pkgpathMap {
+	for _, alias := range pathMap {
 		var mode ImportMode
 		switch alias {
 		case "_b":
@@ -258,7 +211,7 @@ func (imp *Importer) importModeFor(pkgpathMap map[string]PackageName) ImportMode
 	return curr
 }
 
-func pkgpathKeys(pkgpathMap map[string]PackageName) []string {
+func pathKeys(pkgpathMap map[string]PackageName) []string {
 	ret := make([]string, len(pkgpathMap))
 	index := 0
 	for pkgpath := range pkgpathMap {
@@ -282,12 +235,13 @@ func createImportFiles(o *Output, dir string, pkginfos map[string]*types.Package
 			o.Errorf("error writing file %q: %v", filepath, err)
 		}
 	}
-	for pkgpath, pkginfo := range pkginfos {
-		filepath := paths.Subdir(dir, computeImportFilename(o, pkgpath, mode, index))
+	// path can be a Go package path or an absolute filesystem path
+	for path, pkginfo := range pkginfos {
+		filepath := paths.Subdir(dir, computeImportFilename(o, path, mode, index))
 
-		isEmpty := writeImportFile(o, &buf, pkgpath, pkginfo, mode)
+		isEmpty := writeImportFile(o, &buf, path, pkginfo, mode)
 		if isEmpty {
-			o.Warnf("package %q exports zero constants, functions, types and variables", pkgpath)
+			o.Warnf("package %q exports zero constants, functions, types and variables", path)
 		} else {
 			allEmpty = false
 		}
@@ -339,13 +293,13 @@ func removeAllFilesInDir(o *Output, dir string) {
 	removeAllFilesInDirExcept(o, dir, nil)
 }
 
-func removeAllFilesInDirExcept(o *Output, dir string, except_list []string) {
+func removeAllFilesInDirExcept(o *Output, dir string, exceptList []string) {
 	for _, info := range listDir(o, dir) {
 		if info.IsDir() {
 			continue
 		}
 		name := info.Name()
-		for _, exceptName := range except_list {
+		for _, exceptName := range exceptList {
 			if name == exceptName {
 				name = ""
 				break
@@ -361,16 +315,26 @@ func removeAllFilesInDirExcept(o *Output, dir string, except_list []string) {
 	}
 }
 
-func createPluginGoModFile(o *Output, dir string) string {
-	gomodPath := paths.Subdir(dir, "go.mod")
+func createPluginGoModFile(o *Output, dir string, goModReplaceDirective map[PackagePath]AbsolutePath) string {
+	var buf bytes.Buffer
+	buf.WriteString("module gomacro.imports/")
+	buf.WriteString(paths.FileName(dir))
+	buf.WriteRune('\n')
+	buf.WriteRune('\n')
 
-	txt := "module gomacro.imports/" + paths.FileName(dir) + "\n"
-
-	err := ioutil.WriteFile(gomodPath, []byte(txt), os.FileMode(0644))
-	if err != nil {
-		o.Errorf("error writing file %q: %v", gomodPath, err)
+	for key, value := range goModReplaceDirective {
+		buf.WriteString("replace ")
+		buf.WriteString(key.String())
+		buf.WriteString(" => ")
+		buf.WriteString(value.String())
+		buf.WriteRune('\n')
 	}
-	return gomodPath
+	goModPath := paths.Subdir(dir, "go.mod")
+	err := ioutil.WriteFile(goModPath, buf.Bytes(), os.FileMode(0644))
+	if err != nil {
+		o.Errorf("error writing file %q: %v", goModPath, err)
+	}
+	return goModPath
 }
 
 func packageSanitizedName(pkgpath string) string {
@@ -466,7 +430,8 @@ func computeImportFilename(o *Output, pkgpath string, mode ImportMode, index int
 		return "x_package.go"
 	case ImPlugin:
 		// avoid collision if multiple packages imported at once have the same sanitizeIdent(pkgpath)
-		return fmt.Sprintf("%s_%d.go", sanitizeIdent(pkgpath), index)
+		// and avoid file names starting with '_' because go build would ignore them
+		return fmt.Sprintf("x_%s_%d.go", sanitizeIdent(pkgpath), index)
 	default:
 		o.Errorf("unknown import mode: %v", mode)
 		return ""

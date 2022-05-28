@@ -17,11 +17,13 @@
 package genimport
 
 import (
+	"bufio"
 	"fmt"
 	"go/build"
 	"go/importer"
 	"go/types"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/tools/go/packages"
@@ -32,34 +34,52 @@ import (
 
 const GoModuleSupported bool = true
 
-func (imp *Importer) Load(dir string, pkgpaths []string, enableModule bool) (ret_pkgs map[string]*types.Package, ret_err error) {
+// Return the exported declarations of requested packages.
+// If needed, prepare a Go module in 'dir' to list them.
+//
+// Note: paths can contain both Go package paths (corresponding to published Go packages)
+// and filesystem absolute paths (corrisponding to local Go packages)
+//
+// Each returned map entry {string, *types.Package} will contain:
+// 1. paths[i] as map key
+// 2. *types.Package as map value, which contains both the Go package name and its Go package path
+//
+// allowing the caller to match each filesystem absolute path to the corresponding Go package
+func (imp *Importer) Load(dir string, paths []string, enableModule bool) (
+	retPkgs map[string]*types.Package, retErr error) {
+
 	defer func() {
-		if ret_pkgs == nil && ret_err == nil {
+		if retPkgs == nil && retErr == nil {
 			r := recover()
 			if rerr, ok := r.(error); ok {
-				ret_err = rerr
+				retErr = rerr
 			} else {
-				ret_err = fmt.Errorf("%v", r)
+				retErr = fmt.Errorf("%v", r)
 			}
 		}
 	}()
-	pkgs := make(map[string]*types.Package, len(pkgpaths))
+	pkgs := make(map[string]*types.Package, len(paths))
 
 	if !enableModule {
-		for _, pkgpath := range pkgpaths {
-			pkg, err := importer.Default().Import(pkgpath)
+		for _, path := range paths {
+			pkg, err := importer.Default().Import(path)
 			if err != nil {
 				return nil, err
 			}
-			pkgs[pkgpath] = pkg
+			pkgs[path] = pkg
 		}
 		return pkgs, nil
+	}
+
+	goModReplaceDirective, pkgpaths, err := findLocalPackagesOnDisk(paths)
+	if err != nil {
+		return nil, err
 	}
 
 	o := imp.output
 	createDir(o, dir)
 	removeAllFilesInDir(o, dir)
-	createPluginGoModFile(o, dir)
+	createPluginGoModFile(o, dir, goModReplaceDirective)
 
 	env := environForCompiler(enableModule)
 
@@ -75,23 +95,24 @@ func (imp *Importer) Load(dir string, pkgpaths []string, enableModule bool) (ret
 		Dir:  dir,
 		Logf: nil, // imp.output.Debugf,
 	}
-	for _, pkgpath := range pkgpaths {
-		list, err := packages.Load(&cfg, "pattern="+pkgpath)
+	for i, pkgpath := range pkgpaths {
+		list, err := packages.Load(&cfg, "pattern="+pkgpath.String())
 		if err != nil {
 			return nil, err
 		}
-		pkg, err := findPackage(pkgpath, list)
+		pkg, err := findPackageInList(pkgpath, list)
 		if err != nil {
 			return nil, err
 		}
-		pkgs[pkgpath] = pkg
+		// paths[i] can be either a Go package path, or an absolute filesystem path
+		pkgs[paths[i]] = pkg
 	}
 	return pkgs, nil
 }
 
-func findPackage(pkgpath string, list []*packages.Package) (*types.Package, error) {
+func findPackageInList(pkgpath PackagePath, list []*packages.Package) (*types.Package, error) {
 	for _, pkg := range list {
-		if pkg.PkgPath == pkgpath {
+		if pkg.PkgPath == pkgpath.String() {
 			if len(pkg.Errors) != 0 {
 				return nil, errorList{pkg.Errors, mergeErrorMessages(pkg.Errors)}
 			} else {
@@ -99,7 +120,7 @@ func findPackage(pkgpath string, list []*packages.Package) (*types.Package, erro
 			}
 		}
 	}
-	return nil, fmt.Errorf("packages.Load() could not find package %q", pkgpath)
+	return nil, fmt.Errorf("packages.Load() could not find package %q", pkgpath.String())
 }
 
 type errorList struct {
@@ -130,4 +151,91 @@ func environForCompiler(enableModule bool) []string {
 		env = append(env, "GO111MODULE=off")
 	}
 	return env
+}
+
+// for each path in pkgpaths that starts with '/'
+// use it as filesystem path and scan it and its parents for a 'go.mod' file
+func findLocalPackagesOnDisk(paths []string) (
+	goModReplaceDirective map[PackagePath]AbsolutePath, pkgpaths []PackagePath, err error) {
+
+	pkgpaths = make([]PackagePath, len(paths))
+	for i, path := range paths {
+		if !isLocalFilesystemPath(path) {
+			pkgpaths[i] = MakePackagePathOrPanic(path)
+			continue
+		}
+		abspath := MakeAbsolutePathOrPanic(path)
+		onDiskModuleDir, goModulePkgpath, relativePkgpath, isErr := findLocalPackageOnDisk(abspath)
+		if isErr != nil {
+			return nil, nil, isErr
+		}
+		pkgpaths[i] = goModulePkgpath.Join(relativePkgpath)
+		if goModReplaceDirective == nil {
+			goModReplaceDirective = make(map[PackagePath]AbsolutePath)
+		}
+		goModReplaceDirective[goModulePkgpath] = onDiskModuleDir
+	}
+	return goModReplaceDirective, pkgpaths, nil
+}
+
+// given an absolute filesystem path, find a 'go.mod' file in it or its parent paths,
+// and if found, return the absolute path of the directory containing the 'go.mod' file,
+// the name of the the module name written inside the go.mod file,
+// and the relative package path to be imported - i.e. relative to the module
+func findLocalPackageOnDisk(onDiskDir AbsolutePath) (onDiskModuleDir AbsolutePath, goModulePkgpath PackagePath, relativePkgpath PackagePath, retErr error) {
+	dir := onDiskDir
+	var err error
+	for {
+		goModFile := filepath.Join(dir.String(), "go.mod")
+		goModulePkgpath, err = readGoModFile(goModFile)
+		if err == nil {
+			return dir, goModulePkgpath, relativePkgpath, nil
+		}
+		relativePkgpath = relativePkgpath.JoinString(filepath.Base(dir.String()))
+
+		parentDir := filepath.Dir(dir.String())
+		if len(parentDir) == 0 || parentDir == dir.String() {
+			break
+		}
+		dir = AbsolutePath{parentDir}
+	}
+	return AbsolutePath{}, PackagePath{}, PackagePath{},
+		fmt.Errorf("packages.Load() could not find \"go.mod\" file in directory %q and all its parent directories",
+			onDiskDir)
+}
+
+func readGoModFile(filepath string) (PackagePath, error) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		return PackagePath{}, err
+	}
+	defer file.Close()
+	reader := bufio.NewReader(file)
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			return PackagePath{}, err
+		}
+		if !startsWith(line, "module ") {
+			continue
+		}
+		pkgpath := MakePackagePathOrPanic(strings.TrimSpace(line[7:]))
+		if len(pkgpath.String()) == 0 {
+			return pkgpath, fmt.Errorf("packages.Load() found file %q, but it contains no package name after \"module \"")
+		}
+		return pkgpath, nil
+	}
+}
+
+func isLocalFilesystemPath(path string) bool {
+	return path == "/" || path == "." || path == ".." ||
+		startsWith(path, "/") || startsWith(path, "./") || startsWith(path, "../")
+}
+
+func startsWith(str string, prefix string) bool {
+	return len(str) >= len(prefix) && str[0:len(prefix)] == prefix
+}
+
+func IsLocalImportPath(pkgpath string) bool {
+	return isLocalFilesystemPath(pkgpath)
 }

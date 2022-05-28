@@ -68,11 +68,18 @@ func (env *Env) evalImport(imp *ast.ImportSpec) (r.Value, []r.Value) {
 
 func (ir *ThreadGlobals) sanitizeImportPath(path string) string {
 	path = strings.Replace(path, "\\", "/", -1)
+	if genimport.IsLocalImportPath(path) {
+		abspath, err := genimport.MakeAbsolutePathOrError(path)
+		if err != nil {
+			ir.Errorf("invalid import %q: conversion to absolute path failed: %v", path, err)
+		}
+		path = abspath.String()
+	}
 	l := len(path)
-	if path == ".." || l >= 3 && (path[:3] == "../" || path[l-3:] == "/..") || strings.Contains(path, "/../") {
+	if (l >= 3 && path[l-3:] == "/..") || strings.Contains(path, "/../") {
 		ir.Errorf("invalid import %q: contains \"..\"", path)
 	}
-	if path == "." || l >= 2 && (path[:2] == "./" || path[l-2:] == "/.") || strings.Contains(path, "/./") {
+	if (l >= 2 && path[l-2:] == "/.") || strings.Contains(path, "/./") {
 		ir.Errorf("invalid import %q: contains \".\"", path)
 	}
 	return path

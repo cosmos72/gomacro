@@ -29,13 +29,15 @@ import (
 // Go >= 1.16 requires to run "go get pkg/to/be/imported" or "go install ..."
 // before "go list ..." in order to update go.mod
 // We cannot know the version beforehand, so we always run "go get ..."
-func runGoGetIfNeeded(output *Output, dir string, pkgpaths []string, env []string) error {
+func runGoGetIfNeeded(output *Output, dir string, pkgpaths []PackagePath, env []string) error {
 
-	pkgpathSpaces := strings.Join(pkgpaths, " ")
-	output.Debugf("running \"go get %s\" ...", pkgpathSpaces)
+	paths := packagePathsToString(pkgpaths)
+
+	pathsSpaces := strings.Join(paths, " ")
+	output.Debugf("running \"go get %s\" ...", pathsSpaces)
 
 	gocmd := chooseGoCmd()
-	args := append([]string{"get"}, pkgpaths...)
+	args := append([]string{"get"}, paths...)
 
 	cmd := exec.Command(gocmd, args...)
 	cmd.Dir = dir
@@ -46,7 +48,7 @@ func runGoGetIfNeeded(output *Output, dir string, pkgpaths []string, env []strin
 
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf("error executing \"%s get %s\" in directory %q: %v", gocmd, pkgpathSpaces, dir, err)
+		return fmt.Errorf("error executing \"%s get %s\" in directory %q: %v", gocmd, pathsSpaces, dir, err)
 	}
 	return nil
 }
