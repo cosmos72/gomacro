@@ -191,7 +191,7 @@ func findLocalPackageOnDisk(onDiskDir AbsolutePath) (onDiskModuleDir AbsolutePat
 		if err == nil {
 			return dir, goModulePkgpath, relativePkgpath, nil
 		}
-		relativePkgpath = relativePkgpath.JoinString(filepath.Base(dir.String()))
+		relativePkgpath = MakePackagePathOrPanic(filepath.Base(dir.String())).Join(relativePkgpath)
 
 		parentDir := filepath.Dir(dir.String())
 		if len(parentDir) == 0 || parentDir == dir.String() {
