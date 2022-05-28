@@ -26,6 +26,7 @@ func init() {
 			"NeedExportsFile":     ValueOf(packages_.NeedExportsFile),
 			"NeedFiles":           ValueOf(packages_.NeedFiles),
 			"NeedImports":         ValueOf(packages_.NeedImports),
+			"NeedModule" :         ValueOf(packages_.NeedModule),
 			"NeedName":            ValueOf(packages_.NeedName),
 			"NeedSyntax":          ValueOf(packages_.NeedSyntax),
 			"NeedTypes":           ValueOf(packages_.NeedTypes),
