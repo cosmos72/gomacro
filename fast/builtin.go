@@ -83,6 +83,7 @@ func (ir *Interp) addBuiltins() {
 	}
 	ir.DeclTypeAlias("byte", c.TypeOfUint8())
 	ir.DeclTypeAlias("rune", c.TypeOfInt32())
+	ir.DeclTypeAlias("any", c.TypeOfInterface()) // added in Go 1.18
 	ir.DeclType(c.TypeOfError())
 	c.loadProxy("error", r.TypeOf((*proxy_error)(nil)).Elem(), c.TypeOfError())
 

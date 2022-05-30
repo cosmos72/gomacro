@@ -505,6 +505,7 @@ var testcases = []TestCase{
 	TestCase{A | Go1_13, "go1_13_octal_lit", "int(0o377)", int(255), nil},
 	TestCase{A | Go1_13, "go1_13_hex_floating_point", "float32(0x1.Fp+0)", float32(1.9375), nil},
 	TestCase{A | Go1_13, "go1_13_underscore_separator", "int(1_2_34)", int(1234), nil},
+	TestCase{F, "go1_18_var_any", "var any_7 any = any(7); any_7", 7, nil},
 
 	TestCase{A, "iota_1", "const c5 = iota^7; c5", 7, nil},
 	TestCase{A, "iota_2", "const ( c6 = iota+6; c7=iota+6 ); c6", 6, nil},
