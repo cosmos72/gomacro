@@ -1268,9 +1268,6 @@ func (e *Expr) AsStmt(c *Comp) Stmt {
 	if e == nil || e.Const() {
 		return nil
 	}
-	if stmt := c.Jit.AsStmt(e); stmt != nil {
-		return stmt
-	}
 	return funAsStmt(e.Fun)
 }
 

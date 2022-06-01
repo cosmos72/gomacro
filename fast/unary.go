@@ -75,9 +75,6 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 	if isConst {
 		// constant propagation
 		z.EvalConst(COptKeepUntyped)
-	} else {
-		// create jit expression for z
-		c.Jit.UnaryExpr(z, node.Op, xe)
 	}
 	return z
 }

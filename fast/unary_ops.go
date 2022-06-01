@@ -277,8 +277,7 @@ func (c *Comp) Deref(addr *Expr) *Expr {
 	default:
 		fun = c.derefUnwrap(t, x1)
 	}
-	e := exprFun(t, fun)
-	return c.Jit.Deref(e, addr)
+	return exprFun(t, fun)
 }
 
 // deref0Unwrap compiles unary operator * on reflect.Value - unwraps reflect.Value.Elem() if possible

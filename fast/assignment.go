@@ -321,18 +321,11 @@ func (c *Comp) assign1(lhs ast.Expr, op token.Token, rhs ast.Expr, place *Place,
 func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	// c.setVar() has the side effect of converting
 	// RHS untyped constants to the correct type,
-	// also needed by c.Jit.SetVar() below
 	stmt := c.setVar(va, op, init)
 	// c.Debugf("Comp.SetVar: %v %v %v", va, op, init)
-	if stmt == nil {
-		// optimized away.
-		return
+	if stmt != nil {
+		c.append(stmt)
 	}
-	if jstmt := c.Jit.SetVar(va, op, init); jstmt != nil {
-		// prefer jit-compiled statement
-		stmt = jstmt
-	}
-	c.append(stmt)
 }
 
 // SetPlace compiles an assignment to a place:

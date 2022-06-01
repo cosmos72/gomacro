@@ -43,7 +43,7 @@ func (c *Comp) convert(e *Expr, t xr.Type, nodeOpt ast.Expr) *Expr {
 		if e.Const() {
 			return c.exprValue(t, e.Value)
 		} else {
-			return c.Jit.Identity(exprFun(t, e.Fun), e)
+			return exprFun(t, e.Fun)
 		}
 	} else if e.Type == nil && reflect.IsNillableKind(t.Kind()) {
 		e.Type = t
@@ -160,8 +160,6 @@ func (c *Comp) convert(e *Expr, t xr.Type, nodeOpt ast.Expr) *Expr {
 	eret := exprFun(t, ret)
 	if e.Const() {
 		eret.EvalConst(COptKeepUntyped)
-	} else {
-		eret = c.Jit.Cast(eret, t, e)
 	}
 	return eret
 }

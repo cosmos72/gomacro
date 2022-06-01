@@ -140,7 +140,6 @@ type Expr struct {
 	Types []xr.Type // in case the expression produces multiple values. if nil, use Lit.Type.
 	Fun   I         // function that evaluates the expression at runtime.
 	Sym   *Symbol   // in case the expression is a symbol
-	Jit   jitExpr   // expression to jit-compile, or nil if not supported
 	EFlags
 }
 
@@ -576,7 +575,6 @@ type CompGlobals struct {
 	interf2proxy map[r.Type]r.Type  // interface -> proxy
 	proxy2interf map[r.Type]xr.Type // proxy -> interface
 	Prompt       string
-	Jit          *Jit
 }
 
 func (cg *CompGlobals) CompileOptions() CompileOptions {
