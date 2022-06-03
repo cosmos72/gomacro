@@ -28,7 +28,7 @@ import (
 	"sync/atomic"
 
 	"github.com/cosmos72/gomacro/base/output"
-	"github.com/cosmos72/gomacro/base/paths"
+	p "github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/imports"
 )
@@ -55,7 +55,7 @@ func (imp *Importer) havePluginOpen() bool {
 }
 
 func srcDirForPluginImport() string {
-	return paths.Subdir(paths.GoSrcDir, "gomacro.imports", fmt.Sprintf("gomacro_pid_%d", os.Getpid()))
+	return p.Subdir(p.GoSrcDir, "gomacro.imports", fmt.Sprintf("gomacro_pid_%d", os.Getpid()))
 }
 
 // LookupPackage returns a package if already present in cache
@@ -123,7 +123,7 @@ func (imp *Importer) ImportPackagesOrError(pathMap map[string]PackageName, enabl
 }
 
 func (imp *Importer) doImportPackagesOrError(pathMap map[string]PackageName, enableModule bool) (map[string]*PackageRef, error) {
-	paths.GetImportsSrcDir() // warns if GOPATH or paths.ImportsDir may be wrong
+	p.GetImportsSrcDir() // warns if GOPATH or paths.ImportsDir may be wrong
 
 	paths := pathKeys(pathMap)
 	mode := imp.importModeFor(pathMap)
@@ -133,7 +133,7 @@ func (imp *Importer) doImportPackagesOrError(pathMap map[string]PackageName, ena
 	// o.Debugf("compiling plugin in directory %q...", dir)
 
 	// loads names and types, not the values!
-	pkginfos, err := imp.Load(dir, paths, enableModule)
+	pkginfos, err := imp.Load(dir, paths, mode, enableModule)
 	if err != nil {
 		return nil, imp.wrapImportError(paths, enableModule, err)
 	}
@@ -153,6 +153,8 @@ func (imp *Importer) doImportPackagesOrError(pathMap map[string]PackageName, ena
 	soname := compilePlugin(o, dir, enableModule, o.Stdout, o.Stderr)
 	ipkgs := imp.loadPluginSymbol(soname, "Packages")
 	pkgs := *ipkgs.(*map[string]imports.PackageUnderlying)
+
+	// o.Debugf("plugin %q loaded, contains definitions for packages %v", soname, pkgs)
 
 	// cache *all* packages found for future use
 	imports.Packages.Merge(pkgs)
@@ -230,16 +232,16 @@ func createImportFiles(o *Output, dir string, pkginfos map[string]*types.Package
 	index := 0
 	allEmpty := true
 	if mode == ImPlugin {
-		filepath, err := writePluginMainFile(dir)
+		filepath, err := createPluginMainFile(dir)
 		if err != nil {
 			o.Errorf("error writing file %q: %v", filepath, err)
 		}
 	}
 	// path can be a Go package path or an absolute filesystem path
 	for path, pkginfo := range pkginfos {
-		filepath := paths.Subdir(dir, computeImportFilename(o, path, mode, index))
+		filepath := p.Subdir(dir, computeImportFilename(o, path, mode, index))
 
-		isEmpty := writeImportFile(o, &buf, path, pkginfo, mode)
+		isEmpty := createImportFile(o, &buf, path, pkginfo, mode)
 		if isEmpty {
 			o.Warnf("package %q exports zero constants, functions, types and variables", path)
 		} else {
@@ -308,7 +310,7 @@ func removeAllFilesInDirExcept(o *Output, dir string, exceptList []string) {
 		if name == "" {
 			continue
 		}
-		filepath := paths.Subdir(dir, name)
+		filepath := p.Subdir(dir, name)
 		if err := os.Remove(filepath); err != nil {
 			o.Errorf("error removing file %q: %v", filepath, err)
 		}
@@ -318,7 +320,7 @@ func removeAllFilesInDirExcept(o *Output, dir string, exceptList []string) {
 func createPluginGoModFile(o *Output, dir string, goModReplaceDirective map[PackagePath]AbsolutePath) string {
 	var buf bytes.Buffer
 	buf.WriteString("module gomacro.imports/")
-	buf.WriteString(paths.FileName(dir))
+	buf.WriteString(p.FileName(dir))
 	buf.WriteRune('\n')
 	buf.WriteRune('\n')
 
@@ -329,7 +331,7 @@ func createPluginGoModFile(o *Output, dir string, goModReplaceDirective map[Pack
 		buf.WriteString(value.String())
 		buf.WriteRune('\n')
 	}
-	goModPath := paths.Subdir(dir, "go.mod")
+	goModPath := p.Subdir(dir, "go.mod")
 	err := ioutil.WriteFile(goModPath, buf.Bytes(), os.FileMode(0644))
 	if err != nil {
 		o.Errorf("error writing file %q: %v", goModPath, err)
@@ -338,7 +340,7 @@ func createPluginGoModFile(o *Output, dir string, goModReplaceDirective map[Pack
 }
 
 func packageSanitizedName(pkgpath string) string {
-	return sanitizeIdent(paths.FileName(pkgpath))
+	return sanitizeIdent(p.FileName(pkgpath))
 }
 
 func sanitizeIdent(str string) string {
@@ -372,43 +374,46 @@ func sanitizeIdent2(str string, replacement rune) string {
 
 var removeOnceGomacroImports sync.Once
 
-func computeImportDir(o *Output, pkgpaths []string, mode ImportMode) string {
+func computeImportDir(o *Output, paths []string, mode ImportMode) string {
 	switch mode {
 	case ImBuiltin:
 		// user will need to recompile gomacro
-		return paths.GetImportsSrcDir()
+		return p.GetImportsSrcDir()
 	case ImThirdParty:
 		// either plugin.Open is not available, or user explicitly requested import _3 "package".
 		// In both cases, user will need to recompile gomacro
-		return paths.Subdir(paths.GetImportsSrcDir(), "thirdparty")
+		return p.Subdir(p.GetImportsSrcDir(), "thirdparty")
 	case ImInception:
-		if len(pkgpaths) != 1 {
+		if len(paths) != 1 {
 			o.Errorf("import in Inception mode only supports a single package at time - attempted to import %d packages instead",
-				len(pkgpaths))
+				len(paths))
 		}
-		for _, pkgpath := range pkgpaths {
+		for _, path := range paths {
 			// user will need to recompile the package being imported
-			for _, srcdir := range paths.GoSrcDirs {
-				dir := paths.Subdir(srcdir, pkgpath)
+			if isLocalFilesystemPath(path) {
+				return MakeAbsolutePathOrPanic(path).String()
+			}
+			for _, srcdir := range p.GoSrcDirs {
+				dir := p.Subdir(srcdir, path)
 				if _, err := os.Stat(dir); err == nil {
-					return paths.Subdir(srcdir, pkgpath)
+					return p.Subdir(srcdir, path)
 				}
 			}
 			o.Errorf("unable to locate package %q in $GOPATH/src ($GOPATH=%s)",
-				pkgpath, build.Default.GOPATH)
+				path, build.Default.GOPATH)
 		}
 	case ImPlugin:
 		{
 			baseDir := srcDirForPluginImport()
-			toRemoveDir := paths.DirName(baseDir)
+			toRemoveDir := p.DirName(baseDir)
 			// Go has not atexit(), so remove directory $GOPATH/src/gomacro.imports once,
 			// before the first attempt to import packages that requires compiling a plugin
-			if paths.FileName(toRemoveDir) == "gomacro.imports" {
+			if p.FileName(toRemoveDir) == "gomacro.imports" {
 				removeOnceGomacroImports.Do(func() {
 					_ = os.RemoveAll(toRemoveDir)
 				})
 			}
-			return paths.Subdir(baseDir, fmt.Sprintf("import_%d", nextImportCounter()))
+			return p.Subdir(baseDir, fmt.Sprintf("import_%d", nextImportCounter()))
 		}
 	default:
 		o.Errorf("unknown import mode: %v", mode)

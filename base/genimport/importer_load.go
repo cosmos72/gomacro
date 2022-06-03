@@ -45,7 +45,7 @@ const GoModuleSupported bool = true
 // 2. *types.Package as map value, which contains both the Go package name and its Go package path
 //
 // allowing the caller to match each filesystem absolute path to the corresponding Go package
-func (imp *Importer) Load(dir string, paths []string, enableModule bool) (
+func (imp *Importer) Load(dir string, paths []string, mode ImportMode, enableModule bool) (
 	retPkgs map[string]*types.Package, retErr error) {
 
 	defer func() {
@@ -78,15 +78,19 @@ func (imp *Importer) Load(dir string, paths []string, enableModule bool) (
 
 	o := imp.output
 	createDir(o, dir)
-	removeAllFilesInDir(o, dir)
-	createPluginGoModFile(o, dir, goModReplaceDirective)
+	if mode == ImPlugin {
+		removeAllFilesInDir(o, dir)
+		createPluginGoModFile(o, dir, goModReplaceDirective)
+	}
 
 	env := environForCompiler(enableModule)
 
 	// Go >= 1.16 usually requires running "go get ..." before "go list ..."
 	// to start updating go.mod
-	if err := runGoGetIfNeeded(o, dir, pkgpaths, env); err != nil {
-		return nil, err
+	if mode != ImInception {
+		if err := runGoGetIfNeeded(o, dir, pkgpaths, env); err != nil {
+			return nil, err
+		}
 	}
 
 	cfg := packages.Config{
@@ -221,7 +225,7 @@ func readGoModFile(filepath string) (PackagePath, error) {
 		}
 		pkgpath := MakePackagePathOrPanic(strings.TrimSpace(line[7:]))
 		if len(pkgpath.String()) == 0 {
-			return pkgpath, fmt.Errorf("packages.Load() found file %q, but it contains no package name after \"module \"")
+			return pkgpath, fmt.Errorf("packages.Load() found file %q, but it contains no package name after \"module \"", filepath)
 		}
 		return pkgpath, nil
 	}

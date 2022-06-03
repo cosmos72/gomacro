@@ -27,7 +27,7 @@ const sep = string(os.PathSeparator)
 // environment variable.
 //
 func GoGenerateMain(arg []string, imp *Importer) error {
-	var pkgpath string
+	var path string
 	narg := len(arg)
 	switch {
 	case narg == 0 || (narg > 0 && arg[0] == "."):
@@ -38,7 +38,7 @@ func GoGenerateMain(arg []string, imp *Importer) error {
 		gopath := build.Default.GOPATH
 		prefix := gopath + sep + "src" + sep
 		if strings.HasPrefix(cwd, prefix) {
-			pkgpath = cwd[len(prefix):]
+			path = cwd[len(prefix):]
 		} else {
 			// guess it is after the first `src` in cwd,
 			// since traditionally all packages are
@@ -47,13 +47,20 @@ func GoGenerateMain(arg []string, imp *Importer) error {
 			if len(splt) <= 1 {
 				return fmt.Errorf("gomacro -g: unable to detect current package, please specify it")
 			}
-			pkgpath = splt[1]
+			path = splt[1]
 		}
 	default:
-		pkgpath = arg[0]
+		path = arg[0]
+		if isLocalFilesystemPath(path) {
+			abspath, err := MakeAbsolutePathOrError(path)
+			if err != nil {
+				return err
+			}
+			path = abspath.String()
+		}
 	}
 	_, err := imp.ImportPackagesOrError(
-		map[string]PackageName{pkgpath: PackageName("_i")},
+		map[string]PackageName{path: PackageName("_i")},
 		true /*enableModule*/)
 	return err
 }

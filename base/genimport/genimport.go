@@ -48,6 +48,41 @@ type genimport struct {
 	reflect     string
 }
 
+var inceptionFileDeclarations = []byte(`
+
+/**
+ * Declare and fill a global variable Packages, whose type is compatible
+ * with the global variable github.com/cosmos72/gomacro/imports.Packages
+ *
+ * If you want to automatically register this package's declarations into
+ *   github.com/cosmos72/gomacro/imports.Packages
+ * to let gomacro know about this package, and allow importing it without compiling
+ * a plugin, you can add the following to some _other_ file in this directory:
+ *
+ * import "github.com/cosmos72/gomacro/imports"
+ *
+ * func init() {
+ *     for k, v := range Packages {
+ *         imports.Packages[k] = v
+ *     }
+ * }
+ *
+ * Such code is _not_ automatically added to this file, because it would introduce
+ * a dependency on gomacro packages, which may be undesiderable.
+ */
+
+type Package = struct {
+	Name     string
+	Binds    map[string]r.Value
+	Types    map[string]r.Type
+	Proxies  map[string]r.Type
+	Untypeds map[string]string
+	Wrappers map[string][]string
+}
+
+var Packages = make(map[string]Package)
+`)
+
 var pluginMainFileContent = []byte(`
 package main
 
@@ -68,12 +103,12 @@ func main() {
 }
 `)
 
-func writePluginMainFile(dir string) (string, error) {
+func createPluginMainFile(dir string) (string, error) {
 	filepath := paths.Subdir(dir, "main.go")
 	return filepath, ioutil.WriteFile(filepath, pluginMainFileContent, os.FileMode(0644))
 }
 
-func writeImportFile(o *Output, out *bytes.Buffer, path string, gpkg *types.Package, mode ImportMode) (isEmpty bool) {
+func createImportFile(o *Output, out *bytes.Buffer, path string, gpkg *types.Package, mode ImportMode) (isEmpty bool) {
 
 	gen := newGenImport(o, out, path, gpkg, mode)
 	if gen == nil {
@@ -147,7 +182,7 @@ func (d *mapdecl) header() {
 		d.out.WriteString(d.head)
 		d.out.WriteByte('{')
 		d.head = ""
-		d.foot = "\n\t}"
+		d.foot = "\n\t\t}"
 	}
 }
 
@@ -203,16 +238,14 @@ package %s
 
 import (`, alias, gen.path, filepkg)
 
-	var imports string
 	if mode == ImInception {
-		fmt.Fprintf(gen.out, "\n\tr \"reflect\"\n\t\"github.com/cosmos72/gomacro/imports\"")
-		imports = "imports."
+		fmt.Fprint(out, "\n\tr \"reflect\"")
 	} else {
-		fmt.Fprintf(out, "\n\t. \"reflect\"")
+		fmt.Fprint(out, "\n\t. \"reflect\"")
 	}
 	gen.collectPackageImportsWithRename(true)
 	for path, name := range gen.pkgrenames {
-		if mode == ImInception && path == gen.path {
+		if mode == ImInception && path == gen.gpkg.Path() {
 			continue // writing inside the package: it should not import itself
 		} else {
 			// always name the imported package: its name may differ from paths.FileName(path)
@@ -221,16 +254,19 @@ import (`, alias, gen.path, filepkg)
 	}
 	fmt.Fprintf(out, "\n)\n")
 
+	pathToRegister := gen.path
 	if mode == ImInception {
+		pathToRegister = gen.gpkg.Path()
 		gen.pkgrenames[gen.path] = "" // writing inside the package: remove the package prefix
+		out.Write(inceptionFileDeclarations)
 	}
 
 	fmt.Fprintf(out, `
 // reflection: allow interpreted code to import %q
 func init() {
-	%sPackages[%q] = %sPackage{
-	Name: %q,
-	`, gen.path, imports, gen.path, imports, gen.gpkg.Name())
+	Packages[%q] = Package{
+		Name: %q,
+		`, pathToRegister, pathToRegister, gen.gpkg.Name())
 }
 
 func (gen *genimport) writeBinds() {
@@ -251,13 +287,13 @@ func (gen *genimport) writeBinds() {
 					}
 				}
 				d.header()
-				fmt.Fprintf(gen.out, "\n\t\t%q:\t%sValueOf(%s%s%s%s),", name, gen.reflect, conv1, gen.name_, name, conv2)
+				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sValueOf(%s%s%s%s),", name, gen.reflect, conv1, gen.name_, name, conv2)
 			case *types.Var:
 				d.header()
-				fmt.Fprintf(gen.out, "\n\t\t%q:\t%sValueOf(&%s%s).Elem(),", name, gen.reflect, gen.name_, name)
+				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sValueOf(&%s%s).Elem(),", name, gen.reflect, gen.name_, name)
 			case *types.Func:
 				d.header()
-				fmt.Fprintf(gen.out, "\n\t\t%q:\t%sValueOf(%s%s),", name, gen.reflect, gen.name_, name)
+				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sValueOf(%s%s),", name, gen.reflect, gen.name_, name)
 			}
 		}
 	}
@@ -272,7 +308,7 @@ func (gen *genimport) writeTypes() {
 			switch obj.(type) {
 			case *types.TypeName:
 				d.header()
-				fmt.Fprintf(gen.out, "\n\t\t%q:\t%sTypeOf((*%s%s)(nil)).Elem(),", name, gen.reflect, gen.name_, name)
+				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sTypeOf((*%s%s)(nil)).Elem(),", name, gen.reflect, gen.name_, name)
 			}
 		}
 	}
@@ -286,7 +322,7 @@ func (gen *genimport) writeProxies() {
 		if obj := gen.scope.Lookup(name); obj.Exported() {
 			if t := extractInterface(obj, true); t != nil {
 				d.header()
-				fmt.Fprintf(gen.out, "\n\t\t%q:\t%sTypeOf((*%s%s)(nil)).Elem(),", name, gen.reflect, gen.proxyprefix, name)
+				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sTypeOf((*%s%s)(nil)).Elem(),", name, gen.reflect, gen.proxyprefix, name)
 			}
 		}
 	}
@@ -305,7 +341,7 @@ func (gen *genimport) writeUntypeds() {
 					str := untyped.Marshal(kind, obj.Val())
 					if len(str) != 0 {
 						d.header()
-						fmt.Fprintf(gen.out, "\n\t\t%q:\t%q,", name, str)
+						fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%q,", name, str)
 					}
 				}
 			}
@@ -328,7 +364,7 @@ func (gen *genimport) writeWrappers() {
 						wrappers := new(analyzer).Analyze(t)
 						if len(wrappers) != 0 {
 							d.header()
-							fmt.Fprintf(gen.out, "\n\t\t%q:\t[]string{", obj.Name())
+							fmt.Fprintf(gen.out, "\n\t\t\t%q:\t[]string{", obj.Name())
 							for _, wrapper := range wrappers {
 								fmt.Fprintf(gen.out, "%q,", wrapper)
 							}

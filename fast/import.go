@@ -213,7 +213,10 @@ func (c *Comp) MultiImport(node *ast.GenDecl) {
 			c.Errorf("unimplemented import: %v", node)
 		}
 	}
-	c.ImportPackagesOrError(paths)
+	_, err := c.ImportPackagesOrError(paths)
+	if err != nil {
+		c.Errorf("error importing packages %v: %v", paths, err)
+	}
 }
 
 // Import compiles a single import statement
