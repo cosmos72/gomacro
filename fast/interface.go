@@ -71,11 +71,17 @@ func (c *Comp) converterToProxy(tin xr.Type, tout xr.Type) func(val xr.Value) xr
 	rtout := tout.ReflectType()       // a compiled interface
 	rtproxy := c.InterfaceProxy(tout) // one of our proxies that pre-implement the compiled interface
 
+	// Get the value of tin since it can be a pointer
+	vtin := tin
+	if tin.Kind() == r.Ptr {
+		vtin = tin.Elem()
+	}
+
 	vtable := xr.NewR(rtproxy).Elem()
 	n := rtout.NumMethod()
 	for i := 0; i < n; i++ {
 		mtdout := rtout.Method(i)
-		mtdin, count := tin.MethodByName(mtdout.Name, mtdout.PkgPath)
+		mtdin, count := vtin.MethodByName(mtdout.Name, mtdout.PkgPath)
 		if count == 0 {
 			c.Errorf("cannot convert type <%v> to interface <%v>: missing method %s %s", tin, rtout, mtdout.PkgPath, mtdout.Name)
 		} else if count > 1 {
