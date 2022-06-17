@@ -824,15 +824,6 @@ var testcases = []TestCase{
 		arr := [2]struct{X int}{{3},{4}}
 		arr[0], arr[1] = arr[1], arr[0]
 		arr`, [2]struct{ X int }{{4}, {3}}, nil},
-	// gomacro issue 127
-	// actually does not trigger the bug because for some reason
-	// method is found also on xr.Type having .Kind() == xr.Ptr
-	TestCase{F, "interface_interpreted_4", `
-		import "fmt"
-		type V1Data struct { I int }
-		func (t *V1Data) String() string { return "<>" }
-		fmt.Stringer(&V1Data{})
-		nil`, nil, nil},
 
 	TestCase{A, "field_set_1", `pair.A = 'k'; pair.B = "m"; pair`, Pair{'k', "m"}, nil},
 	TestCase{A, "field_set_2", `pair.A, pair.B = 'x', "y"; pair`, Pair{'x', "y"}, nil},
@@ -995,6 +986,15 @@ var testcases = []TestCase{
 		}
 		var xe error = xerror{}
 		xe.Error()`, "some error", nil},
+	// gomacro issue 127
+	// actually does not trigger the bug because for some reason
+	// method is found also on xr.Type having .Kind() == xr.Ptr
+	TestCase{F, "interface_interpreted_4", `
+		import "fmt"
+		type V1Data struct { I int }
+		func (t *V1Data) String() string { return "<>" }
+		fmt.Stringer(&V1Data{})
+		nil`, nil, nil},
 
 	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{A, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
