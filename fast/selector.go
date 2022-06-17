@@ -586,19 +586,14 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(xr.Value)
 			switch len(fieldindex) {
 			case 0:
 				ret = func(obj xr.Value) xr.Value {
-					if addressof {
-						obj = obj.Addr()
-					} else if deref {
-						obj = obj.Elem()
-					}
 					// retrieve the function as soon as possible (early bind)
 					fun := xr.MakeValue((*funs)[index])
 					if !fun.IsValid() {
 						c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
+					obj = derefOrAddressOfReceiver(obj, fun)
 					return xr.MakeFunc(tclosure, func(args []xr.Value) []xr.Value {
 						args = append([]xr.Value{obj}, args...)
-						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs
 						return call(fun, args)
 					})
 				}
@@ -606,17 +601,12 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(xr.Value)
 				fieldindex := fieldindex[0]
 				ret = func(obj xr.Value) xr.Value {
 					obj = field0(obj, fieldindex)
-					// Debugf("invoking method <%v> on receiver <%v> (addressof=%t, deref=%t)", (*funs)[index].Type(), obj.Type(), addressof, deref)
-					if addressof {
-						obj = obj.Addr()
-					} else if deref {
-						obj = obj.Elem()
-					}
 					// retrieve the function as soon as possible (early bind)
 					fun := xr.MakeValue((*funs)[index])
 					if !fun.IsValid() {
 						c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
+					obj = derefOrAddressOfReceiver(obj, fun)
 					return xr.MakeFunc(tclosure, func(args []xr.Value) []xr.Value {
 						args = append([]xr.Value{obj}, args...)
 						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
@@ -626,13 +616,9 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(xr.Value)
 			default:
 				ret = func(obj xr.Value) xr.Value {
 					obj = fieldByIndex(obj, fieldindex)
-					if addressof {
-						obj = obj.Addr()
-					} else if deref {
-						obj = obj.Elem()
-					}
 					// retrieve the function as soon as possible (early bind)
 					fun := xr.MakeValue((*funs)[index])
+					obj = derefOrAddressOfReceiver(obj, fun)
 					if !fun.IsValid() {
 						c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
@@ -646,6 +632,17 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(xr.Value)
 		}
 	}
 	return ret
+}
+
+// return obj, obj.Elem() or obj.Addr() to match 'fun' receiver
+func derefOrAddressOfReceiver(obj xr.Value, fun xr.Value) xr.Value {
+	t := fun.Type().In(0)
+	if t.Kind() == r.Ptr && obj.Kind() != xr.Ptr {
+		obj = obj.Addr()
+	} else if t.Kind() != r.Ptr && obj.Kind() == xr.Ptr {
+		obj = obj.Elem()
+	}
+	return obj
 }
 
 // return true if t is not an interface and mtd.Type().ReflectType() == rmtd.Type,
