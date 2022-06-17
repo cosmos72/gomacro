@@ -824,6 +824,15 @@ var testcases = []TestCase{
 		arr := [2]struct{X int}{{3},{4}}
 		arr[0], arr[1] = arr[1], arr[0]
 		arr`, [2]struct{ X int }{{4}, {3}}, nil},
+	// gomacro issue 127
+	// actually does not trigger the bug because for some reason
+	// method is found also on xr.Type having .Kind() == xr.Ptr
+	TestCase{F, "interface_interpreted_4", `
+		import "fmt"
+		type V1Data struct { I int }
+		func (t *V1Data) String() string { return "<>" }
+		fmt.Stringer(&V1Data{})
+		nil`, nil, nil},
 
 	TestCase{A, "field_set_1", `pair.A = 'k'; pair.B = "m"; pair`, Pair{'k', "m"}, nil},
 	TestCase{A, "field_set_2", `pair.A, pair.B = 'x', "y"; pair`, Pair{'x', "y"}, nil},
