@@ -134,7 +134,8 @@ func (t *xtype) method(i int) Method {
 	rtype := t.rtype
 	var rfunctype r.Type
 	rfunc := t.methodvalue[i]
-	// fmt.Printf("DEBUG xtype.method(%d): t = %v,\tt.methodvalue[%d] = %v // %v\n", i, t, i, rfunc, rValueType(rfunc))
+	// debugf("xtype.method(%d): t = %v,\tt.gmethod(%d) = %v,\tt.methodvalue[%d] = %v // %v",
+	//	i, t, i, gfunc, i, rfunc, rValueType(rfunc))
 	if rfunc.Kind() == r.Func {
 		// easy, method is cached already
 		// fmt.Printf("DEBUG xtype.method(%d): t = %v,\tt.methodvalue[%d] = %v // %v\n", i, t, i, rfunc, rValueType(rfunc))
@@ -175,7 +176,7 @@ func (t *xtype) method(i int) Method {
 			rfunctype = rmethod.Type
 			t.methodvalue[i] = rfunc
 		}
-		// fmt.Printf("DEBUG xtype.method(%d): t = %v,\trmethod(%q) = %v\n", i, t, gfunc.Name(), rmethod)
+		// debugf("xtype.method(%d): t = %v,\trmethod(%q) = %v", i, t, gfunc.Name(), rmethod)
 
 		// rfunc and rfunctype will be invalid when bootstrapping Universe
 		// and when adding CTI methods to a type
@@ -242,6 +243,7 @@ func removeReceiver(t Type) Type {
 	return t.Universe().FuncOf(tin, tout, nin > 1 && t.IsVariadic())
 }
 
+// assumes xreflect.Type methods and go/types.Type methods are in the same order!
 func (t *xtype) gmethod(i int) *types.Func {
 	var gfun *types.Func
 	if gtype, ok := t.gunderlying().(*types.Interface); ok {

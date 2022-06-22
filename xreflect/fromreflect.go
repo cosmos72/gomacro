@@ -190,17 +190,6 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 		// fromReflectInterface() already added methods to interface.
 		return t
 	}
-	// collect methods with both value and pointer receiver
-	rtypes := [2]r.Type{rtype, rtype}
-	if rtype.Kind() == r.Ptr {
-		rtypes[0] = rtype.Elem()
-	} else {
-		rtypes[1] = r.PtrTo(rtype)
-	}
-	ntotal := rtypes[0].NumMethod() + rtypes[1].NumMethod()
-	if ntotal == 0 {
-		return t
-	}
 	if xt.kind == r.Ptr {
 		if xt.Named() {
 			errorf(t, "CANNOT add methods to named pointer %v", t)
@@ -230,13 +219,34 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 		// debugf("NOT adding again %d methods to %v", n, tm)
 		return t
 	}
+	// add methods in the same order as reflect.Type methods, which is the lexicographic order.
+	// The class go/types.Named also assumes methods to be in lexicographic order.
+	//
+	// This is needed because xtype.gmethod() assumes that xtype methods and go/types.Named methods
+	// are in the same order
+	//
+	// methods with value receiver are a subset - also find and mark them
+
+	rtypePtr, rtypeValue := rtype, rtype
+	if rtype.Kind() == r.Ptr {
+		rtypeValue = rtype.Elem()
+	} else {
+		rtypePtr = r.PtrTo(rtype)
+	}
+	methodN := rtypePtr.NumMethod()
+	if methodN == 0 {
+		return t
+	}
+
 	xt.addmethods = addmethodsDone
 	if debug {
 		v.debugf("adding methods to: %v", xt)
 		defer de(bug(v))
 	}
-	if xt.methodvalue == nil {
-		xt.methodvalue = make([]r.Value, ntotal)
+	if len(xt.methodvalue) < methodN {
+		methodvalue := make([]r.Value, methodN)
+		copy(methodvalue, xt.methodvalue)
+		xt.methodvalue = methodvalue
 	}
 	if v.rebuild() {
 		v.RebuildDepth--
@@ -244,40 +254,45 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 	gtype := xt.gtype.(*types.Named)
 	cache := makeGmethodMap(gtype)
 
-	for _, rtype := range rtypes {
-		for i, ni := 0, rtype.NumMethod(); i < ni; i++ {
-			rmethod := rtype.Method(i)
-			qname := QName2(rmethod.Name, rmethod.PkgPath)
-			xi, ok := cache[qname]
-			if ok {
-				if debug {
-					m, _ := xt.methodByName(rmethod.Name, rmethod.PkgPath)
-					v.debugf("method[%d->%d] already present: %v", xi, i, m)
-				}
-				continue
-			} else {
-				signature := v.fromReflectMethod(rmethod.Type)
-				n1 := xt.NumExplicitMethod()
-				xt.AddMethod(rmethod.Name, signature)
-				n2 := xt.NumExplicitMethod()
-				if n1 == n2 {
-					if debug {
-						m, _ := xt.methodByName(rmethod.Name, rmethod.PkgPath)
-						v.debugf("method[%d->%d] already present (case 2, should not happen): %v", m.Index, i, m)
-					}
-					continue
-				}
-				xi = n2 - 1
-			}
-			for len(xt.methodvalue) <= xi {
-				xt.methodvalue = append(xt.methodvalue, r.Value{})
-			}
-			xt.methodvalue[xi] = rmethod.Func
-			cache[qname] = xi
+	for i, ni := 0, rtypePtr.NumMethod(); i < ni; i++ {
+		rmethod := rtypePtr.Method(i)
+		qname := QName2(rmethod.Name, rmethod.PkgPath)
+		xi, ok := cache[qname]
+		if ok {
 			if debug {
-				m := xt.method(xi)
-				v.debugf("added method[%d->%d] %v", xi, i, m)
+				m, _ := xt.methodByName(rmethod.Name, rmethod.PkgPath)
+				v.debugf("method[%d->%d] already present: %v", xi, i, m)
 			}
+			continue
+		}
+		// if there is a corresponding method with value receiver, prefer it
+		if len(rmethod.PkgPath) == 0 {
+			if rmethod2, ok := rtypeValue.MethodByName(rmethod.Name); ok {
+				rmethod = rmethod2
+			}
+		}
+
+		signature := v.fromReflectMethod(rmethod.Type)
+		n1 := xt.NumExplicitMethod()
+		xt.AddMethod(rmethod.Name, signature)
+		n2 := xt.NumExplicitMethod()
+		if n1 == n2 {
+			if debug {
+				m, _ := xt.methodByName(rmethod.Name, rmethod.PkgPath)
+				v.debugf("method[%d->%d] already present (case 2, should not happen): %v", m.Index, i, m)
+			}
+			continue
+		}
+		xi = n2 - 1
+
+		for len(xt.methodvalue) <= xi {
+			xt.methodvalue = append(xt.methodvalue, r.Value{})
+		}
+		xt.methodvalue[xi] = rmethod.Func
+		cache[qname] = xi
+		if debug {
+			m := xt.method(xi)
+			v.debugf("added method[%d->%d] %v // reflect type %v", xi, i, m, m.Type.ReflectType())
 		}
 	}
 	return t

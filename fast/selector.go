@@ -100,10 +100,10 @@ func (c *Comp) TryLookupFieldOrMethod(t xr.Type, name string) (xr.StructField, b
 	field, fieldn := c.LookupField(t, name)
 	mtd, mtdn := c.LookupMethod(t, name)
 	if c.Options&base.OptDebugField != 0 {
-		c.Debugf("LookupFieldOrMethod for %v.%v found %d fields:  %#v", t, name, fieldn, field)
+		c.Debugf("LookupFieldOrMethod for %v.%v found %d fields:  %v // reflect type %v", t, name, fieldn, field, field.Type.ReflectType())
 	}
 	if c.Options&base.OptDebugMethod != 0 {
-		c.Debugf("LookupFieldOrMethod for %v.%v found %d methods: %#v", t, name, mtdn, mtd)
+		c.Debugf("LookupFieldOrMethod for %v.%v found %d methods: %v // reflect type %v", t, name, mtdn, mtd, mtd.Type.ReflectType())
 	}
 	fielddepth := len(field.Index)
 	mtddepth := len(mtd.FieldIndex) + 1

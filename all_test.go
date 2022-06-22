@@ -164,6 +164,7 @@ func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
 	} else {
 		ir.Comp.Options &^= OptKeepUntyped
 	}
+	// ir.Comp.Universe.DebugDepth = 1 // only for debugging
 
 	panicking := true
 	if test.result0 == panics {
@@ -1698,6 +1699,18 @@ var testcases = []TestCase{
 		var xg3 Eq#[UInt]
 		xg3 = xg2
 		xg2`, uint(9), nil},
+
+	/* tests issue #122
+	 *
+	 * requires an internet connection and Go toolchain,
+	 * because it downloads a package and compiles it as a plugin.
+
+	TestCase{F, `import "github.com/imroc/req/v3"`, `
+		import "github.com/imroc/req/v3"
+		func getData() []byte { client := req.C(); response, err := client.R().Get("https://api.github.com/users/cosmos72"); return response.Bytes() }
+		len(getData())
+	`, 1181, nil},
+	*/
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
