@@ -50,11 +50,6 @@ func xerrorf(t *xtype, format string, args ...interface{}) {
 	panic(&Error{wrap(t), format, args})
 }
 
-func warnf(format string, args ...interface{}) {
-	str := fmt.Sprintf(format, args...)
-	fmt.Printf("// warning: %s\n", str)
-}
-
 func gdirTodir(dir types.ChanDir) r.ChanDir {
 	var ret r.ChanDir
 	switch dir {

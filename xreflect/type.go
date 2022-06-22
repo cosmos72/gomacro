@@ -46,12 +46,12 @@ func identicalType(t, u Type) bool {
 	return xt == yt || xt.identicalTo(yt)
 }
 
-func warnOnMismatchCache(m *typeutil.Map, gtype types.Type, rtype r.Type, cached Type) {
-	warnf("overwriting mismatched reflect.Type found in cache for type %v (hash 0x%x):\n\told reflect.Type: %v\n\tnew reflect.Type: %v",
+func debugOnMismatchCache(m *typeutil.Map, gtype types.Type, rtype r.Type, cached Type) {
+	debugf("overwriting mismatched reflect.Type found in cache for type %v (hash 0x%x):\n\told reflect.Type: %v\n\tnew reflect.Type: %v",
 		typeutil.String(gtype), m.Hasher().Hash(gtype), cached.ReflectType(), rtype) //, debug.Stack())
 }
 
-func (t *xtype) warnOnSuspiciousCache() {
+func (t *xtype) errorOnSuspiciousCache() {
 	// reflect cannot create new interface types or new named types: accept whatever we have.
 	// also, it cannot create unnamed structs containing unexported fields. again, accept whatever we have.
 	// instead complain on mismatch for non-interface, non-named types
@@ -67,9 +67,6 @@ func (m *Types) clear() {
 
 func (m *Types) add(t Type) {
 	xt := unwrap(t)
-	if xt.kind != Invalid && xt.kind != xt.rtype.Kind() {
-		warnf("adding suspicious type to cache: %v <%v> reflect type: <%v>", xt.kind, xt.gtype, xt.rtype)
-	}
 
 	if xt.rtype == rTypeOfForward {
 		if m.gmap.At(xt.gtype) != nil {
@@ -77,7 +74,7 @@ func (m *Types) add(t Type) {
 			return
 		}
 	} else {
-		xt.warnOnSuspiciousCache()
+		xt.errorOnSuspiciousCache()
 	}
 	switch xt.kind {
 	case r.Func:
@@ -115,7 +112,9 @@ func (v *Universe) maketype4(kind r.Kind, gtype types.Type, rtype r.Type, opt Op
 			t.UnsafeForceReflectType(rtype)
 			return t
 		default:
-			warnOnMismatchCache(&v.Types.gmap, gtype, rtype, t)
+			if v.debug() {
+				debugOnMismatchCache(&v.Types.gmap, gtype, rtype, t)
+			}
 		}
 	}
 	if rtype == rTypeOfForward {
