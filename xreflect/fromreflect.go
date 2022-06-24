@@ -21,6 +21,7 @@ import (
 	"go/token"
 	r "reflect"
 	"strings"
+	"unsafe"
 
 	"github.com/cosmos72/gomacro/go/types"
 )
@@ -245,7 +246,7 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 	}
 	if len(xt.methodvalue) < methodN {
 		methodvalue := make([]r.Value, methodN)
-		copy(methodvalue, xt.methodvalue)
+		copy(xt.methodvalue, methodvalue)
 		xt.methodvalue = methodvalue
 	}
 	if v.rebuild() {
@@ -253,7 +254,13 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 	}
 	gtype := xt.gtype.(*types.Named)
 	cache := makeGmethodMap(gtype)
-
+	/*
+		gotcha := false
+		if xt.Name() == "Response" && xt.PkgPath() == "github.com/imroc/req/v3" {
+			gotcha = true
+			println("gotcha")
+		}
+	*/
 	for i, ni := 0, rtypePtr.NumMethod(); i < ni; i++ {
 		rmethod := rtypePtr.Method(i)
 		qname := QName2(rmethod.Name, rmethod.PkgPath)
@@ -295,7 +302,25 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 			v.debugf("added method[%d->%d] %v // reflect type %v", xi, i, m, m.Type.ReflectType())
 		}
 	}
+	/*
+		if gotcha {
+			summaryMethodsOf(xt)
+		}
+	*/
 	return t
+}
+
+func summaryMethodsOf(xt *xtype) {
+	debugf("type  %v address = %v", xt, unsafe.Pointer(xt))
+	debugf("type  %v has %d declared methods, and %d total methods", xt, xt.NumExplicitMethod(), xt.NumAllMethod())
+	gtype, ok := xt.gtype.(*types.Named)
+	if ok {
+		debugf("gtype %v has %d declared methods", gtype, gtype.NumMethods())
+	}
+	rtypeValue := xt.rtype
+	rtypePtr := r.PtrTo(rtypeValue)
+	debugf("rtype %v has %d methods", rtypePtr, rtypePtr.NumMethod())
+	debugf("rtype %v has %d methods", rtypeValue, rtypeValue.NumMethod())
 }
 
 func makeGmethodMap(gtype *types.Named) map[QName]int {

@@ -96,9 +96,9 @@ func (v *Universe) addTypeMethodsCTI(xt *xtype) {
 
 	m := xt.methodvalue
 	if len(m) < n {
-		xt.methodvalue = make([]r.Value, n)
+		m = make([]r.Value, n)
 		copy(xt.methodvalue, m)
-		m = xt.methodvalue
+		xt.methodvalue = m
 	}
 	if v.debug() {
 		v.debugf("addTypeMethodsCTI: %s %v", k, xt.rtype)
