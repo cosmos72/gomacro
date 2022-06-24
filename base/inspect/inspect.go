@@ -189,7 +189,7 @@ func (ip *Inspector) showMethods(t r.Type, xt xr.Type) {
 		}
 		g.Fprintf(g.Stdout, "methods of %v:\n", xt)
 		for i := 0; i < n; i++ {
-			g.Fprintf(g.Stdout, "    m%d. %v\n", i, xt.Method(i).GoFun)
+			ip.showMethod(xt, i)
 		}
 
 	case t != nil:
@@ -204,6 +204,16 @@ func (ip *Inspector) showMethods(t r.Type, xt xr.Type) {
 			g.Fprintf(g.Stdout, "    m%d. %s\t%v\n", i, m.Name, m.Type)
 		}
 	}
+}
+
+func (ip *Inspector) showMethod(xt xr.Type, i int) {
+	g := ip.globals
+	defer func() {
+		if r := recover(); r != nil {
+			g.Fprintf(g.Stdout, "    m%d. ??? error getting method: %v\n", i, r)
+		}
+	}()
+	g.Fprintf(g.Stdout, "    m%d. %v\n", i, xt.Method(i).GoFun)
 }
 
 func (ip *Inspector) Enter(cmd string) {
