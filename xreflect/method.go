@@ -265,14 +265,14 @@ func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]r.Value, rfunct
 		}
 		if gsig.Recv() != nil {
 			if nparams+1 != rfunctype.NumIn() {
-				xerrorf(t, `type <%v>: inconsistent %d-th method signature:
+				xerrorf(t, `type <%v>: inconsistent %d-th method %q signature:
 	go/types.Type has receiver <%v> and %d parameters: %v
-	reflect.Type has %d parameters: %v`, t, index, gsig.Recv(), nparams, gsig, rfunctype.NumIn(), rfunctype)
+	reflect.Type has %d parameters: %v`, t, index, name, gsig.Recv(), nparams, gsig, rfunctype.NumIn(), rfunctype)
 			}
 		} else if nparams != rfunctype.NumIn() {
-			xerrorf(t, `type <%v>: inconsistent %d-th method signature:
+			xerrorf(t, `type <%v>: inconsistent %d-th method %q signature:
 	go/types.Type has no receiver and %d parameters: %v
-	reflect.Type has %d parameters: %v`, t, index, nparams, gsig, rfunctype.NumIn(), rfunctype)
+	reflect.Type has %d parameters: %v`, t, index, name, nparams, gsig, rfunctype.NumIn(), rfunctype)
 		}
 	}
 	var tmethod Type

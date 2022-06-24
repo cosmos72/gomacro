@@ -1,0 +1,17 @@
+import (
+    "fmt"
+    "github.com/imroc/req/v3"
+)
+
+func getData() *req.Response {
+    client := req.C()
+    res, err := client.R().Get("https://api.github.com/users/cosmos72")
+    if err != nil {
+        return nil
+    }
+    fmt.Println(len(res.Bytes()))
+    return res
+}
+
+res := getData()
+res.GetHeader()

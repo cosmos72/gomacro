@@ -18,6 +18,7 @@ package fast
 
 import (
 	"bufio"
+	"fmt"
 	"go/ast"
 	"go/token"
 	"os"
@@ -397,6 +398,14 @@ func cmdOptForceEval(g *base.Globals, opt base.CmdOpt) (toenable base.Options) {
 // optionally followed by a dot-separated sequence of field or method names,
 // including embedded fields and wrapper methods.
 func (ir *Interp) CompleteWords(line string, pos int) (head string, completions []string, tail string) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Fprintf(ir.Comp.Stdout, "\npanic in Interp.CompleteWords: %v\n", r)
+			head = ""
+			completions = nil
+			tail = ""
+		}
+	}()
 	if pos > len(line) {
 		pos = len(line)
 	}
