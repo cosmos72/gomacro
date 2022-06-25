@@ -18,7 +18,6 @@ package main
 
 import (
 	"go/ast"
-	"go/build"
 	"go/constant"
 	"go/token"
 	"math/big"
@@ -47,16 +46,15 @@ var enable_generics_v2_cti = func() bool {
 type TestFor int
 
 const (
-	S      TestFor = 1 << iota // set option OptDebugSleepOnSwitch
-	C                          // test for classic interpreter
-	F                          // test for fast interpreter
-	G1                         // test requires generics v1 (C++-style)
-	G2                         // test requires generics v2 "contracts are interfaces"
-	U                          // test returns untyped constant (relevant only for fast interpreter)
-	Go1_13                     // test for Go 1.3 number literals: 0b... binary, 0o... octal, 1.2p3 hex floating point, 1_23 underscore digit separator
-	Z                          // temporary override: run only these tests, on fast interpreter only
-	A      = C | F             // test for both interpreters
-	G      = G1 | G2
+	S  TestFor = 1 << iota // set option OptDebugSleepOnSwitch
+	C                      // test for classic interpreter
+	F                      // test for fast interpreter
+	G1                     // test requires generics v1 (C++-style)
+	G2                     // test requires generics v2 "contracts are interfaces"
+	U                      // test returns untyped constant (relevant only for fast interpreter)
+	Z                      // temporary override: run only these tests, on fast interpreter only
+	A  = C | F             // test for both interpreters
+	G  = G1 | G2
 )
 
 type TestCase struct {
@@ -67,20 +65,8 @@ type TestCase struct {
 	results []interface{}
 }
 
-var canRunGo1_13 = func() bool {
-	for _, tag := range build.Default.ReleaseTags {
-		if tag == "go1.13" {
-			return true
-		}
-	}
-	return false
-}()
-
 func (tc *TestCase) shouldRun(interp TestFor) bool {
 	if tc.testfor&interp == 0 {
-		return false
-	}
-	if tc.testfor&Go1_13 != 0 && !canRunGo1_13 {
 		return false
 	}
 	if tc.testfor&G1 != 0 && etoken.GENERICS.V1_CXX() {
@@ -502,10 +488,10 @@ var testcases = []TestCase{
 		untyped.MakeLit(untyped.Int, constant.Shift(constant.MakeInt64(1), token.SHL, 100), nil),
 		nil,
 	},
-	TestCase{A | Go1_13, "go1_13_binary_lit", "int(0b101)", int(5), nil},
-	TestCase{A | Go1_13, "go1_13_octal_lit", "int(0o377)", int(255), nil},
-	TestCase{A | Go1_13, "go1_13_hex_floating_point", "float32(0x1.Fp+0)", float32(1.9375), nil},
-	TestCase{A | Go1_13, "go1_13_underscore_separator", "int(1_2_34)", int(1234), nil},
+	TestCase{A, "go1_13_binary_lit", "int(0b101)", int(5), nil},
+	TestCase{A, "go1_13_octal_lit", "int(0o377)", int(255), nil},
+	TestCase{A, "go1_13_hex_floating_point", "float32(0x1.Fp+0)", float32(1.9375), nil},
+	TestCase{A, "go1_13_underscore_separator", "int(1_2_34)", int(1234), nil},
 	TestCase{F, "go1_18_var_any", "var any_7 any = any(7); any_7", 7, nil},
 
 	TestCase{A, "iota_1", "const c5 = iota^7; c5", 7, nil},
