@@ -39,5 +39,8 @@ func init() {
 			"Base":    reflect.TypeOf((*Base)(nil)).Elem(),
 			"Wrapper": reflect.TypeOf((*Wrapper)(nil)).Elem(),
 		},
+		Wrappers: map[string][]string{
+			"Wrapper": {"IsBase"},
+		},
 	}
 }

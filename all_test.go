@@ -1001,6 +1001,8 @@ var testcases = []TestCase{
 	TestCase{A, "pred_string_4", `"x"!="x" || "y"!="y" || "x">="y" || "y"<="x"`, false, nil},
 
 	// gomacro issue 122
+	// removing wrapper methods for embedded fields did remove them from xreflect/xtype.methodvalue[]
+	// causing lexicographically greater methods to panic due to mismatched signature
 	TestCase{F, `wrapper_methods_1`, `
 		import pkg "test/issue122"
 		func callWrapper() bool { wrapper := pkg.Wrapper{&pkg.Base{}}; return wrapper.IsWrapper() }
