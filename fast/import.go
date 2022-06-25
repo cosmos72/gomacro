@@ -390,14 +390,9 @@ func (cg *CompGlobals) parseUntyped(untypedstr string) (UntypedLit, xr.Type) {
 func (imp *Import) loadTypes(cg *CompGlobals, pkgref *genimport.PackageRef) {
 	v := cg.Universe
 	types := make(map[string]xr.Type)
-	wrappers := pkgref.Wrappers
 	for name, rtype := range pkgref.Types {
 		// Universe.FromReflectType uses cached *types.Package if possible
-		t := v.FromReflectType(rtype)
-		if twrappers := wrappers[name]; len(twrappers) != 0 {
-			t.RemoveMethods(twrappers, "")
-		}
-		types[name] = t
+		types[name] = v.FromReflectType(rtype)
 	}
 	imp.Types = types
 }

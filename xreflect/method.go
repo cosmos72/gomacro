@@ -129,7 +129,7 @@ func (t *xtype) method(i int) Method {
 	checkMethod(t, i)
 	gfunc := t.gmethod(i)
 	name := gfunc.Name()
-	resizemethodvalues(t)
+	resizemethodvalues(t, t.NumAllMethod())
 
 	rtype := t.rtype
 	var rfunctype r.Type
@@ -265,7 +265,6 @@ func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]r.Value, rfunct
 		}
 		if gsig.Recv() != nil {
 			if nparams+1 != rfunctype.NumIn() {
-				// summaryMethodsOf(t)
 				xerrorf(t, `type <%v>: inconsistent %d-th method %q signature:
 	go/types.Type has receiver <%v> and %d parameters: %v
 	reflect.Type has %d parameters: %v`, t, index, name, gsig.Recv(), nparams, gsig, rfunctype.NumIn(), rfunctype)
@@ -291,8 +290,7 @@ func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]r.Value, rfunct
 	}
 }
 
-func resizemethodvalues(t *xtype) {
-	n := t.NumMethod()
+func resizemethodvalues(t *xtype, n int) {
 	if cap(t.methodvalue) < n {
 		slice := make([]r.Value, n, n+n/2+4)
 		copy(t.methodvalue, slice)

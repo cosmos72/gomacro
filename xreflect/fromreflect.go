@@ -21,9 +21,9 @@ import (
 	"go/token"
 	r "reflect"
 	"strings"
-	"unsafe"
 
 	"github.com/cosmos72/gomacro/go/types"
+	"github.com/cosmos72/gomacro/imports"
 )
 
 // TypeOf creates a Type corresponding to reflect.TypeOf() of given value.
@@ -244,26 +244,22 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 		v.debugf("adding methods to: %v", xt)
 		defer de(bug(v))
 	}
-	if len(xt.methodvalue) < methodN {
-		methodvalue := make([]r.Value, methodN)
-		copy(xt.methodvalue, methodvalue)
-		xt.methodvalue = methodvalue
-	}
+	resizemethodvalues(xt, methodN)
 	if v.rebuild() {
 		v.RebuildDepth--
 	}
 	gtype := xt.gtype.(*types.Named)
 	cache := makeGmethodMap(gtype)
-	/*
-		gotcha := false
-		if xt.Name() == "Response" && xt.PkgPath() == "github.com/imroc/req/v3" {
-			gotcha = true
-			println("gotcha")
-		}
-	*/
+
+	wrapperMethods := listWrapperMethods(xt)
+
 	for i, ni := 0, rtypePtr.NumMethod(); i < ni; i++ {
 		rmethod := rtypePtr.Method(i)
 		qname := QName2(rmethod.Name, rmethod.PkgPath)
+		if isWrapperMethod(wrapperMethods, qname) {
+			// do NOT add wrapper methods from embedded fields
+			continue
+		}
 		xi, ok := cache[qname]
 		if ok {
 			if debug {
@@ -302,34 +298,35 @@ func (v *Universe) addmethods(t Type, rtype r.Type) Type {
 			v.debugf("added method[%d->%d] %v // reflect type %v", xi, i, m, m.Type.ReflectType())
 		}
 	}
-	/*
-		if gotcha {
-			summaryMethodsOf(xt)
-		}
-	*/
 	return t
-}
-
-func summaryMethodsOf(xt *xtype) {
-	debugf("type  %v address = %v", xt, unsafe.Pointer(xt))
-	debugf("type  %v has %d declared methods, and %d total methods", xt, xt.NumExplicitMethod(), xt.NumAllMethod())
-	gtype, ok := xt.gtype.(*types.Named)
-	if ok {
-		debugf("gtype %v has %d declared methods", gtype, gtype.NumMethods())
-	}
-	rtypeValue := xt.rtype
-	rtypePtr := r.PtrTo(rtypeValue)
-	debugf("rtype %v has %d methods", rtypePtr, rtypePtr.NumMethod())
-	debugf("rtype %v has %d methods", rtypeValue, rtypeValue.NumMethod())
 }
 
 func makeGmethodMap(gtype *types.Named) map[QName]int {
 	n := gtype.NumMethods()
-	m := make(map[QName]int)
+	m := make(map[QName]int, n)
 	for i := 0; i < n; i++ {
 		m[QNameGo(gtype.Method(i))] = i
 	}
 	return m
+}
+
+func listWrapperMethods(xt *xtype) map[string]bool {
+	pkg, ok := imports.Packages[xt.PkgPath()]
+	if ok {
+		names := pkg.Wrappers[xt.Name()]
+		if len(names) != 0 {
+			ret := make(map[string]bool)
+			for _, name := range names {
+				ret[name] = true
+			}
+			return ret
+		}
+	}
+	return nil
+}
+
+func isWrapperMethod(wrapperMethods map[string]bool, qname QName) bool {
+	return len(qname.pkgpath) == 0 && wrapperMethods[qname.name]
 }
 
 func (v *Universe) fromReflectField(rfield *r.StructField) StructField {

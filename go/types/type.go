@@ -122,7 +122,7 @@ func (a *Array) Elem() Type { return a.elem }
 
 // A Slice represents a slice type.
 type Slice struct {
-	elem    Type
+	elem        Type
 	lazymethods []*Func // pre-declared methods Append, Cap, Copy, Get, GetAddr, Len, Set. lazily initialized.
 }
 
@@ -388,8 +388,8 @@ func (t *Interface) Complete() *Interface {
 
 // A Map represents a map type.
 type Map struct {
-	key, elem Type
-	lazymethods   []*Func // pre-declared methods Delete, Get, Len, Set. lazily initialized.
+	key, elem   Type
+	lazymethods []*Func // pre-declared methods Delete, Get, Len, Set. lazily initialized.
 }
 
 // NewMap returns a new map for the given key and element types.

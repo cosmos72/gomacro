@@ -9,9 +9,11 @@ func getData() *req.Response {
     if err != nil {
         return nil
     }
-    fmt.Println(len(res.Bytes()))
+    fmt.Println("Response length:", len(res.Bytes()))
     return res
 }
 
 res := getData()
-res.GetHeader()
+
+fmt.Println("Cookies:", res.Cookies())
+fmt.Println("Content-Type:", res.GetHeader("Content-Type"))

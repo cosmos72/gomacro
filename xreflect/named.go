@@ -19,8 +19,6 @@ package xreflect
 import (
 	"go/token"
 	r "reflect"
-	"sort"
-	"unsafe"
 
 	"github.com/cosmos72/gomacro/go/etoken"
 
@@ -158,66 +156,12 @@ func (t *xtype) AddMethod(name string, signature Type) int {
 	return index
 }
 
-// RemoveMethods removes given methods from type.
-// It panics if the type is unnamed, or if the signature is not a function type,
-func (t *xtype) RemoveMethods(names []string, pkgpath string) {
-	gtype, ok := t.gtype.(*types.Named)
-	if !ok {
-		xerrorf(t, "RemoveMethods on unnamed type %v", t)
-	}
-	if len(names) == 0 {
-		return
-	}
-	n1 := gtype.NumMethods()
-	unsafeRemoveMethods(gtype, names, pkgpath)
-	n2 := gtype.NumMethods()
-	if n1 != n2 {
-		// some existing methods were removed.
-		// they may be cached in some other type's method cache.
-		t.universe.InvalidateMethodCache()
-	}
-}
-
-// internal representation of go/types.Named
-type unsafeNamed struct {
-	obj        *types.TypeName
-	underlying types.Type
-	methods    []*types.Func
-}
-
-func unsafeRemoveMethods(gtype *types.Named, names []string, pkgpath string) {
-	names = append([]string{}, names...) // make a copy
-	sort.Strings(names)                  // and sort it
-
-	gt := (*unsafeNamed)(unsafe.Pointer(gtype))
-
-	n1 := len(gt.methods)
-	n2 := n1
-	for i, j := 0, 0; i < n1; i++ {
-		m := gt.methods[i]
-		name := m.Name()
-		pos := sort.SearchStrings(names, name)
-		if pos < len(names) && names[pos] == name && (m.Exported() || m.Pkg().Path() == pkgpath) {
-			// delete this method
-			n2--
-			continue
-		}
-		if i != j {
-			gt.methods[j] = gt.methods[i]
-		}
-		j++
-	}
-	if n1 != n2 {
-		gt.methods = gt.methods[:n2]
-	}
-}
-
 // GetMethods returns the pointer to the method values.
 // It panics if the type is unnamed
 func (t *xtype) GetMethods() *[]r.Value {
 	if !etoken.GENERICS.V2_CTI() && !t.Named() {
 		xerrorf(t, "GetMethods on unnamed type %v", t)
 	}
-	resizemethodvalues(t)
+	resizemethodvalues(t, t.NumAllMethod())
 	return &t.methodvalue
 }
