@@ -84,6 +84,7 @@ func init() {
 	for i := range testcases {
 		if testcases[i].testfor&Z != 0 {
 			foundZ = true
+			break
 		}
 	}
 }
@@ -367,9 +368,8 @@ type structX = struct {
 }
 
 // approximate 'type F func(F); var f F; &f'
-func make_y_combinator_1() interface{} {
-	type F = func(xr.Forward)
-	var f F
+func makeYCombinator1() interface{} {
+	var f func(xr.Forward)
 	var fwd xr.Forward = f
 	return &fwd
 }
@@ -752,7 +752,7 @@ var testcases = []TestCase{
 	TestCase{A, "fibonacci", fibonacci_source_string + "; fibonacci(13)", 233, nil},
 	TestCase{A, "function_literal", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
-	TestCase{F, "y_combinator_1", "type F func(F); var f F; &f", make_y_combinator_1(), nil},
+	TestCase{F, "y_combinator_1", "type F func(F); var f F; &f", makeYCombinator1(), nil},
 	TestCase{F, "y_combinator_2", "func Y(f F) { }; Y", func(xr.Forward) {}, nil}, // avoid the infinite recursion, only check the types
 	TestCase{F, "y_combinator_3", "Y(Y)", nil, none},                              // also check actual invokations
 	TestCase{F, "y_combinator_4", "f=Y; f(Y)", nil, none},
@@ -999,6 +999,13 @@ var testcases = []TestCase{
 	TestCase{A, "pred_string_2", `ve=="" && ve>="" && ve<="" && ve<"a" && ve<="b" && "a">ve && "b">=ve`, true, nil},
 	TestCase{A, "pred_string_3", `"x"=="x" && "x"<="x" && "x">="x" && "x"!="y" && "x"<"y" && "y">"x"`, true, nil},
 	TestCase{A, "pred_string_4", `"x"!="x" || "y"!="y" || "x">="y" || "y"<="x"`, false, nil},
+
+	// gomacro issue 122
+	TestCase{F, `wrapper_methods_1`, `
+		import pkg "test/issue122"
+		func callWrapper() bool { wrapper := pkg.Wrapper{&pkg.Base{}}; return wrapper.IsWrapper() }
+		callWrapper()
+	`, true, nil},
 
 	TestCase{A, "defer_1", `
 		vi = nil
@@ -1685,18 +1692,6 @@ var testcases = []TestCase{
 		var xg3 Eq#[UInt]
 		xg3 = xg2
 		xg2`, uint(9), nil},
-
-	/* tests issue #122
-	 *
-	 * requires an internet connection and Go toolchain,
-	 * because it downloads a package and compiles it as a plugin.
-
-	TestCase{F, `import "github.com/imroc/req/v3"`, `
-		import "github.com/imroc/req/v3"
-		func getData() []byte { client := req.C(); response, err := client.R().Get("https://api.github.com/users/cosmos72"); return response.Bytes() }
-		len(getData())
-	`, 1181, nil},
-	*/
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
