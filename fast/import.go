@@ -118,21 +118,37 @@ func (imp *Import) asInterpreter(outer *Interp) Interp {
 // =========================== import package =================================
 
 // ImportPackage imports a single package. Panics if the import fails.
-// If alias is the empty string, it defaults to the identifier
+// If alias is the empty string "", it defaults to the identifier
 // specified in the package clause of the package being imported
+//
+// If alias is ".", it performs a dot import i.e. it declares all imported
+// constants, functions, types and variables in the current package
 func (ir *Interp) ImportPackage(alias PackageName, path string) *Import {
-	imp, err := ir.Comp.importPackageOrError(alias, path)
+	imported, err := ir.ImportPackagesOrError(map[string]PackageName{path: alias})
 	if err != nil {
 		panic(err)
 	}
-	return imp
+	return imported[path]
 }
 
 // ImportPackagesOrError imports multiple packages.
-// If alias is the empty string, it defaults to the name
+// If alias is the empty string "", it defaults to the name
 // specified in the package clause of the package being imported
+//
+// If alias is ".", it performs a dot import i.e. it declares all imported
+// constants, functions, types and variables in the current package
 func (ir *Interp) ImportPackagesOrError(paths map[string]PackageName) (map[string]*Import, error) {
-	return ir.Comp.ImportPackagesOrError(paths)
+	imported, err := ir.Comp.ImportPackagesOrError(paths)
+	if err != nil {
+		return nil, err
+	}
+	fun := ir.Comp.Code.Exec() // also clears Code
+	if fun != nil {
+		// Comp.declDotImport0() compiles code which must be executed, to actually fill *Env
+		// with values of imported constants, functions and variables
+		fun(ir.PrepareEnv())
+	}
+	return imported, nil
 }
 
 // importPackageOrError imports a single.
