@@ -78,6 +78,7 @@ func (pkgs PackageMap) Merge(srcs map[string]PackageUnderlying) {
 func (pkgs PackageMap) MergePackage(path string, src PackageUnderlying) {
 	pkg := Package(src)
 	pkg.Validate(path)
+
 	curr, ok := pkgs[path]
 	if ok {
 		curr.Merge(src)
@@ -132,6 +133,9 @@ func (dst *Package) Merge(src PackageUnderlying) {
 	}
 	for k, v := range src.Types {
 		dst.Types[k] = v
+		// when overwriting a type, also overwrite its proxy and wrapper list
+		delete(dst.Proxies, k)
+		delete(dst.Wrappers, k)
 	}
 	for k, v := range src.Proxies {
 		dst.Proxies[k] = v
@@ -148,6 +152,12 @@ func (pkg *Package) Validate(path string) {
 	for name, typ := range pkg.Types {
 		if typ.Kind() == Interface {
 			validateProxy(path, name, typ, pkg.Proxies[name])
+		}
+	}
+	for name := range pkg.Proxies {
+		if pkg.Types[name] == nil {
+			errorf("error loading package %q: interface %s is not defined by the package, cannot define a proxy for it",
+				path, name)
 		}
 	}
 }

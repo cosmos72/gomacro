@@ -41,7 +41,7 @@ func (env *Env) evalExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) [
 		values = reflect.PackValuesR(env.EvalNode(node))
 		n = len(values)
 		if n < expectedValuesN {
-			env.Errorf("value count mismatch: expression returned %d values, cannot assign them to %d places: %v returned %v",
+			env.Errorf("expression returned %d values, cannot assign them to %d places: %v returned %v",
 				n, expectedValuesN, node, values)
 			return nil
 		} else if n > expectedValuesN {
