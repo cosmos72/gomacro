@@ -17,7 +17,6 @@
 package closure_maps
 
 import (
-	"errors"
 	"fmt"
 	r "reflect"
 
@@ -53,7 +52,7 @@ type XFuncInt func(env *Env) FuncInt
 var typeOfInt = r.TypeOf(int(0))
 
 func errorf(format string, args ...interface{}) (r.Value, []r.Value) {
-	panic(errors.New(fmt.Sprintf(format, args...)))
+	panic(fmt.Errorf(format, args...))
 }
 
 func warnExtraValues(extraValues []r.Value) {

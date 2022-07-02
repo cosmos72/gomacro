@@ -228,7 +228,7 @@ const interface_interpreted_2_source_string = `
 (func() bool {
 
 	fail := func(format string, args ...interface{}) {
-		panic(errors.New(fmt.Sprintf(format, args...)))
+		panic(fmt.Errorf(format, args...))
 	}
 
 	f, _ := os.Open("README.md")

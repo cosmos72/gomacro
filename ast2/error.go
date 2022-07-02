@@ -17,7 +17,6 @@
 package ast2
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -31,5 +30,5 @@ func badIndex(index int, size int) AstWithNode {
 }
 
 func errorf(format string, args ...interface{}) {
-	panic(errors.New(fmt.Sprintf(format, args...)))
+	panic(fmt.Errorf(format, args...))
 }

@@ -17,7 +17,6 @@
 package xreflect
 
 import (
-	"errors"
 	"fmt"
 	"go/importer"
 	gotypes "go/types"
@@ -58,7 +57,7 @@ func (imp *Importer) ImportFrom(path string, srcDir string, mode gotypes.ImportM
 	} else if imp.compat != nil {
 		pkg, err = imp.compat.Import(path)
 	} else {
-		return nil, errors.New(fmt.Sprintf("importer.Default() returned nil, cannot import %q", path))
+		return nil, fmt.Errorf("importer.Default() returned nil, cannot import %q", path)
 	}
 	return imp.Converter.Package(pkg), err
 }

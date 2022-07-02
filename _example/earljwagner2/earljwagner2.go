@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -10,7 +9,7 @@ import (
 )
 
 func fail(format string, args ...interface{}) {
-	panic(errors.New(fmt.Sprintf(format, args...)))
+	panic(fmt.Errorf(format, args...))
 }
 
 // example from Earl J Wagner use case: load a file in the interpreter,

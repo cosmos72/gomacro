@@ -73,6 +73,7 @@ func LookupPackage(alias PackageName, pkgpath string) *PackageRef {
 		// import "foo" => get alias from package name
 		alias = pkg.DefaultName(pkgpath)
 	}
+	pkg.Validate(pkgpath)
 	return &PackageRef{Package: pkg, Path: pkgpath}
 }
 

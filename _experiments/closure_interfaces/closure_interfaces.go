@@ -95,7 +95,7 @@ func VarInt(idx int) XInt {
 			case int:
 				return v
 			default:
-				panic(errors.New(fmt.Sprintf("Binds[%v] = %#v <%T> is not an <int>", idx, v, v)))
+				panic(fmt.Errorf("Binds[%v] = %#v <%T> is not an <int>", idx, v, v))
 			}
 		*/
 	}

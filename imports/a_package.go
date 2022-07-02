@@ -17,6 +17,7 @@
 package imports
 
 import (
+	fmt "fmt"
 	. "reflect"
 
 	syscall "github.com/cosmos72/gomacro/imports/syscall"
@@ -75,13 +76,14 @@ func (pkgs PackageMap) Merge(srcs map[string]PackageUnderlying) {
 }
 
 func (pkgs PackageMap) MergePackage(path string, src PackageUnderlying) {
-	// exploit the fact that maps are actually handles
-	pkg, ok := pkgs[path]
+	pkg := Package(src)
+	pkg.Validate(path)
+	curr, ok := pkgs[path]
 	if ok {
-		pkg.Merge(src)
+		curr.Merge(src)
 	} else {
-		pkg = Package(src)
 		pkg.LazyInit(path)
+		// exploit the fact that maps are actually handles
 		pkgs[path] = pkg
 	}
 }
@@ -140,4 +142,118 @@ func (dst *Package) Merge(src PackageUnderlying) {
 	for k, v := range src.Wrappers {
 		dst.Wrappers[k] = v
 	}
+}
+
+func (pkg *Package) Validate(path string) {
+	for name, typ := range pkg.Types {
+		if typ.Kind() == Interface {
+			validateProxy(path, name, typ, pkg.Proxies[name])
+		}
+	}
+}
+
+func validateProxy(path string, name string, typ Type, proxy Type) {
+	if proxy == nil {
+		// no proxy for interface typ. This is allowed:
+		// interfaces with unexported methods cannot be implemented by other packages
+		// => there's no way to create a proxy implementing such interface
+		// (short of "cheating" and embedding the original interface, which is not useful in this case)
+		return
+	}
+	// fmt.Printf("package %q:\tvalidating proxy for interface %s\n", path, name)
+
+	if proxy.Kind() != Struct {
+		errorf("error loading package %q: proxy for interface %s is invalid: expecting a Struct, found a %v",
+			path, name, proxy.Kind())
+	}
+	proxy = PtrTo(proxy)
+	if !proxy.Implements(typ) {
+		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> does not implement the interface %s",
+			path, name, proxy)
+	}
+	typMethodN := typ.NumMethod()
+	proxyMethodN := proxy.NumMethod()
+	if typMethodN != proxyMethodN {
+		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> has %d methods, expecting %d",
+			path, name, proxy, proxyMethodN, typMethodN)
+	}
+	if proxy.Elem().NumField() != proxyMethodN+1 {
+		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> has %d fields, expecting %d i.e. 1 + number of methods",
+			path, name, proxy, proxy.Elem().NumField(), proxyMethodN+1)
+	}
+	validateProxyField0(path, name, typ, proxy)
+	for i := 0; i < typMethodN; i++ {
+		validateProxyFieldAndMethod(path, name, typ, proxy, i)
+	}
+}
+
+var rTypeOfInterface = TypeOf((*interface{})(nil)).Elem()
+
+func validateProxyField0(path string, name string, typ Type, proxy Type) {
+	field := proxy.Elem().Field(0)
+	fieldName := qname(field.PkgPath, field.Name)
+	if fieldName != "Object" {
+		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> has field[0] name %q, expecting name %q",
+			path, name, proxy.Elem(), fieldName, "Object")
+	}
+	if field.Type != rTypeOfInterface {
+		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> has field[0] type <%v>, expecting type <%v>",
+			path, name, proxy.Elem(), field.Type, rTypeOfInterface)
+	}
+}
+
+func validateProxyFieldAndMethod(path string, name string, typ Type, proxy Type, i int) {
+	typMethod := typ.Method(i)
+	proxyMethod := proxy.Method(i)
+	typMethodName := qname(typMethod.PkgPath, typMethod.Name)
+	proxyMethodName := qname(proxyMethod.PkgPath, proxyMethod.Name)
+	if typMethodName != proxyMethodName {
+		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> has method[%d] name %q, expecting name %q",
+			path, name, proxy, i, proxyMethodName, typMethodName)
+	}
+	expectedType := addFuncFirstParam(typMethod.Type, proxy)
+	if proxyMethod.Type != expectedType {
+		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> has method[%d] type <%v>, expecting type <%v>",
+			path, name, proxy, i, proxyMethod.Type, expectedType)
+	}
+
+	field := proxy.Elem().Field(i + 1) // skip field 0 "Obiect"
+	fieldName := qname(field.PkgPath, field.Name)
+	if typMethodName+"_" != fieldName {
+		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> has field[%d] name %q, expecting name %q",
+			path, name, proxy.Elem(), i+1, fieldName, typMethodName+"_")
+	}
+	expectedType = addFuncFirstParam(typMethod.Type, rTypeOfInterface)
+	if field.Type != expectedType {
+		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> has field[%d] type <%v>, expecting type <%v>",
+			path, name, proxy.Elem(), i+1, field.Type, expectedType)
+	}
+}
+
+// return package-qualified name of a method
+func qname(pkgPath string, name string) string {
+	if len(pkgPath) == 0 {
+		return name
+	}
+	return pkgPath + "." + name
+}
+
+// return a function type with additional first input parameter of given type
+func addFuncFirstParam(ftype Type, in0 Type) Type {
+	n := ftype.NumIn() + 1
+	in := make([]Type, n)
+	in[0] = in0
+	for i := 1; i < n; i++ {
+		in[i] = ftype.In(i - 1)
+	}
+	n = ftype.NumOut()
+	out := make([]Type, n)
+	for i := 0; i < n; i++ {
+		out[i] = ftype.Out(i)
+	}
+	return FuncOf(in, out, ftype.IsVariadic())
+}
+
+func errorf(format string, args ...interface{}) {
+	panic(fmt.Errorf(format, args...))
 }
