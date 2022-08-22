@@ -175,6 +175,8 @@ func (test *TestCase) classic(t *testing.T, ir *classic.Interp) {
 			}
 		}()
 	}
+	test.config.initClassic(ir)
+
 	rets = reflect.PackValuesR(ir.Eval(test.program))
 	panicking = false
 	test.compareResults(t, rets)
@@ -201,6 +203,7 @@ func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
 			}
 		}()
 	}
+	test.config.initFast(ir)
 
 	rets, _ := ir.Eval(test.program)
 	rrets := xr.ToReflectValues(rets)
@@ -402,9 +405,15 @@ type TagTriple = struct { // unnamed!
 	B, C string `json:"baz"`
 }
 
+// used by test inject_recursive_type_issue_133
 type Recursive struct {
 	A *Recursive
 	B int
+}
+
+// used by test inject_recursive_type_issue_133
+func decl_recursive_type_issue_133(ir *fast.Interp) {
+	ir.DeclType(ir.TypeOf(Recursive{}))
 }
 
 // approximate 'type X struct { *X }'
@@ -952,7 +961,7 @@ var testcases = []TestCase{
 	TestCase{A, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, Pair{A: 0x73, B: "\x94"}, nil},
 	TestCase{A, "literal_struct_address", `&Pair{1,"2"}`, &Pair{A: 1, B: "2"}, nil},
 
-	// issue #103
+	// gomacro issue #103
 	TestCase{A, "named_const_type_1", `type Int int
 				 const namedOne Int = Int(1); namedOne`, int(1), nil},
 
@@ -1048,11 +1057,20 @@ var testcases = []TestCase{
 	// gomacro issue 122
 	// removing wrapper methods for embedded fields did remove them from xreflect/xtype.methodvalue[]
 	// causing lexicographically greater methods to panic due to mismatched signature
-	TestCase{F, `wrapper_methods_1`, `
+	TestCase{F, "wrapper_methods_1", `
 		import pkg "test/issue122"
 		func callWrapper() bool { wrapper := pkg.Wrapper{&pkg.Base{}}; return wrapper.IsWrapper() }
 		callWrapper()
 	`, true, nil},
+
+	// gomacro issue 133
+	// injecting recursive types with Interp.DeclType() caused the creation
+	// of pointer to such type having option == OptIncomplete
+	// which caused lots of panics
+	TestCase{TestFlagAndInit{F, nil, decl_recursive_type_issue_133},
+		"inject_recursive_type_1",
+		`func Execute() []*Recursive { return nil }`,
+		nil, none},
 
 	TestCase{A, "defer_1", `
 		vi = nil
