@@ -178,7 +178,7 @@ func validateProxy(path string, name string, typ Type, proxy Type) {
 	}
 	proxy = PtrTo(proxy)
 	if !proxy.Implements(typ) {
-		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> does not implement the interface %s",
+		errorf("error loading package %q: proxy for interface %s is invalid: type <%v> does not implement the interface",
 			path, name, proxy)
 	}
 	typMethodN := typ.NumMethod()

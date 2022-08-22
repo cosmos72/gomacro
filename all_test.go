@@ -43,46 +43,86 @@ var enable_generics_v2_cti = func() bool {
 	return true
 }()
 
-type TestFor int
+// -----------------------------------------------------------------------------
+type TestFlag uint8
 
 const (
-	S  TestFor = 1 << iota // set option OptDebugSleepOnSwitch
-	C                      // test for classic interpreter
-	F                      // test for fast interpreter
-	G1                     // test requires generics v1 (C++-style)
-	G2                     // test requires generics v2 "contracts are interfaces"
-	U                      // test returns untyped constant (relevant only for fast interpreter)
-	Z                      // temporary override: run only these tests, on fast interpreter only
-	A  = C | F             // test for both interpreters
+	S  TestFlag = 1 << iota // set option OptDebugSleepOnSwitch
+	C                       // test for classic interpreter
+	F                       // test for fast interpreter
+	G1                      // test requires generics v1 (C++-style)
+	G2                      // test requires generics v2 "contracts are interfaces"
+	U                       // test returns untyped constant (relevant only for fast interpreter)
+	Z                       // temporary override: run only these tests, on fast interpreter only
+	A  = C | F              // test for both interpreters
 	G  = G1 | G2
 )
 
+func (config TestFlag) initClassic(ir *classic.Interp) {}
+func (config TestFlag) initFast(ir *fast.Interp)       {}
+func (config TestFlag) containsFlag(flag TestFlag) bool {
+	return config&flag != 0
+}
+func (config TestFlag) shouldRun(interp TestFlag) bool {
+	if config&interp == 0 {
+		return false
+	}
+	if config&G1 != 0 && etoken.GENERICS.V1_CXX() {
+		return true
+	}
+	if config&G2 != 0 && etoken.GENERICS.V2_CTI() {
+		return true
+	}
+	return config&(G1|G2) == 0
+}
+
+// -----------------------------------------------------------------------------
+type TestFlagAndInit struct {
+	TestFlag
+	funcInitClassic func(ir *classic.Interp)
+	funcInitFast    func(ir *fast.Interp)
+}
+
+func (config TestFlagAndInit) initClassic(ir *classic.Interp) {
+	if config.funcInitClassic != nil {
+		config.funcInitClassic(ir)
+	}
+}
+func (config TestFlagAndInit) initFast(ir *fast.Interp) {
+	if config.funcInitFast != nil {
+		config.funcInitFast(ir)
+	}
+}
+
+// -----------------------------------------------------------------------------
+type TestConfig interface {
+	containsFlag(flag TestFlag) bool
+	shouldRun(interp TestFlag) bool
+	initClassic(ir *classic.Interp)
+	initFast(ir *fast.Interp)
+}
+
 type TestCase struct {
-	testfor TestFor
+	config  TestConfig
 	name    string
 	program string
 	result0 interface{}
 	results []interface{}
 }
 
-func (tc *TestCase) shouldRun(interp TestFor) bool {
-	if tc.testfor&interp == 0 {
-		return false
-	}
-	if tc.testfor&G1 != 0 && etoken.GENERICS.V1_CXX() {
-		return true
-	}
-	if tc.testfor&G2 != 0 && etoken.GENERICS.V2_CTI() {
-		return true
-	}
-	return tc.testfor&(G1|G2) == 0
+func (tc *TestCase) shouldRun(interp TestFlag) bool {
+	return tc.config.shouldRun(interp)
 }
 
 var foundZ bool
 
+func (tc *TestCase) containsFlag(flag TestFlag) bool {
+	return tc.config.containsFlag(flag)
+}
+
 func init() {
 	for i := range testcases {
-		if testcases[i].testfor&Z != 0 {
+		if testcases[i].containsFlag(Z) {
 			foundZ = true
 			break
 		}
@@ -107,7 +147,7 @@ func TestFast(t *testing.T) {
 	ir := fast.New()
 	for i := range testcases {
 		test := &testcases[i]
-		if (!foundZ || test.testfor&Z != 0) && test.shouldRun(F) {
+		if (!foundZ || test.containsFlag(Z)) && test.shouldRun(F) {
 			t.Run(test.name, func(t *testing.T) { test.fast(t, ir) })
 		}
 	}
@@ -141,12 +181,12 @@ func (test *TestCase) classic(t *testing.T, ir *classic.Interp) {
 }
 
 func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
-	if test.testfor&S != 0 {
+	if test.containsFlag(S) {
 		ir.Comp.Options |= OptDebugSleepOnSwitch
 	} else {
 		ir.Comp.Options &^= OptDebugSleepOnSwitch
 	}
-	if test.testfor&U != 0 {
+	if test.containsFlag(U) {
 		ir.Comp.Options |= OptKeepUntyped
 	} else {
 		ir.Comp.Options &^= OptKeepUntyped
@@ -360,6 +400,11 @@ type TagPair = struct { // unnamed!
 type TagTriple = struct { // unnamed!
 	A    rune
 	B, C string `json:"baz"`
+}
+
+type Recursive struct {
+	A *Recursive
+	B int
 }
 
 // approximate 'type X struct { *X }'

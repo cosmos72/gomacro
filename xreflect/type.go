@@ -104,12 +104,21 @@ func (v *Universe) maketype4(kind r.Kind, gtype types.Type, rtype r.Type, opt Op
 	ret := v.Types.gmap.At(gtype)
 	if ret != nil {
 		t := ret.(Type)
-		switch t.ReflectType() {
+		xt := unwrap(t)
+		// fix issue #133: when possible, update cached type's flag OptIncomplete -> OptDefault
+		updateOpt := opt == OptDefault && xt != nil && xt.option == OptIncomplete
+		switch xt.rtype {
 		case rtype:
+			if updateOpt {
+				xt.option = opt
+			}
 			return t
 		case rTypeOfForward:
 			// update t, do not create a new Type
-			t.UnsafeForceReflectType(rtype)
+			xt.UnsafeForceReflectType(rtype)
+			if updateOpt {
+				xt.option = opt
+			}
 			return t
 		default:
 			if v.debug() {
