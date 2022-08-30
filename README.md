@@ -117,7 +117,7 @@ The following combinations are tested and known to work:
 
   The command
   ```
-  go get -u github.com/cosmos72/gomacro
+  go install github.com/cosmos72/gomacro@latest
   ```
   downloads, compiles and installs gomacro and its dependencies
 
