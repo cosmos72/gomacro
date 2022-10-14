@@ -23,6 +23,7 @@ import (
 	"go/importer"
 	"go/types"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -242,4 +243,54 @@ func startsWith(str string, prefix string) bool {
 
 func IsLocalImportPath(pkgpath string) bool {
 	return isLocalFilesystemPath(pkgpath)
+}
+
+// If the package and the version to import is NOT listed in go.mod,
+// recent go toolchains require to run "go get pkg/to/be/imported" or "go install ..."
+// before "go list ..." in order to update go.mod
+// We cannot know the version beforehand, so we always run "go get ..."
+func runGoGetIfNeeded(output *Output, dir string, pkgpaths []PackagePath, env []string) error {
+
+	paths := packagePathsToString(pkgpaths)
+
+	pathsSpaces := strings.Join(paths, " ")
+	output.Debugf("running \"go get %s\" ...", pathsSpaces)
+
+	gocmd := chooseGoCmd()
+	args := append([]string{"get"}, paths...)
+
+	cmd := exec.Command(gocmd, args...)
+	cmd.Dir = dir
+	cmd.Env = env
+	cmd.Stdin = nil
+	cmd.Stdout = output.Stdout
+	cmd.Stderr = output.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("error executing \"%s get %s\" in directory %q: %v", gocmd, pathsSpaces, dir, err)
+	}
+	return nil
+}
+
+// Recent go toolchains require to run "go mod tidy" before "go build ..."
+// in order to update go.mod with the dependencies of the module being imported
+func runGoModTidyIfNeeded(output *Output, dir string, env []string) error {
+
+	output.Debugf("running \"go mod tidy\" ...")
+
+	gocmd := chooseGoCmd()
+
+	cmd := exec.Command(gocmd, "mod", "tidy")
+	cmd.Dir = dir
+	cmd.Env = env
+	cmd.Stdin = nil
+	cmd.Stdout = output.Stdout
+	cmd.Stderr = output.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("error executing \"%s mod tidy\" in directory %q: %v", gocmd, dir, err)
+	}
+	return nil
 }
