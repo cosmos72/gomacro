@@ -190,8 +190,13 @@ func (c *Comp) converterToEmulatedInterface(tin, tout xr.Type) func(val xr.Value
 			c.Errorf("cannot convert from <%v> to <%v>: missing method %s %s", tin, tout, mtdout.Name, mtdout.Type)
 		} else if count > 1 {
 			c.Errorf("cannot convert from <%v> to <%v>: multiple methods match %s %s", tin, tout, mtdout.Name, mtdout.Type)
-		}
-		if !mtdin.Type.AssignableTo(mtdout.Type) {
+		} else if mtdin.Type == nil {
+			c.Errorf("cannot convert from <%v> to <%v>: internal error, method %s of <%v> has nil type!\n\t(known bug under investigation, see https://github.com/cosmos72/gomacro/issues/139)",
+				tin, tout, mtdin.Name, tin)
+		} else if mtdout.Type == nil {
+			c.Errorf("cannot convert from <%v> to <%v>: internal error, method %s of <%v> has nil type!\n\t(known bug under investigation, see https://github.com/cosmos72/gomacro/issues/139)",
+				tin, tout, mtdout.Name, tout)
+		} else if !mtdin.Type.AssignableTo(mtdout.Type) {
 			c.Errorf("cannot convert from <%v> to <%v>: mismatched method %s: expecting %v, found %v",
 				tin, tout, mtdout.Name, mtdout.Type, mtdin.Type)
 		}
