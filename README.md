@@ -256,17 +256,22 @@ it will automatically download, compile and import a package. Example:
 $ gomacro
 [greeting message...]
 
-gomacro> import ( "gonum.org/v1/floats"; "gonum.org/v1/plot" )
-// debug: running "go get gonum.org/v1/gonum/floats gonum.org/v1/plot" ...
-go: downloading gonum.org/v1/plot v0.11.0
-[... more messages from go toolchain ...]
+gomacro> import ( "gonum.org/v1/gonum/floats"; "gonum.org/v1/plot" )
+// debug: running "go get gonum.org/v1/plot gonum.org/v1/gonum/floats" ...
+go: downloading gonum.org/v1/gonum v0.12.0
+go: downloading gonum.org/v1/plot v0.12.0
+[ more "go: downloading " messages for dependencies...]
+go: added gonum.org/v1/gonum v0.12.0
+go: added gonum.org/v1/plot v0.12.0
 // debug: running "go mod tidy" ...
+go: downloading golang.org/x/exp v0.0.0-20220827204233-334a2380cb91
 go: downloading github.com/go-fonts/latin-modern v0.2.0
 go: downloading rsc.io/pdf v0.1.1
 go: downloading github.com/go-fonts/dejavu v0.1.0
-// debug: compiling plugin "/home/max/go/src/gomacro.imports/gomacro_pid_187824/import_1" ...
-gomacro> plot.New()
-&{...} // *gonum.org/v1/plot.Plot
+// debug: compiling plugin "/home/max/go/src/gomacro.imports/gomacro_pid_44092/import_1" ...
+
+gomacro> floats.Sum([]float64{1,2,3})
+6       // float64
 ```
 
 Note: internally, gomacro will compile and load a **single** Go plugin containing the exported declarations
