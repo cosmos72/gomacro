@@ -21,6 +21,7 @@ func init() {
 			"Subdir":                   r.ValueOf(Subdir),
 			"SymbolFromImportsPackage": r.ValueOf(&SymbolFromImportsPackage).Elem(),
 			"UserHomeDir":              r.ValueOf(UserHomeDir),
+			"HistoryFile":              r.ValueOf(HistoryFile),
 		},
 	}
 }

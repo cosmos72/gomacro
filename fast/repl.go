@@ -254,7 +254,7 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 
 // ====================== Repl() and friends =====================
 
-var historyfile = paths.Subdir(paths.UserHomeDir(), ".gomacro_history")
+var historyfile = paths.HistoryFile()
 
 func (ir *Interp) ReplStdin() {
 	g := ir.Comp.CompGlobals

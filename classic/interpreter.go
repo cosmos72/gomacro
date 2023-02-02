@@ -44,7 +44,7 @@ func (ir *Interp) ChangePackage(path string) {
 	ir.Env = ir.Env.ChangePackage(path)
 }
 
-var historyfile = paths.Subdir(paths.UserHomeDir(), ".gomacro_history")
+var historyfile = paths.HistoryFile()
 
 func (ir *Interp) ReplStdin() {
 	g := ir.Globals

@@ -69,6 +69,25 @@ func UserHomeDir() string {
 	return unixpath(home)
 }
 
+// returns path to gomacro's history file
+// If $HOME/.gomacro_history can be opened, or
+// $XDG_STATE_HOME can not be opened, returns $HOME/.gomacro_history
+// Otherwise returns $XDG_STATE_HOME/gomacro_history
+func HistoryFile() string {
+	home := UserHomeDir()
+	historydir := os.Getenv("XDG_STATE_HOME")
+	if len(historydir) == 0 {
+		historydir = Subdir(home, ".local", "state")
+	}
+	historyfile := Subdir(home, ".gomacro_history")
+	if _, err := os.Stat(historyfile); err != nil {
+		if _, err := os.Stat(historydir); err == nil {
+			historyfile = Subdir(historydir, "gomacro_history")
+		}
+	}
+	return historyfile
+}
+
 func Subdir(dirs ...string) string {
 	// should use string(os.PathSeparator) instead of "/', but:
 	// 1) package names use '/', not os.PathSeparator
