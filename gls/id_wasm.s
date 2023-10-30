@@ -9,5 +9,5 @@
 #include "../../src/runtime/go_tls.h"
 
 TEXT ·GoID(SB),NOSPLIT,$0-8
-	MOV g, goid+0(FP)
+	MOVD g, goid+0(FP)
 	RET
