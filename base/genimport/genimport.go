@@ -287,13 +287,19 @@ func (gen *genimport) writeBinds() {
 					}
 				}
 				d.header()
-				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sValueOf(%s%s%s%s),", name, gen.reflect, conv1, gen.name_, name, conv2)
+				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sValueOf(%s%s%s%s),",
+					name, gen.reflect, conv1, gen.name_, name, conv2)
 			case *types.Var:
 				d.header()
 				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sValueOf(&%s%s).Elem(),", name, gen.reflect, gen.name_, name)
 			case *types.Func:
-				d.header()
-				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sValueOf(%s%s),", name, gen.reflect, gen.name_, name)
+				if isGenericFunc(obj) {
+					gen.output.Warnf("skipping import of %v:\timporting generic functions is not supported yet", name)
+				} else {
+					d.header()
+					fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sValueOf(%s%s),",
+						name, gen.reflect, gen.name_, name)
+				}
 			}
 		}
 	}
@@ -305,14 +311,43 @@ func (gen *genimport) writeTypes() {
 
 	for _, name := range gen.names {
 		if obj := gen.scope.Lookup(name); obj.Exported() {
-			switch obj.(type) {
+			switch obj := obj.(type) {
 			case *types.TypeName:
-				d.header()
-				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sTypeOf((*%s%s)(nil)).Elem(),", name, gen.reflect, gen.name_, name)
+				if isGenericType(obj.Type()) {
+					gen.output.Warnf("skipping import of %s.%s:\timporting generic types is not supported yet",
+						obj.Pkg().Path(), obj.Name())
+				} else {
+					d.header()
+					fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sTypeOf((*%s%s)(nil)).Elem(),",
+						name, gen.reflect, gen.name_, name)
+				}
 			}
 		}
 	}
 	d.footer()
+}
+
+func isGenericFunc(t *types.Func) bool {
+	sig, ok := t.Type().(*types.Signature)
+	return !ok || isGenericType(sig)
+}
+
+func isGenericType(t types.Type) bool {
+	switch t := t.(type) {
+	case *types.Named:
+		if t.TypeParams() != nil && t.TypeArgs() == nil {
+			return true
+		}
+		return isGenericType(t.Underlying())
+	case *types.Signature:
+		return t.RecvTypeParams() != nil || t.TypeParams() != nil
+	case *types.Interface:
+		return t.IsImplicit() || !t.IsMethodSet()
+	case *types.TypeParam:
+		return true
+	default:
+		return false
+	}
 }
 
 func (gen *genimport) writeProxies() {
@@ -322,7 +357,8 @@ func (gen *genimport) writeProxies() {
 		if obj := gen.scope.Lookup(name); obj.Exported() {
 			if t := extractInterface(obj, true); t != nil {
 				d.header()
-				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sTypeOf((*%s%s)(nil)).Elem(),", name, gen.reflect, gen.proxyprefix, name)
+				fmt.Fprintf(gen.out, "\n\t\t\t%q:\t%sTypeOf((*%s%s)(nil)).Elem(),",
+					name, gen.reflect, gen.proxyprefix, name)
 			}
 		}
 	}
@@ -418,7 +454,8 @@ func detectIntKind(o *Output, path, name, str string) (string, string) {
 			// float32 loses no precision vs. float64
 			prefix = "float32"
 		}
-		o.Warnf("package %q: integer constant %s = %s overflows both int64 and uint64, converting to %s", path, name, str, prefix)
+		o.Warnf("package %q: integer constant %s = %s overflows both int64 and uint64, converting to %s",
+			path, name, str, prefix)
 		return prefix + "(", ")"
 	}
 }

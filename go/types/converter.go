@@ -76,19 +76,26 @@ func (c *Converter) Package(g *types.Package) *Package {
 }
 
 // convert go/types.Object -> github.com/cosmos72/gomacro/go/types.Object
-func (c *Converter) object(g types.Object) Object {
+func (c *Converter) object(g types.Object) (ret Object) {
+	defer func() {
+		if ret == nil {
+			if e := recover(); e != nil {
+				fmt.Printf("// warning: skipping import of %v:\t%v\n", g, e)
+			}
+		}
+	}()
 	switch g := g.(type) {
 	case *types.Const:
-		return c.constant(g)
+		ret = c.constant(g)
 	case *types.Func:
-		return c.function(g)
+		ret = c.function(g)
 	case *types.TypeName:
-		return c.typename(g)
+		ret = c.typename(g)
 	case *types.Var:
-		return c.variable(g)
+		ret = c.variable(g)
 	default:
-		return nil
 	}
+	return ret
 }
 
 // convert *go/types.Const -> *github.com/cosmos72/gomacro/go/types.Const
@@ -148,6 +155,8 @@ func (c *Converter) typ(g types.Type) Type {
 		t = NewSlice(elem)
 	case *types.Struct:
 		t = c.mkstruct(g)
+	case *types.TypeParam:
+		panic(fmt.Errorf("importing generic functions or types is not supported yet"))
 	default:
 		panic(fmt.Errorf("Converter.Type(): unsupported types.Type: %T", g))
 	}

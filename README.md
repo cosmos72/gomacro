@@ -100,7 +100,7 @@ Gomacro can be used as:
 
 ### Prerequites
 
-- [Go 1.13+](https://golang.org/doc/install)
+- [Go 1.18+](https://golang.org/doc/install)
 
 ### Supported platforms
 
@@ -130,6 +130,7 @@ The main limitations and missing features are:
 * importing 3<sup>rd</sup> party libraries at runtime currently only works on Linux and Mac OS X.
   On other systems as Windows, Android and *BSD it is cumbersome and requires recompiling - see [Importing packages](#importing-packages).
 * conversions from/to unsafe.Pointer are not supported
+* generics are not yet implemented
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
 * some corner cases using recursive types may not work correctly.
 * goto can only jump backward, not forward
@@ -239,7 +240,7 @@ import (
      "."                             // imports the package in current directory
      ".."                            // imports the package in parent directory
      "./some/relative/path"          // "./"  means relative to current directory
-     "../some/other/relative/path"   // "../" means relative to parent directory 
+     "../some/other/relative/path"   // "../" means relative to parent directory
      "/some/absolute/path"           // "/"   means absolute
 )
 ```
