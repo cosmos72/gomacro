@@ -1,6 +1,6 @@
 module github.com/cosmos72/gomacro
 
-go 1.13
+go 1.18
 
 require (
 	github.com/mattn/go-runewidth v0.0.15
