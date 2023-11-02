@@ -129,8 +129,8 @@ The main limitations and missing features are:
 
 * importing 3<sup>rd</sup> party libraries at runtime currently only works on Linux and Mac OS X.
   On other systems as Windows, Android and *BSD it is cumbersome and requires recompiling - see [Importing packages](#importing-packages).
+* when importing packages, both from standard library or from 3<sup>rd</sup> party libraries, generics are not imported
 * conversions from/to unsafe.Pointer are not supported
-* generics are not yet implemented
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
 * some corner cases using recursive types may not work correctly.
 * goto can only jump backward, not forward
