@@ -1,4 +1,4 @@
-// +build gc
+//go:build gc
 
 // Copyright 2018 Massimiliano Ghilardi. All rights reserved.
 // Use of this source code is governed by a BSD-style

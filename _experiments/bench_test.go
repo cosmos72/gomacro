@@ -1,4 +1,4 @@
-// +build gomacro_jit
+//go:build gomacro_jit
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros

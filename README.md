@@ -127,10 +127,11 @@ Almost complete.
 
 The main limitations and missing features are:
 
-* importing 3<sup>rd</sup> party libraries at runtime currently only works on Linux and Mac OS X.
-  On other systems as Windows, Android and *BSD it is cumbersome and requires recompiling - see [Importing packages](#importing-packages).
-* when importing packages, both from standard library or from 3<sup>rd</sup> party libraries, generics are not imported
-* conversions from/to unsafe.Pointer are not supported
+* importing 3<sup>rd</sup> party libraries at runtime currently only works on Linux, Mac OS X and *BSD.
+  On other systems as Windows and Android it is cumbersome and requires recompiling - see [Importing packages](#importing-packages).
+* when importing packages, both from standard library or from 3<sup>rd</sup> party libraries, generics are not imported.
+* defining generic functions and types in interpreted code is experimental and incomplete - see [Generics](#generics)
+* conversions from/to unsafe.Pointer are not supported.
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
 * some corner cases using recursive types may not work correctly.
 * goto can only jump backward, not forward
@@ -146,8 +147,6 @@ The [documentation](doc/) also contains the [full list of features and limitatio
 ## Extensions
 
 Compared to compiled Go, gomacro supports several extensions:
-
-* generics (experimental) - see [Generics](#generics)
 
 * an integrated debugger, see [Debugger](#debugger)
 
@@ -249,9 +248,9 @@ For an import to work, you usually need to follow its installation procedure: so
 
 The next steps depend on the system you are running gomacro on:
 
-### Linux and Mac OS X
+### Linux, Mac OS X and *BSD
 
-If you are running gomacro on Linux or Mac OS X, `import` will then just work:
+If you are running gomacro on Linux, Mac OS X or *BSD, `import` will then just work:
 it will automatically download, compile and import a package. Example:
 ```
 $ gomacro
@@ -331,7 +330,7 @@ gomacro contains two alternative, experimental versions of Go generics:
   See [doc/generics-c++.md](doc/generics-c++.md) for how to enable and use them.
 
 * the second version is named "contracts are interfaces" - or more briefly "CTI".
-  It is modeled after several published proposals for Go generics,
+  It is modeled after several preliminary proposals for Go generics,
   most notably Ian Lance Taylor's [Type Parameters in Go](https://github.com/golang/proposal/blob/master/design/15292/2013-12-type-params.md)
   It has some additions inspired from [Haskell generics](https://wiki.haskell.org/Generics)
   and original contributions from the author - in particular to create a simpler alternative to
