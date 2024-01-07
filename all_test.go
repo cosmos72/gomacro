@@ -1072,6 +1072,13 @@ var testcases = []TestCase{
 		`func Execute() []*Recursive { return nil }`,
 		nil, none},
 
+	// gomacro issue 142
+	// method lookup always failed for pointers to named array types, named slice types,
+	// and all other named non-struct types if generics v2 are disabled
+	// TODO: add test for such issue.
+	//       TestCase must disable generics, import a non-struct type having methods
+	//       with pointer receiver, and invoke one of those methods
+
 	TestCase{A, "defer_1", `
 		vi = nil
 		func test_defer_1() {
