@@ -211,15 +211,23 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	return t.methodByName(name, pkgpath)
 }
 
-// If generics v2 are disabled, only named types, pointers to named types, and interfaces can have methods.
+// If generics v2 are disabled, only interfaces, named types, structs, pointers to named types, and pointers to structs can have methods.
 // If generics v2 are enabled, they add a few methods to most types => every type can have methods.
+//
+// Note: unnamed structs can have types because they can embed anonymous fields with methods.
 //
 // canHaveMethods() can only be called while t.universe is locked
 func canHaveMethods(t *xtype) bool {
-	if etoken.GENERICS.V2_CTI() {
+	if t == nil {
+		return false
+	}
+	if etoken.GENERICS.V2_CTI() || t.kind == r.Interface {
 		return true
 	}
-	return t.Named() || t.kind == r.Interface || (t.kind == r.Ptr && t.elem().Named())
+	if t.kind == r.Ptr {
+		t = unwrap(t.elem())
+	}
+	return t != nil && t.kind == r.Struct || t.Named()
 }
 
 func (t *xtype) methodByName(name, pkgpath string) (method Method, count int) {
