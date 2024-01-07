@@ -45,7 +45,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 		e.ConstTo(e.DefaultType())
 		t = e.Type
 	}
-	if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
+	if t.Kind() == r.Ptr && t.Elem().Named() {
 		t = t.Elem()
 		fun := e.AsX1()
 		e = exprFun(t, func(env *Env) xr.Value {
@@ -55,6 +55,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 	switch t.Kind() {
 	case xr.Struct:
 		field, fieldok, mtd, mtdok := c.LookupFieldOrMethod(t, name)
+		// c.Debugf("Comp.SelectorExpr: LookupFieldOrMethod for %s.%s returned %v %v %v %v", t, name, fieldok, field, mtdok, mtd)
 		if fieldok {
 			return c.compileField(e, field)
 		} else if mtdok {
@@ -63,8 +64,10 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 	default:
 		// interfaces and non-struct named types can have methods, but no fields
 		mtd, mtdn := c.LookupMethod(t, name)
+		// c.Debugf("Comp.SelectorExpr: LookupMethod for %s.%s returned %v methods %v", t, name, mtdn, mtd)
 		switch mtdn {
 		case 0:
+			// nop
 		case 1:
 			return c.compileMethod(node, eorig, mtd)
 		default:

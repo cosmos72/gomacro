@@ -204,11 +204,6 @@ func anonymousFields(t *xtype, offset uintptr, index []int, m *depthMap) []Struc
 func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	// debugf("method cache for %v <%v> = %v", unsafe.Pointer(t), t, t.cache.method)
 
-	// only named types and interfaces can have methods,
-	// unless generics v2 are enabled: they add a few methods to most types
-	if name == "_" || (!etoken.GENERICS.V2_CTI() && !t.Named() && t.kind != r.Interface) {
-		return
-	}
 	v := t.universe
 	if v.ThreadSafe {
 		defer un(lock(v))
@@ -216,14 +211,24 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	return t.methodByName(name, pkgpath)
 }
 
+// If generics v2 are disabled, only named types, pointers to named types, and interfaces can have methods.
+// If generics v2 are enabled, they add a few methods to most types => every type can have methods.
+//
+// canHaveMethods() can only be called while t.universe is locked
+func canHaveMethods(t *xtype) bool {
+	if etoken.GENERICS.V2_CTI() {
+		return true
+	}
+	return t.Named() || t.kind == r.Interface || (t.kind == r.Ptr && t.elem().Named())
+}
+
 func (t *xtype) methodByName(name, pkgpath string) (method Method, count int) {
-	// only named types and interfaces can have methods,
-	// unless generics v2 are enabled: they add a few methods to most types
-	if name == "_" || (!etoken.GENERICS.V2_CTI() && !t.Named() && t.kind != r.Interface) {
+	if name == "_" || !canHaveMethods(t) {
 		return
 	}
 	qname := QName2(name, pkgpath)
 	method, found := t.cache.method[qname]
+	// debugf("methodByName type = %v, qname = %v: found = %v method in cache = %v", t, qname, found, method)
 	if found {
 		index := method.Index
 		if index < 0 { // marker for ambiguous method names

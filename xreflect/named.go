@@ -102,6 +102,7 @@ func (t *xtype) SetUnderlying(underlying Type) {
 // It panics if the type is unnamed, or if the signature is not a function type,
 // Returns the method index, or < 0 in case of errors
 func (t *xtype) AddMethod(name string, signature Type) int {
+	// debugf("AddMethod on type %v, method %s %v", t, name, signature)
 	gtype, ok := t.gtype.(*types.Named)
 	if !ok {
 		xerrorf(t, "AddMethod on unnamed type %v", t)
