@@ -29,7 +29,11 @@ import (
 
 // return detailed string representation of a method signature, including its receiver if present
 func (m Method) String() string {
-	return typeutil.String2(m.Name, m.GoFun.Type())
+	if m.GoFun != nil {
+		return typeutil.String2(m.Name, m.GoFun.Type())
+	} else {
+		return m.Name
+	}
 }
 
 // For interfaces, NumMethod returns *total* number of methods for interface t,
