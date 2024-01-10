@@ -69,7 +69,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 	g := &ir.Comp.Globals
 
 	var set, clear Options
-	var repl, forcerepl = true, false
+	repl, forcerepl := true, false
 	cmd.WriteDeclsAndStmts = false
 	cmd.OverwriteFiles = false
 
@@ -115,6 +115,11 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		case "-t", "--trap":
 			set |= OptTrapPanic | OptPanicStackTrace
 			clear &= OptTrapPanic | OptPanicStackTrace
+		case "-p", "--prompt":
+			if len(args) > 1 {
+				ir.Comp.Prompt = args[1]
+				args = args[1:]
+			}
 		case "-s", "--silent":
 			set &^= OptShowPrompt | OptShowEval | OptShowEvalType
 			clear |= OptShowPrompt | OptShowEval | OptShowEvalType
@@ -172,6 +177,7 @@ func (cmd *Cmd) Usage() error {
                              useful to run gomacro as a Go preprocessor
     -n,   --no-trap          do not trap panics in the interpreter
     -t,   --trap             trap panics in the interpreter (default)
+    -p,   --prompt [PROMPT]  replace the default prompt with this string
     -s,   --silent           silent. do NOT show startup message, prompt, and expressions results.
                              default when executing files and dirs.
     -v,   --verbose          verbose. show startup message, prompt, and expressions results.
