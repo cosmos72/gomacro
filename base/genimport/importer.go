@@ -38,6 +38,16 @@ type Importer struct {
 	mode       types.ImportMode
 	PluginOpen r.Value // = reflect.ValueOf(plugin.Open)
 	output     *Output
+
+	// When you need to strictly set the allowed imports without touching
+	// the global imports.Packages between the different interpreters.
+	AllowList []string
+	// In case you want to ban some specific modules from loading without
+	// touching of the global imports.Packages between the different interpreters.
+	DenyList []string
+
+	// Blocks interpreter access to external (not in imports.Packages) imports.
+	BlockExternal bool
 }
 
 func DefaultImporter(o *Output) *Importer {
@@ -100,6 +110,14 @@ func (imp *Importer) ImportPackage(alias PackageName, path string, enableModule 
 
 // pathMap is a map (Go package path or absolute filesystem path) -> package alias
 func (imp *Importer) ImportPackagesOrError(pathMap map[string]PackageName, enableModule bool) (map[string]*PackageRef, error) {
+	// Checking the importer allow and block lists to allow the app to control what's script can or
+	// can not import. It's not a sandbox or safety measure, just another way to simplify devs life.
+	if blocked := imp.InImportAllowlist(pathMap); len(blocked) > 0 {
+		return nil, fmt.Errorf("ImportAllowList prevents loading of packages: %q", blocked)
+	}
+	if blocked := imp.InImportDenylist(pathMap); len(blocked) > 0 {
+		return nil, fmt.Errorf("ImportDenyList prevents loading of packages: %q", blocked)
+	}
 
 	refs := make(map[string]*PackageRef)
 	pathMap = clone(pathMap)
@@ -124,9 +142,12 @@ func (imp *Importer) ImportPackagesOrError(pathMap map[string]PackageName, enabl
 }
 
 func (imp *Importer) doImportPackagesOrError(pathMap map[string]PackageName, enableModule bool) (map[string]*PackageRef, error) {
+	paths := pathKeys(pathMap)
+	if imp.BlockExternal {
+		return nil, fmt.Errorf("External Import is disabled for packages: %v", paths)
+	}
 	p.GetImportsSrcDir() // warns if GOPATH or paths.ImportsDir may be wrong
 
-	paths := pathKeys(pathMap)
 	mode := imp.importModeFor(pathMap)
 	o := imp.output
 	dir := computeImportDir(o, paths, mode)
@@ -212,6 +233,54 @@ func (imp *Importer) importModeFor(pathMap map[string]PackageName) ImportMode {
 		havemode = true
 	}
 	return curr
+}
+
+func (imp *Importer) InImportAllowlist(pathMap map[string]PackageName) (blocked []string) {
+	// In case AllowList is not set - skipping the checking
+	if imp.AllowList == nil {
+		return
+	}
+
+	// Looking for all the mentioned imports to be in the list
+	var found bool
+	for address := range pathMap {
+		found = false
+		for _, val := range imp.AllowList {
+			if val == address {
+				found = true
+				break
+			}
+		}
+		if !found {
+			blocked = append(blocked, address)
+		}
+	}
+
+	return
+}
+
+func (imp *Importer) InImportDenylist(pathMap map[string]PackageName) (blocked []string) {
+	// In case DenyList is not set - skipping the checking
+	if imp.DenyList == nil {
+		return
+	}
+
+	// Looking for any of the mentioned imports are in the list
+	var found bool
+	for address := range pathMap {
+		found = false
+		for _, val := range imp.DenyList {
+			if val == address {
+				found = true
+				break
+			}
+		}
+		if found {
+			blocked = append(blocked, address)
+		}
+	}
+
+	return
 }
 
 func pathKeys(pkgpathMap map[string]PackageName) []string {
