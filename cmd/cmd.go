@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/genimport"
@@ -69,7 +70,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 	g := &ir.Comp.Globals
 
 	var set, clear Options
-	var repl, forcerepl = true, false
+	repl, forcerepl := true, false
 	cmd.WriteDeclsAndStmts = false
 	cmd.OverwriteFiles = false
 
@@ -147,9 +148,20 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		args = args[1:]
 	}
 	if repl || forcerepl {
+		if cmd.WriteDeclsAndStmts {
+			g.Options |= OptCollectDeclarations | OptCollectStatements
+		}
 		g.Options |= OptShowPrompt | OptShowEval | OptShowEvalType // set by default, overridden by -s, -v and -vv
 		g.Options = (g.Options | set) &^ clear
 		ir.ReplStdin()
+
+		if cmd.WriteDeclsAndStmts {
+			cmd.writeDeclAndStatements(
+				"repl.go",
+				fmt.Sprintf("// REPL run: %v\n", time.Now().Format(time.RFC3339)),
+			)
+		}
+
 	}
 	return nil
 }
@@ -238,6 +250,18 @@ const disclaimer = `// ---------------------------------------------------------
 
 `
 
+func (cmd *Cmd) writeDeclAndStatements(outname string, comments string) {
+	g := &cmd.Interp.Comp.Globals
+	if !cmd.OverwriteFiles {
+		_, err := os.Stat(outname)
+		if err == nil {
+			g.Warnf("file exists already, use -f to force overwriting: %v", outname)
+			return
+		}
+	}
+	g.WriteDeclsToFile(outname, disclaimer, comments)
+}
+
 func (cmd *Cmd) EvalFile(filename string) error {
 	g := &cmd.Interp.Comp.Globals
 	g.Declarations = nil
@@ -257,14 +281,7 @@ func (cmd *Cmd) EvalFile(filename string) error {
 			}
 		}
 		outname += ".go"
-		if !cmd.OverwriteFiles {
-			_, err := os.Stat(outname)
-			if err == nil {
-				g.Warnf("file exists already, use -f to force overwriting: %v", outname)
-				return nil
-			}
-		}
-		g.WriteDeclsToFile(outname, disclaimer, comments)
+		cmd.writeDeclAndStatements(outname, comments)
 
 		if g.Options&OptShowEval != 0 {
 			fmt.Fprintf(g.Stdout, "// processed file: %v\t-> %v\n", filename, outname)
