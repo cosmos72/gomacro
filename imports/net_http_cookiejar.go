@@ -11,16 +11,16 @@ import (
 // reflection: allow interpreted code to import "net/http/cookiejar"
 func init() {
 	Packages["net/http/cookiejar"] = Package{
-	Name: "cookiejar",
-	Binds: map[string]Value{
-		"New":	ValueOf(cookiejar.New),
-	}, Types: map[string]Type{
-		"Jar":	TypeOf((*cookiejar.Jar)(nil)).Elem(),
-		"Options":	TypeOf((*cookiejar.Options)(nil)).Elem(),
-		"PublicSuffixList":	TypeOf((*cookiejar.PublicSuffixList)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"PublicSuffixList":	TypeOf((*P_net_http_cookiejar_PublicSuffixList)(nil)).Elem(),
-	}, 
+		Name: "cookiejar",
+		Binds: map[string]Value{
+			"New":	ValueOf(cookiejar.New),
+		}, Types: map[string]Type{
+			"Jar":	TypeOf((*cookiejar.Jar)(nil)).Elem(),
+			"Options":	TypeOf((*cookiejar.Options)(nil)).Elem(),
+			"PublicSuffixList":	TypeOf((*cookiejar.PublicSuffixList)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"PublicSuffixList":	TypeOf((*P_net_http_cookiejar_PublicSuffixList)(nil)).Elem(),
+		}, 
 	}
 }
 

@@ -11,18 +11,18 @@ import (
 // reflection: allow interpreted code to import "os/exec"
 func init() {
 	Packages["os/exec"] = Package{
-	Name: "exec",
-	Binds: map[string]Value{
-		"Command":	ValueOf(exec.Command),
-		"CommandContext":	ValueOf(exec.CommandContext),
-		"ErrNotFound":	ValueOf(&exec.ErrNotFound).Elem(),
-		"LookPath":	ValueOf(exec.LookPath),
-	}, Types: map[string]Type{
-		"Cmd":	TypeOf((*exec.Cmd)(nil)).Elem(),
-		"Error":	TypeOf((*exec.Error)(nil)).Elem(),
-		"ExitError":	TypeOf((*exec.ExitError)(nil)).Elem(),
-	}, Wrappers: map[string][]string{
-		"ExitError":	[]string{"ExitCode","Exited","Pid","String","Success","Sys","SysUsage","SystemTime","UserTime",},
-	}, 
+		Name: "exec",
+		Binds: map[string]Value{
+			"Command":	ValueOf(exec.Command),
+			"CommandContext":	ValueOf(exec.CommandContext),
+			"ErrNotFound":	ValueOf(&exec.ErrNotFound).Elem(),
+			"LookPath":	ValueOf(exec.LookPath),
+		}, Types: map[string]Type{
+			"Cmd":	TypeOf((*exec.Cmd)(nil)).Elem(),
+			"Error":	TypeOf((*exec.Error)(nil)).Elem(),
+			"ExitError":	TypeOf((*exec.ExitError)(nil)).Elem(),
+		}, Wrappers: map[string][]string{
+			"ExitError":	[]string{"ExitCode","Exited","Pid","String","Success","Sys","SysUsage","SystemTime","UserTime",},
+		}, 
 	}
 }

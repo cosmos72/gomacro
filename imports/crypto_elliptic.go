@@ -5,28 +5,30 @@ package imports
 
 import (
 	. "reflect"
-	elliptic "crypto/elliptic"
 	big "math/big"
+	elliptic "crypto/elliptic"
 )
 
 // reflection: allow interpreted code to import "crypto/elliptic"
 func init() {
 	Packages["crypto/elliptic"] = Package{
-	Name: "elliptic",
-	Binds: map[string]Value{
-		"GenerateKey":	ValueOf(elliptic.GenerateKey),
-		"Marshal":	ValueOf(elliptic.Marshal),
-		"P224":	ValueOf(elliptic.P224),
-		"P256":	ValueOf(elliptic.P256),
-		"P384":	ValueOf(elliptic.P384),
-		"P521":	ValueOf(elliptic.P521),
-		"Unmarshal":	ValueOf(elliptic.Unmarshal),
-	}, Types: map[string]Type{
-		"Curve":	TypeOf((*elliptic.Curve)(nil)).Elem(),
-		"CurveParams":	TypeOf((*elliptic.CurveParams)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Curve":	TypeOf((*P_crypto_elliptic_Curve)(nil)).Elem(),
-	}, 
+		Name: "elliptic",
+		Binds: map[string]Value{
+			"GenerateKey":	ValueOf(elliptic.GenerateKey),
+			"Marshal":	ValueOf(elliptic.Marshal),
+			"MarshalCompressed":	ValueOf(elliptic.MarshalCompressed),
+			"P224":	ValueOf(elliptic.P224),
+			"P256":	ValueOf(elliptic.P256),
+			"P384":	ValueOf(elliptic.P384),
+			"P521":	ValueOf(elliptic.P521),
+			"Unmarshal":	ValueOf(elliptic.Unmarshal),
+			"UnmarshalCompressed":	ValueOf(elliptic.UnmarshalCompressed),
+		}, Types: map[string]Type{
+			"Curve":	TypeOf((*elliptic.Curve)(nil)).Elem(),
+			"CurveParams":	TypeOf((*elliptic.CurveParams)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Curve":	TypeOf((*P_crypto_elliptic_Curve)(nil)).Elem(),
+		}, 
 	}
 }
 

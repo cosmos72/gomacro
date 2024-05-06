@@ -11,22 +11,22 @@ import (
 // reflection: allow interpreted code to import "image/jpeg"
 func init() {
 	Packages["image/jpeg"] = Package{
-	Name: "jpeg",
-	Binds: map[string]Value{
-		"Decode":	ValueOf(jpeg.Decode),
-		"DecodeConfig":	ValueOf(jpeg.DecodeConfig),
-		"DefaultQuality":	ValueOf(jpeg.DefaultQuality),
-		"Encode":	ValueOf(jpeg.Encode),
-	}, Types: map[string]Type{
-		"FormatError":	TypeOf((*jpeg.FormatError)(nil)).Elem(),
-		"Options":	TypeOf((*jpeg.Options)(nil)).Elem(),
-		"Reader":	TypeOf((*jpeg.Reader)(nil)).Elem(),
-		"UnsupportedError":	TypeOf((*jpeg.UnsupportedError)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Reader":	TypeOf((*P_image_jpeg_Reader)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"DefaultQuality":	"int:75",
-	}, 
+		Name: "jpeg",
+		Binds: map[string]Value{
+			"Decode":	ValueOf(jpeg.Decode),
+			"DecodeConfig":	ValueOf(jpeg.DecodeConfig),
+			"DefaultQuality":	ValueOf(jpeg.DefaultQuality),
+			"Encode":	ValueOf(jpeg.Encode),
+		}, Types: map[string]Type{
+			"FormatError":	TypeOf((*jpeg.FormatError)(nil)).Elem(),
+			"Options":	TypeOf((*jpeg.Options)(nil)).Elem(),
+			"Reader":	TypeOf((*jpeg.Reader)(nil)).Elem(),
+			"UnsupportedError":	TypeOf((*jpeg.UnsupportedError)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Reader":	TypeOf((*P_image_jpeg_Reader)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"DefaultQuality":	"int:75",
+		}, 
 	}
 }
 

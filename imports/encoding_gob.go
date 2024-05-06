@@ -11,22 +11,22 @@ import (
 // reflection: allow interpreted code to import "encoding/gob"
 func init() {
 	Packages["encoding/gob"] = Package{
-	Name: "gob",
-	Binds: map[string]Value{
-		"NewDecoder":	ValueOf(gob.NewDecoder),
-		"NewEncoder":	ValueOf(gob.NewEncoder),
-		"Register":	ValueOf(gob.Register),
-		"RegisterName":	ValueOf(gob.RegisterName),
-	}, Types: map[string]Type{
-		"CommonType":	TypeOf((*gob.CommonType)(nil)).Elem(),
-		"Decoder":	TypeOf((*gob.Decoder)(nil)).Elem(),
-		"Encoder":	TypeOf((*gob.Encoder)(nil)).Elem(),
-		"GobDecoder":	TypeOf((*gob.GobDecoder)(nil)).Elem(),
-		"GobEncoder":	TypeOf((*gob.GobEncoder)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"GobDecoder":	TypeOf((*P_encoding_gob_GobDecoder)(nil)).Elem(),
-		"GobEncoder":	TypeOf((*P_encoding_gob_GobEncoder)(nil)).Elem(),
-	}, 
+		Name: "gob",
+		Binds: map[string]Value{
+			"NewDecoder":	ValueOf(gob.NewDecoder),
+			"NewEncoder":	ValueOf(gob.NewEncoder),
+			"Register":	ValueOf(gob.Register),
+			"RegisterName":	ValueOf(gob.RegisterName),
+		}, Types: map[string]Type{
+			"CommonType":	TypeOf((*gob.CommonType)(nil)).Elem(),
+			"Decoder":	TypeOf((*gob.Decoder)(nil)).Elem(),
+			"Encoder":	TypeOf((*gob.Encoder)(nil)).Elem(),
+			"GobDecoder":	TypeOf((*gob.GobDecoder)(nil)).Elem(),
+			"GobEncoder":	TypeOf((*gob.GobEncoder)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"GobDecoder":	TypeOf((*P_encoding_gob_GobDecoder)(nil)).Elem(),
+			"GobEncoder":	TypeOf((*P_encoding_gob_GobEncoder)(nil)).Elem(),
+		}, 
 	}
 }
 

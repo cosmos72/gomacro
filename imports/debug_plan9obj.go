@@ -11,25 +11,26 @@ import (
 // reflection: allow interpreted code to import "debug/plan9obj"
 func init() {
 	Packages["debug/plan9obj"] = Package{
-	Name: "plan9obj",
-	Binds: map[string]Value{
-		"Magic386":	ValueOf(plan9obj.Magic386),
-		"Magic64":	ValueOf(plan9obj.Magic64),
-		"MagicAMD64":	ValueOf(plan9obj.MagicAMD64),
-		"MagicARM":	ValueOf(plan9obj.MagicARM),
-		"NewFile":	ValueOf(plan9obj.NewFile),
-		"Open":	ValueOf(plan9obj.Open),
-	}, Types: map[string]Type{
-		"File":	TypeOf((*plan9obj.File)(nil)).Elem(),
-		"FileHeader":	TypeOf((*plan9obj.FileHeader)(nil)).Elem(),
-		"Section":	TypeOf((*plan9obj.Section)(nil)).Elem(),
-		"SectionHeader":	TypeOf((*plan9obj.SectionHeader)(nil)).Elem(),
-		"Sym":	TypeOf((*plan9obj.Sym)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"Magic386":	"int:491",
-		"Magic64":	"int:32768",
-		"MagicAMD64":	"int:35479",
-		"MagicARM":	"int:1607",
-	}, 
+		Name: "plan9obj",
+		Binds: map[string]Value{
+			"ErrNoSymbols":	ValueOf(&plan9obj.ErrNoSymbols).Elem(),
+			"Magic386":	ValueOf(plan9obj.Magic386),
+			"Magic64":	ValueOf(plan9obj.Magic64),
+			"MagicAMD64":	ValueOf(plan9obj.MagicAMD64),
+			"MagicARM":	ValueOf(plan9obj.MagicARM),
+			"NewFile":	ValueOf(plan9obj.NewFile),
+			"Open":	ValueOf(plan9obj.Open),
+		}, Types: map[string]Type{
+			"File":	TypeOf((*plan9obj.File)(nil)).Elem(),
+			"FileHeader":	TypeOf((*plan9obj.FileHeader)(nil)).Elem(),
+			"Section":	TypeOf((*plan9obj.Section)(nil)).Elem(),
+			"SectionHeader":	TypeOf((*plan9obj.SectionHeader)(nil)).Elem(),
+			"Sym":	TypeOf((*plan9obj.Sym)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"Magic386":	"int:491",
+			"Magic64":	"int:32768",
+			"MagicAMD64":	"int:35479",
+			"MagicARM":	"int:1607",
+		}, 
 	}
 }

@@ -11,16 +11,16 @@ import (
 // reflection: allow interpreted code to import "hash"
 func init() {
 	Packages["hash"] = Package{
-	Name: "hash",
-	Types: map[string]Type{
-		"Hash":	TypeOf((*hash.Hash)(nil)).Elem(),
-		"Hash32":	TypeOf((*hash.Hash32)(nil)).Elem(),
-		"Hash64":	TypeOf((*hash.Hash64)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Hash":	TypeOf((*P_hash_Hash)(nil)).Elem(),
-		"Hash32":	TypeOf((*P_hash_Hash32)(nil)).Elem(),
-		"Hash64":	TypeOf((*P_hash_Hash64)(nil)).Elem(),
-	}, 
+		Name: "hash",
+		Types: map[string]Type{
+			"Hash":	TypeOf((*hash.Hash)(nil)).Elem(),
+			"Hash32":	TypeOf((*hash.Hash32)(nil)).Elem(),
+			"Hash64":	TypeOf((*hash.Hash64)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Hash":	TypeOf((*P_hash_Hash)(nil)).Elem(),
+			"Hash32":	TypeOf((*P_hash_Hash32)(nil)).Elem(),
+			"Hash64":	TypeOf((*P_hash_Hash64)(nil)).Elem(),
+		}, 
 	}
 }
 

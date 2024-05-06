@@ -11,16 +11,16 @@ import (
 // reflection: allow interpreted code to import "net/http/httptrace"
 func init() {
 	Packages["net/http/httptrace"] = Package{
-	Name: "httptrace",
-	Binds: map[string]Value{
-		"ContextClientTrace":	ValueOf(httptrace.ContextClientTrace),
-		"WithClientTrace":	ValueOf(httptrace.WithClientTrace),
-	}, Types: map[string]Type{
-		"ClientTrace":	TypeOf((*httptrace.ClientTrace)(nil)).Elem(),
-		"DNSDoneInfo":	TypeOf((*httptrace.DNSDoneInfo)(nil)).Elem(),
-		"DNSStartInfo":	TypeOf((*httptrace.DNSStartInfo)(nil)).Elem(),
-		"GotConnInfo":	TypeOf((*httptrace.GotConnInfo)(nil)).Elem(),
-		"WroteRequestInfo":	TypeOf((*httptrace.WroteRequestInfo)(nil)).Elem(),
-	}, 
+		Name: "httptrace",
+		Binds: map[string]Value{
+			"ContextClientTrace":	ValueOf(httptrace.ContextClientTrace),
+			"WithClientTrace":	ValueOf(httptrace.WithClientTrace),
+		}, Types: map[string]Type{
+			"ClientTrace":	TypeOf((*httptrace.ClientTrace)(nil)).Elem(),
+			"DNSDoneInfo":	TypeOf((*httptrace.DNSDoneInfo)(nil)).Elem(),
+			"DNSStartInfo":	TypeOf((*httptrace.DNSStartInfo)(nil)).Elem(),
+			"GotConnInfo":	TypeOf((*httptrace.GotConnInfo)(nil)).Elem(),
+			"WroteRequestInfo":	TypeOf((*httptrace.WroteRequestInfo)(nil)).Elem(),
+		}, 
 	}
 }

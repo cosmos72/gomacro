@@ -11,16 +11,16 @@ import (
 // reflection: allow interpreted code to import "go/scanner"
 func init() {
 	Packages["go/scanner"] = Package{
-	Name: "scanner",
-	Binds: map[string]Value{
-		"PrintError":	ValueOf(scanner.PrintError),
-		"ScanComments":	ValueOf(scanner.ScanComments),
-	}, Types: map[string]Type{
-		"Error":	TypeOf((*scanner.Error)(nil)).Elem(),
-		"ErrorHandler":	TypeOf((*scanner.ErrorHandler)(nil)).Elem(),
-		"ErrorList":	TypeOf((*scanner.ErrorList)(nil)).Elem(),
-		"Mode":	TypeOf((*scanner.Mode)(nil)).Elem(),
-		"Scanner":	TypeOf((*scanner.Scanner)(nil)).Elem(),
-	}, 
+		Name: "scanner",
+		Binds: map[string]Value{
+			"PrintError":	ValueOf(scanner.PrintError),
+			"ScanComments":	ValueOf(scanner.ScanComments),
+		}, Types: map[string]Type{
+			"Error":	TypeOf((*scanner.Error)(nil)).Elem(),
+			"ErrorHandler":	TypeOf((*scanner.ErrorHandler)(nil)).Elem(),
+			"ErrorList":	TypeOf((*scanner.ErrorList)(nil)).Elem(),
+			"Mode":	TypeOf((*scanner.Mode)(nil)).Elem(),
+			"Scanner":	TypeOf((*scanner.Scanner)(nil)).Elem(),
+		}, 
 	}
 }

@@ -11,10 +11,10 @@ import (
 // reflection: allow interpreted code to import "go/format"
 func init() {
 	Packages["go/format"] = Package{
-	Name: "format",
-	Binds: map[string]Value{
-		"Node":	ValueOf(format.Node),
-		"Source":	ValueOf(format.Source),
-	}, 
+		Name: "format",
+		Binds: map[string]Value{
+			"Node":	ValueOf(format.Node),
+			"Source":	ValueOf(format.Source),
+		}, 
 	}
 }

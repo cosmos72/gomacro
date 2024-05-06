@@ -11,17 +11,17 @@ import (
 // reflection: allow interpreted code to import "path"
 func init() {
 	Packages["path"] = Package{
-	Name: "path",
-	Binds: map[string]Value{
-		"Base":	ValueOf(path.Base),
-		"Clean":	ValueOf(path.Clean),
-		"Dir":	ValueOf(path.Dir),
-		"ErrBadPattern":	ValueOf(&path.ErrBadPattern).Elem(),
-		"Ext":	ValueOf(path.Ext),
-		"IsAbs":	ValueOf(path.IsAbs),
-		"Join":	ValueOf(path.Join),
-		"Match":	ValueOf(path.Match),
-		"Split":	ValueOf(path.Split),
-	}, 
+		Name: "path",
+		Binds: map[string]Value{
+			"Base":	ValueOf(path.Base),
+			"Clean":	ValueOf(path.Clean),
+			"Dir":	ValueOf(path.Dir),
+			"ErrBadPattern":	ValueOf(&path.ErrBadPattern).Elem(),
+			"Ext":	ValueOf(path.Ext),
+			"IsAbs":	ValueOf(path.IsAbs),
+			"Join":	ValueOf(path.Join),
+			"Match":	ValueOf(path.Match),
+			"Split":	ValueOf(path.Split),
+		}, 
 	}
 }

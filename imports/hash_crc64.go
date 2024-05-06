@@ -11,21 +11,21 @@ import (
 // reflection: allow interpreted code to import "hash/crc64"
 func init() {
 	Packages["hash/crc64"] = Package{
-	Name: "crc64",
-	Binds: map[string]Value{
-		"Checksum":	ValueOf(crc64.Checksum),
-		"ECMA":	ValueOf(uint64(crc64.ECMA)),
-		"ISO":	ValueOf(uint64(crc64.ISO)),
-		"MakeTable":	ValueOf(crc64.MakeTable),
-		"New":	ValueOf(crc64.New),
-		"Size":	ValueOf(crc64.Size),
-		"Update":	ValueOf(crc64.Update),
-	}, Types: map[string]Type{
-		"Table":	TypeOf((*crc64.Table)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"ECMA":	"int:14514072000185962306",
-		"ISO":	"int:15564440312192434176",
-		"Size":	"int:8",
-	}, 
+		Name: "crc64",
+		Binds: map[string]Value{
+			"Checksum":	ValueOf(crc64.Checksum),
+			"ECMA":	ValueOf(uint64(crc64.ECMA)),
+			"ISO":	ValueOf(uint64(crc64.ISO)),
+			"MakeTable":	ValueOf(crc64.MakeTable),
+			"New":	ValueOf(crc64.New),
+			"Size":	ValueOf(crc64.Size),
+			"Update":	ValueOf(crc64.Update),
+		}, Types: map[string]Type{
+			"Table":	TypeOf((*crc64.Table)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"ECMA":	"int:14514072000185962306",
+			"ISO":	"int:15564440312192434176",
+			"Size":	"int:8",
+		}, 
 	}
 }

@@ -11,24 +11,24 @@ import (
 // reflection: allow interpreted code to import "go/build"
 func init() {
 	Packages["go/build"] = Package{
-	Name: "build",
-	Binds: map[string]Value{
-		"AllowBinary":	ValueOf(build.AllowBinary),
-		"ArchChar":	ValueOf(build.ArchChar),
-		"Default":	ValueOf(&build.Default).Elem(),
-		"FindOnly":	ValueOf(build.FindOnly),
-		"IgnoreVendor":	ValueOf(build.IgnoreVendor),
-		"Import":	ValueOf(build.Import),
-		"ImportComment":	ValueOf(build.ImportComment),
-		"ImportDir":	ValueOf(build.ImportDir),
-		"IsLocalImport":	ValueOf(build.IsLocalImport),
-		"ToolDir":	ValueOf(&build.ToolDir).Elem(),
-	}, Types: map[string]Type{
-		"Context":	TypeOf((*build.Context)(nil)).Elem(),
-		"ImportMode":	TypeOf((*build.ImportMode)(nil)).Elem(),
-		"MultiplePackageError":	TypeOf((*build.MultiplePackageError)(nil)).Elem(),
-		"NoGoError":	TypeOf((*build.NoGoError)(nil)).Elem(),
-		"Package":	TypeOf((*build.Package)(nil)).Elem(),
-	}, 
+		Name: "build",
+		Binds: map[string]Value{
+			"AllowBinary":	ValueOf(build.AllowBinary),
+			"ArchChar":	ValueOf(build.ArchChar),
+			"Default":	ValueOf(&build.Default).Elem(),
+			"FindOnly":	ValueOf(build.FindOnly),
+			"IgnoreVendor":	ValueOf(build.IgnoreVendor),
+			"Import":	ValueOf(build.Import),
+			"ImportComment":	ValueOf(build.ImportComment),
+			"ImportDir":	ValueOf(build.ImportDir),
+			"IsLocalImport":	ValueOf(build.IsLocalImport),
+			"ToolDir":	ValueOf(&build.ToolDir).Elem(),
+		}, Types: map[string]Type{
+			"Context":	TypeOf((*build.Context)(nil)).Elem(),
+			"ImportMode":	TypeOf((*build.ImportMode)(nil)).Elem(),
+			"MultiplePackageError":	TypeOf((*build.MultiplePackageError)(nil)).Elem(),
+			"NoGoError":	TypeOf((*build.NoGoError)(nil)).Elem(),
+			"Package":	TypeOf((*build.Package)(nil)).Elem(),
+		}, 
 	}
 }

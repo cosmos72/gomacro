@@ -11,15 +11,15 @@ import (
 // reflection: allow interpreted code to import "encoding/ascii85"
 func init() {
 	Packages["encoding/ascii85"] = Package{
-	Name: "ascii85",
-	Binds: map[string]Value{
-		"Decode":	ValueOf(ascii85.Decode),
-		"Encode":	ValueOf(ascii85.Encode),
-		"MaxEncodedLen":	ValueOf(ascii85.MaxEncodedLen),
-		"NewDecoder":	ValueOf(ascii85.NewDecoder),
-		"NewEncoder":	ValueOf(ascii85.NewEncoder),
-	}, Types: map[string]Type{
-		"CorruptInputError":	TypeOf((*ascii85.CorruptInputError)(nil)).Elem(),
-	}, 
+		Name: "ascii85",
+		Binds: map[string]Value{
+			"Decode":	ValueOf(ascii85.Decode),
+			"Encode":	ValueOf(ascii85.Encode),
+			"MaxEncodedLen":	ValueOf(ascii85.MaxEncodedLen),
+			"NewDecoder":	ValueOf(ascii85.NewDecoder),
+			"NewEncoder":	ValueOf(ascii85.NewEncoder),
+		}, Types: map[string]Type{
+			"CorruptInputError":	TypeOf((*ascii85.CorruptInputError)(nil)).Elem(),
+		}, 
 	}
 }

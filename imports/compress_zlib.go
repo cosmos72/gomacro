@@ -12,33 +12,33 @@ import (
 // reflection: allow interpreted code to import "compress/zlib"
 func init() {
 	Packages["compress/zlib"] = Package{
-	Name: "zlib",
-	Binds: map[string]Value{
-		"BestCompression":	ValueOf(zlib.BestCompression),
-		"BestSpeed":	ValueOf(zlib.BestSpeed),
-		"DefaultCompression":	ValueOf(zlib.DefaultCompression),
-		"ErrChecksum":	ValueOf(&zlib.ErrChecksum).Elem(),
-		"ErrDictionary":	ValueOf(&zlib.ErrDictionary).Elem(),
-		"ErrHeader":	ValueOf(&zlib.ErrHeader).Elem(),
-		"HuffmanOnly":	ValueOf(zlib.HuffmanOnly),
-		"NewReader":	ValueOf(zlib.NewReader),
-		"NewReaderDict":	ValueOf(zlib.NewReaderDict),
-		"NewWriter":	ValueOf(zlib.NewWriter),
-		"NewWriterLevel":	ValueOf(zlib.NewWriterLevel),
-		"NewWriterLevelDict":	ValueOf(zlib.NewWriterLevelDict),
-		"NoCompression":	ValueOf(zlib.NoCompression),
-	}, Types: map[string]Type{
-		"Resetter":	TypeOf((*zlib.Resetter)(nil)).Elem(),
-		"Writer":	TypeOf((*zlib.Writer)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Resetter":	TypeOf((*P_compress_zlib_Resetter)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"BestCompression":	"int:9",
-		"BestSpeed":	"int:1",
-		"DefaultCompression":	"int:-1",
-		"HuffmanOnly":	"int:-2",
-		"NoCompression":	"int:0",
-	}, 
+		Name: "zlib",
+		Binds: map[string]Value{
+			"BestCompression":	ValueOf(zlib.BestCompression),
+			"BestSpeed":	ValueOf(zlib.BestSpeed),
+			"DefaultCompression":	ValueOf(zlib.DefaultCompression),
+			"ErrChecksum":	ValueOf(&zlib.ErrChecksum).Elem(),
+			"ErrDictionary":	ValueOf(&zlib.ErrDictionary).Elem(),
+			"ErrHeader":	ValueOf(&zlib.ErrHeader).Elem(),
+			"HuffmanOnly":	ValueOf(zlib.HuffmanOnly),
+			"NewReader":	ValueOf(zlib.NewReader),
+			"NewReaderDict":	ValueOf(zlib.NewReaderDict),
+			"NewWriter":	ValueOf(zlib.NewWriter),
+			"NewWriterLevel":	ValueOf(zlib.NewWriterLevel),
+			"NewWriterLevelDict":	ValueOf(zlib.NewWriterLevelDict),
+			"NoCompression":	ValueOf(zlib.NoCompression),
+		}, Types: map[string]Type{
+			"Resetter":	TypeOf((*zlib.Resetter)(nil)).Elem(),
+			"Writer":	TypeOf((*zlib.Writer)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Resetter":	TypeOf((*P_compress_zlib_Resetter)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"BestCompression":	"int:9",
+			"BestSpeed":	"int:1",
+			"DefaultCompression":	"int:-1",
+			"HuffmanOnly":	"int:-2",
+			"NoCompression":	"int:0",
+		}, 
 	}
 }
 

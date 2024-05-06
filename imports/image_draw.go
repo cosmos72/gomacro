@@ -5,31 +5,33 @@ package imports
 
 import (
 	. "reflect"
+	image "image"
 	color "image/color"
 	draw "image/draw"
-	image "image"
 )
 
 // reflection: allow interpreted code to import "image/draw"
 func init() {
 	Packages["image/draw"] = Package{
-	Name: "draw",
-	Binds: map[string]Value{
-		"Draw":	ValueOf(draw.Draw),
-		"DrawMask":	ValueOf(draw.DrawMask),
-		"FloydSteinberg":	ValueOf(&draw.FloydSteinberg).Elem(),
-		"Over":	ValueOf(draw.Over),
-		"Src":	ValueOf(draw.Src),
-	}, Types: map[string]Type{
-		"Drawer":	TypeOf((*draw.Drawer)(nil)).Elem(),
-		"Image":	TypeOf((*draw.Image)(nil)).Elem(),
-		"Op":	TypeOf((*draw.Op)(nil)).Elem(),
-		"Quantizer":	TypeOf((*draw.Quantizer)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Drawer":	TypeOf((*P_image_draw_Drawer)(nil)).Elem(),
-		"Image":	TypeOf((*P_image_draw_Image)(nil)).Elem(),
-		"Quantizer":	TypeOf((*P_image_draw_Quantizer)(nil)).Elem(),
-	}, 
+		Name: "draw",
+		Binds: map[string]Value{
+			"Draw":	ValueOf(draw.Draw),
+			"DrawMask":	ValueOf(draw.DrawMask),
+			"FloydSteinberg":	ValueOf(&draw.FloydSteinberg).Elem(),
+			"Over":	ValueOf(draw.Over),
+			"Src":	ValueOf(draw.Src),
+		}, Types: map[string]Type{
+			"Drawer":	TypeOf((*draw.Drawer)(nil)).Elem(),
+			"Image":	TypeOf((*draw.Image)(nil)).Elem(),
+			"Op":	TypeOf((*draw.Op)(nil)).Elem(),
+			"Quantizer":	TypeOf((*draw.Quantizer)(nil)).Elem(),
+			"RGBA64Image":	TypeOf((*draw.RGBA64Image)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Drawer":	TypeOf((*P_image_draw_Drawer)(nil)).Elem(),
+			"Image":	TypeOf((*P_image_draw_Image)(nil)).Elem(),
+			"Quantizer":	TypeOf((*P_image_draw_Quantizer)(nil)).Elem(),
+			"RGBA64Image":	TypeOf((*P_image_draw_RGBA64Image)(nil)).Elem(),
+		}, 
 	}
 }
 
@@ -70,4 +72,33 @@ type P_image_draw_Quantizer struct {
 }
 func (P *P_image_draw_Quantizer) Quantize(p color.Palette, m image.Image) color.Palette {
 	return P.Quantize_(P.Object, p, m)
+}
+
+// --------------- proxy for image/draw.RGBA64Image ---------------
+type P_image_draw_RGBA64Image struct {
+	Object	interface{}
+	At_	func(_proxy_obj_ interface{}, x int, y int) color.Color
+	Bounds_	func(interface{}) image.Rectangle
+	ColorModel_	func(interface{}) color.Model
+	RGBA64At_	func(_proxy_obj_ interface{}, x int, y int) color.RGBA64
+	Set_	func(_proxy_obj_ interface{}, x int, y int, c color.Color) 
+	SetRGBA64_	func(_proxy_obj_ interface{}, x int, y int, c color.RGBA64) 
+}
+func (P *P_image_draw_RGBA64Image) At(x int, y int) color.Color {
+	return P.At_(P.Object, x, y)
+}
+func (P *P_image_draw_RGBA64Image) Bounds() image.Rectangle {
+	return P.Bounds_(P.Object)
+}
+func (P *P_image_draw_RGBA64Image) ColorModel() color.Model {
+	return P.ColorModel_(P.Object)
+}
+func (P *P_image_draw_RGBA64Image) RGBA64At(x int, y int) color.RGBA64 {
+	return P.RGBA64At_(P.Object, x, y)
+}
+func (P *P_image_draw_RGBA64Image) Set(x int, y int, c color.Color)  {
+	P.Set_(P.Object, x, y, c)
+}
+func (P *P_image_draw_RGBA64Image) SetRGBA64(x int, y int, c color.RGBA64)  {
+	P.SetRGBA64_(P.Object, x, y, c)
 }

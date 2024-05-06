@@ -5,92 +5,94 @@ package imports
 
 import (
 	. "reflect"
+	reflect "reflect"
 	context "context"
 	driver "database/sql/driver"
-	reflect "reflect"
 )
 
 // reflection: allow interpreted code to import "database/sql/driver"
 func init() {
 	Packages["database/sql/driver"] = Package{
-	Name: "driver",
-	Binds: map[string]Value{
-		"Bool":	ValueOf(&driver.Bool).Elem(),
-		"DefaultParameterConverter":	ValueOf(&driver.DefaultParameterConverter).Elem(),
-		"ErrBadConn":	ValueOf(&driver.ErrBadConn).Elem(),
-		"ErrRemoveArgument":	ValueOf(&driver.ErrRemoveArgument).Elem(),
-		"ErrSkip":	ValueOf(&driver.ErrSkip).Elem(),
-		"Int32":	ValueOf(&driver.Int32).Elem(),
-		"IsScanValue":	ValueOf(driver.IsScanValue),
-		"IsValue":	ValueOf(driver.IsValue),
-		"ResultNoRows":	ValueOf(&driver.ResultNoRows).Elem(),
-		"String":	ValueOf(&driver.String).Elem(),
-	}, Types: map[string]Type{
-		"ColumnConverter":	TypeOf((*driver.ColumnConverter)(nil)).Elem(),
-		"Conn":	TypeOf((*driver.Conn)(nil)).Elem(),
-		"ConnBeginTx":	TypeOf((*driver.ConnBeginTx)(nil)).Elem(),
-		"ConnPrepareContext":	TypeOf((*driver.ConnPrepareContext)(nil)).Elem(),
-		"Connector":	TypeOf((*driver.Connector)(nil)).Elem(),
-		"Driver":	TypeOf((*driver.Driver)(nil)).Elem(),
-		"DriverContext":	TypeOf((*driver.DriverContext)(nil)).Elem(),
-		"Execer":	TypeOf((*driver.Execer)(nil)).Elem(),
-		"ExecerContext":	TypeOf((*driver.ExecerContext)(nil)).Elem(),
-		"IsolationLevel":	TypeOf((*driver.IsolationLevel)(nil)).Elem(),
-		"NamedValue":	TypeOf((*driver.NamedValue)(nil)).Elem(),
-		"NamedValueChecker":	TypeOf((*driver.NamedValueChecker)(nil)).Elem(),
-		"NotNull":	TypeOf((*driver.NotNull)(nil)).Elem(),
-		"Null":	TypeOf((*driver.Null)(nil)).Elem(),
-		"Pinger":	TypeOf((*driver.Pinger)(nil)).Elem(),
-		"Queryer":	TypeOf((*driver.Queryer)(nil)).Elem(),
-		"QueryerContext":	TypeOf((*driver.QueryerContext)(nil)).Elem(),
-		"Result":	TypeOf((*driver.Result)(nil)).Elem(),
-		"Rows":	TypeOf((*driver.Rows)(nil)).Elem(),
-		"RowsAffected":	TypeOf((*driver.RowsAffected)(nil)).Elem(),
-		"RowsColumnTypeDatabaseTypeName":	TypeOf((*driver.RowsColumnTypeDatabaseTypeName)(nil)).Elem(),
-		"RowsColumnTypeLength":	TypeOf((*driver.RowsColumnTypeLength)(nil)).Elem(),
-		"RowsColumnTypeNullable":	TypeOf((*driver.RowsColumnTypeNullable)(nil)).Elem(),
-		"RowsColumnTypePrecisionScale":	TypeOf((*driver.RowsColumnTypePrecisionScale)(nil)).Elem(),
-		"RowsColumnTypeScanType":	TypeOf((*driver.RowsColumnTypeScanType)(nil)).Elem(),
-		"RowsNextResultSet":	TypeOf((*driver.RowsNextResultSet)(nil)).Elem(),
-		"SessionResetter":	TypeOf((*driver.SessionResetter)(nil)).Elem(),
-		"Stmt":	TypeOf((*driver.Stmt)(nil)).Elem(),
-		"StmtExecContext":	TypeOf((*driver.StmtExecContext)(nil)).Elem(),
-		"StmtQueryContext":	TypeOf((*driver.StmtQueryContext)(nil)).Elem(),
-		"Tx":	TypeOf((*driver.Tx)(nil)).Elem(),
-		"TxOptions":	TypeOf((*driver.TxOptions)(nil)).Elem(),
-		"Value":	TypeOf((*driver.Value)(nil)).Elem(),
-		"ValueConverter":	TypeOf((*driver.ValueConverter)(nil)).Elem(),
-		"Valuer":	TypeOf((*driver.Valuer)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"ColumnConverter":	TypeOf((*P_database_sql_driver_ColumnConverter)(nil)).Elem(),
-		"Conn":	TypeOf((*P_database_sql_driver_Conn)(nil)).Elem(),
-		"ConnBeginTx":	TypeOf((*P_database_sql_driver_ConnBeginTx)(nil)).Elem(),
-		"ConnPrepareContext":	TypeOf((*P_database_sql_driver_ConnPrepareContext)(nil)).Elem(),
-		"Connector":	TypeOf((*P_database_sql_driver_Connector)(nil)).Elem(),
-		"Driver":	TypeOf((*P_database_sql_driver_Driver)(nil)).Elem(),
-		"DriverContext":	TypeOf((*P_database_sql_driver_DriverContext)(nil)).Elem(),
-		"Execer":	TypeOf((*P_database_sql_driver_Execer)(nil)).Elem(),
-		"ExecerContext":	TypeOf((*P_database_sql_driver_ExecerContext)(nil)).Elem(),
-		"NamedValueChecker":	TypeOf((*P_database_sql_driver_NamedValueChecker)(nil)).Elem(),
-		"Pinger":	TypeOf((*P_database_sql_driver_Pinger)(nil)).Elem(),
-		"Queryer":	TypeOf((*P_database_sql_driver_Queryer)(nil)).Elem(),
-		"QueryerContext":	TypeOf((*P_database_sql_driver_QueryerContext)(nil)).Elem(),
-		"Result":	TypeOf((*P_database_sql_driver_Result)(nil)).Elem(),
-		"Rows":	TypeOf((*P_database_sql_driver_Rows)(nil)).Elem(),
-		"RowsColumnTypeDatabaseTypeName":	TypeOf((*P_database_sql_driver_RowsColumnTypeDatabaseTypeName)(nil)).Elem(),
-		"RowsColumnTypeLength":	TypeOf((*P_database_sql_driver_RowsColumnTypeLength)(nil)).Elem(),
-		"RowsColumnTypeNullable":	TypeOf((*P_database_sql_driver_RowsColumnTypeNullable)(nil)).Elem(),
-		"RowsColumnTypePrecisionScale":	TypeOf((*P_database_sql_driver_RowsColumnTypePrecisionScale)(nil)).Elem(),
-		"RowsColumnTypeScanType":	TypeOf((*P_database_sql_driver_RowsColumnTypeScanType)(nil)).Elem(),
-		"RowsNextResultSet":	TypeOf((*P_database_sql_driver_RowsNextResultSet)(nil)).Elem(),
-		"SessionResetter":	TypeOf((*P_database_sql_driver_SessionResetter)(nil)).Elem(),
-		"Stmt":	TypeOf((*P_database_sql_driver_Stmt)(nil)).Elem(),
-		"StmtExecContext":	TypeOf((*P_database_sql_driver_StmtExecContext)(nil)).Elem(),
-		"StmtQueryContext":	TypeOf((*P_database_sql_driver_StmtQueryContext)(nil)).Elem(),
-		"Tx":	TypeOf((*P_database_sql_driver_Tx)(nil)).Elem(),
-		"ValueConverter":	TypeOf((*P_database_sql_driver_ValueConverter)(nil)).Elem(),
-		"Valuer":	TypeOf((*P_database_sql_driver_Valuer)(nil)).Elem(),
-	}, 
+		Name: "driver",
+		Binds: map[string]Value{
+			"Bool":	ValueOf(&driver.Bool).Elem(),
+			"DefaultParameterConverter":	ValueOf(&driver.DefaultParameterConverter).Elem(),
+			"ErrBadConn":	ValueOf(&driver.ErrBadConn).Elem(),
+			"ErrRemoveArgument":	ValueOf(&driver.ErrRemoveArgument).Elem(),
+			"ErrSkip":	ValueOf(&driver.ErrSkip).Elem(),
+			"Int32":	ValueOf(&driver.Int32).Elem(),
+			"IsScanValue":	ValueOf(driver.IsScanValue),
+			"IsValue":	ValueOf(driver.IsValue),
+			"ResultNoRows":	ValueOf(&driver.ResultNoRows).Elem(),
+			"String":	ValueOf(&driver.String).Elem(),
+		}, Types: map[string]Type{
+			"ColumnConverter":	TypeOf((*driver.ColumnConverter)(nil)).Elem(),
+			"Conn":	TypeOf((*driver.Conn)(nil)).Elem(),
+			"ConnBeginTx":	TypeOf((*driver.ConnBeginTx)(nil)).Elem(),
+			"ConnPrepareContext":	TypeOf((*driver.ConnPrepareContext)(nil)).Elem(),
+			"Connector":	TypeOf((*driver.Connector)(nil)).Elem(),
+			"Driver":	TypeOf((*driver.Driver)(nil)).Elem(),
+			"DriverContext":	TypeOf((*driver.DriverContext)(nil)).Elem(),
+			"Execer":	TypeOf((*driver.Execer)(nil)).Elem(),
+			"ExecerContext":	TypeOf((*driver.ExecerContext)(nil)).Elem(),
+			"IsolationLevel":	TypeOf((*driver.IsolationLevel)(nil)).Elem(),
+			"NamedValue":	TypeOf((*driver.NamedValue)(nil)).Elem(),
+			"NamedValueChecker":	TypeOf((*driver.NamedValueChecker)(nil)).Elem(),
+			"NotNull":	TypeOf((*driver.NotNull)(nil)).Elem(),
+			"Null":	TypeOf((*driver.Null)(nil)).Elem(),
+			"Pinger":	TypeOf((*driver.Pinger)(nil)).Elem(),
+			"Queryer":	TypeOf((*driver.Queryer)(nil)).Elem(),
+			"QueryerContext":	TypeOf((*driver.QueryerContext)(nil)).Elem(),
+			"Result":	TypeOf((*driver.Result)(nil)).Elem(),
+			"Rows":	TypeOf((*driver.Rows)(nil)).Elem(),
+			"RowsAffected":	TypeOf((*driver.RowsAffected)(nil)).Elem(),
+			"RowsColumnTypeDatabaseTypeName":	TypeOf((*driver.RowsColumnTypeDatabaseTypeName)(nil)).Elem(),
+			"RowsColumnTypeLength":	TypeOf((*driver.RowsColumnTypeLength)(nil)).Elem(),
+			"RowsColumnTypeNullable":	TypeOf((*driver.RowsColumnTypeNullable)(nil)).Elem(),
+			"RowsColumnTypePrecisionScale":	TypeOf((*driver.RowsColumnTypePrecisionScale)(nil)).Elem(),
+			"RowsColumnTypeScanType":	TypeOf((*driver.RowsColumnTypeScanType)(nil)).Elem(),
+			"RowsNextResultSet":	TypeOf((*driver.RowsNextResultSet)(nil)).Elem(),
+			"SessionResetter":	TypeOf((*driver.SessionResetter)(nil)).Elem(),
+			"Stmt":	TypeOf((*driver.Stmt)(nil)).Elem(),
+			"StmtExecContext":	TypeOf((*driver.StmtExecContext)(nil)).Elem(),
+			"StmtQueryContext":	TypeOf((*driver.StmtQueryContext)(nil)).Elem(),
+			"Tx":	TypeOf((*driver.Tx)(nil)).Elem(),
+			"TxOptions":	TypeOf((*driver.TxOptions)(nil)).Elem(),
+			"Validator":	TypeOf((*driver.Validator)(nil)).Elem(),
+			"Value":	TypeOf((*driver.Value)(nil)).Elem(),
+			"ValueConverter":	TypeOf((*driver.ValueConverter)(nil)).Elem(),
+			"Valuer":	TypeOf((*driver.Valuer)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"ColumnConverter":	TypeOf((*P_database_sql_driver_ColumnConverter)(nil)).Elem(),
+			"Conn":	TypeOf((*P_database_sql_driver_Conn)(nil)).Elem(),
+			"ConnBeginTx":	TypeOf((*P_database_sql_driver_ConnBeginTx)(nil)).Elem(),
+			"ConnPrepareContext":	TypeOf((*P_database_sql_driver_ConnPrepareContext)(nil)).Elem(),
+			"Connector":	TypeOf((*P_database_sql_driver_Connector)(nil)).Elem(),
+			"Driver":	TypeOf((*P_database_sql_driver_Driver)(nil)).Elem(),
+			"DriverContext":	TypeOf((*P_database_sql_driver_DriverContext)(nil)).Elem(),
+			"Execer":	TypeOf((*P_database_sql_driver_Execer)(nil)).Elem(),
+			"ExecerContext":	TypeOf((*P_database_sql_driver_ExecerContext)(nil)).Elem(),
+			"NamedValueChecker":	TypeOf((*P_database_sql_driver_NamedValueChecker)(nil)).Elem(),
+			"Pinger":	TypeOf((*P_database_sql_driver_Pinger)(nil)).Elem(),
+			"Queryer":	TypeOf((*P_database_sql_driver_Queryer)(nil)).Elem(),
+			"QueryerContext":	TypeOf((*P_database_sql_driver_QueryerContext)(nil)).Elem(),
+			"Result":	TypeOf((*P_database_sql_driver_Result)(nil)).Elem(),
+			"Rows":	TypeOf((*P_database_sql_driver_Rows)(nil)).Elem(),
+			"RowsColumnTypeDatabaseTypeName":	TypeOf((*P_database_sql_driver_RowsColumnTypeDatabaseTypeName)(nil)).Elem(),
+			"RowsColumnTypeLength":	TypeOf((*P_database_sql_driver_RowsColumnTypeLength)(nil)).Elem(),
+			"RowsColumnTypeNullable":	TypeOf((*P_database_sql_driver_RowsColumnTypeNullable)(nil)).Elem(),
+			"RowsColumnTypePrecisionScale":	TypeOf((*P_database_sql_driver_RowsColumnTypePrecisionScale)(nil)).Elem(),
+			"RowsColumnTypeScanType":	TypeOf((*P_database_sql_driver_RowsColumnTypeScanType)(nil)).Elem(),
+			"RowsNextResultSet":	TypeOf((*P_database_sql_driver_RowsNextResultSet)(nil)).Elem(),
+			"SessionResetter":	TypeOf((*P_database_sql_driver_SessionResetter)(nil)).Elem(),
+			"Stmt":	TypeOf((*P_database_sql_driver_Stmt)(nil)).Elem(),
+			"StmtExecContext":	TypeOf((*P_database_sql_driver_StmtExecContext)(nil)).Elem(),
+			"StmtQueryContext":	TypeOf((*P_database_sql_driver_StmtQueryContext)(nil)).Elem(),
+			"Tx":	TypeOf((*P_database_sql_driver_Tx)(nil)).Elem(),
+			"Validator":	TypeOf((*P_database_sql_driver_Validator)(nil)).Elem(),
+			"ValueConverter":	TypeOf((*P_database_sql_driver_ValueConverter)(nil)).Elem(),
+			"Valuer":	TypeOf((*P_database_sql_driver_Valuer)(nil)).Elem(),
+		}, 
 	}
 }
 
@@ -444,12 +446,21 @@ func (P *P_database_sql_driver_Tx) Rollback() error {
 	return P.Rollback_(P.Object)
 }
 
+// --------------- proxy for database/sql/driver.Validator ---------------
+type P_database_sql_driver_Validator struct {
+	Object	interface{}
+	IsValid_	func(interface{}) bool
+}
+func (P *P_database_sql_driver_Validator) IsValid() bool {
+	return P.IsValid_(P.Object)
+}
+
 // --------------- proxy for database/sql/driver.ValueConverter ---------------
 type P_database_sql_driver_ValueConverter struct {
 	Object	interface{}
-	ConvertValue_	func(_proxy_obj_ interface{}, v interface{}) (driver.Value, error)
+	ConvertValue_	func(_proxy_obj_ interface{}, v any) (driver.Value, error)
 }
-func (P *P_database_sql_driver_ValueConverter) ConvertValue(v interface{}) (driver.Value, error) {
+func (P *P_database_sql_driver_ValueConverter) ConvertValue(v any) (driver.Value, error) {
 	return P.ConvertValue_(P.Object, v)
 }
 

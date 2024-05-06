@@ -11,15 +11,15 @@ import (
 // reflection: allow interpreted code to import "crypto/des"
 func init() {
 	Packages["crypto/des"] = Package{
-	Name: "des",
-	Binds: map[string]Value{
-		"BlockSize":	ValueOf(des.BlockSize),
-		"NewCipher":	ValueOf(des.NewCipher),
-		"NewTripleDESCipher":	ValueOf(des.NewTripleDESCipher),
-	}, Types: map[string]Type{
-		"KeySizeError":	TypeOf((*des.KeySizeError)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"BlockSize":	"int:8",
-	}, 
+		Name: "des",
+		Binds: map[string]Value{
+			"BlockSize":	ValueOf(des.BlockSize),
+			"NewCipher":	ValueOf(des.NewCipher),
+			"NewTripleDESCipher":	ValueOf(des.NewTripleDESCipher),
+		}, Types: map[string]Type{
+			"KeySizeError":	TypeOf((*des.KeySizeError)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"BlockSize":	"int:8",
+		}, 
 	}
 }

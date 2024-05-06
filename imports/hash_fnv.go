@@ -11,14 +11,14 @@ import (
 // reflection: allow interpreted code to import "hash/fnv"
 func init() {
 	Packages["hash/fnv"] = Package{
-	Name: "fnv",
-	Binds: map[string]Value{
-		"New128":	ValueOf(fnv.New128),
-		"New128a":	ValueOf(fnv.New128a),
-		"New32":	ValueOf(fnv.New32),
-		"New32a":	ValueOf(fnv.New32a),
-		"New64":	ValueOf(fnv.New64),
-		"New64a":	ValueOf(fnv.New64a),
-	}, 
+		Name: "fnv",
+		Binds: map[string]Value{
+			"New128":	ValueOf(fnv.New128),
+			"New128a":	ValueOf(fnv.New128a),
+			"New32":	ValueOf(fnv.New32),
+			"New32a":	ValueOf(fnv.New32a),
+			"New64":	ValueOf(fnv.New64),
+			"New64a":	ValueOf(fnv.New64a),
+		}, 
 	}
 }

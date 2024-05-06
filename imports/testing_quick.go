@@ -5,28 +5,28 @@ package imports
 
 import (
 	. "reflect"
-	quick "testing/quick"
 	rand "math/rand"
 	reflect "reflect"
+	quick "testing/quick"
 )
 
 // reflection: allow interpreted code to import "testing/quick"
 func init() {
 	Packages["testing/quick"] = Package{
-	Name: "quick",
-	Binds: map[string]Value{
-		"Check":	ValueOf(quick.Check),
-		"CheckEqual":	ValueOf(quick.CheckEqual),
-		"Value":	ValueOf(quick.Value),
-	}, Types: map[string]Type{
-		"CheckEqualError":	TypeOf((*quick.CheckEqualError)(nil)).Elem(),
-		"CheckError":	TypeOf((*quick.CheckError)(nil)).Elem(),
-		"Config":	TypeOf((*quick.Config)(nil)).Elem(),
-		"Generator":	TypeOf((*quick.Generator)(nil)).Elem(),
-		"SetupError":	TypeOf((*quick.SetupError)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Generator":	TypeOf((*P_testing_quick_Generator)(nil)).Elem(),
-	}, 
+		Name: "quick",
+		Binds: map[string]Value{
+			"Check":	ValueOf(quick.Check),
+			"CheckEqual":	ValueOf(quick.CheckEqual),
+			"Value":	ValueOf(quick.Value),
+		}, Types: map[string]Type{
+			"CheckEqualError":	TypeOf((*quick.CheckEqualError)(nil)).Elem(),
+			"CheckError":	TypeOf((*quick.CheckError)(nil)).Elem(),
+			"Config":	TypeOf((*quick.Config)(nil)).Elem(),
+			"Generator":	TypeOf((*quick.Generator)(nil)).Elem(),
+			"SetupError":	TypeOf((*quick.SetupError)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Generator":	TypeOf((*P_testing_quick_Generator)(nil)).Elem(),
+		}, 
 	}
 }
 

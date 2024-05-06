@@ -11,14 +11,14 @@ import (
 // reflection: allow interpreted code to import "crypto/aes"
 func init() {
 	Packages["crypto/aes"] = Package{
-	Name: "aes",
-	Binds: map[string]Value{
-		"BlockSize":	ValueOf(aes.BlockSize),
-		"NewCipher":	ValueOf(aes.NewCipher),
-	}, Types: map[string]Type{
-		"KeySizeError":	TypeOf((*aes.KeySizeError)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"BlockSize":	"int:16",
-	}, 
+		Name: "aes",
+		Binds: map[string]Value{
+			"BlockSize":	ValueOf(aes.BlockSize),
+			"NewCipher":	ValueOf(aes.NewCipher),
+		}, Types: map[string]Type{
+			"KeySizeError":	TypeOf((*aes.KeySizeError)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"BlockSize":	"int:16",
+		}, 
 	}
 }

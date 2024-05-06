@@ -11,14 +11,14 @@ import (
 // reflection: allow interpreted code to import "net/http/pprof"
 func init() {
 	Packages["net/http/pprof"] = Package{
-	Name: "pprof",
-	Binds: map[string]Value{
-		"Cmdline":	ValueOf(pprof.Cmdline),
-		"Handler":	ValueOf(pprof.Handler),
-		"Index":	ValueOf(pprof.Index),
-		"Profile":	ValueOf(pprof.Profile),
-		"Symbol":	ValueOf(pprof.Symbol),
-		"Trace":	ValueOf(pprof.Trace),
-	}, 
+		Name: "pprof",
+		Binds: map[string]Value{
+			"Cmdline":	ValueOf(pprof.Cmdline),
+			"Handler":	ValueOf(pprof.Handler),
+			"Index":	ValueOf(pprof.Index),
+			"Profile":	ValueOf(pprof.Profile),
+			"Symbol":	ValueOf(pprof.Symbol),
+			"Trace":	ValueOf(pprof.Trace),
+		}, 
 	}
 }

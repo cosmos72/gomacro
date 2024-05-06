@@ -11,31 +11,31 @@ import (
 // reflection: allow interpreted code to import "encoding/binary"
 func init() {
 	Packages["encoding/binary"] = Package{
-	Name: "binary",
-	Binds: map[string]Value{
-		"BigEndian":	ValueOf(&binary.BigEndian).Elem(),
-		"LittleEndian":	ValueOf(&binary.LittleEndian).Elem(),
-		"MaxVarintLen16":	ValueOf(binary.MaxVarintLen16),
-		"MaxVarintLen32":	ValueOf(binary.MaxVarintLen32),
-		"MaxVarintLen64":	ValueOf(binary.MaxVarintLen64),
-		"PutUvarint":	ValueOf(binary.PutUvarint),
-		"PutVarint":	ValueOf(binary.PutVarint),
-		"Read":	ValueOf(binary.Read),
-		"ReadUvarint":	ValueOf(binary.ReadUvarint),
-		"ReadVarint":	ValueOf(binary.ReadVarint),
-		"Size":	ValueOf(binary.Size),
-		"Uvarint":	ValueOf(binary.Uvarint),
-		"Varint":	ValueOf(binary.Varint),
-		"Write":	ValueOf(binary.Write),
-	}, Types: map[string]Type{
-		"ByteOrder":	TypeOf((*binary.ByteOrder)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"ByteOrder":	TypeOf((*P_encoding_binary_ByteOrder)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"MaxVarintLen16":	"int:3",
-		"MaxVarintLen32":	"int:5",
-		"MaxVarintLen64":	"int:10",
-	}, 
+		Name: "binary",
+		Binds: map[string]Value{
+			"BigEndian":	ValueOf(&binary.BigEndian).Elem(),
+			"LittleEndian":	ValueOf(&binary.LittleEndian).Elem(),
+			"MaxVarintLen16":	ValueOf(binary.MaxVarintLen16),
+			"MaxVarintLen32":	ValueOf(binary.MaxVarintLen32),
+			"MaxVarintLen64":	ValueOf(binary.MaxVarintLen64),
+			"PutUvarint":	ValueOf(binary.PutUvarint),
+			"PutVarint":	ValueOf(binary.PutVarint),
+			"Read":	ValueOf(binary.Read),
+			"ReadUvarint":	ValueOf(binary.ReadUvarint),
+			"ReadVarint":	ValueOf(binary.ReadVarint),
+			"Size":	ValueOf(binary.Size),
+			"Uvarint":	ValueOf(binary.Uvarint),
+			"Varint":	ValueOf(binary.Varint),
+			"Write":	ValueOf(binary.Write),
+		}, Types: map[string]Type{
+			"ByteOrder":	TypeOf((*binary.ByteOrder)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"ByteOrder":	TypeOf((*P_encoding_binary_ByteOrder)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"MaxVarintLen16":	"int:3",
+			"MaxVarintLen32":	"int:5",
+			"MaxVarintLen64":	"int:10",
+		}, 
 	}
 }
 

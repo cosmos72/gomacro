@@ -11,12 +11,12 @@ import (
 // reflection: allow interpreted code to import "crypto/rand"
 func init() {
 	Packages["crypto/rand"] = Package{
-	Name: "rand",
-	Binds: map[string]Value{
-		"Int":	ValueOf(rand.Int),
-		"Prime":	ValueOf(rand.Prime),
-		"Read":	ValueOf(rand.Read),
-		"Reader":	ValueOf(&rand.Reader).Elem(),
-	}, 
+		Name: "rand",
+		Binds: map[string]Value{
+			"Int":	ValueOf(rand.Int),
+			"Prime":	ValueOf(rand.Prime),
+			"Read":	ValueOf(rand.Read),
+			"Reader":	ValueOf(&rand.Reader).Elem(),
+		}, 
 	}
 }

@@ -11,50 +11,52 @@ import (
 // reflection: allow interpreted code to import "database/sql"
 func init() {
 	Packages["database/sql"] = Package{
-	Name: "sql",
-	Binds: map[string]Value{
-		"Drivers":	ValueOf(sql.Drivers),
-		"ErrConnDone":	ValueOf(&sql.ErrConnDone).Elem(),
-		"ErrNoRows":	ValueOf(&sql.ErrNoRows).Elem(),
-		"ErrTxDone":	ValueOf(&sql.ErrTxDone).Elem(),
-		"LevelDefault":	ValueOf(sql.LevelDefault),
-		"LevelLinearizable":	ValueOf(sql.LevelLinearizable),
-		"LevelReadCommitted":	ValueOf(sql.LevelReadCommitted),
-		"LevelReadUncommitted":	ValueOf(sql.LevelReadUncommitted),
-		"LevelRepeatableRead":	ValueOf(sql.LevelRepeatableRead),
-		"LevelSerializable":	ValueOf(sql.LevelSerializable),
-		"LevelSnapshot":	ValueOf(sql.LevelSnapshot),
-		"LevelWriteCommitted":	ValueOf(sql.LevelWriteCommitted),
-		"Named":	ValueOf(sql.Named),
-		"Open":	ValueOf(sql.Open),
-		"OpenDB":	ValueOf(sql.OpenDB),
-		"Register":	ValueOf(sql.Register),
-	}, Types: map[string]Type{
-		"ColumnType":	TypeOf((*sql.ColumnType)(nil)).Elem(),
-		"Conn":	TypeOf((*sql.Conn)(nil)).Elem(),
-		"DB":	TypeOf((*sql.DB)(nil)).Elem(),
-		"DBStats":	TypeOf((*sql.DBStats)(nil)).Elem(),
-		"IsolationLevel":	TypeOf((*sql.IsolationLevel)(nil)).Elem(),
-		"NamedArg":	TypeOf((*sql.NamedArg)(nil)).Elem(),
-		"NullBool":	TypeOf((*sql.NullBool)(nil)).Elem(),
-		"NullFloat64":	TypeOf((*sql.NullFloat64)(nil)).Elem(),
-		"NullInt32":	TypeOf((*sql.NullInt32)(nil)).Elem(),
-		"NullInt64":	TypeOf((*sql.NullInt64)(nil)).Elem(),
-		"NullString":	TypeOf((*sql.NullString)(nil)).Elem(),
-		"NullTime":	TypeOf((*sql.NullTime)(nil)).Elem(),
-		"Out":	TypeOf((*sql.Out)(nil)).Elem(),
-		"RawBytes":	TypeOf((*sql.RawBytes)(nil)).Elem(),
-		"Result":	TypeOf((*sql.Result)(nil)).Elem(),
-		"Row":	TypeOf((*sql.Row)(nil)).Elem(),
-		"Rows":	TypeOf((*sql.Rows)(nil)).Elem(),
-		"Scanner":	TypeOf((*sql.Scanner)(nil)).Elem(),
-		"Stmt":	TypeOf((*sql.Stmt)(nil)).Elem(),
-		"Tx":	TypeOf((*sql.Tx)(nil)).Elem(),
-		"TxOptions":	TypeOf((*sql.TxOptions)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Result":	TypeOf((*P_database_sql_Result)(nil)).Elem(),
-		"Scanner":	TypeOf((*P_database_sql_Scanner)(nil)).Elem(),
-	}, 
+		Name: "sql",
+		Binds: map[string]Value{
+			"Drivers":	ValueOf(sql.Drivers),
+			"ErrConnDone":	ValueOf(&sql.ErrConnDone).Elem(),
+			"ErrNoRows":	ValueOf(&sql.ErrNoRows).Elem(),
+			"ErrTxDone":	ValueOf(&sql.ErrTxDone).Elem(),
+			"LevelDefault":	ValueOf(sql.LevelDefault),
+			"LevelLinearizable":	ValueOf(sql.LevelLinearizable),
+			"LevelReadCommitted":	ValueOf(sql.LevelReadCommitted),
+			"LevelReadUncommitted":	ValueOf(sql.LevelReadUncommitted),
+			"LevelRepeatableRead":	ValueOf(sql.LevelRepeatableRead),
+			"LevelSerializable":	ValueOf(sql.LevelSerializable),
+			"LevelSnapshot":	ValueOf(sql.LevelSnapshot),
+			"LevelWriteCommitted":	ValueOf(sql.LevelWriteCommitted),
+			"Named":	ValueOf(sql.Named),
+			"Open":	ValueOf(sql.Open),
+			"OpenDB":	ValueOf(sql.OpenDB),
+			"Register":	ValueOf(sql.Register),
+		}, Types: map[string]Type{
+			"ColumnType":	TypeOf((*sql.ColumnType)(nil)).Elem(),
+			"Conn":	TypeOf((*sql.Conn)(nil)).Elem(),
+			"DB":	TypeOf((*sql.DB)(nil)).Elem(),
+			"DBStats":	TypeOf((*sql.DBStats)(nil)).Elem(),
+			"IsolationLevel":	TypeOf((*sql.IsolationLevel)(nil)).Elem(),
+			"NamedArg":	TypeOf((*sql.NamedArg)(nil)).Elem(),
+			"NullBool":	TypeOf((*sql.NullBool)(nil)).Elem(),
+			"NullByte":	TypeOf((*sql.NullByte)(nil)).Elem(),
+			"NullFloat64":	TypeOf((*sql.NullFloat64)(nil)).Elem(),
+			"NullInt16":	TypeOf((*sql.NullInt16)(nil)).Elem(),
+			"NullInt32":	TypeOf((*sql.NullInt32)(nil)).Elem(),
+			"NullInt64":	TypeOf((*sql.NullInt64)(nil)).Elem(),
+			"NullString":	TypeOf((*sql.NullString)(nil)).Elem(),
+			"NullTime":	TypeOf((*sql.NullTime)(nil)).Elem(),
+			"Out":	TypeOf((*sql.Out)(nil)).Elem(),
+			"RawBytes":	TypeOf((*sql.RawBytes)(nil)).Elem(),
+			"Result":	TypeOf((*sql.Result)(nil)).Elem(),
+			"Row":	TypeOf((*sql.Row)(nil)).Elem(),
+			"Rows":	TypeOf((*sql.Rows)(nil)).Elem(),
+			"Scanner":	TypeOf((*sql.Scanner)(nil)).Elem(),
+			"Stmt":	TypeOf((*sql.Stmt)(nil)).Elem(),
+			"Tx":	TypeOf((*sql.Tx)(nil)).Elem(),
+			"TxOptions":	TypeOf((*sql.TxOptions)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Result":	TypeOf((*P_database_sql_Result)(nil)).Elem(),
+			"Scanner":	TypeOf((*P_database_sql_Scanner)(nil)).Elem(),
+		}, 
 	}
 }
 
@@ -74,8 +76,8 @@ func (P *P_database_sql_Result) RowsAffected() (int64, error) {
 // --------------- proxy for database/sql.Scanner ---------------
 type P_database_sql_Scanner struct {
 	Object	interface{}
-	Scan_	func(_proxy_obj_ interface{}, src interface{}) error
+	Scan_	func(_proxy_obj_ interface{}, src any) error
 }
-func (P *P_database_sql_Scanner) Scan(src interface{}) error {
+func (P *P_database_sql_Scanner) Scan(src any) error {
 	return P.Scan_(P.Object, src)
 }

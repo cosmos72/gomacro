@@ -11,12 +11,12 @@ import (
 // reflection: allow interpreted code to import "net/http/fcgi"
 func init() {
 	Packages["net/http/fcgi"] = Package{
-	Name: "fcgi",
-	Binds: map[string]Value{
-		"ErrConnClosed":	ValueOf(&fcgi.ErrConnClosed).Elem(),
-		"ErrRequestAborted":	ValueOf(&fcgi.ErrRequestAborted).Elem(),
-		"ProcessEnv":	ValueOf(fcgi.ProcessEnv),
-		"Serve":	ValueOf(fcgi.Serve),
-	}, 
+		Name: "fcgi",
+		Binds: map[string]Value{
+			"ErrConnClosed":	ValueOf(&fcgi.ErrConnClosed).Elem(),
+			"ErrRequestAborted":	ValueOf(&fcgi.ErrRequestAborted).Elem(),
+			"ProcessEnv":	ValueOf(fcgi.ProcessEnv),
+			"Serve":	ValueOf(fcgi.Serve),
+		}, 
 	}
 }

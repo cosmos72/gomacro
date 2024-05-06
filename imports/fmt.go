@@ -11,52 +11,52 @@ import (
 // reflection: allow interpreted code to import "fmt"
 func init() {
 	Packages["fmt"] = Package{
-	Name: "fmt",
-	Binds: map[string]Value{
-		"Errorf":	ValueOf(fmt.Errorf),
-		"Fprint":	ValueOf(fmt.Fprint),
-		"Fprintf":	ValueOf(fmt.Fprintf),
-		"Fprintln":	ValueOf(fmt.Fprintln),
-		"Fscan":	ValueOf(fmt.Fscan),
-		"Fscanf":	ValueOf(fmt.Fscanf),
-		"Fscanln":	ValueOf(fmt.Fscanln),
-		"Print":	ValueOf(fmt.Print),
-		"Printf":	ValueOf(fmt.Printf),
-		"Println":	ValueOf(fmt.Println),
-		"Scan":	ValueOf(fmt.Scan),
-		"Scanf":	ValueOf(fmt.Scanf),
-		"Scanln":	ValueOf(fmt.Scanln),
-		"Sprint":	ValueOf(fmt.Sprint),
-		"Sprintf":	ValueOf(fmt.Sprintf),
-		"Sprintln":	ValueOf(fmt.Sprintln),
-		"Sscan":	ValueOf(fmt.Sscan),
-		"Sscanf":	ValueOf(fmt.Sscanf),
-		"Sscanln":	ValueOf(fmt.Sscanln),
-	}, Types: map[string]Type{
-		"Formatter":	TypeOf((*fmt.Formatter)(nil)).Elem(),
-		"GoStringer":	TypeOf((*fmt.GoStringer)(nil)).Elem(),
-		"ScanState":	TypeOf((*fmt.ScanState)(nil)).Elem(),
-		"Scanner":	TypeOf((*fmt.Scanner)(nil)).Elem(),
-		"State":	TypeOf((*fmt.State)(nil)).Elem(),
-		"Stringer":	TypeOf((*fmt.Stringer)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Formatter":	TypeOf((*P_fmt_Formatter)(nil)).Elem(),
-		"GoStringer":	TypeOf((*P_fmt_GoStringer)(nil)).Elem(),
-		"ScanState":	TypeOf((*P_fmt_ScanState)(nil)).Elem(),
-		"Scanner":	TypeOf((*P_fmt_Scanner)(nil)).Elem(),
-		"State":	TypeOf((*P_fmt_State)(nil)).Elem(),
-		"Stringer":	TypeOf((*P_fmt_Stringer)(nil)).Elem(),
-	}, 
+		Name: "fmt",
+		Binds: map[string]Value{
+			"Errorf":	ValueOf(fmt.Errorf),
+			"Fprint":	ValueOf(fmt.Fprint),
+			"Fprintf":	ValueOf(fmt.Fprintf),
+			"Fprintln":	ValueOf(fmt.Fprintln),
+			"Fscan":	ValueOf(fmt.Fscan),
+			"Fscanf":	ValueOf(fmt.Fscanf),
+			"Fscanln":	ValueOf(fmt.Fscanln),
+			"Print":	ValueOf(fmt.Print),
+			"Printf":	ValueOf(fmt.Printf),
+			"Println":	ValueOf(fmt.Println),
+			"Scan":	ValueOf(fmt.Scan),
+			"Scanf":	ValueOf(fmt.Scanf),
+			"Scanln":	ValueOf(fmt.Scanln),
+			"Sprint":	ValueOf(fmt.Sprint),
+			"Sprintf":	ValueOf(fmt.Sprintf),
+			"Sprintln":	ValueOf(fmt.Sprintln),
+			"Sscan":	ValueOf(fmt.Sscan),
+			"Sscanf":	ValueOf(fmt.Sscanf),
+			"Sscanln":	ValueOf(fmt.Sscanln),
+		}, Types: map[string]Type{
+			"Formatter":	TypeOf((*fmt.Formatter)(nil)).Elem(),
+			"GoStringer":	TypeOf((*fmt.GoStringer)(nil)).Elem(),
+			"ScanState":	TypeOf((*fmt.ScanState)(nil)).Elem(),
+			"Scanner":	TypeOf((*fmt.Scanner)(nil)).Elem(),
+			"State":	TypeOf((*fmt.State)(nil)).Elem(),
+			"Stringer":	TypeOf((*fmt.Stringer)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Formatter":	TypeOf((*P_fmt_Formatter)(nil)).Elem(),
+			"GoStringer":	TypeOf((*P_fmt_GoStringer)(nil)).Elem(),
+			"ScanState":	TypeOf((*P_fmt_ScanState)(nil)).Elem(),
+			"Scanner":	TypeOf((*P_fmt_Scanner)(nil)).Elem(),
+			"State":	TypeOf((*P_fmt_State)(nil)).Elem(),
+			"Stringer":	TypeOf((*P_fmt_Stringer)(nil)).Elem(),
+		}, 
 	}
 }
 
 // --------------- proxy for fmt.Formatter ---------------
 type P_fmt_Formatter struct {
 	Object	interface{}
-	Format_	func(_proxy_obj_ interface{}, f fmt.State, c rune) 
+	Format_	func(_proxy_obj_ interface{}, f fmt.State, verb rune) 
 }
-func (P *P_fmt_Formatter) Format(f fmt.State, c rune)  {
-	P.Format_(P.Object, f, c)
+func (P *P_fmt_Formatter) Format(f fmt.State, verb rune)  {
+	P.Format_(P.Object, f, verb)
 }
 
 // --------------- proxy for fmt.GoStringer ---------------

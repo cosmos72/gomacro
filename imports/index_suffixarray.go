@@ -11,11 +11,11 @@ import (
 // reflection: allow interpreted code to import "index/suffixarray"
 func init() {
 	Packages["index/suffixarray"] = Package{
-	Name: "suffixarray",
-	Binds: map[string]Value{
-		"New":	ValueOf(suffixarray.New),
-	}, Types: map[string]Type{
-		"Index":	TypeOf((*suffixarray.Index)(nil)).Elem(),
-	}, 
+		Name: "suffixarray",
+		Binds: map[string]Value{
+			"New":	ValueOf(suffixarray.New),
+		}, Types: map[string]Type{
+			"Index":	TypeOf((*suffixarray.Index)(nil)).Elem(),
+		}, 
 	}
 }

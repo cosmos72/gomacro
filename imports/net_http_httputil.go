@@ -11,29 +11,29 @@ import (
 // reflection: allow interpreted code to import "net/http/httputil"
 func init() {
 	Packages["net/http/httputil"] = Package{
-	Name: "httputil",
-	Binds: map[string]Value{
-		"DumpRequest":	ValueOf(httputil.DumpRequest),
-		"DumpRequestOut":	ValueOf(httputil.DumpRequestOut),
-		"DumpResponse":	ValueOf(httputil.DumpResponse),
-		"ErrClosed":	ValueOf(&httputil.ErrClosed).Elem(),
-		"ErrLineTooLong":	ValueOf(&httputil.ErrLineTooLong).Elem(),
-		"ErrPersistEOF":	ValueOf(&httputil.ErrPersistEOF).Elem(),
-		"ErrPipeline":	ValueOf(&httputil.ErrPipeline).Elem(),
-		"NewChunkedReader":	ValueOf(httputil.NewChunkedReader),
-		"NewChunkedWriter":	ValueOf(httputil.NewChunkedWriter),
-		"NewClientConn":	ValueOf(httputil.NewClientConn),
-		"NewProxyClientConn":	ValueOf(httputil.NewProxyClientConn),
-		"NewServerConn":	ValueOf(httputil.NewServerConn),
-		"NewSingleHostReverseProxy":	ValueOf(httputil.NewSingleHostReverseProxy),
-	}, Types: map[string]Type{
-		"BufferPool":	TypeOf((*httputil.BufferPool)(nil)).Elem(),
-		"ClientConn":	TypeOf((*httputil.ClientConn)(nil)).Elem(),
-		"ReverseProxy":	TypeOf((*httputil.ReverseProxy)(nil)).Elem(),
-		"ServerConn":	TypeOf((*httputil.ServerConn)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"BufferPool":	TypeOf((*P_net_http_httputil_BufferPool)(nil)).Elem(),
-	}, 
+		Name: "httputil",
+		Binds: map[string]Value{
+			"DumpRequest":	ValueOf(httputil.DumpRequest),
+			"DumpRequestOut":	ValueOf(httputil.DumpRequestOut),
+			"DumpResponse":	ValueOf(httputil.DumpResponse),
+			"ErrClosed":	ValueOf(&httputil.ErrClosed).Elem(),
+			"ErrLineTooLong":	ValueOf(&httputil.ErrLineTooLong).Elem(),
+			"ErrPersistEOF":	ValueOf(&httputil.ErrPersistEOF).Elem(),
+			"ErrPipeline":	ValueOf(&httputil.ErrPipeline).Elem(),
+			"NewChunkedReader":	ValueOf(httputil.NewChunkedReader),
+			"NewChunkedWriter":	ValueOf(httputil.NewChunkedWriter),
+			"NewClientConn":	ValueOf(httputil.NewClientConn),
+			"NewProxyClientConn":	ValueOf(httputil.NewProxyClientConn),
+			"NewServerConn":	ValueOf(httputil.NewServerConn),
+			"NewSingleHostReverseProxy":	ValueOf(httputil.NewSingleHostReverseProxy),
+		}, Types: map[string]Type{
+			"BufferPool":	TypeOf((*httputil.BufferPool)(nil)).Elem(),
+			"ClientConn":	TypeOf((*httputil.ClientConn)(nil)).Elem(),
+			"ReverseProxy":	TypeOf((*httputil.ReverseProxy)(nil)).Elem(),
+			"ServerConn":	TypeOf((*httputil.ServerConn)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"BufferPool":	TypeOf((*P_net_http_httputil_BufferPool)(nil)).Elem(),
+		}, 
 	}
 }
 

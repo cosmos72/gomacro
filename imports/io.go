@@ -11,82 +11,87 @@ import (
 // reflection: allow interpreted code to import "io"
 func init() {
 	Packages["io"] = Package{
-	Name: "io",
-	Binds: map[string]Value{
-		"Copy":	ValueOf(io.Copy),
-		"CopyBuffer":	ValueOf(io.CopyBuffer),
-		"CopyN":	ValueOf(io.CopyN),
-		"EOF":	ValueOf(&io.EOF).Elem(),
-		"ErrClosedPipe":	ValueOf(&io.ErrClosedPipe).Elem(),
-		"ErrNoProgress":	ValueOf(&io.ErrNoProgress).Elem(),
-		"ErrShortBuffer":	ValueOf(&io.ErrShortBuffer).Elem(),
-		"ErrShortWrite":	ValueOf(&io.ErrShortWrite).Elem(),
-		"ErrUnexpectedEOF":	ValueOf(&io.ErrUnexpectedEOF).Elem(),
-		"LimitReader":	ValueOf(io.LimitReader),
-		"MultiReader":	ValueOf(io.MultiReader),
-		"MultiWriter":	ValueOf(io.MultiWriter),
-		"NewSectionReader":	ValueOf(io.NewSectionReader),
-		"Pipe":	ValueOf(io.Pipe),
-		"ReadAtLeast":	ValueOf(io.ReadAtLeast),
-		"ReadFull":	ValueOf(io.ReadFull),
-		"SeekCurrent":	ValueOf(io.SeekCurrent),
-		"SeekEnd":	ValueOf(io.SeekEnd),
-		"SeekStart":	ValueOf(io.SeekStart),
-		"TeeReader":	ValueOf(io.TeeReader),
-		"WriteString":	ValueOf(io.WriteString),
-	}, Types: map[string]Type{
-		"ByteReader":	TypeOf((*io.ByteReader)(nil)).Elem(),
-		"ByteScanner":	TypeOf((*io.ByteScanner)(nil)).Elem(),
-		"ByteWriter":	TypeOf((*io.ByteWriter)(nil)).Elem(),
-		"Closer":	TypeOf((*io.Closer)(nil)).Elem(),
-		"LimitedReader":	TypeOf((*io.LimitedReader)(nil)).Elem(),
-		"PipeReader":	TypeOf((*io.PipeReader)(nil)).Elem(),
-		"PipeWriter":	TypeOf((*io.PipeWriter)(nil)).Elem(),
-		"ReadCloser":	TypeOf((*io.ReadCloser)(nil)).Elem(),
-		"ReadSeeker":	TypeOf((*io.ReadSeeker)(nil)).Elem(),
-		"ReadWriteCloser":	TypeOf((*io.ReadWriteCloser)(nil)).Elem(),
-		"ReadWriteSeeker":	TypeOf((*io.ReadWriteSeeker)(nil)).Elem(),
-		"ReadWriter":	TypeOf((*io.ReadWriter)(nil)).Elem(),
-		"Reader":	TypeOf((*io.Reader)(nil)).Elem(),
-		"ReaderAt":	TypeOf((*io.ReaderAt)(nil)).Elem(),
-		"ReaderFrom":	TypeOf((*io.ReaderFrom)(nil)).Elem(),
-		"RuneReader":	TypeOf((*io.RuneReader)(nil)).Elem(),
-		"RuneScanner":	TypeOf((*io.RuneScanner)(nil)).Elem(),
-		"SectionReader":	TypeOf((*io.SectionReader)(nil)).Elem(),
-		"Seeker":	TypeOf((*io.Seeker)(nil)).Elem(),
-		"StringWriter":	TypeOf((*io.StringWriter)(nil)).Elem(),
-		"WriteCloser":	TypeOf((*io.WriteCloser)(nil)).Elem(),
-		"WriteSeeker":	TypeOf((*io.WriteSeeker)(nil)).Elem(),
-		"Writer":	TypeOf((*io.Writer)(nil)).Elem(),
-		"WriterAt":	TypeOf((*io.WriterAt)(nil)).Elem(),
-		"WriterTo":	TypeOf((*io.WriterTo)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"ByteReader":	TypeOf((*P_io_ByteReader)(nil)).Elem(),
-		"ByteScanner":	TypeOf((*P_io_ByteScanner)(nil)).Elem(),
-		"ByteWriter":	TypeOf((*P_io_ByteWriter)(nil)).Elem(),
-		"Closer":	TypeOf((*P_io_Closer)(nil)).Elem(),
-		"ReadCloser":	TypeOf((*P_io_ReadCloser)(nil)).Elem(),
-		"ReadSeeker":	TypeOf((*P_io_ReadSeeker)(nil)).Elem(),
-		"ReadWriteCloser":	TypeOf((*P_io_ReadWriteCloser)(nil)).Elem(),
-		"ReadWriteSeeker":	TypeOf((*P_io_ReadWriteSeeker)(nil)).Elem(),
-		"ReadWriter":	TypeOf((*P_io_ReadWriter)(nil)).Elem(),
-		"Reader":	TypeOf((*P_io_Reader)(nil)).Elem(),
-		"ReaderAt":	TypeOf((*P_io_ReaderAt)(nil)).Elem(),
-		"ReaderFrom":	TypeOf((*P_io_ReaderFrom)(nil)).Elem(),
-		"RuneReader":	TypeOf((*P_io_RuneReader)(nil)).Elem(),
-		"RuneScanner":	TypeOf((*P_io_RuneScanner)(nil)).Elem(),
-		"Seeker":	TypeOf((*P_io_Seeker)(nil)).Elem(),
-		"StringWriter":	TypeOf((*P_io_StringWriter)(nil)).Elem(),
-		"WriteCloser":	TypeOf((*P_io_WriteCloser)(nil)).Elem(),
-		"WriteSeeker":	TypeOf((*P_io_WriteSeeker)(nil)).Elem(),
-		"Writer":	TypeOf((*P_io_Writer)(nil)).Elem(),
-		"WriterAt":	TypeOf((*P_io_WriterAt)(nil)).Elem(),
-		"WriterTo":	TypeOf((*P_io_WriterTo)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"SeekCurrent":	"int:1",
-		"SeekEnd":	"int:2",
-		"SeekStart":	"int:0",
-	}, 
+		Name: "io",
+		Binds: map[string]Value{
+			"Copy":	ValueOf(io.Copy),
+			"CopyBuffer":	ValueOf(io.CopyBuffer),
+			"CopyN":	ValueOf(io.CopyN),
+			"Discard":	ValueOf(&io.Discard).Elem(),
+			"EOF":	ValueOf(&io.EOF).Elem(),
+			"ErrClosedPipe":	ValueOf(&io.ErrClosedPipe).Elem(),
+			"ErrNoProgress":	ValueOf(&io.ErrNoProgress).Elem(),
+			"ErrShortBuffer":	ValueOf(&io.ErrShortBuffer).Elem(),
+			"ErrShortWrite":	ValueOf(&io.ErrShortWrite).Elem(),
+			"ErrUnexpectedEOF":	ValueOf(&io.ErrUnexpectedEOF).Elem(),
+			"LimitReader":	ValueOf(io.LimitReader),
+			"MultiReader":	ValueOf(io.MultiReader),
+			"MultiWriter":	ValueOf(io.MultiWriter),
+			"NewSectionReader":	ValueOf(io.NewSectionReader),
+			"NopCloser":	ValueOf(io.NopCloser),
+			"Pipe":	ValueOf(io.Pipe),
+			"ReadAll":	ValueOf(io.ReadAll),
+			"ReadAtLeast":	ValueOf(io.ReadAtLeast),
+			"ReadFull":	ValueOf(io.ReadFull),
+			"SeekCurrent":	ValueOf(io.SeekCurrent),
+			"SeekEnd":	ValueOf(io.SeekEnd),
+			"SeekStart":	ValueOf(io.SeekStart),
+			"TeeReader":	ValueOf(io.TeeReader),
+			"WriteString":	ValueOf(io.WriteString),
+		}, Types: map[string]Type{
+			"ByteReader":	TypeOf((*io.ByteReader)(nil)).Elem(),
+			"ByteScanner":	TypeOf((*io.ByteScanner)(nil)).Elem(),
+			"ByteWriter":	TypeOf((*io.ByteWriter)(nil)).Elem(),
+			"Closer":	TypeOf((*io.Closer)(nil)).Elem(),
+			"LimitedReader":	TypeOf((*io.LimitedReader)(nil)).Elem(),
+			"PipeReader":	TypeOf((*io.PipeReader)(nil)).Elem(),
+			"PipeWriter":	TypeOf((*io.PipeWriter)(nil)).Elem(),
+			"ReadCloser":	TypeOf((*io.ReadCloser)(nil)).Elem(),
+			"ReadSeekCloser":	TypeOf((*io.ReadSeekCloser)(nil)).Elem(),
+			"ReadSeeker":	TypeOf((*io.ReadSeeker)(nil)).Elem(),
+			"ReadWriteCloser":	TypeOf((*io.ReadWriteCloser)(nil)).Elem(),
+			"ReadWriteSeeker":	TypeOf((*io.ReadWriteSeeker)(nil)).Elem(),
+			"ReadWriter":	TypeOf((*io.ReadWriter)(nil)).Elem(),
+			"Reader":	TypeOf((*io.Reader)(nil)).Elem(),
+			"ReaderAt":	TypeOf((*io.ReaderAt)(nil)).Elem(),
+			"ReaderFrom":	TypeOf((*io.ReaderFrom)(nil)).Elem(),
+			"RuneReader":	TypeOf((*io.RuneReader)(nil)).Elem(),
+			"RuneScanner":	TypeOf((*io.RuneScanner)(nil)).Elem(),
+			"SectionReader":	TypeOf((*io.SectionReader)(nil)).Elem(),
+			"Seeker":	TypeOf((*io.Seeker)(nil)).Elem(),
+			"StringWriter":	TypeOf((*io.StringWriter)(nil)).Elem(),
+			"WriteCloser":	TypeOf((*io.WriteCloser)(nil)).Elem(),
+			"WriteSeeker":	TypeOf((*io.WriteSeeker)(nil)).Elem(),
+			"Writer":	TypeOf((*io.Writer)(nil)).Elem(),
+			"WriterAt":	TypeOf((*io.WriterAt)(nil)).Elem(),
+			"WriterTo":	TypeOf((*io.WriterTo)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"ByteReader":	TypeOf((*P_io_ByteReader)(nil)).Elem(),
+			"ByteScanner":	TypeOf((*P_io_ByteScanner)(nil)).Elem(),
+			"ByteWriter":	TypeOf((*P_io_ByteWriter)(nil)).Elem(),
+			"Closer":	TypeOf((*P_io_Closer)(nil)).Elem(),
+			"ReadCloser":	TypeOf((*P_io_ReadCloser)(nil)).Elem(),
+			"ReadSeekCloser":	TypeOf((*P_io_ReadSeekCloser)(nil)).Elem(),
+			"ReadSeeker":	TypeOf((*P_io_ReadSeeker)(nil)).Elem(),
+			"ReadWriteCloser":	TypeOf((*P_io_ReadWriteCloser)(nil)).Elem(),
+			"ReadWriteSeeker":	TypeOf((*P_io_ReadWriteSeeker)(nil)).Elem(),
+			"ReadWriter":	TypeOf((*P_io_ReadWriter)(nil)).Elem(),
+			"Reader":	TypeOf((*P_io_Reader)(nil)).Elem(),
+			"ReaderAt":	TypeOf((*P_io_ReaderAt)(nil)).Elem(),
+			"ReaderFrom":	TypeOf((*P_io_ReaderFrom)(nil)).Elem(),
+			"RuneReader":	TypeOf((*P_io_RuneReader)(nil)).Elem(),
+			"RuneScanner":	TypeOf((*P_io_RuneScanner)(nil)).Elem(),
+			"Seeker":	TypeOf((*P_io_Seeker)(nil)).Elem(),
+			"StringWriter":	TypeOf((*P_io_StringWriter)(nil)).Elem(),
+			"WriteCloser":	TypeOf((*P_io_WriteCloser)(nil)).Elem(),
+			"WriteSeeker":	TypeOf((*P_io_WriteSeeker)(nil)).Elem(),
+			"Writer":	TypeOf((*P_io_Writer)(nil)).Elem(),
+			"WriterAt":	TypeOf((*P_io_WriterAt)(nil)).Elem(),
+			"WriterTo":	TypeOf((*P_io_WriterTo)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"SeekCurrent":	"int:1",
+			"SeekEnd":	"int:2",
+			"SeekStart":	"int:0",
+		}, 
 	}
 }
 
@@ -141,6 +146,23 @@ func (P *P_io_ReadCloser) Close() error {
 }
 func (P *P_io_ReadCloser) Read(p []byte) (n int, err error) {
 	return P.Read_(P.Object, p)
+}
+
+// --------------- proxy for io.ReadSeekCloser ---------------
+type P_io_ReadSeekCloser struct {
+	Object	interface{}
+	Close_	func(interface{}) error
+	Read_	func(_proxy_obj_ interface{}, p []byte) (n int, err error)
+	Seek_	func(_proxy_obj_ interface{}, offset int64, whence int) (int64, error)
+}
+func (P *P_io_ReadSeekCloser) Close() error {
+	return P.Close_(P.Object)
+}
+func (P *P_io_ReadSeekCloser) Read(p []byte) (n int, err error) {
+	return P.Read_(P.Object, p)
+}
+func (P *P_io_ReadSeekCloser) Seek(offset int64, whence int) (int64, error) {
+	return P.Seek_(P.Object, offset, whence)
 }
 
 // --------------- proxy for io.ReadSeeker ---------------

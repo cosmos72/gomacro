@@ -11,13 +11,13 @@ import (
 // reflection: allow interpreted code to import "encoding/pem"
 func init() {
 	Packages["encoding/pem"] = Package{
-	Name: "pem",
-	Binds: map[string]Value{
-		"Decode":	ValueOf(pem.Decode),
-		"Encode":	ValueOf(pem.Encode),
-		"EncodeToMemory":	ValueOf(pem.EncodeToMemory),
-	}, Types: map[string]Type{
-		"Block":	TypeOf((*pem.Block)(nil)).Elem(),
-	}, 
+		Name: "pem",
+		Binds: map[string]Value{
+			"Decode":	ValueOf(pem.Decode),
+			"Encode":	ValueOf(pem.Encode),
+			"EncodeToMemory":	ValueOf(pem.EncodeToMemory),
+		}, Types: map[string]Type{
+			"Block":	TypeOf((*pem.Block)(nil)).Elem(),
+		}, 
 	}
 }

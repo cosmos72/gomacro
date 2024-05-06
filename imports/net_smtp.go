@@ -11,20 +11,20 @@ import (
 // reflection: allow interpreted code to import "net/smtp"
 func init() {
 	Packages["net/smtp"] = Package{
-	Name: "smtp",
-	Binds: map[string]Value{
-		"CRAMMD5Auth":	ValueOf(smtp.CRAMMD5Auth),
-		"Dial":	ValueOf(smtp.Dial),
-		"NewClient":	ValueOf(smtp.NewClient),
-		"PlainAuth":	ValueOf(smtp.PlainAuth),
-		"SendMail":	ValueOf(smtp.SendMail),
-	}, Types: map[string]Type{
-		"Auth":	TypeOf((*smtp.Auth)(nil)).Elem(),
-		"Client":	TypeOf((*smtp.Client)(nil)).Elem(),
-		"ServerInfo":	TypeOf((*smtp.ServerInfo)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Auth":	TypeOf((*P_net_smtp_Auth)(nil)).Elem(),
-	}, 
+		Name: "smtp",
+		Binds: map[string]Value{
+			"CRAMMD5Auth":	ValueOf(smtp.CRAMMD5Auth),
+			"Dial":	ValueOf(smtp.Dial),
+			"NewClient":	ValueOf(smtp.NewClient),
+			"PlainAuth":	ValueOf(smtp.PlainAuth),
+			"SendMail":	ValueOf(smtp.SendMail),
+		}, Types: map[string]Type{
+			"Auth":	TypeOf((*smtp.Auth)(nil)).Elem(),
+			"Client":	TypeOf((*smtp.Client)(nil)).Elem(),
+			"ServerInfo":	TypeOf((*smtp.ServerInfo)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Auth":	TypeOf((*P_net_smtp_Auth)(nil)).Elem(),
+		}, 
 	}
 }
 

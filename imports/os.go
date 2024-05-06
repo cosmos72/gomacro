@@ -5,6 +5,7 @@ package imports
 
 import (
 	. "reflect"
+	fs "io/fs"
 	os "os"
 	time "time"
 )
@@ -12,123 +13,154 @@ import (
 // reflection: allow interpreted code to import "os"
 func init() {
 	Packages["os"] = Package{
-	Name: "os",
-	Binds: map[string]Value{
-		"Args":	ValueOf(&os.Args).Elem(),
-		"Chdir":	ValueOf(os.Chdir),
-		"Chmod":	ValueOf(os.Chmod),
-		"Chown":	ValueOf(os.Chown),
-		"Chtimes":	ValueOf(os.Chtimes),
-		"Clearenv":	ValueOf(os.Clearenv),
-		"Create":	ValueOf(os.Create),
-		"DevNull":	ValueOf(os.DevNull),
-		"Environ":	ValueOf(os.Environ),
-		"ErrClosed":	ValueOf(&os.ErrClosed).Elem(),
-		"ErrExist":	ValueOf(&os.ErrExist).Elem(),
-		"ErrInvalid":	ValueOf(&os.ErrInvalid).Elem(),
-		"ErrNoDeadline":	ValueOf(&os.ErrNoDeadline).Elem(),
-		"ErrNotExist":	ValueOf(&os.ErrNotExist).Elem(),
-		"ErrPermission":	ValueOf(&os.ErrPermission).Elem(),
-		"Executable":	ValueOf(os.Executable),
-		"Exit":	ValueOf(os.Exit),
-		"Expand":	ValueOf(os.Expand),
-		"ExpandEnv":	ValueOf(os.ExpandEnv),
-		"FindProcess":	ValueOf(os.FindProcess),
-		"Getegid":	ValueOf(os.Getegid),
-		"Getenv":	ValueOf(os.Getenv),
-		"Geteuid":	ValueOf(os.Geteuid),
-		"Getgid":	ValueOf(os.Getgid),
-		"Getgroups":	ValueOf(os.Getgroups),
-		"Getpagesize":	ValueOf(os.Getpagesize),
-		"Getpid":	ValueOf(os.Getpid),
-		"Getppid":	ValueOf(os.Getppid),
-		"Getuid":	ValueOf(os.Getuid),
-		"Getwd":	ValueOf(os.Getwd),
-		"Hostname":	ValueOf(os.Hostname),
-		"Interrupt":	ValueOf(&os.Interrupt).Elem(),
-		"IsExist":	ValueOf(os.IsExist),
-		"IsNotExist":	ValueOf(os.IsNotExist),
-		"IsPathSeparator":	ValueOf(os.IsPathSeparator),
-		"IsPermission":	ValueOf(os.IsPermission),
-		"IsTimeout":	ValueOf(os.IsTimeout),
-		"Kill":	ValueOf(&os.Kill).Elem(),
-		"Lchown":	ValueOf(os.Lchown),
-		"Link":	ValueOf(os.Link),
-		"LookupEnv":	ValueOf(os.LookupEnv),
-		"Lstat":	ValueOf(os.Lstat),
-		"Mkdir":	ValueOf(os.Mkdir),
-		"MkdirAll":	ValueOf(os.MkdirAll),
-		"ModeAppend":	ValueOf(os.ModeAppend),
-		"ModeCharDevice":	ValueOf(os.ModeCharDevice),
-		"ModeDevice":	ValueOf(os.ModeDevice),
-		"ModeDir":	ValueOf(os.ModeDir),
-		"ModeExclusive":	ValueOf(os.ModeExclusive),
-		"ModeIrregular":	ValueOf(os.ModeIrregular),
-		"ModeNamedPipe":	ValueOf(os.ModeNamedPipe),
-		"ModePerm":	ValueOf(os.ModePerm),
-		"ModeSetgid":	ValueOf(os.ModeSetgid),
-		"ModeSetuid":	ValueOf(os.ModeSetuid),
-		"ModeSocket":	ValueOf(os.ModeSocket),
-		"ModeSticky":	ValueOf(os.ModeSticky),
-		"ModeSymlink":	ValueOf(os.ModeSymlink),
-		"ModeTemporary":	ValueOf(os.ModeTemporary),
-		"ModeType":	ValueOf(os.ModeType),
-		"NewFile":	ValueOf(os.NewFile),
-		"NewSyscallError":	ValueOf(os.NewSyscallError),
-		"O_APPEND":	ValueOf(os.O_APPEND),
-		"O_CREATE":	ValueOf(os.O_CREATE),
-		"O_EXCL":	ValueOf(os.O_EXCL),
-		"O_RDONLY":	ValueOf(os.O_RDONLY),
-		"O_RDWR":	ValueOf(os.O_RDWR),
-		"O_SYNC":	ValueOf(os.O_SYNC),
-		"O_TRUNC":	ValueOf(os.O_TRUNC),
-		"O_WRONLY":	ValueOf(os.O_WRONLY),
-		"Open":	ValueOf(os.Open),
-		"OpenFile":	ValueOf(os.OpenFile),
-		"PathListSeparator":	ValueOf(os.PathListSeparator),
-		"PathSeparator":	ValueOf(os.PathSeparator),
-		"Pipe":	ValueOf(os.Pipe),
-		"Readlink":	ValueOf(os.Readlink),
-		"Remove":	ValueOf(os.Remove),
-		"RemoveAll":	ValueOf(os.RemoveAll),
-		"Rename":	ValueOf(os.Rename),
-		"SEEK_CUR":	ValueOf(os.SEEK_CUR),
-		"SEEK_END":	ValueOf(os.SEEK_END),
-		"SEEK_SET":	ValueOf(os.SEEK_SET),
-		"SameFile":	ValueOf(os.SameFile),
-		"Setenv":	ValueOf(os.Setenv),
-		"StartProcess":	ValueOf(os.StartProcess),
-		"Stat":	ValueOf(os.Stat),
-		"Stderr":	ValueOf(&os.Stderr).Elem(),
-		"Stdin":	ValueOf(&os.Stdin).Elem(),
-		"Stdout":	ValueOf(&os.Stdout).Elem(),
-		"Symlink":	ValueOf(os.Symlink),
-		"TempDir":	ValueOf(os.TempDir),
-		"Truncate":	ValueOf(os.Truncate),
-		"Unsetenv":	ValueOf(os.Unsetenv),
-		"UserCacheDir":	ValueOf(os.UserCacheDir),
-		"UserConfigDir":	ValueOf(os.UserConfigDir),
-		"UserHomeDir":	ValueOf(os.UserHomeDir),
-	}, Types: map[string]Type{
-		"File":	TypeOf((*os.File)(nil)).Elem(),
-		"FileInfo":	TypeOf((*os.FileInfo)(nil)).Elem(),
-		"FileMode":	TypeOf((*os.FileMode)(nil)).Elem(),
-		"LinkError":	TypeOf((*os.LinkError)(nil)).Elem(),
-		"PathError":	TypeOf((*os.PathError)(nil)).Elem(),
-		"ProcAttr":	TypeOf((*os.ProcAttr)(nil)).Elem(),
-		"Process":	TypeOf((*os.Process)(nil)).Elem(),
-		"ProcessState":	TypeOf((*os.ProcessState)(nil)).Elem(),
-		"Signal":	TypeOf((*os.Signal)(nil)).Elem(),
-		"SyscallError":	TypeOf((*os.SyscallError)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"FileInfo":	TypeOf((*P_os_FileInfo)(nil)).Elem(),
-		"Signal":	TypeOf((*P_os_Signal)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"DevNull":	"string:/dev/null",
-		"PathListSeparator":	"rune:58",
-		"PathSeparator":	"rune:47",
-	}, 
+		Name: "os",
+		Binds: map[string]Value{
+			"Args":	ValueOf(&os.Args).Elem(),
+			"Chdir":	ValueOf(os.Chdir),
+			"Chmod":	ValueOf(os.Chmod),
+			"Chown":	ValueOf(os.Chown),
+			"Chtimes":	ValueOf(os.Chtimes),
+			"Clearenv":	ValueOf(os.Clearenv),
+			"Create":	ValueOf(os.Create),
+			"CreateTemp":	ValueOf(os.CreateTemp),
+			"DevNull":	ValueOf(os.DevNull),
+			"DirFS":	ValueOf(os.DirFS),
+			"Environ":	ValueOf(os.Environ),
+			"ErrClosed":	ValueOf(&os.ErrClosed).Elem(),
+			"ErrDeadlineExceeded":	ValueOf(&os.ErrDeadlineExceeded).Elem(),
+			"ErrExist":	ValueOf(&os.ErrExist).Elem(),
+			"ErrInvalid":	ValueOf(&os.ErrInvalid).Elem(),
+			"ErrNoDeadline":	ValueOf(&os.ErrNoDeadline).Elem(),
+			"ErrNotExist":	ValueOf(&os.ErrNotExist).Elem(),
+			"ErrPermission":	ValueOf(&os.ErrPermission).Elem(),
+			"ErrProcessDone":	ValueOf(&os.ErrProcessDone).Elem(),
+			"Executable":	ValueOf(os.Executable),
+			"Exit":	ValueOf(os.Exit),
+			"Expand":	ValueOf(os.Expand),
+			"ExpandEnv":	ValueOf(os.ExpandEnv),
+			"FindProcess":	ValueOf(os.FindProcess),
+			"Getegid":	ValueOf(os.Getegid),
+			"Getenv":	ValueOf(os.Getenv),
+			"Geteuid":	ValueOf(os.Geteuid),
+			"Getgid":	ValueOf(os.Getgid),
+			"Getgroups":	ValueOf(os.Getgroups),
+			"Getpagesize":	ValueOf(os.Getpagesize),
+			"Getpid":	ValueOf(os.Getpid),
+			"Getppid":	ValueOf(os.Getppid),
+			"Getuid":	ValueOf(os.Getuid),
+			"Getwd":	ValueOf(os.Getwd),
+			"Hostname":	ValueOf(os.Hostname),
+			"Interrupt":	ValueOf(&os.Interrupt).Elem(),
+			"IsExist":	ValueOf(os.IsExist),
+			"IsNotExist":	ValueOf(os.IsNotExist),
+			"IsPathSeparator":	ValueOf(os.IsPathSeparator),
+			"IsPermission":	ValueOf(os.IsPermission),
+			"IsTimeout":	ValueOf(os.IsTimeout),
+			"Kill":	ValueOf(&os.Kill).Elem(),
+			"Lchown":	ValueOf(os.Lchown),
+			"Link":	ValueOf(os.Link),
+			"LookupEnv":	ValueOf(os.LookupEnv),
+			"Lstat":	ValueOf(os.Lstat),
+			"Mkdir":	ValueOf(os.Mkdir),
+			"MkdirAll":	ValueOf(os.MkdirAll),
+			"MkdirTemp":	ValueOf(os.MkdirTemp),
+			"ModeAppend":	ValueOf(os.ModeAppend),
+			"ModeCharDevice":	ValueOf(os.ModeCharDevice),
+			"ModeDevice":	ValueOf(os.ModeDevice),
+			"ModeDir":	ValueOf(os.ModeDir),
+			"ModeExclusive":	ValueOf(os.ModeExclusive),
+			"ModeIrregular":	ValueOf(os.ModeIrregular),
+			"ModeNamedPipe":	ValueOf(os.ModeNamedPipe),
+			"ModePerm":	ValueOf(os.ModePerm),
+			"ModeSetgid":	ValueOf(os.ModeSetgid),
+			"ModeSetuid":	ValueOf(os.ModeSetuid),
+			"ModeSocket":	ValueOf(os.ModeSocket),
+			"ModeSticky":	ValueOf(os.ModeSticky),
+			"ModeSymlink":	ValueOf(os.ModeSymlink),
+			"ModeTemporary":	ValueOf(os.ModeTemporary),
+			"ModeType":	ValueOf(os.ModeType),
+			"NewFile":	ValueOf(os.NewFile),
+			"NewSyscallError":	ValueOf(os.NewSyscallError),
+			"O_APPEND":	ValueOf(os.O_APPEND),
+			"O_CREATE":	ValueOf(os.O_CREATE),
+			"O_EXCL":	ValueOf(os.O_EXCL),
+			"O_RDONLY":	ValueOf(os.O_RDONLY),
+			"O_RDWR":	ValueOf(os.O_RDWR),
+			"O_SYNC":	ValueOf(os.O_SYNC),
+			"O_TRUNC":	ValueOf(os.O_TRUNC),
+			"O_WRONLY":	ValueOf(os.O_WRONLY),
+			"Open":	ValueOf(os.Open),
+			"OpenFile":	ValueOf(os.OpenFile),
+			"PathListSeparator":	ValueOf(os.PathListSeparator),
+			"PathSeparator":	ValueOf(os.PathSeparator),
+			"Pipe":	ValueOf(os.Pipe),
+			"ReadDir":	ValueOf(os.ReadDir),
+			"ReadFile":	ValueOf(os.ReadFile),
+			"Readlink":	ValueOf(os.Readlink),
+			"Remove":	ValueOf(os.Remove),
+			"RemoveAll":	ValueOf(os.RemoveAll),
+			"Rename":	ValueOf(os.Rename),
+			"SEEK_CUR":	ValueOf(os.SEEK_CUR),
+			"SEEK_END":	ValueOf(os.SEEK_END),
+			"SEEK_SET":	ValueOf(os.SEEK_SET),
+			"SameFile":	ValueOf(os.SameFile),
+			"Setenv":	ValueOf(os.Setenv),
+			"StartProcess":	ValueOf(os.StartProcess),
+			"Stat":	ValueOf(os.Stat),
+			"Stderr":	ValueOf(&os.Stderr).Elem(),
+			"Stdin":	ValueOf(&os.Stdin).Elem(),
+			"Stdout":	ValueOf(&os.Stdout).Elem(),
+			"Symlink":	ValueOf(os.Symlink),
+			"TempDir":	ValueOf(os.TempDir),
+			"Truncate":	ValueOf(os.Truncate),
+			"Unsetenv":	ValueOf(os.Unsetenv),
+			"UserCacheDir":	ValueOf(os.UserCacheDir),
+			"UserConfigDir":	ValueOf(os.UserConfigDir),
+			"UserHomeDir":	ValueOf(os.UserHomeDir),
+			"WriteFile":	ValueOf(os.WriteFile),
+		}, Types: map[string]Type{
+			"DirEntry":	TypeOf((*os.DirEntry)(nil)).Elem(),
+			"File":	TypeOf((*os.File)(nil)).Elem(),
+			"FileInfo":	TypeOf((*os.FileInfo)(nil)).Elem(),
+			"FileMode":	TypeOf((*os.FileMode)(nil)).Elem(),
+			"LinkError":	TypeOf((*os.LinkError)(nil)).Elem(),
+			"PathError":	TypeOf((*os.PathError)(nil)).Elem(),
+			"ProcAttr":	TypeOf((*os.ProcAttr)(nil)).Elem(),
+			"Process":	TypeOf((*os.Process)(nil)).Elem(),
+			"ProcessState":	TypeOf((*os.ProcessState)(nil)).Elem(),
+			"Signal":	TypeOf((*os.Signal)(nil)).Elem(),
+			"SyscallError":	TypeOf((*os.SyscallError)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"DirEntry":	TypeOf((*P_os_DirEntry)(nil)).Elem(),
+			"FileInfo":	TypeOf((*P_os_FileInfo)(nil)).Elem(),
+			"Signal":	TypeOf((*P_os_Signal)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"DevNull":	"string:/dev/null",
+			"PathListSeparator":	"rune:58",
+			"PathSeparator":	"rune:47",
+		}, 
 	}
+}
+
+// --------------- proxy for os.DirEntry ---------------
+type P_os_DirEntry struct {
+	Object	interface{}
+	Info_	func(interface{}) (fs.FileInfo, error)
+	IsDir_	func(interface{}) bool
+	Name_	func(interface{}) string
+	Type_	func(interface{}) fs.FileMode
+}
+func (P *P_os_DirEntry) Info() (fs.FileInfo, error) {
+	return P.Info_(P.Object)
+}
+func (P *P_os_DirEntry) IsDir() bool {
+	return P.IsDir_(P.Object)
+}
+func (P *P_os_DirEntry) Name() string {
+	return P.Name_(P.Object)
+}
+func (P *P_os_DirEntry) Type() fs.FileMode {
+	return P.Type_(P.Object)
 }
 
 // --------------- proxy for os.FileInfo ---------------
@@ -136,10 +168,10 @@ type P_os_FileInfo struct {
 	Object	interface{}
 	IsDir_	func(interface{}) bool
 	ModTime_	func(interface{}) time.Time
-	Mode_	func(interface{}) os.FileMode
+	Mode_	func(interface{}) fs.FileMode
 	Name_	func(interface{}) string
 	Size_	func(interface{}) int64
-	Sys_	func(interface{}) interface{}
+	Sys_	func(interface{}) any
 }
 func (P *P_os_FileInfo) IsDir() bool {
 	return P.IsDir_(P.Object)
@@ -147,7 +179,7 @@ func (P *P_os_FileInfo) IsDir() bool {
 func (P *P_os_FileInfo) ModTime() time.Time {
 	return P.ModTime_(P.Object)
 }
-func (P *P_os_FileInfo) Mode() os.FileMode {
+func (P *P_os_FileInfo) Mode() fs.FileMode {
 	return P.Mode_(P.Object)
 }
 func (P *P_os_FileInfo) Name() string {
@@ -156,7 +188,7 @@ func (P *P_os_FileInfo) Name() string {
 func (P *P_os_FileInfo) Size() int64 {
 	return P.Size_(P.Object)
 }
-func (P *P_os_FileInfo) Sys() interface{} {
+func (P *P_os_FileInfo) Sys() any {
 	return P.Sys_(P.Object)
 }
 

@@ -11,19 +11,19 @@ import (
 // reflection: allow interpreted code to import "runtime/trace"
 func init() {
 	Packages["runtime/trace"] = Package{
-	Name: "trace",
-	Binds: map[string]Value{
-		"IsEnabled":	ValueOf(trace.IsEnabled),
-		"Log":	ValueOf(trace.Log),
-		"Logf":	ValueOf(trace.Logf),
-		"NewTask":	ValueOf(trace.NewTask),
-		"Start":	ValueOf(trace.Start),
-		"StartRegion":	ValueOf(trace.StartRegion),
-		"Stop":	ValueOf(trace.Stop),
-		"WithRegion":	ValueOf(trace.WithRegion),
-	}, Types: map[string]Type{
-		"Region":	TypeOf((*trace.Region)(nil)).Elem(),
-		"Task":	TypeOf((*trace.Task)(nil)).Elem(),
-	}, 
+		Name: "trace",
+		Binds: map[string]Value{
+			"IsEnabled":	ValueOf(trace.IsEnabled),
+			"Log":	ValueOf(trace.Log),
+			"Logf":	ValueOf(trace.Logf),
+			"NewTask":	ValueOf(trace.NewTask),
+			"Start":	ValueOf(trace.Start),
+			"StartRegion":	ValueOf(trace.StartRegion),
+			"Stop":	ValueOf(trace.Stop),
+			"WithRegion":	ValueOf(trace.WithRegion),
+		}, Types: map[string]Type{
+			"Region":	TypeOf((*trace.Region)(nil)).Elem(),
+			"Task":	TypeOf((*trace.Task)(nil)).Elem(),
+		}, 
 	}
 }

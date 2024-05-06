@@ -11,18 +11,18 @@ import (
 // reflection: allow interpreted code to import "net/mail"
 func init() {
 	Packages["net/mail"] = Package{
-	Name: "mail",
-	Binds: map[string]Value{
-		"ErrHeaderNotPresent":	ValueOf(&mail.ErrHeaderNotPresent).Elem(),
-		"ParseAddress":	ValueOf(mail.ParseAddress),
-		"ParseAddressList":	ValueOf(mail.ParseAddressList),
-		"ParseDate":	ValueOf(mail.ParseDate),
-		"ReadMessage":	ValueOf(mail.ReadMessage),
-	}, Types: map[string]Type{
-		"Address":	TypeOf((*mail.Address)(nil)).Elem(),
-		"AddressParser":	TypeOf((*mail.AddressParser)(nil)).Elem(),
-		"Header":	TypeOf((*mail.Header)(nil)).Elem(),
-		"Message":	TypeOf((*mail.Message)(nil)).Elem(),
-	}, 
+		Name: "mail",
+		Binds: map[string]Value{
+			"ErrHeaderNotPresent":	ValueOf(&mail.ErrHeaderNotPresent).Elem(),
+			"ParseAddress":	ValueOf(mail.ParseAddress),
+			"ParseAddressList":	ValueOf(mail.ParseAddressList),
+			"ParseDate":	ValueOf(mail.ParseDate),
+			"ReadMessage":	ValueOf(mail.ReadMessage),
+		}, Types: map[string]Type{
+			"Address":	TypeOf((*mail.Address)(nil)).Elem(),
+			"AddressParser":	TypeOf((*mail.AddressParser)(nil)).Elem(),
+			"Header":	TypeOf((*mail.Header)(nil)).Elem(),
+			"Message":	TypeOf((*mail.Message)(nil)).Elem(),
+		}, 
 	}
 }

@@ -11,25 +11,25 @@ import (
 // reflection: allow interpreted code to import "image/png"
 func init() {
 	Packages["image/png"] = Package{
-	Name: "png",
-	Binds: map[string]Value{
-		"BestCompression":	ValueOf(png.BestCompression),
-		"BestSpeed":	ValueOf(png.BestSpeed),
-		"Decode":	ValueOf(png.Decode),
-		"DecodeConfig":	ValueOf(png.DecodeConfig),
-		"DefaultCompression":	ValueOf(png.DefaultCompression),
-		"Encode":	ValueOf(png.Encode),
-		"NoCompression":	ValueOf(png.NoCompression),
-	}, Types: map[string]Type{
-		"CompressionLevel":	TypeOf((*png.CompressionLevel)(nil)).Elem(),
-		"Encoder":	TypeOf((*png.Encoder)(nil)).Elem(),
-		"EncoderBuffer":	TypeOf((*png.EncoderBuffer)(nil)).Elem(),
-		"EncoderBufferPool":	TypeOf((*png.EncoderBufferPool)(nil)).Elem(),
-		"FormatError":	TypeOf((*png.FormatError)(nil)).Elem(),
-		"UnsupportedError":	TypeOf((*png.UnsupportedError)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"EncoderBufferPool":	TypeOf((*P_image_png_EncoderBufferPool)(nil)).Elem(),
-	}, 
+		Name: "png",
+		Binds: map[string]Value{
+			"BestCompression":	ValueOf(png.BestCompression),
+			"BestSpeed":	ValueOf(png.BestSpeed),
+			"Decode":	ValueOf(png.Decode),
+			"DecodeConfig":	ValueOf(png.DecodeConfig),
+			"DefaultCompression":	ValueOf(png.DefaultCompression),
+			"Encode":	ValueOf(png.Encode),
+			"NoCompression":	ValueOf(png.NoCompression),
+		}, Types: map[string]Type{
+			"CompressionLevel":	TypeOf((*png.CompressionLevel)(nil)).Elem(),
+			"Encoder":	TypeOf((*png.Encoder)(nil)).Elem(),
+			"EncoderBuffer":	TypeOf((*png.EncoderBuffer)(nil)).Elem(),
+			"EncoderBufferPool":	TypeOf((*png.EncoderBufferPool)(nil)).Elem(),
+			"FormatError":	TypeOf((*png.FormatError)(nil)).Elem(),
+			"UnsupportedError":	TypeOf((*png.UnsupportedError)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"EncoderBufferPool":	TypeOf((*P_image_png_EncoderBufferPool)(nil)).Elem(),
+		}, 
 	}
 }
 

@@ -12,35 +12,35 @@ import (
 // reflection: allow interpreted code to import "compress/flate"
 func init() {
 	Packages["compress/flate"] = Package{
-	Name: "flate",
-	Binds: map[string]Value{
-		"BestCompression":	ValueOf(flate.BestCompression),
-		"BestSpeed":	ValueOf(flate.BestSpeed),
-		"DefaultCompression":	ValueOf(flate.DefaultCompression),
-		"HuffmanOnly":	ValueOf(flate.HuffmanOnly),
-		"NewReader":	ValueOf(flate.NewReader),
-		"NewReaderDict":	ValueOf(flate.NewReaderDict),
-		"NewWriter":	ValueOf(flate.NewWriter),
-		"NewWriterDict":	ValueOf(flate.NewWriterDict),
-		"NoCompression":	ValueOf(flate.NoCompression),
-	}, Types: map[string]Type{
-		"CorruptInputError":	TypeOf((*flate.CorruptInputError)(nil)).Elem(),
-		"InternalError":	TypeOf((*flate.InternalError)(nil)).Elem(),
-		"ReadError":	TypeOf((*flate.ReadError)(nil)).Elem(),
-		"Reader":	TypeOf((*flate.Reader)(nil)).Elem(),
-		"Resetter":	TypeOf((*flate.Resetter)(nil)).Elem(),
-		"WriteError":	TypeOf((*flate.WriteError)(nil)).Elem(),
-		"Writer":	TypeOf((*flate.Writer)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Reader":	TypeOf((*P_compress_flate_Reader)(nil)).Elem(),
-		"Resetter":	TypeOf((*P_compress_flate_Resetter)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"BestCompression":	"int:9",
-		"BestSpeed":	"int:1",
-		"DefaultCompression":	"int:-1",
-		"HuffmanOnly":	"int:-2",
-		"NoCompression":	"int:0",
-	}, 
+		Name: "flate",
+		Binds: map[string]Value{
+			"BestCompression":	ValueOf(flate.BestCompression),
+			"BestSpeed":	ValueOf(flate.BestSpeed),
+			"DefaultCompression":	ValueOf(flate.DefaultCompression),
+			"HuffmanOnly":	ValueOf(flate.HuffmanOnly),
+			"NewReader":	ValueOf(flate.NewReader),
+			"NewReaderDict":	ValueOf(flate.NewReaderDict),
+			"NewWriter":	ValueOf(flate.NewWriter),
+			"NewWriterDict":	ValueOf(flate.NewWriterDict),
+			"NoCompression":	ValueOf(flate.NoCompression),
+		}, Types: map[string]Type{
+			"CorruptInputError":	TypeOf((*flate.CorruptInputError)(nil)).Elem(),
+			"InternalError":	TypeOf((*flate.InternalError)(nil)).Elem(),
+			"ReadError":	TypeOf((*flate.ReadError)(nil)).Elem(),
+			"Reader":	TypeOf((*flate.Reader)(nil)).Elem(),
+			"Resetter":	TypeOf((*flate.Resetter)(nil)).Elem(),
+			"WriteError":	TypeOf((*flate.WriteError)(nil)).Elem(),
+			"Writer":	TypeOf((*flate.Writer)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Reader":	TypeOf((*P_compress_flate_Reader)(nil)).Elem(),
+			"Resetter":	TypeOf((*P_compress_flate_Resetter)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"BestCompression":	"int:9",
+			"BestSpeed":	"int:1",
+			"DefaultCompression":	"int:-1",
+			"HuffmanOnly":	"int:-2",
+			"NoCompression":	"int:0",
+		}, 
 	}
 }
 

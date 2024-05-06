@@ -11,21 +11,22 @@ import (
 // reflection: allow interpreted code to import "go/parser"
 func init() {
 	Packages["go/parser"] = Package{
-	Name: "parser",
-	Binds: map[string]Value{
-		"AllErrors":	ValueOf(parser.AllErrors),
-		"DeclarationErrors":	ValueOf(parser.DeclarationErrors),
-		"ImportsOnly":	ValueOf(parser.ImportsOnly),
-		"PackageClauseOnly":	ValueOf(parser.PackageClauseOnly),
-		"ParseComments":	ValueOf(parser.ParseComments),
-		"ParseDir":	ValueOf(parser.ParseDir),
-		"ParseExpr":	ValueOf(parser.ParseExpr),
-		"ParseExprFrom":	ValueOf(parser.ParseExprFrom),
-		"ParseFile":	ValueOf(parser.ParseFile),
-		"SpuriousErrors":	ValueOf(parser.SpuriousErrors),
-		"Trace":	ValueOf(parser.Trace),
-	}, Types: map[string]Type{
-		"Mode":	TypeOf((*parser.Mode)(nil)).Elem(),
-	}, 
+		Name: "parser",
+		Binds: map[string]Value{
+			"AllErrors":	ValueOf(parser.AllErrors),
+			"DeclarationErrors":	ValueOf(parser.DeclarationErrors),
+			"ImportsOnly":	ValueOf(parser.ImportsOnly),
+			"PackageClauseOnly":	ValueOf(parser.PackageClauseOnly),
+			"ParseComments":	ValueOf(parser.ParseComments),
+			"ParseDir":	ValueOf(parser.ParseDir),
+			"ParseExpr":	ValueOf(parser.ParseExpr),
+			"ParseExprFrom":	ValueOf(parser.ParseExprFrom),
+			"ParseFile":	ValueOf(parser.ParseFile),
+			"SkipObjectResolution":	ValueOf(parser.SkipObjectResolution),
+			"SpuriousErrors":	ValueOf(parser.SpuriousErrors),
+			"Trace":	ValueOf(parser.Trace),
+		}, Types: map[string]Type{
+			"Mode":	TypeOf((*parser.Mode)(nil)).Elem(),
+		}, 
 	}
 }

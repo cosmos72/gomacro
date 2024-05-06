@@ -11,30 +11,30 @@ import (
 // reflection: allow interpreted code to import "crypto/cipher"
 func init() {
 	Packages["crypto/cipher"] = Package{
-	Name: "cipher",
-	Binds: map[string]Value{
-		"NewCBCDecrypter":	ValueOf(cipher.NewCBCDecrypter),
-		"NewCBCEncrypter":	ValueOf(cipher.NewCBCEncrypter),
-		"NewCFBDecrypter":	ValueOf(cipher.NewCFBDecrypter),
-		"NewCFBEncrypter":	ValueOf(cipher.NewCFBEncrypter),
-		"NewCTR":	ValueOf(cipher.NewCTR),
-		"NewGCM":	ValueOf(cipher.NewGCM),
-		"NewGCMWithNonceSize":	ValueOf(cipher.NewGCMWithNonceSize),
-		"NewGCMWithTagSize":	ValueOf(cipher.NewGCMWithTagSize),
-		"NewOFB":	ValueOf(cipher.NewOFB),
-	}, Types: map[string]Type{
-		"AEAD":	TypeOf((*cipher.AEAD)(nil)).Elem(),
-		"Block":	TypeOf((*cipher.Block)(nil)).Elem(),
-		"BlockMode":	TypeOf((*cipher.BlockMode)(nil)).Elem(),
-		"Stream":	TypeOf((*cipher.Stream)(nil)).Elem(),
-		"StreamReader":	TypeOf((*cipher.StreamReader)(nil)).Elem(),
-		"StreamWriter":	TypeOf((*cipher.StreamWriter)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"AEAD":	TypeOf((*P_crypto_cipher_AEAD)(nil)).Elem(),
-		"Block":	TypeOf((*P_crypto_cipher_Block)(nil)).Elem(),
-		"BlockMode":	TypeOf((*P_crypto_cipher_BlockMode)(nil)).Elem(),
-		"Stream":	TypeOf((*P_crypto_cipher_Stream)(nil)).Elem(),
-	}, 
+		Name: "cipher",
+		Binds: map[string]Value{
+			"NewCBCDecrypter":	ValueOf(cipher.NewCBCDecrypter),
+			"NewCBCEncrypter":	ValueOf(cipher.NewCBCEncrypter),
+			"NewCFBDecrypter":	ValueOf(cipher.NewCFBDecrypter),
+			"NewCFBEncrypter":	ValueOf(cipher.NewCFBEncrypter),
+			"NewCTR":	ValueOf(cipher.NewCTR),
+			"NewGCM":	ValueOf(cipher.NewGCM),
+			"NewGCMWithNonceSize":	ValueOf(cipher.NewGCMWithNonceSize),
+			"NewGCMWithTagSize":	ValueOf(cipher.NewGCMWithTagSize),
+			"NewOFB":	ValueOf(cipher.NewOFB),
+		}, Types: map[string]Type{
+			"AEAD":	TypeOf((*cipher.AEAD)(nil)).Elem(),
+			"Block":	TypeOf((*cipher.Block)(nil)).Elem(),
+			"BlockMode":	TypeOf((*cipher.BlockMode)(nil)).Elem(),
+			"Stream":	TypeOf((*cipher.Stream)(nil)).Elem(),
+			"StreamReader":	TypeOf((*cipher.StreamReader)(nil)).Elem(),
+			"StreamWriter":	TypeOf((*cipher.StreamWriter)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"AEAD":	TypeOf((*P_crypto_cipher_AEAD)(nil)).Elem(),
+			"Block":	TypeOf((*P_crypto_cipher_Block)(nil)).Elem(),
+			"BlockMode":	TypeOf((*P_crypto_cipher_BlockMode)(nil)).Elem(),
+			"Stream":	TypeOf((*P_crypto_cipher_Stream)(nil)).Elem(),
+		}, 
 	}
 }
 

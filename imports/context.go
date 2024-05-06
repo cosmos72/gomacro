@@ -12,22 +12,22 @@ import (
 // reflection: allow interpreted code to import "context"
 func init() {
 	Packages["context"] = Package{
-	Name: "context",
-	Binds: map[string]Value{
-		"Background":	ValueOf(context.Background),
-		"Canceled":	ValueOf(&context.Canceled).Elem(),
-		"DeadlineExceeded":	ValueOf(&context.DeadlineExceeded).Elem(),
-		"TODO":	ValueOf(context.TODO),
-		"WithCancel":	ValueOf(context.WithCancel),
-		"WithDeadline":	ValueOf(context.WithDeadline),
-		"WithTimeout":	ValueOf(context.WithTimeout),
-		"WithValue":	ValueOf(context.WithValue),
-	}, Types: map[string]Type{
-		"CancelFunc":	TypeOf((*context.CancelFunc)(nil)).Elem(),
-		"Context":	TypeOf((*context.Context)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Context":	TypeOf((*P_context_Context)(nil)).Elem(),
-	}, 
+		Name: "context",
+		Binds: map[string]Value{
+			"Background":	ValueOf(context.Background),
+			"Canceled":	ValueOf(&context.Canceled).Elem(),
+			"DeadlineExceeded":	ValueOf(&context.DeadlineExceeded).Elem(),
+			"TODO":	ValueOf(context.TODO),
+			"WithCancel":	ValueOf(context.WithCancel),
+			"WithDeadline":	ValueOf(context.WithDeadline),
+			"WithTimeout":	ValueOf(context.WithTimeout),
+			"WithValue":	ValueOf(context.WithValue),
+		}, Types: map[string]Type{
+			"CancelFunc":	TypeOf((*context.CancelFunc)(nil)).Elem(),
+			"Context":	TypeOf((*context.Context)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Context":	TypeOf((*P_context_Context)(nil)).Elem(),
+		}, 
 	}
 }
 
@@ -37,7 +37,7 @@ type P_context_Context struct {
 	Deadline_	func(interface{}) (deadline time.Time, ok bool)
 	Done_	func(interface{}) <-chan struct{}
 	Err_	func(interface{}) error
-	Value_	func(_proxy_obj_ interface{}, key interface{}) interface{}
+	Value_	func(_proxy_obj_ interface{}, key any) any
 }
 func (P *P_context_Context) Deadline() (deadline time.Time, ok bool) {
 	return P.Deadline_(P.Object)
@@ -48,6 +48,6 @@ func (P *P_context_Context) Done() <-chan struct{} {
 func (P *P_context_Context) Err() error {
 	return P.Err_(P.Object)
 }
-func (P *P_context_Context) Value(key interface{}) interface{} {
+func (P *P_context_Context) Value(key any) any {
 	return P.Value_(P.Object, key)
 }

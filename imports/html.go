@@ -11,10 +11,10 @@ import (
 // reflection: allow interpreted code to import "html"
 func init() {
 	Packages["html"] = Package{
-	Name: "html",
-	Binds: map[string]Value{
-		"EscapeString":	ValueOf(html.EscapeString),
-		"UnescapeString":	ValueOf(html.UnescapeString),
-	}, 
+		Name: "html",
+		Binds: map[string]Value{
+			"EscapeString":	ValueOf(html.EscapeString),
+			"UnescapeString":	ValueOf(html.UnescapeString),
+		}, 
 	}
 }

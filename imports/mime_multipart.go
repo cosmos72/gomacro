@@ -11,21 +11,21 @@ import (
 // reflection: allow interpreted code to import "mime/multipart"
 func init() {
 	Packages["mime/multipart"] = Package{
-	Name: "multipart",
-	Binds: map[string]Value{
-		"ErrMessageTooLarge":	ValueOf(&multipart.ErrMessageTooLarge).Elem(),
-		"NewReader":	ValueOf(multipart.NewReader),
-		"NewWriter":	ValueOf(multipart.NewWriter),
-	}, Types: map[string]Type{
-		"File":	TypeOf((*multipart.File)(nil)).Elem(),
-		"FileHeader":	TypeOf((*multipart.FileHeader)(nil)).Elem(),
-		"Form":	TypeOf((*multipart.Form)(nil)).Elem(),
-		"Part":	TypeOf((*multipart.Part)(nil)).Elem(),
-		"Reader":	TypeOf((*multipart.Reader)(nil)).Elem(),
-		"Writer":	TypeOf((*multipart.Writer)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"File":	TypeOf((*P_mime_multipart_File)(nil)).Elem(),
-	}, 
+		Name: "multipart",
+		Binds: map[string]Value{
+			"ErrMessageTooLarge":	ValueOf(&multipart.ErrMessageTooLarge).Elem(),
+			"NewReader":	ValueOf(multipart.NewReader),
+			"NewWriter":	ValueOf(multipart.NewWriter),
+		}, Types: map[string]Type{
+			"File":	TypeOf((*multipart.File)(nil)).Elem(),
+			"FileHeader":	TypeOf((*multipart.FileHeader)(nil)).Elem(),
+			"Form":	TypeOf((*multipart.Form)(nil)).Elem(),
+			"Part":	TypeOf((*multipart.Part)(nil)).Elem(),
+			"Reader":	TypeOf((*multipart.Reader)(nil)).Elem(),
+			"Writer":	TypeOf((*multipart.Writer)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"File":	TypeOf((*P_mime_multipart_File)(nil)).Elem(),
+		}, 
 	}
 }
 

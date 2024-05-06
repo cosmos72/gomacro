@@ -11,21 +11,21 @@ import (
 // reflection: allow interpreted code to import "encoding/hex"
 func init() {
 	Packages["encoding/hex"] = Package{
-	Name: "hex",
-	Binds: map[string]Value{
-		"Decode":	ValueOf(hex.Decode),
-		"DecodeString":	ValueOf(hex.DecodeString),
-		"DecodedLen":	ValueOf(hex.DecodedLen),
-		"Dump":	ValueOf(hex.Dump),
-		"Dumper":	ValueOf(hex.Dumper),
-		"Encode":	ValueOf(hex.Encode),
-		"EncodeToString":	ValueOf(hex.EncodeToString),
-		"EncodedLen":	ValueOf(hex.EncodedLen),
-		"ErrLength":	ValueOf(&hex.ErrLength).Elem(),
-		"NewDecoder":	ValueOf(hex.NewDecoder),
-		"NewEncoder":	ValueOf(hex.NewEncoder),
-	}, Types: map[string]Type{
-		"InvalidByteError":	TypeOf((*hex.InvalidByteError)(nil)).Elem(),
-	}, 
+		Name: "hex",
+		Binds: map[string]Value{
+			"Decode":	ValueOf(hex.Decode),
+			"DecodeString":	ValueOf(hex.DecodeString),
+			"DecodedLen":	ValueOf(hex.DecodedLen),
+			"Dump":	ValueOf(hex.Dump),
+			"Dumper":	ValueOf(hex.Dumper),
+			"Encode":	ValueOf(hex.Encode),
+			"EncodeToString":	ValueOf(hex.EncodeToString),
+			"EncodedLen":	ValueOf(hex.EncodedLen),
+			"ErrLength":	ValueOf(&hex.ErrLength).Elem(),
+			"NewDecoder":	ValueOf(hex.NewDecoder),
+			"NewEncoder":	ValueOf(hex.NewEncoder),
+		}, Types: map[string]Type{
+			"InvalidByteError":	TypeOf((*hex.InvalidByteError)(nil)).Elem(),
+		}, 
 	}
 }

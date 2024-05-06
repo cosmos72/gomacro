@@ -11,26 +11,27 @@ import (
 // reflection: allow interpreted code to import "text/template"
 func init() {
 	Packages["text/template"] = Package{
-	Name: "template",
-	Binds: map[string]Value{
-		"HTMLEscape":	ValueOf(template.HTMLEscape),
-		"HTMLEscapeString":	ValueOf(template.HTMLEscapeString),
-		"HTMLEscaper":	ValueOf(template.HTMLEscaper),
-		"IsTrue":	ValueOf(template.IsTrue),
-		"JSEscape":	ValueOf(template.JSEscape),
-		"JSEscapeString":	ValueOf(template.JSEscapeString),
-		"JSEscaper":	ValueOf(template.JSEscaper),
-		"Must":	ValueOf(template.Must),
-		"New":	ValueOf(template.New),
-		"ParseFiles":	ValueOf(template.ParseFiles),
-		"ParseGlob":	ValueOf(template.ParseGlob),
-		"URLQueryEscaper":	ValueOf(template.URLQueryEscaper),
-	}, Types: map[string]Type{
-		"ExecError":	TypeOf((*template.ExecError)(nil)).Elem(),
-		"FuncMap":	TypeOf((*template.FuncMap)(nil)).Elem(),
-		"Template":	TypeOf((*template.Template)(nil)).Elem(),
-	}, Wrappers: map[string][]string{
-		"Template":	[]string{"Copy","ErrorContext",},
-	}, 
+		Name: "template",
+		Binds: map[string]Value{
+			"HTMLEscape":	ValueOf(template.HTMLEscape),
+			"HTMLEscapeString":	ValueOf(template.HTMLEscapeString),
+			"HTMLEscaper":	ValueOf(template.HTMLEscaper),
+			"IsTrue":	ValueOf(template.IsTrue),
+			"JSEscape":	ValueOf(template.JSEscape),
+			"JSEscapeString":	ValueOf(template.JSEscapeString),
+			"JSEscaper":	ValueOf(template.JSEscaper),
+			"Must":	ValueOf(template.Must),
+			"New":	ValueOf(template.New),
+			"ParseFS":	ValueOf(template.ParseFS),
+			"ParseFiles":	ValueOf(template.ParseFiles),
+			"ParseGlob":	ValueOf(template.ParseGlob),
+			"URLQueryEscaper":	ValueOf(template.URLQueryEscaper),
+		}, Types: map[string]Type{
+			"ExecError":	TypeOf((*template.ExecError)(nil)).Elem(),
+			"FuncMap":	TypeOf((*template.FuncMap)(nil)).Elem(),
+			"Template":	TypeOf((*template.Template)(nil)).Elem(),
+		}, Wrappers: map[string][]string{
+			"Template":	[]string{"Copy","ErrorContext",},
+		}, 
 	}
 }

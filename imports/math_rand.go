@@ -11,36 +11,36 @@ import (
 // reflection: allow interpreted code to import "math/rand"
 func init() {
 	Packages["math/rand"] = Package{
-	Name: "rand",
-	Binds: map[string]Value{
-		"ExpFloat64":	ValueOf(rand.ExpFloat64),
-		"Float32":	ValueOf(rand.Float32),
-		"Float64":	ValueOf(rand.Float64),
-		"Int":	ValueOf(rand.Int),
-		"Int31":	ValueOf(rand.Int31),
-		"Int31n":	ValueOf(rand.Int31n),
-		"Int63":	ValueOf(rand.Int63),
-		"Int63n":	ValueOf(rand.Int63n),
-		"Intn":	ValueOf(rand.Intn),
-		"New":	ValueOf(rand.New),
-		"NewSource":	ValueOf(rand.NewSource),
-		"NewZipf":	ValueOf(rand.NewZipf),
-		"NormFloat64":	ValueOf(rand.NormFloat64),
-		"Perm":	ValueOf(rand.Perm),
-		"Read":	ValueOf(rand.Read),
-		"Seed":	ValueOf(rand.Seed),
-		"Shuffle":	ValueOf(rand.Shuffle),
-		"Uint32":	ValueOf(rand.Uint32),
-		"Uint64":	ValueOf(rand.Uint64),
-	}, Types: map[string]Type{
-		"Rand":	TypeOf((*rand.Rand)(nil)).Elem(),
-		"Source":	TypeOf((*rand.Source)(nil)).Elem(),
-		"Source64":	TypeOf((*rand.Source64)(nil)).Elem(),
-		"Zipf":	TypeOf((*rand.Zipf)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Source":	TypeOf((*P_math_rand_Source)(nil)).Elem(),
-		"Source64":	TypeOf((*P_math_rand_Source64)(nil)).Elem(),
-	}, 
+		Name: "rand",
+		Binds: map[string]Value{
+			"ExpFloat64":	ValueOf(rand.ExpFloat64),
+			"Float32":	ValueOf(rand.Float32),
+			"Float64":	ValueOf(rand.Float64),
+			"Int":	ValueOf(rand.Int),
+			"Int31":	ValueOf(rand.Int31),
+			"Int31n":	ValueOf(rand.Int31n),
+			"Int63":	ValueOf(rand.Int63),
+			"Int63n":	ValueOf(rand.Int63n),
+			"Intn":	ValueOf(rand.Intn),
+			"New":	ValueOf(rand.New),
+			"NewSource":	ValueOf(rand.NewSource),
+			"NewZipf":	ValueOf(rand.NewZipf),
+			"NormFloat64":	ValueOf(rand.NormFloat64),
+			"Perm":	ValueOf(rand.Perm),
+			"Read":	ValueOf(rand.Read),
+			"Seed":	ValueOf(rand.Seed),
+			"Shuffle":	ValueOf(rand.Shuffle),
+			"Uint32":	ValueOf(rand.Uint32),
+			"Uint64":	ValueOf(rand.Uint64),
+		}, Types: map[string]Type{
+			"Rand":	TypeOf((*rand.Rand)(nil)).Elem(),
+			"Source":	TypeOf((*rand.Source)(nil)).Elem(),
+			"Source64":	TypeOf((*rand.Source64)(nil)).Elem(),
+			"Zipf":	TypeOf((*rand.Zipf)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Source":	TypeOf((*P_math_rand_Source)(nil)).Elem(),
+			"Source64":	TypeOf((*P_math_rand_Source64)(nil)).Elem(),
+		}, 
 	}
 }
 

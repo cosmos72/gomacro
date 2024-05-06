@@ -11,15 +11,15 @@ import (
 // reflection: allow interpreted code to import "crypto/md5"
 func init() {
 	Packages["crypto/md5"] = Package{
-	Name: "md5",
-	Binds: map[string]Value{
-		"BlockSize":	ValueOf(md5.BlockSize),
-		"New":	ValueOf(md5.New),
-		"Size":	ValueOf(md5.Size),
-		"Sum":	ValueOf(md5.Sum),
-	}, Untypeds: map[string]string{
-		"BlockSize":	"int:64",
-		"Size":	"int:16",
-	}, 
+		Name: "md5",
+		Binds: map[string]Value{
+			"BlockSize":	ValueOf(md5.BlockSize),
+			"New":	ValueOf(md5.New),
+			"Size":	ValueOf(md5.Size),
+			"Sum":	ValueOf(md5.Sum),
+		}, Untypeds: map[string]string{
+			"BlockSize":	"int:64",
+			"Size":	"int:16",
+		}, 
 	}
 }

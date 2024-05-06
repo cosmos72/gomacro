@@ -11,16 +11,18 @@ import (
 // reflection: allow interpreted code to import "testing/iotest"
 func init() {
 	Packages["testing/iotest"] = Package{
-	Name: "iotest",
-	Binds: map[string]Value{
-		"DataErrReader":	ValueOf(iotest.DataErrReader),
-		"ErrTimeout":	ValueOf(&iotest.ErrTimeout).Elem(),
-		"HalfReader":	ValueOf(iotest.HalfReader),
-		"NewReadLogger":	ValueOf(iotest.NewReadLogger),
-		"NewWriteLogger":	ValueOf(iotest.NewWriteLogger),
-		"OneByteReader":	ValueOf(iotest.OneByteReader),
-		"TimeoutReader":	ValueOf(iotest.TimeoutReader),
-		"TruncateWriter":	ValueOf(iotest.TruncateWriter),
-	}, 
+		Name: "iotest",
+		Binds: map[string]Value{
+			"DataErrReader":	ValueOf(iotest.DataErrReader),
+			"ErrReader":	ValueOf(iotest.ErrReader),
+			"ErrTimeout":	ValueOf(&iotest.ErrTimeout).Elem(),
+			"HalfReader":	ValueOf(iotest.HalfReader),
+			"NewReadLogger":	ValueOf(iotest.NewReadLogger),
+			"NewWriteLogger":	ValueOf(iotest.NewWriteLogger),
+			"OneByteReader":	ValueOf(iotest.OneByteReader),
+			"TestReader":	ValueOf(iotest.TestReader),
+			"TimeoutReader":	ValueOf(iotest.TimeoutReader),
+			"TruncateWriter":	ValueOf(iotest.TruncateWriter),
+		}, 
 	}
 }
