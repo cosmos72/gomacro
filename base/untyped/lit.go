@@ -128,7 +128,7 @@ again:
 
 			i, exact := constant.Int64Val(val)
 			if exact {
-				ret = string(i)
+				ret = string(rune(i))
 			} else {
 				ret = "\uFFFD"
 			}
