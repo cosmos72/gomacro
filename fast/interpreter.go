@@ -144,6 +144,10 @@ func (ir *Interp) SetDebugger(debugger Debugger) {
 	ir.env.Run.Debugger = debugger
 }
 
+func (ir *Interp) SetBuildArgs(args []string) {
+	ir.Comp.Importer.BuildArgs = args
+}
+
 func (ir *Interp) Interrupt(os.Signal) {
 	ir.env.Run.interrupt()
 }

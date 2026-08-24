@@ -38,6 +38,7 @@ type Importer struct {
 	mode       types.ImportMode
 	PluginOpen r.Value // = reflect.ValueOf(plugin.Open)
 	output     *Output
+	BuildArgs  []string
 }
 
 func DefaultImporter(o *Output) *Importer {
@@ -151,7 +152,7 @@ func (imp *Importer) doImportPackagesOrError(pathMap map[string]PackageName, ena
 		}
 		return refs, nil
 	}
-	soname := compilePlugin(o, dir, enableModule, o.Stdout, o.Stderr)
+	soname := compilePlugin(imp.BuildArgs, o, dir, enableModule, o.Stdout, o.Stderr)
 	ipkgs := imp.loadPluginSymbol(soname, "Packages")
 	pkgs := *ipkgs.(*map[string]imports.PackageUnderlying)
 

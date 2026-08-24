@@ -40,7 +40,7 @@ func chooseGoCmd() string {
 	return gocmd
 }
 
-func compilePlugin(o *Output, dir string, enableModule bool, stdout io.Writer, stderr io.Writer) string {
+func compilePlugin(buildArgs []string, o *Output, dir string, enableModule bool, stdout io.Writer, stderr io.Writer) string {
 	gosrcdir := paths.GoSrcDir
 	gosrclen := len(gosrcdir)
 	dirlen := len(dir)
@@ -49,7 +49,10 @@ func compilePlugin(o *Output, dir string, enableModule bool, stdout io.Writer, s
 	}
 	gocmd := chooseGoCmd()
 
-	cmd := exec.Command(gocmd, "build", "-buildmode=plugin")
+	args := make([]string, 0)
+	args = append(args, "build", "-buildmode=plugin")
+	args = append(args, buildArgs...)
+	cmd := exec.Command(gocmd, args...)
 	cmd.Dir = dir
 	cmd.Env = environForCompiler(enableModule)
 	cmd.Stdin = nil
