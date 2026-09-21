@@ -167,5 +167,8 @@ func (gen *genimport) packageNameQualifier(pkg *types.Package) string {
 	if !ok {
 		name = paths.FileName(path)
 	}
+	if name == gen.name {
+		return ""
+	}
 	return name
 }
