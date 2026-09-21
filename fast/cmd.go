@@ -177,9 +177,7 @@ func binarySearch(vec []Cmd, exact string) (int, bool) {
 func (cmds Cmds) List() []Cmd {
 	var list []Cmd
 	for _, vec := range cmds.m {
-		for _, cmd := range vec {
-			list = append(list, cmd)
-		}
+		list = append(list, vec...)
 	}
 	sortCmdList(list)
 	return list
